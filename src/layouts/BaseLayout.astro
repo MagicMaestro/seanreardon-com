@@ -24,7 +24,10 @@ const fullTitle = title === 'Sean Reardon' ? title : `${title} — Sean Reardon`
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="canonical" href={Astro.url.href} />
     <link rel="alternate" type="application/rss+xml" title="Sean Reardon — writing" href="/rss.xml" />
-    {/* GA4 + tracking scripts intentionally absent here — they get added AFTER the consent banner is wired and consent is granted. See the GDPR + CPRA-lite standing rule in CLAUDE.md. */}
+    {/* Tracking via Cloudflare Web Analytics — cookieless, no consent required.
+        Best in zone-analytics mode (server-side, no client JS) once the domain is proxied
+        through CF. Until then, the standalone JS beacon goes here. See the GDPR + CPRA-lite
+        standing rule in CLAUDE.md for what other tracking would (re)introduce a banner. */}
   </head>
   <body>
     <Header />

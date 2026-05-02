@@ -1,26 +1,33 @@
 ---
 /*
-  STUB — not functional yet.
+  STUB — currently not needed, kept for future use.
 
-  When the privacy-compliance work lands (see the GDPR + CPRA-lite standing rule
-  in CLAUDE.md and memory/feedback-privacy-compliance.md):
+  Status as of 2026-05-02: the site uses Cloudflare Web Analytics (cookieless,
+  no PI, no consent required) and reCAPTCHA v3 on the contact form. No tracking
+  feature in v1 collects data that triggers GDPR consent obligations, so the
+  banner doesn't render.
 
-  - Consent state stored in a first-party cookie, default-denied.
-  - Granular categories: analytics, marketing, AI features.
-  - Banner shows on first visit until a decision is made; revocable from any
-    page via the footer link `/privacy/#do-not-sell`.
-  - Exposes a JS API for tracking scripts to check before firing:
-      window.consent.has('analytics')  // → boolean
-  - On grant/deny, triggers GA4 Consent Mode v2 update with US-region CCPA
-    signals.
+  WIRE THIS WHEN any of the following happens:
+
+  - A feature is added that collects PI without explicit user-action trigger
+    (ad pixels, cross-site analytics with persistent identifiers, etc.)
+  - An AI feature ships that retains visitor input or sends it to a provider
+    with non-default data handling terms
+  - reCAPTCHA's data flows are determined to require consent in your interpretation
+
+  When wired, this component should:
+  - Store consent state in a first-party cookie, default-denied
+  - Provide granular category toggles (AI features, marketing, etc.)
+  - Be revocable from any page via the footer link /privacy/#do-not-sell
+  - Expose a JS API for scripts to check before firing:
+      window.consent.has('ai-features')  // → boolean
 
   Implementation candidates (FOSS):
   - https://cookieconsent.orestbida.com/  — lightweight, framework-agnostic
   - Custom React island — full control, ~150 lines, no dependency
 
-  Until this is wired, NO tracking scripts (GA4, reCAPTCHA, etc.) should be
-  added to BaseLayout's <head>. The consent banner is load-bearing infra; the
-  layout intentionally has no tracking until it's in place.
+  See the GDPR + CPRA-lite standing rule in CLAUDE.md and
+  memory/feedback-privacy-compliance.md for the full context.
 */
 ---
-{/* Placeholder — banner UI not rendered until wired. */}
+{/* Placeholder — banner UI not rendered. Becomes load-bearing infra when consent-requiring tracking is added. */}
