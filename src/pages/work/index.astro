@@ -1,0 +1,60 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const work = (await getCollection('work', ({ data }) => data.active !== false))
+  .sort((a, b) => b.data.completed.valueOf() - a.data.completed.valueOf());
+---
+<BaseLayout
+  title="Work"
+  description="Shipped projects by Sean Reardon — a track record of production web work, with brief retrospective writeups focused on technical decisions and outcomes."
+>
+  <h1>Work</h1>
+  <p>
+    A track record of shipped web projects, with brief retrospective writeups
+    focused on technical decisions and outcomes.
+  </p>
+
+  {work.length === 0 ? (
+    <p>
+      <em>(Work entries will be migrated from the legacy MariaDB
+      <code>projects</code> table — 10 rows, oldest 2015, newest 2020. See
+      <code>inventory/seanreardon-com-2026-05-02.md</code> in the planning
+      project for the migration plan.)</em>
+    </p>
+  ) : (
+    <ul class="work-list">
+      {work.map((project) => (
+        <li>
+          <a href={`/work/${project.slug}/`}>
+            <h3>{project.data.title}</h3>
+            <p>{project.data.sh_desc}</p>
+            <small>{project.data.completed.getFullYear()}</small>
+          </a>
+        </li>
+      ))}
+    </ul>
+  )}
+</BaseLayout>
+
+<style>
+  .work-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-md);
+  }
+  .work-list li a {
+    display: block;
+    padding: var(--space-md);
+    border: 1px solid var(--color-muted);
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color var(--transition-fast);
+  }
+  .work-list li a:hover { border-color: var(--color-accent); }
+  .work-list h3 { margin: 0; color: var(--color-accent); }
+  .work-list p { margin: 0.5rem 0; color: var(--color-muted); }
+  .work-list small { color: var(--color-muted); }
+</style>

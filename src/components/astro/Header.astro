@@ -1,0 +1,66 @@
+---
+const { pathname } = Astro.url;
+const isActive = (path: string): 'page' | undefined =>
+  pathname === path || pathname.startsWith(path + '/') ? 'page' : undefined;
+---
+<header class="site-header">
+  <div class="header-inner">
+    <a href="/" class="logo" aria-label="Home">
+      {/* Gears placeholder — visual-direction plan will replace with the modernized motif (CSS-only animated SVG that rotates only on scroll, per the foundation plan's motion rule). */}
+      <span class="gear" aria-hidden="true">⚙</span>
+      <span class="logo-text">Sean Reardon</span>
+    </a>
+    <nav aria-label="primary">
+      <ul>
+        <li><a href="/work/" aria-current={isActive('/work')}>Work</a></li>
+        <li><a href="/writing/" aria-current={isActive('/writing')}>Writing</a></li>
+        <li><a href="/about/" aria-current={isActive('/about')}>About</a></li>
+        <li><a href="/contact/" aria-current={isActive('/contact')}>Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    border-bottom: 1px solid var(--color-muted);
+    padding-block: var(--space-sm);
+  }
+  .header-inner {
+    width: 100%;
+    max-width: 72rem;
+    margin: 0 auto;
+    padding-inline: var(--space-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+  }
+  .logo {
+    text-decoration: none;
+    color: var(--color-fg);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+  }
+  .gear {
+    display: inline-block;
+    color: var(--color-accent);
+    font-size: 1.25em;
+  }
+  nav ul {
+    display: flex;
+    gap: var(--space-md);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    flex-wrap: wrap;
+  }
+  nav a {
+    color: var(--color-fg);
+    text-decoration: none;
+  }
+  nav a[aria-current="page"] { color: var(--color-accent); }
+  nav a:hover { color: var(--color-accent); }
+</style>

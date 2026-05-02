@@ -1,0 +1,36 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+
+const lastUpdated = '2026-05-02';
+---
+<BaseLayout
+  title="Privacy Policy"
+  description="Privacy policy for seanreardon.com — GDPR + CPRA-lite compliant."
+>
+  <article>
+    <h1>Privacy Policy</h1>
+    <p><strong>Last updated:</strong> {lastUpdated}</p>
+
+    <p>
+      <em>This is a stub. The full privacy policy is being drafted as part of
+      the redesign. Per the project's standing GDPR + CPRA-lite compliance
+      rule, the published version will list:</em>
+    </p>
+    <ul>
+      <li>Data collected, by category, with purpose and legal basis</li>
+      <li>Third-party processors (Google Analytics 4, Resend, Google reCAPTCHA, future AI providers)</li>
+      <li>Retention periods for each data category</li>
+      <li>User rights (GDPR access / deletion / correction / portability + California rights)</li>
+      <li>How to make a privacy request (the contact form, with a "Privacy request" topic option)</li>
+      <li>Cross-border data transfers and Standard Contractual Clauses</li>
+    </ul>
+
+    <h2 id="do-not-sell">Do Not Sell or Share My Personal Information</h2>
+    <p>
+      <em>(CPRA-lite stub. The functional opt-out lives in the consent banner
+      and the GA4 Consent Mode v2 integration. This anchor is reachable from
+      the footer link and will host the human-readable explanation of how to
+      exercise the right when the consent banner is wired.)</em>
+    </p>
+  </article>
+</BaseLayout>

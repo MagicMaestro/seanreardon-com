@@ -1,0 +1,40 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('work', ({ data }) => data.active !== false);
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+interface Props {
+  project: CollectionEntry<'work'>;
+}
+
+const { project } = Astro.props;
+const { Content } = await project.render();
+---
+<BaseLayout title={project.data.title} description={project.data.sh_desc}>
+  <article>
+    <h1>{project.data.title}</h1>
+    <p class="meta">
+      Completed {project.data.completed.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
+      {project.data.projLink && (
+        <> · <a href={project.data.projLink} rel="external nofollow noopener">Live project ↗</a></>
+      )}
+    </p>
+    <p class="lead">{project.data.sh_desc}</p>
+    <Content />
+  </article>
+</BaseLayout>
+
+<style>
+  .meta {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+  }
+  .lead { font-size: 1.125rem; }
+</style>

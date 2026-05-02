@@ -1,0 +1,28 @@
+# Auto-detect text files and ensure normalized LF line endings (matches the Linux deploy target)
+* text=auto eol=lf
+
+# Specific text formats
+*.astro text eol=lf
+*.tsx text eol=lf
+*.ts text eol=lf
+*.jsx text eol=lf
+*.js text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.md text eol=lf
+*.mdx text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Binary files (no normalization)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.psd binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary

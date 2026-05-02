@@ -1,0 +1,26 @@
+---
+/*
+  STUB — not functional yet.
+
+  When the privacy-compliance work lands (see the GDPR + CPRA-lite standing rule
+  in CLAUDE.md and memory/feedback-privacy-compliance.md):
+
+  - Consent state stored in a first-party cookie, default-denied.
+  - Granular categories: analytics, marketing, AI features.
+  - Banner shows on first visit until a decision is made; revocable from any
+    page via the footer link `/privacy/#do-not-sell`.
+  - Exposes a JS API for tracking scripts to check before firing:
+      window.consent.has('analytics')  // → boolean
+  - On grant/deny, triggers GA4 Consent Mode v2 update with US-region CCPA
+    signals.
+
+  Implementation candidates (FOSS):
+  - https://cookieconsent.orestbida.com/  — lightweight, framework-agnostic
+  - Custom React island — full control, ~150 lines, no dependency
+
+  Until this is wired, NO tracking scripts (GA4, reCAPTCHA, etc.) should be
+  added to BaseLayout's <head>. The consent banner is load-bearing infra; the
+  layout intentionally has no tracking until it's in place.
+*/
+---
+{/* Placeholder — banner UI not rendered until wired. */}

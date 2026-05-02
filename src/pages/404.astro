@@ -1,0 +1,42 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="404"
+  description="The page you're looking for isn't here."
+  noindex
+>
+  <div class="error-page">
+    <h1>404</h1>
+    <p class="grinding">
+      The gears turn, but they don't turn up this page.
+    </p>
+
+    {/* Per the foundation plan: "the 404 page can go full-silly with the motif —
+        that's the right place." This is a holding-pattern version. The
+        visual-direction plan replaces with the actual gears + nozzles + steam
+        routine. */}
+
+    <p>
+      <a href="/">← back to safer ground</a>
+    </p>
+  </div>
+</BaseLayout>
+
+<style>
+  .error-page {
+    text-align: center;
+    padding-block: var(--space-xl);
+  }
+  .error-page h1 {
+    font-size: 6rem;
+    margin: 0;
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+  }
+  .grinding {
+    font-style: italic;
+    color: var(--color-muted);
+    max-width: none;
+  }
+</style>

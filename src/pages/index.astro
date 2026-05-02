@@ -1,0 +1,29 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Sean Reardon"
+  description="Sean Reardon — building, shipping, and writing about AI integration in the web stack. Buffalo, NY."
+>
+  <h1>Sean Reardon</h1>
+  <p class="lead">
+    Building, shipping, and writing about AI integration in the web stack.
+    Based in Buffalo, NY.
+  </p>
+
+  {/* Placeholder hero — the rotating-hero strategy from the foundation plan
+      (most recent shipped project / recent writing / a working AI feature as
+      the hero interaction itself) lands when the IA + hero plan is written. */}
+
+  <h2>Recent</h2>
+  <p>
+    <a href="/work/">Work</a> · <a href="/writing/">Writing</a>
+  </p>
+</BaseLayout>
+
+<style>
+  .lead {
+    font-size: 1.125rem;
+    max-width: var(--measure);
+  }
+</style>

@@ -1,0 +1,46 @@
+---
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="copyright">Sean Reardon · 2015–{year}</p>
+    <nav aria-label="secondary">
+      <ul>
+        <li><a href="/privacy/">Privacy</a></li>
+        <li><a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a></li>
+        <li><a href="/rss.xml">RSS</a></li>
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--color-muted);
+    padding-block: var(--space-md);
+    color: var(--color-muted);
+    font-size: 0.875rem;
+  }
+  .footer-inner {
+    width: 100%;
+    max-width: 72rem;
+    margin: 0 auto;
+    padding-inline: var(--space-md);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    justify-content: space-between;
+    align-items: center;
+  }
+  .copyright { margin: 0; }
+  nav ul {
+    display: flex;
+    gap: var(--space-md);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    flex-wrap: wrap;
+  }
+  nav a { color: var(--color-muted); }
+  nav a:hover { color: var(--color-accent); }
+</style>

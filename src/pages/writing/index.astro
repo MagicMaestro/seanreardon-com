@@ -1,0 +1,61 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('writing', ({ data }) => data.status === 'published'))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+<BaseLayout
+  title="Writing"
+  description="Short retrospective posts on shipped milestones, technical decisions, and AI-integration experiments by Sean Reardon."
+>
+  <h1>Writing</h1>
+  <p>
+    Ship-and-explain: short retrospective posts on shipped milestones,
+    technical decisions, and AI-integration experiments. 300–600 words each.
+  </p>
+
+  {posts.length === 0 ? (
+    <p>
+      <em>(No published posts yet. Eight ideas captured in the planning
+      project's <code>post-ideas/</code> directory — they'll land here as
+      drafts get written.)</em>
+    </p>
+  ) : (
+    <ul class="post-list">
+      {posts.map((post) => (
+        <li>
+          <a href={`/writing/${post.slug}/`}>
+            <h3>{post.data.title}</h3>
+            <p>{post.data.summary}</p>
+            <small>
+              {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </small>
+          </a>
+        </li>
+      ))}
+    </ul>
+  )}
+</BaseLayout>
+
+<style>
+  .post-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-md);
+  }
+  .post-list li a {
+    display: block;
+    padding: var(--space-md);
+    border: 1px solid var(--color-muted);
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color var(--transition-fast);
+  }
+  .post-list li a:hover { border-color: var(--color-accent); }
+  .post-list h3 { margin: 0; color: var(--color-accent); }
+  .post-list p { margin: 0.5rem 0; color: var(--color-muted); }
+  .post-list small { color: var(--color-muted); }
+</style>
