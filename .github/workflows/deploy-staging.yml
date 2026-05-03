@@ -28,6 +28,12 @@ jobs:
         run: npm ci
 
       - name: Build static site
+        env:
+          # PUBLIC_* env vars get baked into the build at this step.
+          # These are not secrets — they're visible in the rendered HTML.
+          # Real secrets (API keys, tokens) go in GitHub Secrets without the PUBLIC_ prefix.
+          PUBLIC_LISTMONK_HOST: ${{ vars.PUBLIC_LISTMONK_HOST || 'https://lists.seanreardon.com' }}
+          PUBLIC_LISTMONK_LIST_UUID: ${{ vars.PUBLIC_LISTMONK_LIST_UUID }}
         run: npm run build
 
       - name: Stamp build with commit + timestamp

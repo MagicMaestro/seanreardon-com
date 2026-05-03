@@ -1,0 +1,45 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import NewsletterSignup from '~/components/astro/NewsletterSignup.astro';
+---
+<BaseLayout
+  title="Subscribe"
+  description="Subscribe to Sean Reardon's writing — short retrospective posts on shipped milestones, technical decisions, and AI-integration experiments."
+>
+  <h1>Subscribe</h1>
+  <p>
+    A low-volume newsletter — when new writing ships here, you get the post in your
+    inbox. No marketing. No tracking pixels. No sale of your address. Unsubscribe in
+    one click anytime.
+  </p>
+
+  <p>
+    The newsletter follows the same <strong>ship-and-explain</strong> cadence as the rest
+    of the site: each shipped milestone or technical decision becomes a short retrospective
+    post (300–600 words). Expected frequency: a few times a month, roughly aligned with
+    when there's something genuinely new to write about.
+  </p>
+
+  <NewsletterSignup heading="Subscribe to writing" />
+
+  <h2>What you'll get</h2>
+  <ul>
+    <li>Short technical writeups on shipped projects and decisions</li>
+    <li>Retrospectives when something interesting breaks or surprises me</li>
+    <li>Comparisons of tools or techniques — like the framework picks documented in the codebase</li>
+  </ul>
+
+  <h2>What you won't get</h2>
+  <ul>
+    <li>Marketing emails</li>
+    <li>Affiliate links or sponsored content</li>
+    <li>Your address sold or shared with anyone (see <a href="/privacy/#do-not-sell">Do Not Sell or Share</a>)</li>
+  </ul>
+
+  <h2>Already subscribed</h2>
+  <p>
+    To unsubscribe, use the one-click link at the bottom of any email I've sent you.
+    Or <a href="/contact/">contact me</a> directly with a "Privacy request" and I'll
+    remove you within 24 hours.
+  </p>
+</BaseLayout>

@@ -1,0 +1,304 @@
+---
+/*
+ NewsletterSignup.astro
+
+ Submits via fetch() directly to Listmonk's /api/public/subscription endpoint.
+ No server-side code on this site — Listmonk handles the double-opt-in flow
+ and sends the confirmation email through Resend SMTP.
+
+ Required env vars (set at build time):
+   PUBLIC_LISTMONK_HOST       — e.g. https://lists.seanreardon.com
+   PUBLIC_LISTMONK_LIST_UUID  — UUID of the target list (Listmonk Admin → Lists)
+
+ Required Listmonk config (one-time):
+   - List exists with double-opt-in enabled
+   - Settings → General → CORS allowed origins includes the site's domains:
+     https://seanreardon.com, https://staging.seanreardon.com
+*/
+
+interface Props {
+  /** When true, renders without the surrounding blurb — for inline use mid-page or in tight spots. */
+  compact?: boolean;
+  /** Optional override for the headline above the form. */
+  heading?: string;
+}
+
+const { compact = false, heading = 'Subscribe' } = Astro.props;
+
+const LISTMONK_HOST = import.meta.env.PUBLIC_LISTMONK_HOST || 'https://lists.seanreardon.com';
+const LIST_UUID = import.meta.env.PUBLIC_LISTMONK_LIST_UUID || '';
+---
+
+<section class:list={["newsletter-signup", { compact }]}>
+  {!compact && <h2>{heading}</h2>}
+  {!compact && (
+    <p class="signup-blurb">
+      Get notified when I publish new writing — short retrospective posts on shipped
+      milestones, technical decisions, and AI-integration experiments. No marketing.
+      No sale of your address. Unsubscribe with one click.
+    </p>
+  )}
+
+  <form
+    class="signup-form"
+    data-host={LISTMONK_HOST}
+    data-list-uuid={LIST_UUID}
+    novalidate
+  >
+    <div class="signup-fields">
+      <label class="visually-hidden" for="signup-email">Email address</label>
+      <input
+        id="signup-email"
+        name="email"
+        type="email"
+        required
+        autocomplete="email"
+        placeholder="you@example.com"
+        aria-required="true"
+      />
+
+      <label class="visually-hidden" for="signup-name">Name (optional)</label>
+      <input
+        id="signup-name"
+        name="name"
+        type="text"
+        autocomplete="name"
+        placeholder="Name (optional)"
+      />
+
+      {/* Honeypot — hidden from humans, bots fill it. Rejected silently. */}
+      <input
+        class="honeypot"
+        name="hp_website"
+        type="text"
+        tabindex="-1"
+        autocomplete="off"
+        aria-hidden="true"
+      />
+
+      <button type="submit">Subscribe</button>
+    </div>
+
+    <p class="signup-message" role="status" aria-live="polite" hidden></p>
+
+    {!compact && (
+      <p class="signup-fineprint">
+        Double opt-in: you'll get a confirmation email before being added to the list.
+        See the <a href="/privacy/">privacy policy</a> for what's collected and how it's
+        handled.
+      </p>
+    )}
+  </form>
+
+  <noscript>
+    <p class="signup-noscript">
+      <em>This form requires JavaScript to submit. If you'd rather not enable JS,
+      email <a href="mailto:sean@seanreardon.com?subject=Newsletter%20signup">sean@seanreardon.com</a>
+      with "newsletter signup" in the subject and I'll add you manually.</em>
+    </p>
+  </noscript>
+</section>
+
+<script>
+  type SignupForm = HTMLFormElement & {
+    dataset: {
+      host: string;
+      listUuid: string;
+    };
+  };
+
+  const forms = document.querySelectorAll<SignupForm>('.newsletter-signup .signup-form');
+
+  for (const form of forms) {
+    const message = form.querySelector<HTMLParagraphElement>('.signup-message')!;
+    const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const host = form.dataset.host;
+    const listUuid = form.dataset.listUuid;
+
+    function showMessage(text: string, kind: 'success' | 'error' | 'info') {
+      message.hidden = false;
+      message.textContent = text;
+      message.className = `signup-message signup-${kind}`;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      message.hidden = true;
+
+      // Honeypot triggered — silently no-op (don't tell the bot it was caught)
+      const honeypot = form.querySelector<HTMLInputElement>('input[name="hp_website"]')!;
+      if (honeypot.value) {
+        showMessage('Check your inbox to confirm your subscription.', 'success');
+        form.reset();
+        return;
+      }
+
+      if (!listUuid) {
+        showMessage(
+          'Newsletter signup is not yet configured. Try again later or email sean@seanreardon.com.',
+          'error',
+        );
+        return;
+      }
+
+      const emailEl = form.querySelector<HTMLInputElement>('input[name="email"]')!;
+      const nameEl = form.querySelector<HTMLInputElement>('input[name="name"]')!;
+      const email = emailEl.value.trim();
+      const name = nameEl.value.trim();
+
+      if (!email) {
+        showMessage('Email is required.', 'error');
+        emailEl.focus();
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Subscribing…';
+
+      try {
+        const body: Record<string, unknown> = {
+          email,
+          list_uuids: [listUuid],
+        };
+        if (name) body.name = name;
+
+        const res = await fetch(`${host}/api/public/subscription`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+
+        if (res.ok) {
+          showMessage(
+            'Almost there — check your inbox for a confirmation link.',
+            'success',
+          );
+          form.reset();
+        } else {
+          const errText = await res.text().catch(() => '');
+          let detail = `(status ${res.status})`;
+          try {
+            const errJson = JSON.parse(errText);
+            if (errJson?.message) detail = errJson.message;
+          } catch {}
+          showMessage(
+            `Subscription didn't go through ${detail}. Try again, or email sean@seanreardon.com.`,
+            'error',
+          );
+        }
+      } catch (err) {
+        showMessage(
+          "Couldn't reach the subscription service. Check your connection and try again, or email sean@seanreardon.com.",
+          'error',
+        );
+        console.error('Newsletter signup failed:', err);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Subscribe';
+      }
+    });
+  }
+</script>
+
+<style>
+  .newsletter-signup {
+    margin-block: var(--space-lg);
+    padding: var(--space-md);
+    border: 1px solid var(--color-muted);
+    border-radius: var(--radius);
+    max-width: 560px;
+  }
+  .newsletter-signup.compact {
+    padding: var(--space-sm);
+  }
+  .newsletter-signup h2 {
+    margin-top: 0;
+    font-size: 1.25rem;
+  }
+  .signup-blurb {
+    color: var(--color-muted);
+    font-size: 0.9375rem;
+  }
+  .signup-fields {
+    display: grid;
+    gap: var(--space-xs);
+    margin-block: var(--space-sm);
+  }
+  .signup-fields input[type="email"],
+  .signup-fields input[type="text"] {
+    padding: 0.5rem 0.75rem;
+    font: inherit;
+    color: var(--color-fg);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--color-muted);
+    border-radius: var(--radius);
+    transition: border-color var(--transition-fast);
+  }
+  .signup-fields input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+  }
+  .signup-fields button {
+    padding: 0.5rem 1rem;
+    font: inherit;
+    font-weight: 600;
+    color: var(--color-bg);
+    background: var(--color-accent);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+  }
+  .signup-fields button:hover:not(:disabled) {
+    background: var(--color-accent-hot);
+  }
+  .signup-fields button:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+  .signup-message {
+    margin-block: var(--space-sm) 0;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius);
+    font-size: 0.9375rem;
+  }
+  .signup-success {
+    background: rgba(80, 200, 120, 0.1);
+    border: 1px solid rgba(80, 200, 120, 0.4);
+    color: #50c878;
+  }
+  .signup-error {
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid rgba(255, 107, 107, 0.4);
+    color: var(--color-error);
+  }
+  .signup-fineprint {
+    margin-top: var(--space-sm);
+    color: var(--color-muted);
+    font-size: 0.8125rem;
+  }
+  .signup-noscript {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+  }
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  /* Honeypot — visually invisible but accessible-tree neutral */
+  .honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>
