@@ -1,0 +1,44 @@
+# .htaccess for staging.seanreardon.com — gets copied to dist/.htaccess by the GitHub Actions deploy workflow.
+#
+# Purpose: serve the Astro static export at the staging subdomain WITHOUT
+# being indexed by search engines or AI training bots. Staging is for
+# verification only; nothing here should appear in any search result or
+# training corpus.
+
+# Block ALL crawlers from indexing
+<IfModule mod_headers.c>
+    Header set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
+</IfModule>
+
+# Astro static export with trailing-slash routes — Apache MultiViews can interfere
+Options -MultiViews
+
+# Default index file
+DirectoryIndex index.html
+
+# Force HTTPS (cPanel/AutoSSL handles the cert; staging shouldn't be HTTP)
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Cache static assets for 1 year (immutable hashed filenames from Astro/Vite)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/avif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType text/html "access plus 5 minutes"
+</IfModule>
+
+# Custom 404 — Astro's static export creates dist/404.html
+ErrorDocument 404 /404.html
+
+# Compress text responses
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/xml application/json text/plain
+</IfModule>

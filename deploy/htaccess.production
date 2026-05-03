@@ -1,0 +1,60 @@
+# .htaccess for seanreardon.com (production) — gets copied to dist/.htaccess by the eventual deploy-production workflow.
+#
+# Purpose: serve the Astro static export at the production domain with
+# proper caching, AI-bot blocking, and 301 redirects from legacy PHP URLs.
+
+# Allow indexing by regular search engines
+<IfModule mod_headers.c>
+    # No X-Robots-Tag noindex header here (vs staging, which blocks all)
+</IfModule>
+
+# Astro static export with trailing-slash routes
+Options -MultiViews
+DirectoryIndex index.html
+
+# Force HTTPS
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 301 redirects from legacy PHP URLs (added during cutover)
+# Format: RewriteRule ^old-path$ /new-path/ [R=301,L]
+
+# Legacy site routes from the inventory:
+RewriteRule ^home\.php$ / [R=301,L]
+RewriteRule ^about\.php$ /about/ [R=301,L]
+RewriteRule ^projects\.php$ /work/ [R=301,L]
+RewriteRule ^services\.php$ /about/ [R=301,L]
+RewriteRule ^contact\.php$ /contact/ [R=301,L]
+
+# Single-project query-param redirects:
+# /project.php?projID=15955631 → /work/triple-cities-insurance-site/
+# Apache's RewriteRule pattern can match query strings via RewriteCond %{QUERY_STRING}
+# (per-project mappings to be added when the redirect map is populated;
+# can be generated from the legacyProjID frontmatter field across all
+# work content collection entries during the cutover step)
+
+# Invisible Light Photography URLs (retired 2026-05-02; will 301 to the
+# Angular site's domain once that's known):
+# RewriteRule ^invisiblelight/?(.*)$ https://<future-photography-domain>/$1 [R=301,L]
+
+# Cache headers — same as staging
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/avif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType text/html "access plus 1 hour"
+</IfModule>
+
+# Compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/xml application/json text/plain
+</IfModule>
+
+ErrorDocument 404 /404.html

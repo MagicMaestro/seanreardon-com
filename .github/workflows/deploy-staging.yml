@@ -1,0 +1,65 @@
+name: Deploy to staging
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build static site
+        run: npm run build
+
+      - name: Stamp build with commit + timestamp
+        run: |
+          cat > dist/version.txt <<EOF
+          commit: ${{ github.sha }}
+          ref: ${{ github.ref_name }}
+          built_at: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          actor: ${{ github.actor }}
+          EOF
+
+      - name: Stage the staging .htaccess
+        run: cp deploy/htaccess.staging dist/.htaccess
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p 7822 -H 216.137.187.42 >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Rsync to staging
+        run: |
+          rsync -avz --delete \
+            --exclude='desktop.ini' \
+            --exclude='.DS_Store' \
+            --exclude='Thumbs.db' \
+            -e "ssh -i ~/.ssh/deploy_key -p 7822" \
+            dist/ sreardon@216.137.187.42:/home/sreardon/staging/
+
+      - name: Verify deploy
+        run: |
+          curl -sSI https://staging.seanreardon.com/ | head -5
+          echo "---"
+          curl -s https://staging.seanreardon.com/version.txt || echo "version.txt not yet reachable (DNS / vhost may not be configured)"

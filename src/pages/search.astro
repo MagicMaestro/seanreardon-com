@@ -1,0 +1,66 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Search"
+  description="Search writing and work on seanreardon.com."
+>
+  <h1>Search</h1>
+  <p class="search-note">
+    Searches across <a href="/writing/">writing</a> and <a href="/work/">work</a>.
+  </p>
+
+  <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+  <div id="search"></div>
+  <script src="/pagefind/pagefind-ui.js" is:inline></script>
+  <script is:inline>
+    window.addEventListener('DOMContentLoaded', () => {
+      // Pagefind UI is provided by the script tag above; mounts into #search
+      // and reads the index built by `pagefind --site dist` in the build script.
+      if (typeof PagefindUI !== 'undefined') {
+        new PagefindUI({
+          element: '#search',
+          showSubResults: true,
+          resetStyles: false,
+        });
+      }
+    });
+  </script>
+
+  <p class="dev-note">
+    <em>Note: search index is generated at build time via Pagefind. In <code>npm run dev</code>
+    the index doesn't exist yet, so this page won't return results until you run
+    <code>npm run build</code> + <code>npm run preview</code>, or after a deploy.</em>
+  </p>
+</BaseLayout>
+
+<style>
+  .search-note {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+  }
+  #search {
+    margin-block: var(--space-md);
+  }
+  .dev-note {
+    margin-top: var(--space-lg);
+    color: var(--color-muted);
+    font-size: 0.8125rem;
+    font-style: italic;
+  }
+  /* Pagefind UI uses its own CSS variables; we override the few that affect look-and-feel
+     to harmonize with the site's design tokens. */
+  :global(:root) {
+    --pagefind-ui-scale: 0.9;
+    --pagefind-ui-primary: var(--color-accent);
+    --pagefind-ui-text: var(--color-fg);
+    --pagefind-ui-background: var(--color-bg);
+    --pagefind-ui-border: var(--color-muted);
+    --pagefind-ui-tag: var(--color-muted);
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 0.375rem;
+    --pagefind-ui-image-border-radius: 0.25rem;
+    --pagefind-ui-image-box-ratio: 3 / 2;
+    --pagefind-ui-font: var(--font-body);
+  }
+</style>
