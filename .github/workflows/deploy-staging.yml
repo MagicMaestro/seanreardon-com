@@ -9,6 +9,12 @@ concurrency:
   group: deploy-staging
   cancel-in-progress: false
 
+env:
+  # Opt JavaScript actions into Node.js 24 ahead of GitHub's June 2026 default flip.
+  # Removes the Node 20 deprecation warning; revisit once actions/checkout and
+  # actions/setup-node ship v5 majors built natively for Node 24.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
