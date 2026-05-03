@@ -1,0 +1,46 @@
+# pre-commit hooks for seanreardon-com.
+#
+# Install once per fresh clone:
+#   pip install pre-commit
+#   pre-commit install
+#
+# After install, every `git commit` runs the hooks below against staged changes
+# and blocks if any fail. To run all hooks against the entire repo manually:
+#   pre-commit run --all-files
+#
+# To bypass (do NOT do this lightly):
+#   git commit --no-verify
+
+repos:
+  # Step 1 — clean Google Drive desktop.ini files before any other hook walks .git/
+  - repo: local
+    hooks:
+      - id: clean-drive-files
+        name: Clean Google Drive desktop.ini files
+        language: system
+        entry: bash dev-scripts/clean-drive-files.sh
+        always_run: true
+        pass_filenames: false
+        stages: [pre-commit, pre-merge-commit, pre-push]
+
+  # Step 2 — secret scan via gitleaks. Blocks the commit if any API key, token,
+  # password, private key, or other sensitive value pattern matches in staged
+  # changes. Pinned to a known-good version; bump with care after testing.
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+        name: Detect hardcoded secrets
+
+  # Step 3 — basic hygiene checks (whitespace, end-of-file, large files,
+  # merge-conflict markers). These are fast and catch common mistakes.
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ['--maxkb=2048']  # block files >2MB; project images via CF Images, not in repo
+      - id: check-yaml
+      - id: check-json

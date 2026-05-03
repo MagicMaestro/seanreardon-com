@@ -47,7 +47,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p 7822 -H 216.137.187.42 >> ~/.ssh/known_hosts 2>/dev/null
+          ssh-keyscan -p 7822 -H staging.seanreardon.com >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Rsync to staging
         run: |
@@ -56,7 +56,7 @@ jobs:
             --exclude='.DS_Store' \
             --exclude='Thumbs.db' \
             -e "ssh -i ~/.ssh/deploy_key -p 7822" \
-            dist/ sreardon@216.137.187.42:/home/sreardon/staging/
+            dist/ sreardon@staging.seanreardon.com:/home/sreardon/staging/
 
       - name: Verify deploy
         run: |
