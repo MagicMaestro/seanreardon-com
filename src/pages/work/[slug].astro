@@ -18,7 +18,7 @@ const { project } = Astro.props;
 const { Content } = await project.render();
 ---
 <BaseLayout title={project.data.title} description={project.data.sh_desc}>
-  <article>
+  <article data-pagefind-body>
     <h1>{project.data.title}</h1>
     <p class="meta">
       Completed {project.data.completed.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
