@@ -1,37 +1,377 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 
-const lastUpdated = '2026-05-02';
+const lastUpdated = '2026-05-03';
 ---
 <BaseLayout
   title="Privacy Policy"
-  description="Privacy policy for seanreardon.com — GDPR + CPRA-lite compliant."
+  description="Privacy policy for seanreardon.com — what's collected, who it's shared with, how long it's kept, and your rights as a visitor."
 >
-  <article>
+  <article class="privacy-policy">
     <h1>Privacy Policy</h1>
-    <p><strong>Last updated:</strong> {lastUpdated}</p>
+    <p class="last-updated"><strong>Last updated:</strong> {lastUpdated}</p>
 
     <p>
-      <em>This is a stub. The full privacy policy is being drafted as part of
-      the redesign. Per the project's standing GDPR + CPRA-lite compliance
-      rule, the published version will list:</em>
+      This policy describes how <a href="https://seanreardon.com">seanreardon.com</a> — a personal
+      portfolio and writing site operated by Sean Reardon — collects, uses, and discloses
+      information about visitors. It applies to all interactions with the site, including
+      reading content, submitting forms, and using interactive AI features when those
+      eventually ship.
     </p>
+
+    <p>
+      The policy is written in plain language. If anything is unclear, <a href="/contact/">get in touch</a>
+      and I'll clarify.
+    </p>
+
+    <h2>What you should know up front</h2>
+
     <ul>
-      <li>Data collected, by category, with purpose and legal basis</li>
-      <li>Third-party processors: Cloudflare (CDN, image hosting, web analytics — aggregate only, no PI), Resend (newsletter delivery via Resend Inc. + Amazon SES), Google reCAPTCHA (form spam protection), future AI providers (Anthropic) when AI features ship</li>
-      <li>Retention periods for each data category</li>
-      <li>User rights (GDPR access / deletion / correction / portability + California rights)</li>
-      <li>How to make a privacy request (the contact form, with a "Privacy request" topic option)</li>
-      <li>Cross-border data transfers and Standard Contractual Clauses</li>
+      <li>No advertising. No tracking pixels. No third-party cookies. No marketing analytics.</li>
+      <li>The site uses Cloudflare's privacy-respecting Web Analytics, which is <strong>cookieless</strong> and aggregates data without identifying individual visitors.</li>
+      <li>The only personal information collected is what you voluntarily submit (email for newsletter, contact-form messages).</li>
+      <li>I don't sell or share your personal information with anyone. There's no opt-out mechanism because there's nothing to opt out of.</li>
+      <li>This is a personal portfolio site. Compliance work voluntarily exceeds what's strictly required at this scale because privacy practices are signal as much as obligation.</li>
     </ul>
 
-    <h2 id="do-not-sell">Do Not Sell or Share My Personal Information</h2>
+    <h2 id="what-is-collected">What data is collected</h2>
+
+    <h3>From every visitor (passive collection)</h3>
+
     <p>
-      <em>(Stub. We don't sell or share personal information. Cloudflare Web
-      Analytics is aggregate-only; no per-visitor data is collected or
-      transmitted to anyone for marketing purposes. The full version of this
-      section will explain the right under California law and confirm the
-      "no sale/no sharing" stance affirmatively.)</em>
+      <strong>Cloudflare Web Analytics</strong> captures aggregate site usage:
+    </p>
+    <ul>
+      <li>Page views</li>
+      <li>Country (geolocated from IP, then IP discarded)</li>
+      <li>Browser type and operating system</li>
+      <li>Referring website (where you clicked from, if any)</li>
+      <li>Core Web Vitals (page load timing measurements)</li>
+    </ul>
+    <p>
+      This data is <strong>cookieless</strong>, contains <strong>no persistent identifiers</strong>,
+      and cannot be tied back to individual visitors. No consent is required because no personal
+      information is processed.
+    </p>
+
+    <p>
+      <strong>Apache server logs</strong> record HTTP requests for operational purposes (debugging,
+      security auditing). Logs include IP addresses for the duration of the request and short-term
+      log retention; IPs are not used for any tracking, profiling, or advertising purpose.
+    </p>
+
+    <h3>From you (active collection — only when you submit it)</h3>
+
+    <p>
+      <strong>Newsletter signup form</strong> collects:
+    </p>
+    <ul>
+      <li>Email address (required)</li>
+      <li>First name (optional, for personalization)</li>
+    </ul>
+    <p>
+      Subscribers are managed in self-hosted Listmonk infrastructure on this site's own server.
+      Newsletter delivery is handled by Resend (an external SMTP relay). You can unsubscribe via
+      a one-click link in every email.
+    </p>
+
+    <p>
+      <strong>Contact form</strong> collects:
+    </p>
+    <ul>
+      <li>Name (first and last)</li>
+      <li>Email address</li>
+      <li>Website URL (optional)</li>
+      <li>Your message</li>
+      <li>Topic selector (general inquiry, privacy request, etc.)</li>
+    </ul>
+    <p>
+      Submissions are emailed to me directly and stored only as long as needed to respond
+      (see retention table below).
+    </p>
+
+    <p>
+      <strong>Google reCAPTCHA</strong> runs in the background when you submit a form, to verify
+      that you're not a bot. Google receives request metadata (your IP, browser environment,
+      interaction signals) for that purpose. This is a Google-operated service governed by
+      Google's privacy policy.
+    </p>
+
+    <p>
+      <strong>AI features (planned, not yet live):</strong> when AI-powered features ship on the
+      site, your input may be sent to a language-model provider (primarily Anthropic). Each AI
+      feature will explicitly disclose what's transmitted and request your consent at the point
+      of use. Inputs and outputs are not retained on this site's servers unless strictly necessary
+      for the feature.
+    </p>
+
+    <h2 id="processors">Third-party processors</h2>
+
+    <p>
+      Data is shared with these third parties, exclusively for the purposes listed:
+    </p>
+
+    <table class="processors">
+      <thead>
+        <tr>
+          <th>Processor</th>
+          <th>Data shared</th>
+          <th>Purpose</th>
+          <th>Their privacy terms</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Cloudflare, Inc.</td>
+          <td>Aggregate page-view counts; IP for geolocation (then discarded)</td>
+          <td>CDN, edge security, web analytics, image hosting</td>
+          <td><a href="https://www.cloudflare.com/privacypolicy/" rel="external nofollow noopener">cloudflare.com/privacypolicy</a></td>
+        </tr>
+        <tr>
+          <td>Resend Inc. (with Amazon SES underneath)</td>
+          <td>Your email address; newsletter content</td>
+          <td>Sending newsletter emails you've opted into</td>
+          <td><a href="https://resend.com/legal/privacy-policy" rel="external nofollow noopener">resend.com/legal/privacy-policy</a></td>
+        </tr>
+        <tr>
+          <td>Google (reCAPTCHA)</td>
+          <td>Form submission metadata (IP, browser environment)</td>
+          <td>Bot detection on form submissions</td>
+          <td><a href="https://policies.google.com/privacy" rel="external nofollow noopener">policies.google.com/privacy</a></td>
+        </tr>
+        <tr>
+          <td>Anthropic <em>(when AI features ship)</em></td>
+          <td>Your input to specific AI features at the moment of use</td>
+          <td>Generating AI responses you've explicitly invoked</td>
+          <td><a href="https://www.anthropic.com/legal/privacy" rel="external nofollow noopener">anthropic.com/legal/privacy</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      No data is shared with advertisers, marketing networks, data brokers, or any party not
+      listed above.
+    </p>
+
+    <h2 id="cookies">Cookies and similar technologies</h2>
+
+    <p>
+      This site uses <strong>no tracking cookies and no third-party cookies</strong>. The only
+      cookies that may be set are strictly-necessary session cookies for form submissions (for
+      example, reCAPTCHA's verification token), and they expire when you close your browser.
+    </p>
+
+    <p>
+      If a future feature requires a different category of cookies (analytics with persistent
+      identifiers, marketing pixels, etc.), this policy will be updated and a consent banner
+      will appear before any non-essential cookies are set.
+    </p>
+
+    <h2 id="retention">Data retention</h2>
+
+    <table class="retention">
+      <thead>
+        <tr>
+          <th>Data category</th>
+          <th>Retention period</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Cloudflare Web Analytics aggregates</td>
+          <td>~6 months in CF dashboards (Cloudflare's default)</td>
+        </tr>
+        <tr>
+          <td>Apache server logs</td>
+          <td>14 days, then purged</td>
+        </tr>
+        <tr>
+          <td>Newsletter subscriber list</td>
+          <td>Until you unsubscribe</td>
+        </tr>
+        <tr>
+          <td>Contact form submissions</td>
+          <td>90 days from receipt, then purged from server logs and inbox</td>
+        </tr>
+        <tr>
+          <td>AI feature inputs/outputs <em>(when shipped)</em></td>
+          <td>Not retained on this site's servers</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      You can request deletion of any data you've provided at any time — see <a href="#your-rights">Your rights</a>.
+    </p>
+
+    <h2 id="your-rights">Your rights (GDPR — for EU/EEA visitors)</h2>
+
+    <p>
+      If you are in the European Union or European Economic Area, the General Data Protection
+      Regulation gives you the following rights:
+    </p>
+
+    <ul>
+      <li><strong>Access</strong> — ask what personal data is held about you</li>
+      <li><strong>Deletion</strong> — request that your data be deleted</li>
+      <li><strong>Correction</strong> — request that inaccurate data be corrected</li>
+      <li><strong>Portability</strong> — request a copy of your data in a machine-readable format</li>
+      <li><strong>Restriction</strong> — request limits on how your data is processed</li>
+      <li><strong>Objection</strong> — object to specific processing activities</li>
+      <li><strong>Withdraw consent</strong> — withdraw any consent you've previously given</li>
+    </ul>
+
+    <p>
+      Cross-border transfers (data leaving the EU/EEA) are protected by Standard Contractual
+      Clauses with all listed processors.
+    </p>
+
+    <p>
+      To exercise any right, <a href="/contact/">use the contact form</a> with the "Privacy
+      request" topic. I'll respond within 30 days.
+    </p>
+
+    <h2 id="california-rights">California Privacy Rights</h2>
+
+    <p>
+      If you are a California resident, the California Privacy Rights Act (CPRA) provides
+      additional rights. This site is not a CPRA-covered business at its current scale — the
+      law applies only above specific revenue and visitor thresholds — but I voluntarily honor
+      the spirit of the law:
+    </p>
+
+    <ul>
+      <li><strong>Right to know</strong> — what categories of personal information are collected, the sources, the purposes, and which third parties receive them. See <a href="#what-is-collected">What data is collected</a> and <a href="#processors">Third-party processors</a>.</li>
+      <li><strong>Right to delete</strong> — request deletion of personal information</li>
+      <li><strong>Right to correct</strong> — request correction of inaccurate personal information</li>
+      <li><strong>Right to opt out of sale/sharing</strong> — see <a href="#do-not-sell">Do Not Sell or Share</a> below</li>
+      <li><strong>Right to limit use of sensitive personal information</strong> — this site does not collect sensitive personal information (no government IDs, financial account numbers, precise geolocation, biometrics, race/ethnicity/religion, health data, sexual orientation, etc.)</li>
+      <li><strong>Non-discrimination</strong> — visitors who exercise rights receive the same service quality</li>
+    </ul>
+
+    <p>
+      To exercise California rights, <a href="/contact/">use the contact form</a> with the
+      "Privacy request" topic and indicate your state. Response within 45 days per CPRA timing.
+    </p>
+
+    <h2 id="do-not-sell">Do Not Sell or Share My Personal Information</h2>
+
+    <p>
+      <strong>I do not sell or share your personal information.</strong>
+    </p>
+
+    <p>
+      Cloudflare Web Analytics is aggregate-only and does not generate per-visitor data that
+      could be sold. Newsletter subscribers are managed only on this site's self-hosted
+      infrastructure — no third-party marketing list. Contact form submissions are received
+      by me directly and not transmitted to any marketing or advertising network.
+    </p>
+
+    <p>
+      There is therefore no opt-out mechanism needed for "sale or sharing" — there is nothing
+      being sold or shared. This declarative statement is the affirmation of your right.
+    </p>
+
+    <p>
+      If a future feature ever changes this stance (extremely unlikely for a personal
+      portfolio), this policy will be updated and a functional opt-out mechanism added.
+    </p>
+
+    <h2 id="transfers">International data transfers</h2>
+
+    <p>
+      Some processors listed above (Cloudflare, Resend, Google, Anthropic) operate from the
+      United States. When data crosses borders, transfers are protected by <strong>Standard
+      Contractual Clauses</strong> (SCCs) per each provider's published policies. SCCs are the
+      European Commission's approved mechanism for lawful cross-border data transfer.
+    </p>
+
+    <h2 id="children">Children's privacy</h2>
+
+    <p>
+      This site is not directed to children under 13 (or 16 in some jurisdictions), and I do
+      not knowingly collect personal information from children. If you believe a child has
+      provided personal information through this site, <a href="/contact/">contact me</a> and
+      I'll delete it.
+    </p>
+
+    <h2 id="ai-features">AI features (forward-looking)</h2>
+
+    <p>
+      Currently this site has no live AI features. When they ship:
+    </p>
+
+    <ul>
+      <li>Each feature will display a clear notice describing what's sent to which provider</li>
+      <li>Anthropic will be the primary LLM provider; their commercial terms include no-training-on-user-data by default (your input does not train future models)</li>
+      <li>AI feature consent will be requested at the point of feature invocation, not via a generic banner</li>
+      <li>Inputs and outputs will not be retained on this site's servers unless strictly necessary for the feature</li>
+    </ul>
+
+    <h2 id="changes">Changes to this policy</h2>
+
+    <p>
+      Updates land at this same URL with a new "Last updated" date. Material changes will be
+      flagged at the top of the policy for 30 days following the change so returning visitors
+      can review.
+    </p>
+
+    <h2 id="contact">Contact</h2>
+
+    <p>
+      For privacy questions, requests, or concerns:
+    </p>
+
+    <ul>
+      <li>Email: <a href="mailto:sean@seanreardon.com">sean@seanreardon.com</a></li>
+      <li>Contact form: <a href="/contact/">/contact/</a> — use the "Privacy request" topic</li>
+    </ul>
+
+    <p>
+      For GDPR requests: response within 30 days. For California requests: response within
+      45 days.
     </p>
   </article>
 </BaseLayout>
+
+<style>
+  .privacy-policy {
+    max-width: 70ch;
+  }
+  .last-updated {
+    color: var(--color-muted);
+    font-size: 0.9375rem;
+  }
+  .privacy-policy h2 {
+    margin-top: var(--space-lg);
+  }
+  .privacy-policy h3 {
+    margin-top: var(--space-md);
+  }
+  .privacy-policy table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-block: var(--space-md);
+    font-size: 0.9375rem;
+  }
+  .privacy-policy th,
+  .privacy-policy td {
+    text-align: left;
+    padding: var(--space-xs) var(--space-sm);
+    border-bottom: 1px solid var(--color-muted);
+    vertical-align: top;
+  }
+  .privacy-policy th {
+    background: rgba(255, 255, 255, 0.04);
+    font-weight: 600;
+  }
+  .privacy-policy ul {
+    padding-left: 1.25rem;
+  }
+  .privacy-policy ul li {
+    margin-block: 0.25em;
+  }
+  .privacy-policy a {
+    word-break: break-word;
+  }
+</style>
