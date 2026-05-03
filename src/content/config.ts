@@ -19,9 +19,10 @@ const work = defineCollection({
     completed: z.coerce.date(),
     sh_desc: z.string(),                    // short description (card subtitle)
     projLink: z.string().url().optional(),  // external URL to live project
-    mainImg: z.string().optional(),         // main image filename in /public/work/
-    otherImg: z.string().optional(),
-    projObjective: z.string().optional(),
+    mainImg: z.string().optional(),         // CF Images URL — set once the image is uploaded
+    otherImg: z.string().optional(),        // CF Images URL — secondary image
+    legacyMainImg: z.string().optional(),   // original filename in old public_html/projectImages/ — TODO marker until uploaded to CF Images
+    legacyOtherImg: z.string().optional(),
     projLanguage: z.array(z.string()).optional(),
     featured: z.boolean().default(false),
     active: z.boolean().default(true),
