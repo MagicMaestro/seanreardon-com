@@ -1,28 +1,114 @@
-/* Design tokens — placeholder values. The visual-direction plan will refine. */
+/* ============================================================================
+   Self-hosted typeface imports
+   ============================================================================
+   Cardo, IBM Plex Sans, IBM Plex Mono are self-hosted via Fontsource (npm
+   packages bundled at build time, no third-party CDN). Mostra Nuova is loaded
+   from Adobe Fonts CDN — see <link> in src/layouts/BaseLayout.astro and the
+   privacy-policy disclosure of Adobe as a third-party processor.
+
+   Weight imports kept tight to minimize font payload. Add additional weights
+   here if a component needs them.
+   ========================================================================= */
+
+/* Body face */
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/400-italic.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+
+/* Subhead face */
+@import '@fontsource/cardo/400.css';
+@import '@fontsource/cardo/700.css';
+
+/* Mono face */
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+
+/* ============================================================================
+   Design tokens — locked 2026-05-04 per ~/.claude/plans/visual-direction.md
+   ============================================================================ */
+
 :root {
+  /* === Foundation neutrals (cool-neutral) === */
+  --color-bg-deep: #0A0D12;
   --color-bg: #0d1117;
+  --color-bg-elevated: #2A303C;
   --color-fg: #f0f6fc;
-  --color-muted: #8b949e;
-  --color-accent: #d4a017;        /* warm brass — gears motif */
-  --color-accent-hot: #b8860b;
-  --color-error: #ff6b6b;
+  --color-fg-muted: #8b949e;
+  --color-fg-subtle: #6B7480;
 
-  --font-body: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: ui-monospace, 'Cascadia Code', 'JetBrains Mono', Menlo, monospace;
-  --font-display: var(--font-body);
+  /* === Deco-cream (warm decorative surfaces) === */
+  --color-deco-cream: #E8DFC8;
+  --color-deco-cream-elevated: #F2EBD8;
+  --color-fg-on-cream-strong: #1A1612;
+  --color-fg-on-cream: #2A2620;
+  --color-fg-muted-on-cream: #6B5F4F;
 
+  /* === Brand colors === */
+  /* Brass primary — warm metal foundation */
+  --color-brass-light: #E8B95E;
+  --color-brass: #C49539;
+  --color-brass-dark: #8E6A21;
+  --color-brass-oxidized: #5F5028;
+
+  /* Cool electrical accent — cyan brilliance moments */
+  --color-electric-cyan: #00DDFF;
+  --color-electric-cyan-glow: #66E8FF;
+  --color-electric-cyan-deep: #0085C6;
+
+  /* Warm electrical accent — plasma fire */
+  --color-plasma: #FF5A1A;
+  --color-plasma-glow: #FF8A4A;
+  --color-ember: #FFA01A;
+
+  /* Personality palette (404, easter eggs, personality-tagged content) */
+  --color-joker-green: #6BFF1A;
+  --color-joker-green-deep: #3D8E0E;
+  --color-hulk-purple: #9B30E5;
+  --color-hulk-purple-deep: #5E1A99;
+
+  /* === Functional colors === */
+  --color-error: #FF6B6B;
+  --color-success: #50AF7A;
+  --color-warning: #FFA01A; /* dual-use with --color-ember (intentional) */
+  --color-info: #4FA8C4;
+
+  /* === Backward-compat aliases ===
+     Existing components still reference --color-accent / --color-accent-hot.
+     Keeping aliases prevents breakage during the gradual component-migration
+     pass. Migrate component-by-component to --color-brass / --color-brass-light. */
+  --color-accent: var(--color-brass);
+  --color-accent-hot: var(--color-brass-light);
+  --color-muted: var(--color-fg-muted);
+
+  /* === Typography ===
+     Display: Mostra Nuova (Adobe Fonts CDN — Adobe family name is lowercase)
+     Subhead: Cardo (self-hosted via @fontsource/cardo)
+     Body:    IBM Plex Sans (self-hosted via @fontsource/ibm-plex-sans)
+     Mono:    IBM Plex Mono (self-hosted via @fontsource/ibm-plex-mono) */
+  --font-display: "mostra-nuova", "Mostra Nuova", ui-sans-serif, system-ui, sans-serif;
+  --font-subhead: 'Cardo', Georgia, 'Times New Roman', serif;
+  --font-body: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Code', 'JetBrains Mono', Menlo, monospace;
+
+  /* === Spacing scale === */
   --space-xs: 0.5rem;
   --space-sm: 1rem;
   --space-md: 1.5rem;
   --space-lg: 2.5rem;
   --space-xl: 4rem;
 
+  /* === Layout primitives === */
   --measure: 65ch;
   --radius: 0.375rem;
 
+  /* === Motion === */
   --transition-fast: 150ms;
   --transition-med: 250ms;
 }
+
+/* ============================================================================
+   Reset + base
+   ============================================================================ */
 
 * { box-sizing: border-box; }
 
@@ -40,14 +126,24 @@ body {
   grid-template-rows: auto 1fr auto;
 }
 
+/* ============================================================================
+   Links
+   ============================================================================
+   On dark bg, hover state goes LIGHTER (brass → brass-light) for visibility.
+   On deco-cream surfaces, hover state goes DARKER (handled per-component). */
+
 a {
-  color: var(--color-accent);
+  color: var(--color-brass);
   text-decoration: underline;
   text-underline-offset: 0.2em;
   text-decoration-thickness: 1px;
   transition: color var(--transition-fast);
 }
-a:hover { color: var(--color-accent-hot); }
+a:hover { color: var(--color-brass-light); }
+
+/* ============================================================================
+   Layout
+   ============================================================================ */
 
 main {
   width: 100%;
@@ -56,16 +152,49 @@ main {
   padding: var(--space-lg) var(--space-md);
 }
 
+/* ============================================================================
+   Typography
+   ============================================================================
+   Three-tier type system:
+   - h1 → Mostra Nuova (Tier 1 display) — short, high-impact
+   - h2, h3 → Cardo (Tier 2 subhead) — small-to-medium titles
+   - h4 + body → IBM Plex Sans (body) — long-form readability */
+
 h1, h2, h3, h4 {
   line-height: 1.2;
   margin-block: var(--space-md) var(--space-sm);
 }
 
-h1 { font-size: 2.25rem; font-weight: 600; }
-h2 { font-size: 1.75rem; font-weight: 600; }
-h3 { font-size: 1.25rem; font-weight: 600; }
+h1 {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 400;
+  letter-spacing: 0.02em; /* Deco geometric forms benefit from slight tracking */
+}
+
+h2 {
+  font-family: var(--font-subhead);
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+h3 {
+  font-family: var(--font-subhead);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+h4 {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+}
 
 p { max-width: var(--measure); }
+
+/* ============================================================================
+   Code
+   ============================================================================ */
 
 code {
   font-family: var(--font-mono);
@@ -75,7 +204,11 @@ code {
   border-radius: 0.2em;
 }
 
+/* ============================================================================
+   Selection
+   ============================================================================ */
+
 ::selection {
-  background: var(--color-accent);
+  background: var(--color-brass);
   color: var(--color-bg);
 }
