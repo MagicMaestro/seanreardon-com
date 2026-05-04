@@ -56,11 +56,16 @@ jobs:
         run: cp deploy/htaccess.staging dist/.htaccess
 
       - name: Configure SSH
+        # Uses ssh.seanreardon.com (DNS-only A record pointing at the origin) rather
+        # than staging.seanreardon.com (CF-proxied for Worker routes). Cloudflare
+        # only proxies HTTP/HTTPS — port 7822 (SSH) doesn't traverse CF's edge, so
+        # ssh-keyscan against the proxied hostname times out. Both hostnames resolve
+        # to the same physical server; the SSH-only record bypasses the proxy.
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p 7822 -H staging.seanreardon.com >> ~/.ssh/known_hosts 2>/dev/null
+          ssh-keyscan -p 7822 -H ssh.seanreardon.com >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Rsync to staging
         run: |
@@ -69,7 +74,7 @@ jobs:
             --exclude='.DS_Store' \
             --exclude='Thumbs.db' \
             -e "ssh -i ~/.ssh/deploy_key -p 7822" \
-            dist/ sreardon@staging.seanreardon.com:/home/sreardon/staging/
+            dist/ sreardon@ssh.seanreardon.com:/home/sreardon/staging/
 
       - name: Verify deploy
         run: |
