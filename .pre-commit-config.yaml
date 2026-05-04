@@ -42,5 +42,6 @@ repos:
       - id: check-merge-conflict
       - id: check-added-large-files
         args: ['--maxkb=2048']  # block files >2MB; project images via CF Images, not in repo
+        exclude: '^design/'     # design/*.psd are intentionally repo-only source files (per design/README.md); some are large (fullLogo.psd is ~20MB) but this is by design, not an accident
       - id: check-yaml
       - id: check-json
