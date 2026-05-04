@@ -1,18 +1,24 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
+import ContactForm from '~/components/astro/ContactForm.astro';
 ---
 <BaseLayout
   title="Contact"
-  description="Get in touch with Sean Reardon."
+  description="Get in touch with Sean Reardon — general inquiries, project questions, or formal privacy requests."
 >
   <h1>Contact</h1>
   <p>
-    Email: <a href="mailto:sean@seanreardon.com">sean@seanreardon.com</a>
+    Reach out via the form below — general inquiries, questions about something I've shipped,
+    or formal privacy requests. Replies usually go out within 24-48 hours.
+  </p>
+  <p>
+    For privacy-policy requests specifically, the
+    <a href="/privacy/">privacy policy</a> covers what rights apply (GDPR + California) and
+    response timing. Use the "Privacy request" topic in the dropdown.
+  </p>
+  <p>
+    Prefer plain email? <a href="mailto:sean@seanreardon.com">sean@seanreardon.com</a> works too.
   </p>
 
-  {/* Stub — full contact form lands in a follow-up:
-      - reCAPTCHA v3 (rotated keys; old ones were exposed in legacy includes/functions.php)
-      - Resend SMTP (already wired into Listmonk; reusable for transactional)
-      - "Privacy request" topic option per the GDPR + CPRA-lite standing rule
-      - Form validation + double-opt-in flows for the newsletter signup component */}
+  <ContactForm />
 </BaseLayout>

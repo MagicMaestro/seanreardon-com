@@ -40,6 +40,7 @@ jobs:
           # Real secrets (API keys, tokens) go in GitHub Secrets without the PUBLIC_ prefix.
           PUBLIC_LISTMONK_HOST: ${{ vars.PUBLIC_LISTMONK_HOST || 'https://lists.seanreardon.com' }}
           PUBLIC_LISTMONK_LIST_UUID: ${{ vars.PUBLIC_LISTMONK_LIST_UUID }}
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
         run: npm run build
 
       - name: Stamp build with commit + timestamp

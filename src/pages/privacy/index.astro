@@ -91,10 +91,10 @@ const lastUpdated = '2026-05-03';
     </p>
 
     <p>
-      <strong>Google reCAPTCHA</strong> runs in the background when you submit a form, to verify
-      that you're not a bot. Google receives request metadata (your IP, browser environment,
-      interaction signals) for that purpose. This is a Google-operated service governed by
-      Google's privacy policy.
+      <strong>Cloudflare Turnstile</strong> runs in the background when you submit a form, to
+      verify that you're not a bot. Turnstile is Cloudflare's privacy-respecting alternative to
+      Google reCAPTCHA — it uses no fingerprinting in default mode and doesn't track you across
+      sites. Cloudflare receives only the minimum metadata needed for the bot check.
     </p>
 
     <p>
@@ -134,10 +134,10 @@ const lastUpdated = '2026-05-03';
           <td><a href="https://resend.com/legal/privacy-policy" rel="external nofollow noopener">resend.com/legal/privacy-policy</a></td>
         </tr>
         <tr>
-          <td>Google (reCAPTCHA)</td>
-          <td>Form submission metadata (IP, browser environment)</td>
+          <td>Cloudflare (Turnstile)</td>
+          <td>Minimal form-submission metadata for bot verification (no fingerprinting in default mode)</td>
           <td>Bot detection on form submissions</td>
-          <td><a href="https://policies.google.com/privacy" rel="external nofollow noopener">policies.google.com/privacy</a></td>
+          <td><a href="https://www.cloudflare.com/privacypolicy/" rel="external nofollow noopener">cloudflare.com/privacypolicy</a></td>
         </tr>
         <tr>
           <td>Anthropic <em>(when AI features ship)</em></td>
@@ -158,7 +158,7 @@ const lastUpdated = '2026-05-03';
     <p>
       This site uses <strong>no tracking cookies and no third-party cookies</strong>. The only
       cookies that may be set are strictly-necessary session cookies for form submissions (for
-      example, reCAPTCHA's verification token), and they expire when you close your browser.
+      example, Turnstile's verification token), and they expire when you close your browser.
     </p>
 
     <p>

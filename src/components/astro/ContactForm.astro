@@ -1,0 +1,461 @@
+---
+/*
+ ContactForm.astro
+
+ POSTs to a Cloudflare Worker bound to /api/contact* (see worker/README.md).
+ The Worker validates fields, verifies a Cloudflare Turnstile token, and sends
+ two emails via Resend (notification to Sean + confirmation to the submitter).
+
+ Required env vars (set at build time):
+   PUBLIC_TURNSTILE_SITE_KEY  — CF Turnstile site key (paired with secret in Worker)
+
+ Required Worker config (one-time):
+   - Worker deployed (npm run worker:deploy)
+   - Secrets set (TURNSTILE_SECRET_KEY, RESEND_API_KEY)
+   - Resend domain verified (seanreardon.com)
+*/
+
+interface Props {
+  heading?: string;
+}
+
+const { heading = 'Send a message' } = Astro.props;
+
+const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
+const ENDPOINT = '/api/contact';
+---
+
+<section class="contact-form-section">
+  <h2>{heading}</h2>
+
+  <form
+    class="contact-form"
+    data-endpoint={ENDPOINT}
+    data-turnstile-site-key={TURNSTILE_SITE_KEY}
+    novalidate
+  >
+    <div class="row">
+      <div class="field">
+        <label for="contact-fname">First name</label>
+        <input
+          id="contact-fname"
+          name="fname"
+          type="text"
+          required
+          autocomplete="given-name"
+          maxlength="50"
+          aria-required="true"
+        />
+      </div>
+      <div class="field">
+        <label for="contact-lname">Last name</label>
+        <input
+          id="contact-lname"
+          name="lname"
+          type="text"
+          required
+          autocomplete="family-name"
+          maxlength="50"
+          aria-required="true"
+        />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="contact-email">Email</label>
+      <input
+        id="contact-email"
+        name="email"
+        type="email"
+        required
+        autocomplete="email"
+        aria-required="true"
+      />
+    </div>
+
+    <div class="field">
+      <label for="contact-website">Website (optional)</label>
+      <input
+        id="contact-website"
+        name="website"
+        type="text"
+        autocomplete="url"
+        placeholder="example.com"
+        maxlength="200"
+      />
+    </div>
+
+    <div class="field">
+      <label for="contact-topic">Topic</label>
+      <select id="contact-topic" name="topic" required aria-required="true">
+        <option value="general">General inquiry</option>
+        <option value="project">Project question or collaboration</option>
+        <option value="privacy">Privacy request</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="contact-message">Message</label>
+      <textarea
+        id="contact-message"
+        name="message"
+        rows="6"
+        required
+        minlength="10"
+        maxlength="5000"
+        aria-required="true"
+      ></textarea>
+    </div>
+
+    {/* Turnstile widget mount point — invisible mode, rendered programmatically */}
+    <div class="turnstile-widget" aria-hidden="true"></div>
+
+    {/* Honeypot — visually hidden, accessibility-tree neutral. Bots fill it; humans don't. */}
+    <input
+      class="honeypot"
+      name="hp_website"
+      type="text"
+      tabindex="-1"
+      autocomplete="off"
+      aria-hidden="true"
+    />
+
+    <button type="submit" class="submit">Send message</button>
+
+    <p class="status-message" role="status" aria-live="polite" hidden></p>
+
+    <p class="fineprint">
+      Submissions are sent over HTTPS to a Cloudflare Worker, validated with
+      <a href="https://www.cloudflare.com/products/turnstile/" rel="external nofollow noopener">Cloudflare Turnstile</a>
+      (privacy-respecting; no fingerprinting), and emailed directly to me via Resend.
+      No third-party form service. See the <a href="/privacy/">privacy policy</a> for what's
+      collected and how it's handled.
+    </p>
+  </form>
+
+  <noscript>
+    <p class="noscript-fallback">
+      <em>This form requires JavaScript. If you'd rather not enable JS, email
+      <a href="mailto:sean@seanreardon.com?subject=Contact%20from%20seanreardon.com">sean@seanreardon.com</a>
+      directly.</em>
+    </p>
+  </noscript>
+</section>
+
+{TURNSTILE_SITE_KEY && (
+  <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback&render=explicit" async defer></script>
+)}
+
+<script>
+  type ContactFormEl = HTMLFormElement & {
+    dataset: {
+      endpoint: string;
+      turnstileSiteKey: string;
+    };
+  };
+
+  type TurnstileOptions = {
+    sitekey: string;
+    size?: 'normal' | 'compact' | 'invisible';
+    action?: string;
+    callback?: (token: string) => void;
+    'error-callback'?: () => void;
+    'expired-callback'?: () => void;
+  };
+
+  declare global {
+    interface Window {
+      turnstile?: {
+        render: (container: HTMLElement | string, options: TurnstileOptions) => string;
+        execute: (widgetId: string) => void;
+        reset: (widgetId: string) => void;
+        remove: (widgetId: string) => void;
+      };
+      onloadTurnstileCallback?: () => void;
+    }
+  }
+
+  // Per-form state for Turnstile widget IDs and pending token resolvers.
+  const widgetByForm = new WeakMap<HTMLFormElement, string>();
+  const resolverByForm = new WeakMap<HTMLFormElement, (token: string | null) => void>();
+
+  const forms = document.querySelectorAll<ContactFormEl>('.contact-form');
+
+  function renderTurnstileForForm(form: ContactFormEl) {
+    const siteKey = form.dataset.turnstileSiteKey;
+    if (!siteKey || !window.turnstile) return;
+    const container = form.querySelector<HTMLDivElement>('.turnstile-widget');
+    if (!container) return;
+    const widgetId = window.turnstile.render(container, {
+      sitekey: siteKey,
+      size: 'invisible',
+      action: 'contact_submit',
+      callback: (token: string) => {
+        const resolve = resolverByForm.get(form);
+        if (resolve) {
+          resolve(token);
+          resolverByForm.delete(form);
+        }
+      },
+      'error-callback': () => {
+        const resolve = resolverByForm.get(form);
+        if (resolve) {
+          resolve(null);
+          resolverByForm.delete(form);
+        }
+      },
+      'expired-callback': () => {
+        const resolve = resolverByForm.get(form);
+        if (resolve) {
+          resolve(null);
+          resolverByForm.delete(form);
+        }
+      },
+    });
+    widgetByForm.set(form, widgetId);
+  }
+
+  // Turnstile script's onload calls this. We render every form's invisible widget at that point.
+  window.onloadTurnstileCallback = () => {
+    for (const form of forms) {
+      renderTurnstileForForm(form);
+    }
+  };
+
+  async function getTurnstileToken(form: ContactFormEl): Promise<string | null> {
+    const widgetId = widgetByForm.get(form);
+    if (!widgetId || !window.turnstile) return null;
+
+    // Reset any prior state so we get a fresh token.
+    window.turnstile.reset(widgetId);
+
+    return new Promise<string | null>((resolve) => {
+      resolverByForm.set(form, resolve);
+      window.turnstile!.execute(widgetId);
+      // Safety timeout — if Turnstile hangs, don't lock up the form forever.
+      setTimeout(() => {
+        if (resolverByForm.get(form) === resolve) {
+          resolverByForm.delete(form);
+          resolve(null);
+        }
+      }, 30_000);
+    });
+  }
+
+  for (const form of forms) {
+    const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const statusEl = form.querySelector<HTMLParagraphElement>('.status-message')!;
+    const endpoint = form.dataset.endpoint;
+
+    function showStatus(text: string, kind: 'success' | 'error' | 'info') {
+      statusEl.hidden = false;
+      statusEl.textContent = text;
+      statusEl.className = `status-message status-${kind}`;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      statusEl.hidden = true;
+
+      const honeypot = form.querySelector<HTMLInputElement>('input[name="hp_website"]')!;
+      if (honeypot.value) {
+        // Silent fake-success for bots.
+        showStatus("Message received. I'll respond within 24-48 hours.", 'success');
+        form.reset();
+        return;
+      }
+
+      const fname = form.querySelector<HTMLInputElement>('[name="fname"]')!.value.trim();
+      const lname = form.querySelector<HTMLInputElement>('[name="lname"]')!.value.trim();
+      const email = form.querySelector<HTMLInputElement>('[name="email"]')!.value.trim();
+      const website = form.querySelector<HTMLInputElement>('[name="website"]')!.value.trim();
+      const topic = form.querySelector<HTMLSelectElement>('[name="topic"]')!.value;
+      const message = form.querySelector<HTMLTextAreaElement>('[name="message"]')!.value.trim();
+
+      if (!fname || !lname || !email || !message || message.length < 10) {
+        showStatus(
+          'Please fill in name, email, and a message of at least 10 characters.',
+          'error',
+        );
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Verifying…';
+
+      const turnstileToken = await getTurnstileToken(form);
+      if (!turnstileToken) {
+        showStatus(
+          "Couldn't complete the human-verification challenge. Please refresh the page and try again, or email sean@seanreardon.com directly.",
+          'error',
+        );
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send message';
+        return;
+      }
+
+      submitBtn.textContent = 'Sending…';
+
+      const payload = {
+        fname,
+        lname,
+        email,
+        website,
+        topic,
+        message,
+        turnstile_token: turnstileToken,
+        hp_website: honeypot.value,
+      };
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          showStatus(
+            "Message received. You'll get a confirmation email shortly, and I'll respond within 24-48 hours.",
+            'success',
+          );
+          form.reset();
+        } else {
+          const errBody = await res.json().catch(() => ({}));
+          const detail = (errBody as { error?: string })?.error || `(status ${res.status})`;
+          showStatus(
+            `Something went wrong: ${detail}. Try again, or email sean@seanreardon.com directly.`,
+            'error',
+          );
+        }
+      } catch (err) {
+        showStatus(
+          "Couldn't reach the contact endpoint. Check your connection and try again, or email sean@seanreardon.com directly.",
+          'error',
+        );
+        console.error('Contact form failed:', err);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send message';
+      }
+    });
+  }
+</script>
+
+<style>
+  .contact-form-section {
+    margin-block: var(--space-lg);
+    padding: var(--space-md);
+    border: 1px solid var(--color-muted);
+    border-radius: var(--radius);
+    max-width: 720px;
+  }
+  .contact-form-section h2 {
+    margin-top: 0;
+    font-size: 1.25rem;
+  }
+  .contact-form .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-sm);
+  }
+  @media (max-width: 480px) {
+    .contact-form .row {
+      grid-template-columns: 1fr;
+    }
+  }
+  .contact-form .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-block: var(--space-sm);
+  }
+  .contact-form label {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+  .contact-form input[type='text'],
+  .contact-form input[type='email'],
+  .contact-form select,
+  .contact-form textarea {
+    padding: 0.5rem 0.75rem;
+    font: inherit;
+    color: var(--color-fg);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--color-muted);
+    border-radius: var(--radius);
+    transition: border-color var(--transition-fast);
+  }
+  .contact-form input:focus,
+  .contact-form select:focus,
+  .contact-form textarea:focus {
+    outline: none;
+    border-color: var(--color-accent);
+  }
+  .contact-form textarea {
+    resize: vertical;
+    min-height: 8rem;
+    font-family: inherit;
+  }
+  .contact-form .submit {
+    padding: 0.5rem 1rem;
+    font: inherit;
+    font-weight: 600;
+    color: var(--color-bg);
+    background: var(--color-accent);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    margin-top: var(--space-sm);
+  }
+  .contact-form .submit:hover:not(:disabled) {
+    background: var(--color-accent-hot);
+  }
+  .contact-form .submit:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+  .status-message {
+    margin-block: var(--space-sm) 0;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius);
+    font-size: 0.9375rem;
+  }
+  .status-success {
+    background: rgba(80, 200, 120, 0.1);
+    border: 1px solid rgba(80, 200, 120, 0.4);
+    color: #50c878;
+  }
+  .status-error {
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid rgba(255, 107, 107, 0.4);
+    color: var(--color-error);
+  }
+  .status-info {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--color-muted);
+    color: var(--color-muted);
+  }
+  .fineprint {
+    margin-top: var(--space-sm);
+    color: var(--color-muted);
+    font-size: 0.8125rem;
+  }
+  .noscript-fallback {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+  }
+  /* Invisible Turnstile widget — no visual footprint when size: 'invisible' */
+  .turnstile-widget {
+    display: none;
+  }
+  .honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>

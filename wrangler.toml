@@ -1,0 +1,20 @@
+name = "seanreardon-contact"
+main = "worker/contact-form.ts"
+compatibility_date = "2026-05-03"
+
+# Routes intercept these URLs at the Cloudflare edge before they reach the origin.
+# Both production and staging route to the same Worker; the Worker checks Origin
+# against its ALLOWED_ORIGINS list.
+routes = [
+  { pattern = "seanreardon.com/api/contact*", zone_name = "seanreardon.com" },
+  { pattern = "staging.seanreardon.com/api/contact*", zone_name = "seanreardon.com" }
+]
+
+# Non-secret config — visible in dashboard, can sit in version control.
+[vars]
+CONTACT_DESTINATION_EMAIL = "sean@seanreardon.com"
+CONTACT_FROM_EMAIL = "contact@seanreardon.com"
+
+# Secrets are NOT in this file. Set via:
+#   wrangler secret put TURNSTILE_SECRET_KEY
+#   wrangler secret put RESEND_API_KEY
