@@ -31,3 +31,6 @@ desktop.ini
 
 # Other
 .cache/
+
+# Design source variant backups (parenthetical-suffix saves Sean uses for scratch/variant states)
+design/fullLogo-2026-05-04(copper-edge-colors-base-point).psd
