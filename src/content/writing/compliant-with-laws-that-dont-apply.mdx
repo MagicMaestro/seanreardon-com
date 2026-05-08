@@ -1,0 +1,47 @@
+---
+title: "Respecting Privacy: Adhering to Privacy Laws that don't legally apply — and why"
+date: 2026-05-08
+summary: GDPR and CPRA don't legally apply to my personal portfolio. I'm complying with both anyway. Here's the calculus, and why "who visits" isn't the deciding factor I initially thought it was.
+tags: [privacy, compliance, retrospective, redesign]
+status: published
+---
+
+Privacy is a sensitive topic for millions of people, including myself. This is why I started considering GDPR and CPRA-lite privacy policy integrations when developing this site.
+
+But do you want to know a secret? Neither regulation applies to my personal portfolio website. I'm complying with both anyway.
+
+Quick context for anyone who hasn't navigated this terrain — <a target="_blank" href="https://gdpr-info.eu/">General Data Protection Regulation (GDPR)</a> is the EU's data privacy law; <a target="_blank" href="https://www.caprivacy.org/cpra-summary-by-section/">California Privacy Rights Act (CPRA)</a> is California's. Both have specific applicability thresholds. My site clears none of them.
+
+So: I don't have to do this. But here's why I am anyway.
+
+GDPR's territorial scope kicks in when you offer goods or services to EU residents or monitor their behavior. My website, which is a portfolio site that exists for a US-based developer, with no commercial transactions, mostly fails the scope of "offering goods or services" test. CPRA is even cleaner — it has explicit thresholds: $25M+ in annual revenue, or processing the personal info of 100,000+ California residents per year, or 50%+ of revenue from selling and sharing PI. But my website, as proud of it as I am, clears none of those thresholds.
+
+So with both laws technically off the table, you're probably wondering why I'd even do it at all? And you're right to question that. But, in spite of the fact it wasn't *legally* required, I still chose to do it.
+
+Honestly, it wasn't a difficult, or even lengthy decision. When I navigate to a website, I expect my own privacy to be respected. There's no conscionable way I could ask any differently from the visitors to my own site. So my leaning-preference towards privacy made this a simple call. But — for those who don't share my 'privacy-by-default' views — there are also some real logical reasons to implement it anyway, even when it doesn't seem to apply.
+
+Consider the argument for my site, and about the site's intended *audience*: this site's visitors are mostly technical folks such as developers and technical leads. These are the people most commonly using ad blockers. Or reading privacy policies for fun and who already know about cookies. So, if the intended audience are typically people already well-versed in privacy protections, why apply consumer-grade compliance at all? I mean, after all, I'm not based anywhere in Europe and I don't live near California. Well, there are a couple of important reasons I can think of right off the bat.
+
+First — applicability isn't decided by who you *think* visits your site. It's decided by jurisdictional thresholds, which are about scale and behavior, not about who shows up. The "audience composition" frame is comfortable but incorrect: GDPR doesn't ask whether your visitors are sophisticated. It asks whether you're processing EU resident data without a lawful basis.
+
+Second — even if the intended audience *were* a valid filter, there's still a simple reason to include it (beyond personal preference). Tech-savvy visitors aren't more tolerant of sloppy privacy practice. They're *less* tolerant. *Much less tolerant*. They notice. They run ad-blockers. They check the network tab in DevTools. A missing privacy policy isn't a neutral signal to that audience — it's a negative one.
+
+For me, sloppy privacy practice on a portfolio site reads as a credibility tax — visible to exactly the audience whose opinion matters most. Even a well-built website loses major credibility when privacy security is missing or lax.
+
+The interesting question is then: how much work does that cost?
+
+When constructing a website, typically you want it built and shipped as quickly as possible, without needing to waste weeks implementing legal compliance work. But here's the good news. It doesn't need to take long at all!
+
+GDPR-style compliance is mostly a privacy policy that lists what you collect, what you do with it, who else sees it, and how long you keep it — plus a consent mechanism for anything that needs explicit opt-in. That's about an afternoon of writing for a small site, plus configuration for analytics and forms. Real, but not heavy. And certainly nowhere near weeks to complete.
+
+CPRA-lite on top of GDPR is an even smaller addition. The mechanism is shared — you already have the privacy policy infrastructure from GDPR; you're already thinking about consent. What CPRA-lite adds is concrete and bounded:
+
+- A single additional privacy policy section listing California-specific rights — right to know, right to delete, right to correct, right to opt out of sale and sharing, right to limit sensitive PI use, non-discrimination guarantee.
+- One footer link that says "Do Not Sell or Share My Personal Information," pointing at that section. My version says "we don't, and here's why" — a declarative statement, not a functional opt-out toggle, since there's nothing to opt out of.
+- That's it. That's what I mean when I talk about CPRA-lite.
+
+About an hour of work. Bundled with the GDPR compliance effort, it's barely a separate task. Half a privacy-policy section, one footer link, and one explicit acknowledgment that the standard exists.
+
+There's a forward-looking angle too. If this site ever scales — if a project ever turns into something with real traffic, real users, real PI processing — I won't have to retrofit. The infrastructure is in place from day one. The cost-of-future-compliance is bounded.
+
+Here's the main takeaway: I take user data seriously. Not because someone made me. But because the marginal effort was small enough to be worth it — but more honestly, I'd want it done to any site I visited. In thinking about what I'd expect from someone else's site, I needed to enforce the same standard on mine. So I chose my site's standard: respectful compliance.
