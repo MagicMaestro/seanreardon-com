@@ -1,0 +1,41 @@
+---
+title: "Analytics: Two pivots in a single day, and what each one taught me"
+date: 2026-05-13
+summary: I picked analytics three times in a single day. Two pivots, three failure modes — including a rule I was writing the same afternoon I broke it. Here's how the right answer surfaced only after I'd ruled out two wrong ones.
+tags: [analytics, privacy, retrospective, redesign]
+status: published
+---
+
+I needed analytics that would respect the audience, stay cheap, and not make me write a privacy policy that read like an apology. Three separate candidates failed those requirements in three different ways — and one of them failed against a rule I was writing that same afternoon.
+
+The rule: *self-hosted and privacy-respecting comes first; paid services get flagged explicitly — and "free with my data" is its own kind of paid.* The candidate: Google Analytics. The rule would have caught it. I just hadn't applied it yet. A few hours later I noticed, and switched again.
+
+This site is a personal portfolio — projects, writing, and retrospectives like this one. It's read mostly by tech leads, engineers, and other technical professionals — people who notice when their own browser tab fills up with third-party trackers, and who run blockers because they'd become tired of it. Whatever I picked for analytics needed to fit that posture. It also needed to cost less, in time and money, than the value of the data it produced — which for a site like this is "do people read the writing, and which posts." Not a lot.
+
+I started with Plausible CE, the self-hosted version. Privacy-first, no cookies, no consent banner needed. "I run my own infra" is a credible signal for the audience I was aiming at, and Plausible CE was the obvious way to send it. The install went through cleanly: a Docker stack on a stats subdomain, with the database and analytics store running alongside the app, plus a security-monitoring service that needed to be told about the new files. Smoke-tested. Working.
+
+Then I looked at what I'd added: three new services on a VPS, each with their own patching cadence, on a personal site. The operational cost was wrong for the value. Analytics for a portfolio doesn't justify three more things to maintain. I tore it down the same day.
+
+1st Failure: operational cost — realizing the development effort was out of proportion to the need.
+
+So I moved to Google Analytics 4 (GA4). Free, ubiquitous, zero infra. I started writing the redesign tasks it would need — a cookie consent banner, IP anonymization, 14-month data retention, Consent Mode v2, a privacy-policy section disclosing the Google integration.
+
+That list is where the catch came. The site's posture is audience-respect; that was already the design principle, already in the standing rules. GA4's compliance work isn't optional cosmetic effort — it's the cost of using a tool whose business model is data. The consent banner GA4 needs is a friction my audience would notice and block, accurately reading it as a tracker. The privacy policy disclosure ("we share data with Google") reads as friction even to readers who never check the network tab.
+
+And sitting on the desk next to all of this — literally, in the same day's notes — I was writing the standing rule for the project: *paid services flagged explicitly; "free with my data" is its own kind of paid.* GA4 is the canonical "free with my data" service. The rule was being written. Yet I was picking the very tool it would have flagged.
+
+2nd Failure: rule mismatch — delayed reaction to a rule I'd just written. Should have caught the mismatch at hour one. Caught at hour three instead.
+
+The second pivot didn't happen because I sat down and re-evaluated. It happened because I was reviewing the image-hosting decision a few hours later, and Cloudflare came up. *Cloudflare. They also do analytics.* That's it. A passing thought, in the middle of a different conversation. The candidate that ended up being right surfaced not by analysis, but by being mentioned adjacent to something else.
+
+Cloudflare Web Analytics is cookieless. Aggregate-only. No consent banner needed, because there's nothing to consent to. Free at this site's scale. No data trade. It satisfied every requirement, including the rule I was writing.
+
+And it had been available the whole time. I'd just never put it on the candidate list.
+
+3rd & Final Failure: failure to consider all tools in the first place. This was not a failure of the tool. It was mine — the right analytics tool was invisible until I'd ruled out two wrong ones, because I hadn't gone looking for it.
+
+The whole sequence pairs with another decision from the same week, which I wrote about in [the privacy-compliance post](/lessons-learned/compliant-with-laws-that-dont-apply): why this site complies with GDPR and CPRA-lite when it legally meets neither threshold. That post is about going beyond the legal floor as a signal. This one is about catching yourself short of the floor you've already set for yourself. Both are versions of the same question — what does the audience deserve, and is the current plan delivering it? It's a question you have to keep asking. Including, sometimes, in the middle of executing the answer.
+
+The lesson isn't "pick Cloudflare Web Analytics." It's that the criteria do the work — the candidates only matter once you've actually held them up to the rules you said you cared about. I had the criteria. I just hadn't run them yet.
+
+Two pivots in a day looks indecisive. It wasn't. The requirements held steady; I just kept finding candidates that hadn't met them. The third one did. The whole arc cost me an afternoon and a Docker stack — a much cheaper price than shipping the wrong default.
