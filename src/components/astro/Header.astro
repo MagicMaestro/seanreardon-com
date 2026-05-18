@@ -1,56 +1,1715 @@
 ---
+import { Image } from 'astro:assets';
+import gearIcon from '~/assets/images/gear.png';
+import fullLogo from '~/assets/images/fullLogo.png';
+import mobileLogo from '~/assets/images/mobileLogo.png';
+
 const { pathname } = Astro.url;
 const isActive = (path: string): 'page' | undefined =>
   pathname === path || pathname.startsWith(path + '/') ? 'page' : undefined;
+
+const navLinks = [
+  { href: '/projects/', label: 'Projects', match: '/projects' },
+  { href: '/lessons-learned/', label: 'Lessons Learned', match: '/lessons-learned' },
+  { href: '/about-me/', label: 'About Me', match: '/about-me' },
+  { href: '/reach-out/', label: 'Reach Out', match: '/reach-out' },
+  /* Search removed from the primary nav (2026-05-11) — being relocated to a
+     slide-animation triggered by a separate button near the header. The
+     /search/ route itself is still live; just not linked here. */
+];
 ---
-<header class="site-header">
-  <div class="header-inner">
-    <a href="/" class="logo" aria-label="Home">
-      {/* Gears placeholder — visual-direction plan will replace with the modernized motif (CSS-only animated SVG that rotates only on scroll, per the foundation plan's motion rule). */}
-      <span class="gear" aria-hidden="true">⚙</span>
-      <span class="logo-text">Sean Reardon</span>
-    </a>
-    <nav aria-label="primary">
-      <ul>
-        <li><a href="/work/" aria-current={isActive('/work')}>Work</a></li>
-        <li><a href="/writing/" aria-current={isActive('/writing')}>Writing</a></li>
-        <li><a href="/about/" aria-current={isActive('/about')}>About</a></li>
-        <li><a href="/contact/" aria-current={isActive('/contact')}>Contact</a></li>
-        <li><a href="/search/" aria-current={isActive('/search')} aria-label="Search">⌕</a></li>
-      </ul>
-    </nav>
+
+{/*
+  Three-tier responsive header (locked 2026-05-08; auto-collapse behavior
+  revised 2026-05-10):
+
+  - Small  (<640px): always shows the minimal layout (mobileLogo + hamburger).
+                     Gear toggle: visible ↔ hidden (slide entire bar off-screen).
+  - Medium (640-895px): full state shows fullLogo + hamburger; minimal shows
+                        SR diamond (+ hamburger for nav access).
+                        Gear toggle: minimal ↔ full.
+  - Large  (≥896px): full state shows fullLogo + horizontal nav; minimal
+                     shows SR diamond only.
+                     Gear toggle: minimal ↔ full.
+
+  Auto-collapse + manual-toggle behavior:
+  - Scrolling DOWN past a small buffer auto-collapses (unless already collapsed).
+  - Scrolling UP while away from top is a no-op — preserves any manual
+    expansion via gear click.
+  - Reaching the top of the page (scrollY ≤ 8px) always re-expands to "full".
+  - Gear click is a manual toggle that works at any scroll position (including
+    at the top — the previous "locked at top" rule was removed).
+  - Hamburger (medium + small) opens the slide-in nav drawer from the right.
+*/}
+
+<header class="site-header" data-state="full">
+  {/* Gear: click target wrapped in <button> for keyboard/screen-reader
+      accessibility. The image inside is decorative (alt=""). Ambient
+      scroll-driven rotation lives on the image; click handler on the button. */}
+  <button
+    class="header-toggle"
+    type="button"
+    aria-label="Toggle header visibility"
+    aria-expanded="true"
+    aria-controls="header-bar"
+  >
+    <Image src={gearIcon} alt="" class="header-gear" loading="eager" />
+  </button>
+
+  {/* Mobile overhang logo — shown only on small screens (<640px). Positioned
+      as a sibling of .header-bar so it persists visibly when the bar collapses
+      to the hidden state (transform: translateY(-100%) on the bar slides the
+      bar away; this overhang logo stays put with adjusted positioning). */}
+  <a class="logo-overhang" href="/" aria-label="Home">
+    <Image src={mobileLogo} alt="Sean Reardon" class="mobile-logo-overhang" loading="eager" />
+  </a>
+
+  {/* Full-logo anchor — placed at .site-header level (sibling of .header-bar)
+      so it can slide horizontally on state change while the bar slides
+      vertically. If it lived inside .header-bar, the bar's translateY(-100%)
+      would carry the logo upward too — but we want the logo going LEFT and
+      the bar going UP, in different directions. Z-index: 3 puts the logo
+      above the bar's bg (z-index: 2) so it remains visible in full state. */}
+  <a href="/" class="logo" aria-label="Home">
+    <Image src={fullLogo} alt="Sean Reardon" class="full-logo" loading="eager" />
+  </a>
+
+  {/* Search field — slides down from behind the header bar when the
+      search icon is clicked. Positioned fixed at top:0 so its top
+      edge stays tucked behind the header bar (which is at z-index: 2
+      inside .site-header's stacking context; field is at z-index: 1,
+      so the bar paints over the top portion). The visible portion
+      sits in the space between the header bar and the page-title bar.
+      Form submits to /search/?q=... — the JS at the bottom restores
+      this open state (and the input value) when /search/ is loaded
+      with a query, so the box remains visible on the results page. */}
+  <div id="header-search-field" class="header-search-field" data-open="false" aria-hidden="true">
+    {/* Diagonal laser beam riding the field's diagonal left edge. As a
+        CHILD of the field its origin (0, 0) IS the field's top-left in
+        local coords, so the beam can't drift relative to the polygon
+        regardless of the field's per-tier left/right values. Half of
+        the beam (the side outside the polygon) is clipped by the
+        field's clip-path; the visible half stroke lies exactly along
+        the polygon's diagonal edge. Visible at ≥740px via opacity
+        (CSS toggles below). */}
+    <div class="header-search-diagonal-beam" aria-hidden="true"></div>
+  </div>
+  {/* Search form (input + submit) — placed as a SIBLING of
+      .header-search-field rather than a child (2026-05-12) so the input
+      can have a z-index that puts it ABOVE the logo (z-index 3) while
+      the field's backdrop panel sits BEHIND the logo at <740px. If the
+      form lived inside the field, the field's own stacking context
+      (position: fixed always creates one) would clamp the input's
+      effective z-index to the field's level — making "input above
+      logo, field below logo" impossible to express. As siblings each
+      can pick its own z-index in the site-header's stacking context
+      independently. Opacity toggle now uses the sibling combinator
+      (~) to target the form from the field's data-open state. */}
+  <form class="header-search-form" action="/search/" method="get" role="search">
+    <label for="header-search-input" class="visually-hidden">Search</label>
+    <input
+      id="header-search-input"
+      class="header-search-input"
+      type="search"
+      name="q"
+      placeholder="Search…"
+      autocomplete="off"
+      aria-label="Search query"
+    />
+    <button type="submit" class="header-search-submit" aria-label="Submit search">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="5" y1="12" x2="19" y2="12" />
+        <polyline points="12 5 19 12 12 19" />
+      </svg>
+    </button>
+  </form>
+  <div id="header-bar" class="header-bar">
+    {/* Large-viewport (≥1040px) trapezoidal fill between the bottom beam,
+        the over-nav beam, and the diagonal — gives the over-nav region
+        a dark-purple HUD interior like the mobile nav drawer. Sits
+        first in source order + z-index: 0 so it stacks below both the
+        beams (z-index: 1) and the nav content (z-index: auto). */}
+    <div class="header-bar-fill" aria-hidden="true"></div>
+    {/* Large-viewport (≥1040px) over-nav laser segments. The diagonal
+        branches off the bar's bottom beam at the post-logo "split point"
+        and ramps up at 45°; the horizontal segment continues from the
+        diagonal's top, riding above the nav text to the bar's right edge.
+        Both are hidden at <1040px via CSS. */}
+    <div class="header-beam-diag" aria-hidden="true"></div>
+    <div class="header-beam-over" aria-hidden="true"></div>
+
+    {/* Search button — magnifying glass icon. Positioned absolutely
+        relative to .header-bar so it stays anchored regardless of the
+        .header-main / .header-minimal opacity swap. Per-tier placement:
+          - <1040px: ~5-6rem left of the hamburger, at the hamburger's y.
+          - ≥1040px: above the over-nav top beam, top-right corner of the
+            screen with the icon's h-center aligned to the center of the
+            terminal circle at the end of the over-nav beam. */}
+    <button class="header-search" type="button" aria-label="Open search">
+      {/* Horizontal "hook" beam continuing from the diagonal's tip INTO
+          the button, behind the icon, stopping inside the outline.
+          Only renders visually at <1040px (hidden at ≥1040). */}
+      <span class="header-search-beam-h" aria-hidden="true"></span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"></circle>
+        <line x1="16.5" y1="16.5" x2="21" y2="21"></line>
+      </svg>
+    </button>
+
+    {/* MAIN: nav + hamburger (logo moved out, see above) */}
+    <div class="header-main">
+      <div class="header-inner">
+        <nav class="primary-nav" aria-label="primary">
+          <ul>
+            {navLinks.map(link => (
+              <li>
+                <a
+                  href={link.href}
+                  aria-current={isActive(link.match)}
+                  {...(link.aria ? { 'aria-label': link.aria } : {})}
+                >{link.label}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <button
+          class="hamburger"
+          type="button"
+          aria-label="Open navigation menu"
+          aria-expanded="false"
+          aria-controls="nav-drawer"
+        >
+          {/* Horizontal "hook" beam continuing from the diagonal's tip INTO
+              the button, behind the icon, stopping at button center. */}
+          <span class="hamburger-beam-h" aria-hidden="true"></span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    {/* MINIMAL: SR diamond (+ hamburger on medium/small) */}
+    <div class="header-minimal">
+      <div class="header-inner">
+        <a href="/" class="logo-mini" aria-label="Home">
+          <Image src={mobileLogo} alt="Sean Reardon" class="mobile-logo" loading="eager" />
+        </a>
+        <button
+          class="hamburger"
+          type="button"
+          aria-label="Open navigation menu"
+          aria-expanded="false"
+          aria-controls="nav-drawer"
+        >
+          {/* Horizontal "hook" beam continuing from the diagonal's tip INTO
+              the button, behind the icon, stopping at button center. */}
+          <span class="hamburger-beam-h" aria-hidden="true"></span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+      </div>
+    </div>
   </div>
 </header>
 
-<style>
-  .site-header {
-    border-bottom: 1px solid var(--color-muted);
-    padding-block: var(--space-sm);
+{/* Slide-in nav drawer + backdrop — sibling of header so they get their own
+    stacking context and aren't constrained by the header's z-index. */}
+<div class="nav-drawer-backdrop" data-open="false" aria-hidden="true"></div>
+
+<aside class="nav-drawer" id="nav-drawer" aria-label="navigation menu" data-open="false">
+  <div class="nav-drawer-inner">
+    <button class="nav-drawer-close" type="button" aria-label="Close navigation menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <line x1="6" y1="6" x2="18" y2="18" />
+        <line x1="18" y1="6" x2="6" y2="18" />
+      </svg>
+    </button>
+    <nav aria-label="navigation menu">
+      <ul class="nav-drawer-list">
+        {navLinks.map(link => (
+          <li>
+            <a
+              href={link.href}
+              aria-current={isActive(link.match)}
+              {...(link.aria ? { 'aria-label': link.aria } : {})}
+            >{/* Inline-block span wraps the label so the underline ::after
+                  (which spans 100% of its positioning context) is sized
+                  to the text width, not the link's full block width. */}
+              <span class="nav-drawer-list-label">{link.label}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</aside>
+
+<script>
+  // Header state machine + scroll detection + gear/hamburger interactivity.
+  // Behavior revised 2026-05-10 (second pass — mid-page manual expansion fix):
+  //   - Scroll DOWN past SCROLL_BUFFER auto-collapses, UNLESS the user has
+  //     manually expanded mid-page (then their expansion is authoritative)
+  //   - Scroll UP while away from top is a no-op — preserves manual expansion
+  //   - Reaching top of page (scrollY ≤ TOP_THRESHOLD) always re-expands to
+  //     "full" AND resets the manually-expanded flag (fresh start at top)
+  //   - Gear click toggles state at any scroll position. Mid-page expansion
+  //     sets the manually-expanded flag; mid-page collapse clears it.
+  //
+  // Rationale for the manually-expanded flag: without it, the scroll listener
+  // would fight the user's mid-page expansion. Any trivial scroll-down delta
+  // (>5px from trackpad jitter, inertia, or moving the cursor to the nav)
+  // would immediately re-collapse the header, making the gear click feel
+  // broken mid-page. With the flag, the user's intent is respected — once
+  // they say "I want this open," it stays open until they say otherwise or
+  // they return to the top.
+
+  const TOP_THRESHOLD = 8;          // px; below this, considered "at top" (resets manual flag)
+  const SMALL_BREAKPOINT = 640;     // <640 = small (gear hides/shows entire bar)
+  // Position-based trigger thresholds (replaces the prior delta-based
+  // SCROLL_BUFFER=5px). The delta approach required accumulating motion
+  // to surpass 5px BETWEEN scroll events — single down-arrow nudges
+  // could fall below this in some browsers, so the header wouldn't
+  // collapse on a single key press. Position-based thresholds use
+  // absolute scrollY, so any scroll past COLLAPSE_AT collapses the
+  // header reliably, and scrolling back up past EXPAND_AT expands it
+  // again — both transitions happen in the same general scroll region
+  // (around "page title's top half passes viewport top"). Small
+  // hysteresis (80→70) prevents flicker when scrollY oscillates near
+  // the boundary due to inertia or trackpad jitter.
+  const COLLAPSE_AT = 80;           // px; scroll DOWN past this — collapse
+  const EXPAND_AT = 70;             // px; scroll UP back below this — expand
+
+  const header = document.querySelector('.site-header')!;
+  const toggleButton = document.querySelector('.header-toggle') as HTMLButtonElement;
+  const navDrawer = document.getElementById('nav-drawer')!;
+  const backdrop = document.querySelector('.nav-drawer-backdrop')!;
+  const hamburgerButtons = document.querySelectorAll<HTMLButtonElement>('.hamburger');
+  const drawerCloseButton = document.querySelector('.nav-drawer-close') as HTMLButtonElement;
+
+  let lastScrollY = window.scrollY;
+  let isAtTop = lastScrollY <= TOP_THRESHOLD;
+  let lastFocusedHamburger: HTMLButtonElement | null = null;
+  // Tracks whether the user has manually expanded the header mid-page via the
+  // gear click. When true, scroll-down auto-collapse is suppressed. Cleared
+  // when the user manually collapses again OR when scrolling reaches the top.
+  let manuallyExpanded = false;
+
+  function updateScrollState() {
+    const currentScrollY = window.scrollY;
+    const newIsAtTop = currentScrollY <= TOP_THRESHOLD;
+    const isSmall = window.innerWidth < SMALL_BREAKPOINT;
+    const currentState = header.getAttribute('data-state');
+    const collapsedState = isSmall ? 'hidden' : 'minimal';
+
+    // Reset manual flag when reaching the very top (TOP_THRESHOLD).
+    // Separate from the auto-toggle below — the at-top reset always
+    // fires, regardless of manuallyExpanded.
+    if (newIsAtTop && !isAtTop) {
+      manuallyExpanded = false;
+    }
+
+    // Auto-toggle based on absolute scroll position. Suppressed when
+    // the user has manually expanded mid-page (gear click) — their
+    // expansion is authoritative until they re-collapse or reach top.
+    if (!manuallyExpanded) {
+      let desiredState: string | null = null;
+      if (currentScrollY >= COLLAPSE_AT && currentState !== collapsedState) {
+        desiredState = collapsedState;
+      } else if (currentScrollY <= EXPAND_AT && currentState !== 'full') {
+        desiredState = 'full';
+      }
+      // Between EXPAND_AT and COLLAPSE_AT (the hysteresis zone): no
+      // change — preserve whatever state the user crossed into.
+
+      if (desiredState) {
+        header.setAttribute('data-state', desiredState);
+        toggleButton.setAttribute('aria-expanded', desiredState === 'full' ? 'true' : 'false');
+        // Drawer should not hang in space while the header is mid-transition.
+        if (navDrawer.getAttribute('data-open') === 'true') {
+          closeDrawer();
+        }
+      }
+    }
+
+    isAtTop = newIsAtTop;
+    lastScrollY = currentScrollY;
   }
+
+  // Throttled scroll listener via requestAnimationFrame
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        updateScrollState();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
+
+  // Initial state on page load — if scrolled at load (refresh / anchor link
+   // / back-button restore), set the appropriate collapsed state. At-top loads
+   // use the markup default (data-state="full"). */
+  if (!isAtTop) {
+    const _isSmall = window.innerWidth < SMALL_BREAKPOINT;
+    header.setAttribute('data-state', _isSmall ? 'hidden' : 'minimal');
+    toggleButton.setAttribute('aria-expanded', 'false');
+  }
+
+  // Gear click handler — works at any scroll position. Toggles between visible
+  // and collapsed states. On small screens, the meaningful toggle is between
+  // visible (minimal/full are visually identical there) and hidden. On medium
+  // and large, the toggle is between full and minimal.
+  // Toggle is LOCKED when the page can't scroll (content fits viewport) per
+  // Sean's lock 2026-05-10 — there's no scroll to expose underneath, so the
+  // header must stay expanded.
+  // When the user is MID-PAGE, the click also sets/clears manuallyExpanded so
+  // their intent isn't overridden by subsequent scroll-down auto-collapse.
+  toggleButton.addEventListener('click', () => {
+    // Lock toggle when no scroll possible
+    const canScroll = document.documentElement.scrollHeight > window.innerHeight + TOP_THRESHOLD;
+    if (!canScroll) return;
+
+    const isSmall = window.innerWidth < SMALL_BREAKPOINT;
+    const currentState = header.getAttribute('data-state');
+    const atTopNow = window.scrollY <= TOP_THRESHOLD;
+    let isExpanding = false;
+
+    if (isSmall) {
+      // Small: visible ↔ hidden (single-click toggle from any visible state)
+      const next = currentState === 'hidden' ? 'minimal' : 'hidden';
+      header.setAttribute('data-state', next);
+      toggleButton.setAttribute('aria-expanded', next === 'hidden' ? 'false' : 'true');
+      isExpanding = next !== 'hidden';
+    } else {
+      // Medium + Large: full ↔ minimal
+      const next = currentState === 'full' ? 'minimal' : 'full';
+      header.setAttribute('data-state', next);
+      toggleButton.setAttribute('aria-expanded', next === 'minimal' ? 'false' : 'true');
+      isExpanding = next === 'full';
+    }
+
+    // Mid-page: track the user's intent so the scroll listener doesn't fight
+    // it. Expanding mid-page = "keep this open"; collapsing mid-page = "I
+    // explicitly want it closed, normal auto-behavior resumes."
+    // At top: leave the flag alone — the scroll listener's at-top auto-expand
+    // is the authoritative reset.
+    if (!atTopNow) {
+      manuallyExpanded = isExpanding;
+    }
+  });
+
+  // Hamburger toggles the nav drawer
+  function openDrawer(triggerButton?: HTMLButtonElement) {
+    navDrawer.setAttribute('data-open', 'true');
+    backdrop.setAttribute('data-open', 'true');
+    hamburgerButtons.forEach(btn => btn.setAttribute('aria-expanded', 'true'));
+    if (triggerButton) lastFocusedHamburger = triggerButton;
+    drawerCloseButton.focus();
+  }
+
+  function closeDrawer() {
+    navDrawer.setAttribute('data-open', 'false');
+    backdrop.setAttribute('data-open', 'false');
+    hamburgerButtons.forEach(btn => btn.setAttribute('aria-expanded', 'false'));
+    lastFocusedHamburger?.focus();
+  }
+
+  hamburgerButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Pulse animation: remove the class first (in case a previous click is
+      // mid-animation), force a reflow so the browser registers the removal,
+      // then re-add the class to restart the keyframes from frame 0. Without
+      // the reflow trick, a rapid second click would do nothing visually
+      // because the class is already present.
+      btn.classList.remove('pulsing');
+      void btn.offsetWidth;
+      btn.classList.add('pulsing');
+      openDrawer(btn);
+    });
+    // Self-clean: remove the class when the animation ends so the next
+    // click can re-add it cleanly. (animationend fires once per run.)
+    btn.addEventListener('animationend', (e) => {
+      if ((e as AnimationEvent).animationName === 'hamburger-pulse') {
+        btn.classList.remove('pulsing');
+      }
+    });
+  });
+  drawerCloseButton.addEventListener('click', closeDrawer);
+  backdrop.addEventListener('click', closeDrawer);
+
+  // Escape key closes the drawer
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && navDrawer.getAttribute('data-open') === 'true') {
+      closeDrawer();
+    }
+  });
+
+  // ==========================================================================
+  // Search field — slide-down energy panel
+  // ==========================================================================
+  // Click search icon → pulse the icon + open the field (with delay so the
+  // field expansion starts after the pulse peak).
+  // Click again → close the field. Same icon toggles both directions.
+  // Escape key while field is open → close. Form submit → navigates to
+  // /search/?q=...; the on-load restoration block at the end reopens the
+  // field with the query value if /search/ is loaded with a ?q param.
+  const searchButton = document.querySelector('.header-search') as HTMLButtonElement | null;
+  const searchField = document.getElementById('header-search-field');
+  const searchInput = document.getElementById('header-search-input') as HTMLInputElement | null;
+
+  function openSearchField() {
+    if (!searchField || !searchInput || !searchButton) return;
+    searchField.setAttribute('data-open', 'true');
+    searchField.setAttribute('aria-hidden', 'false');
+    searchButton.setAttribute('aria-expanded', 'true');
+    // Focus the input AFTER the field has finished expanding (200ms delay
+    // + 300ms expansion = 500ms total, plus the form fade-in at 500ms).
+    // Focus at 550ms ensures the input is fully visible when focus lands.
+    setTimeout(() => searchInput.focus(), 550);
+  }
+
+  function closeSearchField() {
+    if (!searchField || !searchButton) return;
+    searchField.setAttribute('data-open', 'false');
+    searchField.setAttribute('aria-hidden', 'true');
+    searchButton.setAttribute('aria-expanded', 'false');
+  }
+
+  if (searchButton && searchField) {
+    searchButton.addEventListener('click', () => {
+      // Pulse animation (same reflow-restart trick as the hamburger pulse).
+      searchButton.classList.remove('pulsing');
+      void searchButton.offsetWidth;
+      searchButton.classList.add('pulsing');
+
+      const isOpen = searchField.getAttribute('data-open') === 'true';
+      if (isOpen) {
+        closeSearchField();
+      } else {
+        openSearchField();
+      }
+    });
+
+    searchButton.addEventListener('animationend', (e) => {
+      if ((e as AnimationEvent).animationName === 'search-pulse') {
+        searchButton.classList.remove('pulsing');
+      }
+    });
+
+    // Escape closes the search field (if it's currently open)
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && searchField.getAttribute('data-open') === 'true') {
+        closeSearchField();
+      }
+    });
+
+    // On page load: if /search/ with a ?q param, restore the open state
+    // and populate the input. The search-results page benefits from
+    // keeping the box visible alongside the results so the user can
+    // refine their query without re-clicking the search icon.
+    const onSearchResultsPage = window.location.pathname.startsWith('/search');
+    const urlQuery = new URLSearchParams(window.location.search).get('q');
+    if (onSearchResultsPage && urlQuery !== null && searchInput) {
+      searchInput.value = urlQuery;
+      // Open without the icon-click pulse — this is page-load restoration,
+      // not a user action. Skip the focus too so the page doesn't auto-
+      // focus the input on load (user can click into it to refine).
+      searchField.setAttribute('data-open', 'true');
+      searchField.setAttribute('aria-hidden', 'false');
+      searchButton.setAttribute('aria-expanded', 'true');
+    }
+  }
+</script>
+
+<style>
+  /* ============================================================================
+     Site-header positioning
+     ============================================================================ */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  /* When the bar is collapsed off-screen (state="hidden" at <640;
+     state="minimal" at ≥640), the bar's visual position is gone but
+     the .site-header element ITSELF still occupies its natural 4-7rem
+     box at the top of the viewport (sticky, top: 0, content height
+     driven by the in-flow bar's layout box — transforms don't affect
+     layout). Page content scrolled into the site-header's box area
+     (the top ~64-112px of the viewport, depending on tier) gets
+     intercepted by the site-header even though the bar is visually
+     gone — Sean's bug 2026-05-13: privacy-policy link unclickable
+     when scrolled so it sits near the top edge of the viewport.
+
+     Fix: in the bar-collapsed states, mark .site-header itself as
+     pointer-events: none so it doesn't catch clicks on its empty box.
+     Descendants that need to remain clickable in these states get
+     explicit pointer-events: auto.
+
+     Scoped per tier because "bar collapsed" maps to different
+     data-state values per tier:
+       <640: "hidden" hides the bar; "minimal" KEEPS the bar visible
+         (the gear toggle at small viewports swaps between bar-visible
+         "minimal" and bar-hidden "hidden", not full/minimal). So only
+         the "hidden" state needs this fix at <640.
+       ≥640: "minimal" hides the bar (the gear at medium/large swaps
+         between bar-visible "full" and bar-hidden "minimal"). So only
+         the "minimal" state needs this fix at ≥640.
+
+     Two descendants need explicit `pointer-events: auto` re-enable so
+     they can still catch clicks in these states:
+       - .header-toggle (gear): re-expands the header.
+       - .logo-overhang: navigates home. Combined with the clip-path
+         on .logo-overhang (limits the hit area to the visible diamond
+         shape), clicks on the diamond catch the link while clicks on
+         the transparent corners of its bounding box pass through to
+         content beneath (preserving the earlier fix for clickable
+         content under the logo's invisible footprint). */
+  @media (max-width: 639.98px) {
+    .site-header[data-state="hidden"] {
+      pointer-events: none;
+    }
+    .site-header[data-state="hidden"] .header-toggle,
+    .site-header[data-state="hidden"] .logo-overhang {
+      pointer-events: auto;
+    }
+  }
+  @media (min-width: 640px) {
+    .site-header[data-state="minimal"] {
+      pointer-events: none;
+    }
+    .site-header[data-state="minimal"] .header-toggle,
+    .site-header[data-state="minimal"] .logo-overhang {
+      pointer-events: auto;
+    }
+  }
+
+  /* ============================================================================
+     Gear button (toggle target) + gear image
+     ============================================================================
+     The button is the click target; the image inside is decorative. At top of
+     page the gear click is a no-op, so we adjust cursor accordingly. */
+  .header-toggle {
+    position: absolute;
+    bottom: 0;
+    width: 8.8rem;                                 /* 141px at default 16px root — scaled down by 20% from original 11rem */
+    height: 8.8rem;
+    z-index: 1;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    /* Anchored to main's right edge across the responsive ladder, with the
+       overhang ratio varying by tier:
+         - <896px: 30% overhang (2.64rem past viewport-right; 70% visible).
+           Main fills the wrapper at this tier, so the gutter is 0 and the
+           overhang is purely off-viewport.
+         - ≥896px: 60% overhang past main's right edge (5.28rem). On these
+           wider tiers main has visible gutters, so a chunk of the overhang
+           sits IN the gutter (visible alongside main) and the rest extends
+           past the viewport edge until viewports get wide enough to hold
+           the whole gear on-screen.
+       The lower overhang on smaller viewports keeps more of the gear on-
+       screen where every pixel counts; the larger overhang on bigger
+       viewports plays into the decorative "gear emerging from offscreen"
+       look the gutter space now allows. */
+    right: -2.64rem;
+    /* Transitions:
+       - transform for the hidden-state translateY (matches header-bar transition).
+       - right for the breakpoint crossings (matches main's max-width transition,
+         so the gear slides to main's new right edge in lockstep). */
+    transition:
+      transform 300ms ease-out,
+      right 300ms ease-out;
+  }
+
+  /* Medium tier (896–1519px): main is 94% of viewport, centered, so main's
+     right edge sits at 3% from viewport-right. Gear overhang of 60% past
+     main's right edge → right = 3% - 5.28rem. On narrower medium viewports
+     this is negative (gear's right edge past viewport-right by some amount);
+     on wider ones it gets closer to 0 as the proportional gutter grows. */
+  @media (min-width: 896px) {
+    .header-toggle {
+      right: calc(3% - 5.28rem);
+    }
+  }
+
+  /* Wide tier (≥1520px): main capped at --main-max-width (1500px). Gutter
+     between main and viewport-right = (100% - --main-max-width) / 2. Gear's
+     right value is that gutter minus the 5.28rem overhang. At the 1520
+     breakpoint the gutter is just 10px so the gear is mostly off-screen on
+     the right; as the viewport grows past 1520 + 2 × 5.28rem ≈ 1689px the
+     gear becomes fully on-screen with 5.28rem of clear gutter between its
+     right edge and the viewport edge. */
+  @media (min-width: 1520px) {
+    .header-toggle {
+      right: calc((100% - var(--main-max-width)) / 2 - 5.28rem);
+    }
+  }
+
+  /* On medium+, in minimal state the gear rides along with the bar's
+     translateY(-100%) — matching the small-viewport pattern where the gear
+     stays visually affixed to the bar's bottom edge. The Y-shift amount
+     matches the bar's height per tier (since the bar's translateY(-100%)
+     equals -1 × its own height). Transition timing also matches the bar's
+     (200ms duration, 100ms delay for exit / 300ms delay for enter) so the
+     two slide as a unit. */
+  @media (min-width: 640px) {
+    .header-toggle {
+      /* Enter (going back to full): match bar's 300ms-delay timing */
+      transition:
+        transform 200ms ease-out 300ms,
+        right 300ms ease-out;
+    }
+    [data-state="minimal"] .header-toggle {
+      /* Exit (going to minimal): match bar's 100ms-delay timing */
+      transition:
+        transform 200ms ease-out 100ms,
+        right 300ms ease-out;
+    }
+  }
+
+  /* 640–739px tier: bar at min-height 5rem; gear translates up 5rem. */
+  @media (min-width: 640px) and (max-width: 739.98px) {
+    [data-state="minimal"] .header-toggle {
+      transform: translateY(-5rem);
+    }
+  }
+
+  /* ≥740px tier: bar at min-height 7rem; gear translates up 7rem. */
+  @media (min-width: 740px) {
+    [data-state="minimal"] .header-toggle {
+      transform: translateY(-7rem);
+    }
+  }
+  /* Gear is interactive at all scroll positions now (the previous "locked at
+     top" behavior was removed 2026-05-10). Cursor stays as pointer always. */
+  .header-toggle:focus-visible {
+    outline: 2px solid var(--color-electric-cyan);
+    outline-offset: 4px;
+    border-radius: 50%;
+  }
+
+  .header-gear {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform: translateY(42.5%) rotate(0turn);
+    /* Time-based fallback for browsers without scroll-driven animation support */
+    animation: ambient-gear-rotate 2.5s linear infinite;
+  }
+  @keyframes ambient-gear-rotate {
+    /* 3 turns across full scroll range; bidirectional via scroll position */
+    from { transform: translateY(42.5%) rotate(0turn); }
+    to   { transform: translateY(42.5%) rotate(3turn); }
+  }
+  @supports (animation-timeline: scroll()) {
+    .header-gear {
+      animation-iteration-count: 1;
+      animation-duration: auto;
+      animation-timeline: scroll(root);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .header-gear { animation: none; }
+  }
+
+  /* ============================================================================
+     Header bar — slides off-screen in hidden (small) and minimal (medium+) states
+     ============================================================================
+     CSS Grid layout with a single named area ("content") that BOTH .header-main
+     and .header-minimal share. This makes them overlap rather than stack
+     vertically — required so they can both be display: block + opacity-toggled
+     (cross-fade) rather than display: none/block (instant swap). The opacity
+     approach lets nav/hamburger inside .header-main fade smoothly when state
+     changes; display: none/block would kill the fade transition. */
+  .header-bar {
+    position: relative;
+    z-index: 2;
+    /* Dark burned brushed-nickel panel (2026-05-12, Option 3 — cool
+       metallic direction after two warm-on-warm attempts failed). The
+       previous bronze-panel attempts competed with the bronze logo
+       and brass hamburger; flipping the bar to cool metal makes the
+       warm brand-mark objects POP as mounted accent pieces against a
+       machined-housing background. Steampunk/industrial vocabulary
+       supports mixed metals (brass instruments on iron frames is the
+       canonical pairing).
+
+       Two layered backgrounds:
+
+       (1) Top layer — faint warm-shimmer overlay confined to the
+           central 30% of the panel height. rgba(140, 100, 60, 0.08)
+           is a very-low-alpha copper-tinge. This gives the highlight
+           band a subtle warm bleed-through (the "burned" in burned
+           nickel — metal that has been near a fire), so the panel
+           callbacks to the brand's warm core without actually being
+           warm. Transparent above and below so the outer shadow edges
+           stay purely cool.
+
+       (2) Bottom layer — the brushed-nickel gradient itself. Same 7-
+           stop structure as the bronze attempt (graduated highlight
+           band rather than a single peak), but in cool greys with a
+           tighter brightness range (lightness delta of ~14% between
+           outer shadow and central highlight, vs the bronze's ~20%).
+           Tighter range reads as machined/brushed rather than
+           polished-and-shiny.
+
+       Color rationale:
+         - Outer stops (#2a2d32): very dark cool grey, very slight
+           B-channel lift — close to true black but recognizably cool.
+         - Mid-shadow (#383b42): dark gunmetal.
+         - Inner shadow (#45484f): mid gunmetal.
+         - Highlight peak (#4d4f57): still dark — only a ~14% lightness
+           lift above the outer edges. Reads as "machined metal with
+           a subtle catch-light" rather than "polished metal stripe".
+
+       Cool metallic is reserved for the header bar (structural mounting
+       surface). It should NOT spread to: section dividers, the 404
+       page, decorative ornaments, the logo treatment, or marginalia —
+       those all stay in the warm gaslit-bronze + verdigris register.
+       If cool metallic expands beyond this surface, it dilutes the
+       brand's warm core. Treat as frame, not picture.
+
+       Iteration knobs if needed:
+         - Too cool / wants more burned feel: raise the warm-overlay
+           alpha (0.08 → 0.12 or 0.15) or widen its range.
+         - Too dark: lift the highlight peak toward #5a5d65.
+         - Wants more blue / less neutral: shift the cool-greys'
+           hues toward blue (raise B-channel relative to R/G).
+         - Wants more green / less neutral: opposite (raise G-channel). */
+    background:
+      /* Brushed-metal grain — SVG fractalNoise filter for true random
+         texture (replacing the previous CSS repeating-gradient stripes
+         which read as regular ladder-lines rather than grain).
+         baseFrequency='0.05 0.9' is anisotropic: low X-frequency
+         (slow horizontal variation) + high Y-frequency (fast vertical
+         variation) stretches the noise into HORIZONTAL streaks,
+         preserving the brushed-along-the-panel-length direction
+         without the regularity of a stripe pattern. stitchTiles='stitch'
+         makes the 200×200 tile seamless when tiled across the bar.
+         opacity='0.25' on the rect keeps the grain subtle — texture
+         rather than overt noise. Filter URL uses `%23n` (= `#n`
+         encoded) because `#` is the URI fragment delimiter in
+         data: URIs and must be escaped. */
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.09 0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.10'/%3E%3C/svg%3E"),
+      /* Warm shimmer overlay — faint copper-tinge bleed-through in
+         the central highlight band; the "burned" in burned nickel. */
+      linear-gradient(
+        180deg,
+        transparent 35%,
+        rgba(140, 100, 60, 0.08) 50%,
+        transparent 65%
+      ),
+      /* Main brushed-nickel gradient — blue-shifted (raised B-channel
+         relative to R/G, +20 vs +10 previously) and highlight peak
+         lifted from #4d4f57 (lightness ~32%) to #55596b (lightness
+         ~38%) for more visible brushed-metal sheen. Stops widen at
+         the bottom of the panel (38%/62%) to keep the highlight band
+         distinct from the outer shadow edges. */
+      linear-gradient(
+        180deg,
+        #2a2e3a 0%,
+        #383c48 20%,
+        #454a58 38%,
+        #55596b 50%,
+        #454a58 62%,
+        #383c48 80%,
+        #2a2e3a 100%
+      );
+    /* border-bottom: 1px solid var(--color-muted) REPLACED by the bottom
+       laser channel below (.header-bar::after). */
+    display: grid;
+    grid-template-areas: "content";
+    /* Default transition — used on small viewports for the hidden-state
+       transform, and as the fallback for any other transform changes. */
+    transition: transform 300ms ease-out;
+  }
+
+  /* Laser channels along the bar's top and bottom edges — reads as carved
+     grooves with a glowing purple line embedded at the bottom of each
+     channel. The vertical linear-gradient produces the depth illusion:
+       - 0-40%: dark recess (channel walls in shadow).
+       - 40-65%: gradient toward purple.
+       - 65-100%: bright laser line at the bottom of the groove.
+     Outward box-shadows bleed the laser glow into the bar's interior,
+     selling the "live energy channel" feel. Same vocabulary as the
+     diamond brand-mark's laser channels, stretched horizontally.
+
+     Per-tier visibility (controlled by display below the rules):
+       - <640px (small): ::before (top) visible; ::after (bottom) hidden.
+       - ≥640px (medium and large): ::after (bottom) visible; ::before
+         (top) hidden. Large additionally gets the diagonal + over-nav
+         segments via the .header-beam-diag / .header-beam-over divs. */
+  .header-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.5) 0%,
+      rgba(0, 0, 0, 0.2) 40%,
+      var(--color-electric-purple-deep) 65%,
+      var(--color-electric-purple) 85%,
+      var(--color-electric-purple-glow) 100%
+    );
+    box-shadow: 0 3px 10px rgba(157, 63, 227, 0.4);
+    pointer-events: none;
+    z-index: 1;
+    display: none;  /* default hidden; shown only at <640 via small media */
+  }
+
+  .header-bar::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.5) 0%,
+      rgba(0, 0, 0, 0.2) 40%,
+      var(--color-electric-purple-deep) 65%,
+      var(--color-electric-purple) 85%,
+      var(--color-electric-purple-glow) 100%
+    );
+    box-shadow: 0 -3px 10px rgba(157, 63, 227, 0.4);
+    pointer-events: none;
+    z-index: 1;
+    /* shown by default; hidden at <640 via small media */
+  }
+
+  /* <640px: only top beam visible; bottom hidden. */
+  @media (max-width: 639.98px) {
+    .header-bar::before { display: block; }
+    .header-bar::after { display: none; }
+  }
+
+  /* ≥1040px: diagonal + over-nav segments branch off the bottom beam after
+     the logo, anchored to the LEFT edge of the primary nav (not to main's
+     left edge). This way the diagonal tracks the nav as viewport grows —
+     nav lives at .header-inner's right edge (which matches main.right),
+     so positioning relative to main.right keeps the diagonal a fixed
+     distance from nav-left.
+
+     The diagonal is a 1.5px-tall line rotated -45° with a small translate
+     so it tilts up-right and starts slightly offset from the bar's bottom
+     corner. The over-nav is a horizontal 1.5px-tall line that starts at
+     the diagonal's endpoint and extends to .header-inner's right edge
+     (= main.right, outside the right padding).
+
+     Geometry (all relative to bar at 7rem height at ≥740px):
+       - Diagonal anchor: bottom-left at (X, bar.bottom). X is tier-specific
+         and anchored to main.right − offset (see --nav-anchor-offset below).
+       - Diagonal width 4rem + translate(.3rem, 0) before rotation, so the
+         effective line endpoints after -45° rotation:
+           * start: (X + 0.21rem, bar.bottom − 0.21rem)
+           * end:   (X + 3.04rem, bar.bottom − 3.04rem)
+         (3.04 ≈ 4.3 × cos(45°))
+       - Over-nav beam: top at bar.bottom − 3.04rem (3.96rem from bar top —
+         just above the nav text top, brought down from the previous 3rem).
+         Left at X + 3.04rem (= diagonal endpoint x). Right at main.right.
+
+     --nav-anchor-offset = 28rem: distance from main.right back to the
+     diagonal's left edge. Tuned so at 1040px viewport (where main.right is
+     at 97% = 1008.8px), diagonal.left lands at 560.8px (=35.05rem) — wide
+     enough to accommodate the updated nav labels (Projects, Lessons Learned,
+     About Me, Reach Out) which are longer than the previous Work / About /
+     Contact set. Same offset propagates through ≥1520 tier. */
+  .header-beam-diag,
+  .header-beam-over {
+    display: none;
+    position: absolute;
+    height: 1.5px;
+    background: var(--color-electric-purple-glow);
+    box-shadow: 0 0 4px rgba(157, 63, 227, 0.6);
+    pointer-events: none;
+    z-index: 1;
+    transition:
+      left 300ms ease-out,
+      right 300ms ease-out;
+  }
+
+  @media (min-width: 1040px) {
+    .header-beam-diag {
+      display: block;
+      bottom: 0;
+      /* main.right at this tier is 97% (main is 94% centered, gutter 3%).
+         Subtract nav-anchor-offset to land at nav-left − small spacing. */
+      left: calc(97% - 28rem);
+      width: 4.05rem;
+      transform-origin: bottom left;
+      transform: rotate(-45deg) translate(.3rem, 0);
+    }
+
+    .header-beam-over {
+      display: block;
+      /* 3.04rem above bar.bottom — matches diagonal's vertical reach
+         (3.04 ≈ (4 + 0.3) × cos(45°)). */
+      bottom: 3.04rem;
+      /* Starts at diagonal endpoint x = diagonal.left + 3.04rem. */
+      left: calc(97% - 28rem + 3.04rem);
+      /* Right edge at main.right (the gutter from viewport-right = 3% at
+         this tier). Means the over-nav beam stops at .header-inner's
+         outer right edge, outside the right padding — Sean's spec. */
+      right: 3%;
+    }
+
+    /* Small hollow-perimeter circle at the over-nav beam's right tip —
+       a terminal "node" where the laser line ends. 6px outer diameter
+       with a 1px purple-glow border and transparent center, so only the
+       ring shows. Positioned with left: 100% so the circle's LEFT edge
+       sits exactly at the parent beam's RIGHT edge — "the end of that
+       line just touches the left side of the circle" (Sean's spec).
+       box-sizing: border-box keeps the 6px = total outer diameter
+       (border included), not 6px content + 2px border. */
+    .header-beam-over::after {
+      content: '';
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      box-sizing: border-box;
+      width: 6px;
+      height: 6px;
+      border: 1px solid var(--color-electric-purple-glow);
+      border-radius: 50%;
+      background: transparent;
+      box-shadow: 0 0 4px rgba(157, 63, 227, 0.6);
+      pointer-events: none;
+    }
+  }
+
+  /* Wide tier (≥1520px): main is capped at --main-max-width, centered.
+     main.right becomes (viewport + main-max-width) / 2; diagonal slides
+     rightward with main as gutters grow. */
+  @media (min-width: 1520px) {
+    .header-beam-diag {
+      left: calc((100% + var(--main-max-width)) / 2 - 28rem);
+    }
+    .header-beam-over {
+      left: calc((100% + var(--main-max-width)) / 2 - 28rem + 3.04rem);
+      right: calc((100% - var(--main-max-width)) / 2);
+    }
+  }
+
+  /* Trapezoidal fill between the bottom beam, the over-nav beam, and
+     the diagonal — matches the mobile nav drawer's "energy HUD" base:
+     darkened backdrop (rgba(0,0,0,0.7)) with a purple radial-gradient
+     glow inside. Only shown at ≥1040px (where the over-nav region
+     exists; below 1040 the diagonal/over-nav beams are display: none
+     and there's no enclosed region to fill).
+
+     Layout:
+       - Anchored bottom: 0 so it sits flush against the bottom beam.
+       - Height 3.04rem = vertical distance from bottom beam to over-nav.
+         (Beams at z-index: 1 render on top — the fill spans the full
+         3.04rem but its top/bottom edges are visually covered by the
+         beams; no overlap calculation needed.)
+       - left tracks the diagonal's bottom-x; right tracks the
+         over-nav's right edge. Both follow the same per-tier values
+         as those beams (97% / 3% gutter at ≥1040; main-max-width
+         based at ≥1520).
+       - clip-path: polygon trims the bottom-left triangle so the
+         fill's left edge follows the diagonal at -45° rather than
+         showing a hard vertical edge to the LEFT of the diagonal.
+         Polygon vertices (local coords, origin top-left of box):
+           (3.04rem 0) top corner where diagonal meets over-nav
+           (100% 0)    top-right corner
+           (100% 100%) bottom-right corner
+           (0 100%)    bottom-left corner where diagonal meets bottom beam
+         The implicit edge from (0 100%) back to (3.04rem 0) IS the
+         diagonal at -45°.
+       - z-index: 0 stacks the fill below the beams (z-index: 1) and
+         below the nav content (z-index: auto). pointer-events: none
+         keeps it from intercepting clicks meant for nav links.
+
+     Right-side fade: the radial-gradient's natural fade-to-transparent
+     toward the box's edges produces the soft taper near the over-nav's
+     right tip (just before the terminal circle), without needing a
+     mask layer. The wide-short box shape means the right-edge fade is
+     more visible than the top/bottom fade. */
+  .header-bar-fill {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    height: 3.04rem;
+    left: calc(97% - 28rem);
+    right: 3%;
+    background-color: rgba(0, 0, 0, 0.7);
+    background-image: radial-gradient(ellipse at center, rgba(157, 63, 227, 0.92), transparent);
+    clip-path: polygon(3.04rem 0, 100% 0, 100% 100%, 0 100%);
+    /* Convex fade-out toward the right — the right-edge MIDDLE fades
+       first (most transparent), top-right and bottom-right corners
+       fade later (more solid). Achieved by centering the radial mask
+       AT the right edge: every point's mask-alpha is driven by its
+       distance from (right-edge, vertical-center), so the right-middle
+       sits at gradient position 0 (transparent), while corners at
+       distance 1.52rem (half the fill height) sit further along the
+       gradient — toward black. The result is an iso-alpha boundary
+       that curves "(" shape opening toward the right: corners stick
+       further right than the middle.
+
+       Geometry tuned to Sean's "fade doesn't start until 2/3 of the
+       rightmost link's text" constraint (originally tuned against the
+       "Contact" label; the rightmost link is now "Reach Out" — similar
+       width, ~4.5rem, so the geometry still holds):
+         - Rightmost link spans the last ~4.5rem of fill width (3.5rem
+           text + 1rem right-padding inside the nav).
+         - 2/3 of the link lands ~2.17rem from the fill's right edge.
+         - circle radius 2rem means the gradient ends 2rem from the
+           mask center → any point >2rem from the right-edge-middle
+           is at gradient position >100%, which holds the last stop
+           (black/solid). So all points at horizontal distance >2rem
+           from the right edge are fully opaque, regardless of vertical
+           position. 2/3-of-link at 2.17rem from right edge → 0.17rem
+           inside the always-solid zone.
+         - Stops "transparent 0% → 60% → black 100%" keep the inner
+           1.2rem fully transparent, with a 0.8rem-wide fade ring
+           between 1.2rem and 2rem from the right edge. */
+    -webkit-mask-image: radial-gradient(
+      circle 2rem at 100% 50%,
+      transparent 0%,
+      transparent 60%,
+      black 100%
+    );
+    mask-image: radial-gradient(
+      circle 2rem at 100% 50%,
+      transparent 0%,
+      transparent 60%,
+      black 100%
+    );
+    pointer-events: none;
+    z-index: 0;
+    transition:
+      left 300ms ease-out,
+      right 300ms ease-out;
+  }
+
+  @media (min-width: 1040px) {
+    .header-bar-fill { display: block; }
+  }
+
+  @media (min-width: 1520px) {
+    .header-bar-fill {
+      left: calc((100% + var(--main-max-width)) / 2 - 28rem);
+      right: calc((100% - var(--main-max-width)) / 2);
+    }
+  }
+  [data-state="hidden"] .header-bar {
+    transform: translateY(-100%);
+  }
+
+  /* On medium+ in minimal state, the bar slides up off-screen — same
+     translateY(-100%) trick used for small's hidden state, but here it's the
+     medium+ "collapsed" state. Sequenced timing (200ms duration, 100ms delay)
+     places the bar slide AFTER the .header-main fade (which runs at 0-100ms
+     no-delay). On the way back (entering visible), 300ms delay + 200ms
+     duration sequences the bar slide AFTER the mobile logo's exit. */
+  @media (min-width: 640px) {
+    .header-bar {
+      /* Entering visible (going to full state): 300ms delay + 200ms duration */
+      transition: transform 200ms ease-out 300ms;
+    }
+
+    [data-state="minimal"] .header-bar {
+      transform: translateY(-100%);
+      /* Entering hidden (going to minimal): 100ms delay (after nav fades) + 200ms */
+      transition: transform 200ms ease-out 100ms;
+    }
+  }
+
   .header-inner {
     width: 100%;
-    max-width: 72rem;
+    /* Max-width follows main's responsive ladder (see @media rules below)
+       so .header-inner's right edge sits at the same x as main's right edge
+       at every tier. Combined with the asymmetric padding-inline-end below
+       (~1rem), nav at flex-end lands exactly 1rem inside main's right
+       edge — the "almost align with main's right" spec. Explicit 100%
+       default (rather than `none`) gives CSS transitions a numeric value
+       to interpolate from at the 896/1520 crossings. */
+    max-width: 100%;
     margin: 0 auto;
-    padding-inline: var(--space-md);
+    padding-block: var(--space-sm);
+    /* Right padding cut to ~2/3 of the left (1rem vs 1.5rem) so content sits
+       closer to the right edge — gives the gear's overhang on the right a bit
+       more visual breathing room from the in-bar content. The 1rem right
+       padding also produces the desired "1rem space" between nav (flex-end)
+       and main's right edge at medium+ tiers. */
+    padding-inline: var(--space-md) calc(var(--space-md) * 2 / 3);
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-md);
+    /* min-height: animates bar-height growth at the 640/740 breakpoints.
+       max-width: animates .header-inner's width change at the 896/1520
+       crossings so .header-inner (and nav inside it) slides to its new
+       right edge in lockstep with main. All at 300ms ease-out. */
+    transition:
+      min-height 300ms ease-out,
+      max-width 300ms ease-out;
   }
-  .logo {
-    text-decoration: none;
-    color: var(--color-fg);
-    font-weight: 600;
+
+  /* Medium tier (≥896px): .header-inner caps at 94% of viewport — matches
+     main's max-width at this tier, so .header-inner's right edge aligns
+     with main's right edge. */
+  @media (min-width: 896px) {
+    .header-inner {
+      max-width: 94%;
+    }
+  }
+
+  /* Wide tier (≥1520px): .header-inner caps at --main-max-width (1500px),
+     same as main. Right edges stay aligned. */
+  @media (min-width: 1520px) {
+    .header-inner {
+      max-width: var(--main-max-width);
+    }
+  }
+
+  /* Two-tier bar height on medium+:
+       - 640–739px: min-height 5rem — paired with the 11rem full-logo,
+         keeps the bar compact at the entry of the medium tier.
+       - ≥740px: min-height 7rem — paired with the 13rem full-logo and
+         halved main top-padding (in global.css). Tightened from 8rem
+         (2026-05-11) per Sean — the larger bar felt over-scaled for
+         the content; 7rem is enough room for the logo overhang without
+         the extra padding bloat.
+     min-height transitions (300ms ease-out, declared on .header-inner
+     above) animate the bar's growth/shrink at the 740px crossing.
+     Applied to .header-inner globally so both .header-main and
+     .header-minimal get matching bar heights (avoids the bar shrinking
+     when the gear collapses to minimal state on medium+). */
+  @media (min-width: 640px) {
+    .header-inner {
+      min-height: 5rem;
+    }
+  }
+  @media (min-width: 740px) {
+    .header-inner {
+      min-height: 7rem;
+    }
+  }
+
+  /* ============================================================================
+     Main vs Minimal visibility per state + viewport
+     ============================================================================
+     Both occupy the same grid-area "content" (declared on .header-bar) so they
+     overlap. Visibility controlled by opacity + visibility (not display: none)
+     so opacity transitions on inner elements (nav, hamburger) can play during
+     state changes — display: none would unrender them and kill the fade. */
+  .header-main,
+  .header-minimal {
+    grid-area: content;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 100ms ease-out,
+      visibility 0ms 100ms;
+  }
+  [data-state="full"] .header-main {
+    opacity: 1;
+    visibility: visible;
+    /* On entry (from minimal), wait 500ms (mobile exit 200 + pause 100 +
+       bar+logo slide in 200) before fading in nav/hamburger. */
+    transition:
+      opacity 100ms ease-out 500ms,
+      visibility 0ms 500ms;
+  }
+  [data-state="minimal"] .header-minimal {
+    opacity: 1;
+    visibility: visible;
+    /* On entry, no delay needed — .header-minimal is invisibly riding the bar
+       off-screen on medium+, so opacity transition timing doesn't affect what
+       the user sees. On small, .header-minimal is always visible (small-screen
+       override below sets opacity: 1 unconditionally). */
+    transition:
+      opacity 100ms ease-out,
+      visibility 0ms;
+  }
+
+  /* With .logo now absolutely positioned (out of flex flow), .header-main's
+     .header-inner has only nav and hamburger as flex items. justify-content:
+     flex-end pushes whichever is visible to the right edge — nav on large
+     (≥896px where hamburger is hidden), hamburger on medium (640–895px
+     where nav is hidden). .header-minimal keeps the inherited space-between
+     so its mini-diamond logo (left) and hamburger (right) separate. */
+  .header-main .header-inner {
+    justify-content: flex-end;
+  }
+
+  /* Small-screen overrides (<640px):
+       - .header-main never visible (full logo too wide for small). display:
+         none rather than just opacity 0 — its layout height doesn't matter
+         and we don't need the animation behavior here.
+       - .header-minimal always visible (opacity 1 + visibility visible)
+         regardless of state — there's no fade animation needed on small.
+       - In hidden state, the gear gets transform: translateY(-4rem), matching
+         .header-bar's translateY(-100%) (which equals -4rem on the 4rem-tall
+         bar at this tier). With both transitions running 300ms ease-out, gear
+         and bar slide together as one unit. */
+  @media (max-width: 639.98px) {
+    .header-main { display: none; }
+    .header-minimal {
+      opacity: 1;
+      visibility: visible;
+      transition: none;
+    }
+    [data-state="hidden"] .header-toggle {
+      transform: translateY(-4rem);
+    }
+  }
+
+  /* ============================================================================
+     Logos
+     ============================================================================ */
+  .logo, .logo-mini {
     display: inline-flex;
     align-items: center;
-    gap: 0.5em;
+    text-decoration: none;
+    color: var(--color-fg);
   }
-  .gear {
-    display: inline-block;
-    color: var(--color-accent);
-    font-size: 1.25em;
+  /* Full-logo anchor — overrides the .logo, .logo-mini default. Box is
+     height-constrained to 3.5rem so the image inside (taller than the
+     container via overflow: visible) overhangs below. align-items:
+     flex-start top-anchors the image inside this box.
+
+     Positioned ABSOLUTELY rather than as a flex item in .header-inner —
+     this prevents the logo from competing with .primary-nav for horizontal
+     space (the previous flex layout caused the logo to drift inward past
+     ~1152px when .header-inner hit its max-width and started centering).
+     With the logo out of flex flow, .primary-nav has the full bar width
+     to expand into.
+
+     The positioning context is .header-bar (position: relative, z-index:
+     2). `top: calc(50% - 1.75rem)` centers the 3.5rem box vertically in
+     the bar at any bar height (works for both the 5.5rem tier at 640–739
+     and the 8rem tier at 740+). `left` is pinned to main's left edge
+     minus 3rem (matching the prior visual offset when main filled the
+     wrapper at narrow viewports) — tier media queries below shift it
+     in lockstep with main's max-width ladder. */
+  .logo {
+    align-items: flex-start;
+    /* Link box sized to match the .full-logo image's full extent (was
+       3.5rem tall with the image overflowing). Now the image fits
+       inside the link's box, so clip-path on the link cleanly clips
+       BOTH the link's hit area AND the visible image to the diamond+
+       wordmark+tagline shape. Without this, the link's smaller strip
+       caught clicks on transparent image pixels within the strip,
+       and pointer-events:none on the link broke navigation. */
+    height: 11rem;
+    overflow: visible;
+    position: absolute;
+    /* Top adjusted so the image's visible position is unchanged:
+       previously link_top=calc(50%-1.75rem) and image_top=-3.25rem,
+       putting the image at calc(50%-5rem). Now link_top=calc(50%-5rem)
+       and image_top=0 — same image position. */
+    top: calc(50% - 5rem);
+    /* Default <896px: main fills the wrapper, main-left at viewport-left,
+       so logo sits 3rem left of viewport-left. */
+    left: -3rem;
+    /* z-index 3 — .logo is now a child of .site-header (sibling of .header-bar)
+       so it shares .site-header's stacking context. .header-bar is at z-index
+       2 in that context; .logo at 3 paints above the bar's bg/content so the
+       full logo is visible in front of the bar in full state. */
+    z-index: 3;
+    /* Clip-path inscribes the visible-logo shape inside the link's
+       bounding box (revised 2026-05-18 after Sean flagged the diamond's
+       upper-left edge and lower tip being clipped). The polygon's
+       upper/lower hexagon vertices moved out from 15%/15-95% to
+       10%/0-100% so the diagonals run OUTSIDE the diamond's actual
+       upper-left + lower-left edges (the diamond's top tip sits near
+       y=0% of the image, the bottom tip near y=100%, so the old 15%/
+       95% bounds were cutting into the diamond). The polygon's right
+       side still encloses the wordmark + tagline area. Trade-off:
+       the wider polygon now includes some transparent area above and
+       below the wordmark, so the hit area is slightly more generous —
+       but the diamond's visible content is no longer clipped. */
+    clip-path: polygon(
+      0% 50%,
+      10% 0%,
+      100% 0%,
+      100% 100%,
+      10% 100%,
+      0% 50%
+    );
+    transition: left 300ms ease-out;
   }
-  nav ul {
+  @media (min-width: 740px) {
+    .logo {
+      /* At this tier the image grows to 13rem; link box grows with it
+         and the top offset adjusts to keep the image at the same
+         visible position (was image_top=-4.25rem placing image at
+         calc(50%-6rem); now link_top=calc(50%-6rem) + image_top=0). */
+      height: 13rem;
+      top: calc(50% - 6rem);
+    }
+  }
+
+  /* Medium tier (896–1519px): main is 94% of viewport, centered. Main's
+     left edge sits at 3% from viewport-left; logo tracks 3.5rem to its
+     left (adjusted to match the tightened-up full logo asset). */
+  @media (min-width: 896px) {
+    .logo {
+      left: calc(3% - 3.5rem);
+    }
+  }
+
+  /* Wide tier (≥1520px): main capped at --main-max-width (1500px), centered.
+     Main's left edge at (viewport - --main-max-width) / 2; logo tracks
+     3.5rem to its left — same offset as the medium tier, so the logo
+     maintains a consistent relationship to main's edge across all wider
+     viewports. As viewport grows past 1520px, the logo moves rightward
+     with main (since main's edge moves rightward as gutters grow). */
+  @media (min-width: 1520px) {
+    .logo {
+      left: calc((100% - var(--main-max-width)) / 2 - 3.5rem);
+    }
+  }
+
+  /* On small (<640px), the full-logo is hidden via the SAME slid-offscreen
+     state used by [data-state="minimal"] at ≥640 — translateX(-100%)
+     + opacity 0 + visibility hidden, with the matching exit-timing
+     transition. Doing it this way (rather than `display: none`) means
+     a viewport resize across the 640 threshold WHILE AT THE TOP of the
+     page automatically animates the full logo off/on, because the
+     browser fires transitions on the property changes that happen when
+     the active @media rule swaps. The bar's data-state stays "full"
+     across the crossing, so this animates JUST the logos — matching
+     the scroll-driven full↔minimal logo animation at 645px, minus the
+     bar's translateY (which is driven by state, not viewport).
+
+     Transition timing matches [data-state="minimal"] .logo at ≥640
+     (200ms ease-out, 100ms delay) for the exit direction. Going the
+     other way (resize 635→645), the ≥640 rule's enter-timing
+     transition (400ms cubic-bezier with 300ms delay) takes over. */
+  @media (max-width: 639.98px) {
+    .logo {
+      transform: translateX(-100%);
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        left 300ms ease-out,
+        transform 200ms ease-out 100ms,
+        opacity 200ms ease-out 100ms,
+        visibility 0ms 300ms;
+    }
+  }
+
+  /* Animation states on medium+ (state-driven slide/fade for the full
+     logo when the header toggles between full and minimal). Sequences
+     with the nav/hamburger fade (.header-main opacity) and bar transform
+     (.header-bar translateY):
+       Forward (full → minimal):
+         0–100ms: .header-main fades (nav/hamburger).
+         100–300ms: .logo slides left + fades; .header-bar slides up.
+       Reverse (minimal → full):
+         0–200ms: .logo-overhang exits.
+         200–300ms: pause.
+         300–500ms: .logo slides in from left; .header-bar slides down.
+         500–600ms: .header-main fades in.
+     So .logo's transitions:
+       - Going to hidden (exit, going to minimal/hidden): 200ms duration
+         with 100ms delay (waits for nav fade).
+       - Going to visible (enter, going to full): 200ms duration with
+         300ms delay (waits for mobile exit + pause). */
+  @media (min-width: 640px) {
+    .logo {
+      transform: translateX(0);
+      opacity: 1;
+      transition:
+        left 300ms ease-out,
+        /* Rubber-band on enter (mobile→full): subtler overshoot than the
+           .logo-overhang's because the full logo travels a wider
+           horizontal distance (its translateX(-100%) is the logo's own
+           width = ~22-26rem, vs the mobile logo's 12rem diagonal). With
+           the same y2=1.40 the overshoot magnitude proportional to that
+           larger distance was ~2× the mobile's; halving y2's distance from
+           1.0 (1.40 → 1.20) puts the absolute overshoot back in the same
+           ballpark as the mobile rubber-band. Duration 400ms unchanged
+           (matches mobile rubber-band duration). */
+        transform 400ms cubic-bezier(0.34, 1.20, 0.64, 1) 300ms,
+        opacity 200ms ease-out 300ms;
+    }
+
+    [data-state="minimal"] .logo,
+    [data-state="hidden"] .logo {
+      transform: translateX(-100%);
+      opacity: 0;
+      transition:
+        left 300ms ease-out,
+        /* Exit uses ease-out — no overshoot needed since the destination
+           is off-screen and the opacity-0 fade hides any settle. */
+        transform 200ms ease-out 100ms,
+        opacity 200ms ease-out 100ms;
+    }
+  }
+  .full-logo {
+    /* Two-tier responsive height pairing with the bar-height ladder:
+         - 640–739px: 11rem (default), paired with bar at ~5rem.
+         - ≥740px: 13rem (via @media below), paired with bar at 8rem.
+       The image now sits flush against .logo's top edge (no offset)
+       because .logo's own `top` has been adjusted to place this image
+       at the same visible position. clip-path was previously here on
+       the image as well — moved to .logo so the link's hit area AND
+       the image's visible render both share one polygon (in .logo's
+       coordinate space). transition: height animates the 740px
+       crossing in lockstep with main's max-width and the bar's
+       min-height transitions, all at 300ms. */
+    height: 11rem;
+    width: auto;
+    max-width: 100%;
+    transition: height 300ms ease-out;
+  }
+  @media (min-width: 740px) {
+    .full-logo {
+      height: 13rem;
+    }
+  }
+  .mobile-logo {
+    /* Default size — used in medium/large minimal state (in-bar logo) */
+    width: 3rem;
+    height: 3rem;
+  }
+
+  /* Mobile overhang logo — used at every tier where the mobile logo is the
+     visible brand mark:
+       - Small (<640px): always shown (header-minimal is the only visible
+         sub-div across all states on small).
+       - Medium+ minimal state: shown in place of the in-bar .logo-mini —
+         keeps the mobile logo's size and placement consistent with how
+         it appears on smaller viewports when scrolled.
+
+     Positioning is absolute on .site-header (sibling of .header-bar) so the
+     logo persists visually when the bar transforms in hidden state on small.
+     top/left/size are all set OUTSIDE the small media query so the same
+     visual placement applies on medium+ minimal too. Display is controlled
+     by the media queries below — defaults to none and is activated per tier. */
+  .logo-overhang {
+    display: none;
+    position: absolute;
+    top: -1.95rem;             /* 15% off-frame top — small portion of diamond clipped */
+    left: -3.25rem;            /* 25% off-frame left — diamond bleeds off the left edge */
+    /* z-index 3 puts the logo IN FRONT of the header bar (which is z-index 2).
+       The diamond's middle portion overlaps the bar visually but renders on
+       top of the bar's bg rather than being occluded by it. */
+    z-index: 3;
+    /* clip-path limits BOTH the visible render AND the clickable hit area
+       to a diamond shape inscribed in the 10.8rem × 10.8rem box. The
+       mobileLogo PNG already only paints its diamond mark inside roughly
+       this region (surrounding pixels are transparent), so the visible
+       output is unchanged. The hit-area side is what matters: clicks on
+       the diamond reach the link (so it navigates home in every state),
+       clicks on the corner regions of the bounding box pass through to
+       page content beneath — preserving the prior fix where main-page
+       links underneath the logo's transparent extent stayed clickable.
+       This replaces the previous `pointer-events: none` rules on the
+       hidden/minimal states, which had made the visible logo
+       decoratively-only and broken its home-link affordance. */
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    transition: top 300ms ease-out, left 300ms ease-out;
+  }
+
+  .mobile-logo-overhang {
+    width: 10.8rem;            /* 4× the in-bar size; -10% from initial 12rem */
+    height: 10.8rem;
+    display: block;
+  }
+
+  /* .logo-mini (the in-bar 3rem mobile-logo inside .header-minimal) is no
+     longer shown at any tier — replaced by .logo-overhang for visual
+     consistency between small and medium+ minimal-state. The element stays
+     in the DOM to keep the markup stable, but its display is always none. */
+  .logo-mini {
+    display: none;
+  }
+
+  /* On small screens (<640px), the header bar shrinks to 3rem and the mobile
+     logo (overhang variant) is always shown.
+     - Bar: 3rem total height, no padding-block.
+     - Hamburger: pushed to the right of the bar via flex-end.
+     - Hidden state: bar slides up via transform; the overhang logo stays
+       visible with adjusted (further-cropped) positioning, transitioning
+       to its new offsets at the same 0.3s pace as the bar's slide. */
+  @media (max-width: 639.98px) {
+    .header-minimal .header-inner {
+      padding-block: 0;
+      /* min-height (rather than height) so the property matches the medium+
+         min-height rule — CSS can transition min-height between two numeric
+         values, but can't transition across different properties. Bumped
+         to 4rem (from 3rem) so the bar has comfortable room for the
+         hamburger button + the vertical beam passing through it. */
+      min-height: 4rem;
+      justify-content: flex-end;
+    }
+
+    /* Always show overhang logo on small. Explicit transform: translate(0,0)
+       + opacity: 1 (matching ≥640 [data-state="minimal"] .logo-overhang's
+       visible state) so a viewport resize across the 640 threshold while
+       AT THE TOP of the page animates the mobile logo in/out — the
+       browser fires transitions on the property values that change when
+       the @media rule swaps. Transition timing matches the ≥640 minimal
+       enter (400ms rubber-band cubic-bezier, 400ms delay) so the
+       direction-down crossing produces the same rubber-band entrance
+       used in the scroll-driven full→minimal animation at 645px.
+       Direction-up crossing uses the ≥640 default rule's exit timing
+       (200ms ease-out, no delay) since that's the active style at
+       the destination viewport. */
+    .logo-overhang {
+      display: block;
+      transform: translate(0, 0);
+      opacity: 1;
+      transition:
+        top 300ms ease-out,
+        left 300ms ease-out,
+        transform 400ms cubic-bezier(0.34, 1.40, 0.64, 1) 400ms,
+        opacity 200ms ease-out 400ms;
+    }
+
+    /* Hidden state on small: bar slides up via translateY(-100%); overhang
+       logo persists with adjusted offsets (further off-frame).
+       Previously this rule set `pointer-events: none` to prevent the
+       logo's transparent bounding box from intercepting clicks on page
+       content beneath. That made the logo non-navigable in this state,
+       which was the bug Sean reported. The base `.logo-overhang` rule
+       now uses `clip-path` to confine the hit area to the visible
+       diamond shape — corners of the bounding box pass clicks through
+       naturally, the diamond catches them. No state-specific pointer-
+       events override needed. */
+    [data-state="hidden"] .logo-overhang {
+      top: -3.75rem;
+      left: -5rem;
+    }
+  }
+
+  /* On medium+, .logo-overhang is always rendered (display: block) so the
+     enter/exit animation can play. Its visibility is controlled by
+     transform + opacity. Sequences with the rest of the animation:
+       Forward (full → minimal): mobile enters at 400ms (after nav fade
+       100ms + bar/logo slide 200ms + pause 100ms = 400ms total).
+       Reverse (minimal → full): mobile exits first (0-200ms, no delay).
+     Transitions per direction:
+       - Exit (going to non-minimal): 200ms ease-out, no delay.
+       - Enter (going to minimal): 200ms opacity + 400ms transform with a
+         rubber-band easing curve, both delayed 400ms. The cubic-bezier
+         (0.34, 1.20, 0.64, 1) produces an overshoot of ~10–15px on a
+         12rem transition before settling. */
+  @media (min-width: 640px) {
+    .logo-overhang {
+      display: block;
+      transform: translate(-12rem, -12rem);
+      opacity: 0;
+      transition:
+        top 300ms ease-out,
+        left 300ms ease-out,
+        transform 200ms ease-out,
+        opacity 200ms ease-out;
+    }
+
+    [data-state="minimal"] .logo-overhang {
+      transform: translate(0, 0);
+      opacity: 1;
+      /* At ≥640 minimal state, the bar has slid up (translateY(-100%))
+         and the logo-overhang is now the only visible brand-mark. Its
+         bounding box still occupies ~y=-1.95rem to y=8.85rem viewport,
+         overlapping the page content area below where the bar was.
+         Previously this rule set `pointer-events: none` to keep page
+         content underneath clickable, but that also disabled the
+         diamond itself — breaking the logo's home-navigation role in
+         minimal state (the bug Sean reported). The base rule's
+         `clip-path` confines the hit area to the diamond shape, so the
+         diamond catches clicks AND the transparent corner areas pass
+         clicks through. No state-specific pointer-events override
+         needed here either. */
+      transition:
+        top 300ms ease-out,
+        left 300ms ease-out,
+        /* y2=1.40 (was 1.20) produces ~5px more overshoot on a 12rem
+           transition, for a more emphatic rubber-band feel. */
+        transform 400ms cubic-bezier(0.34, 1.40, 0.64, 1) 400ms,
+        opacity 200ms ease-out 400ms;
+    }
+  }
+
+  /* Wide tier (≥1520px): main is capped at --main-max-width and centered,
+     so viewport-gutter to the left of main grows with viewport width.
+     At smaller tiers main fills (or nearly fills) the viewport, so the
+     overhang logo's `left: -3.25rem` (viewport-anchored) sits close
+     enough to main's left edge to read as "attached" to main. Past
+     1520px the gutter opens up enough that a viewport-anchored logo
+     reads as marooned in the top-left corner of the window rather
+     than visually paired with main. Anchor to main's left edge here:
+     same calc as the full .logo's 1520+ rule, with the existing
+     3.25rem off-frame offset preserved (so the diamond still bleeds
+     off main's left edge by the same amount it bleeds off the
+     viewport edge below 1520). The `top` value stays at -1.95rem
+     from the base rule — only the X position changes.
+
+     Source order matters here: this block MUST come after the
+     @media (min-width: 640px) block above (which sets the
+     [data-state="minimal"] .logo-overhang { transform: translate(0,0) }
+     visible position). Same specificity means later-in-source wins;
+     placing 1520+ after 640+ is what lets the 1520+ transform
+     override the 640+ one at ≥1520. */
+  @media (min-width: 1520px) {
+    .logo-overhang {
+      left: calc((100% - var(--main-max-width)) / 2 - 3.25rem);
+    }
+    /* Nudge the visible (minimal-state) position 1.9rem leftward at this
+       tier — the calc-based `left` lands the logo's anchor point too far
+       inward; this transform shifts the rendered position back outward
+       so the diamond sits at the intended overlap with main's left edge.
+       Only the minimal-state visible transform is overridden — the
+       default state's `transform: translate(-12rem, -12rem)` (offscreen
+       entry position) is left as-is, so the entry-exit animation still
+       plays the same distance and rubber-band overshoot. */
+    [data-state="minimal"] .logo-overhang {
+      transform: translate(-1.9rem, 0);
+    }
+  }
+
+  /* ============================================================================
+     Primary horizontal nav (large only, ≥1040px)
+     ============================================================================
+     Breakpoint set at 1040px (rather than 896px = the Header's other
+     "Large" boundary) because at the smaller end of the previous range
+     the nav links plus the logo's footprint were too cramped. The
+     breakpoint was bumped from 960px to 1040px on 2026-05-12 when the
+     nav labels were lengthened (Work→Projects, About→About Me,
+     Contact→Reach Out) — the previous 960px floor no longer left enough
+     room for the wider link set without the leftmost link overhanging
+     the over-nav fill region. */
+  .primary-nav {
+    display: none;
+    /* position: relative + top: 1.95rem shifts the nav visibly downward
+       from its flex-centered position by exactly 1.95rem — equivalent to
+       what `margin-top: 3.9rem` would have achieved (margin-top contributes
+       to the centered margin box, so its effective rendered shift is half
+       its value under align-items: center on .header-inner).
+       z-index: 1 stacks the nav above .logo (which is position: absolute
+       with z-index: auto, so it paints at the local stacking level). This
+       lets the user click "Work" through the logo's transparent right
+       edge — the logo's image still renders, but pointer events land on
+       the nav above it. */
+    position: relative;
+    top: 1.95rem;
+    z-index: 1;
+  }
+  @media (min-width: 1040px) {
+    .primary-nav { display: block; }
+  }
+  .primary-nav ul {
     display: flex;
     gap: var(--space-md);
     margin: 0;
@@ -58,10 +1717,1746 @@ const isActive = (path: string): 'page' | undefined =>
     list-style: none;
     flex-wrap: wrap;
   }
-  nav a {
+  /* Nav links — light-tier HUD treatment.
+       Rest state: default fg color.
+       Hover / aria-current: text shifts to electric-purple-glow with a
+       soft purple text-shadow halo, and a thin purple laser underline
+       (same gradient pattern as the bar's laser channels) animates in
+       from left to right via scaleX. The underline is a ::after pseudo
+       on the anchor, transform-origin: left so the scaling looks like
+       the laser "draws itself in" rather than expanding from the center. */
+  .primary-nav a {
     color: var(--color-fg);
     text-decoration: none;
+    position: relative;
+    transition:
+      color 200ms ease-out,
+      text-shadow 200ms ease-out;
   }
-  nav a[aria-current="page"] { color: var(--color-accent); }
-  nav a:hover { color: var(--color-accent); }
+
+  .primary-nav a::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      var(--color-electric-purple-deep) 0%,
+      var(--color-electric-purple) 35%,
+      var(--color-electric-purple-glow) 50%,
+      var(--color-electric-purple) 65%,
+      var(--color-electric-purple-deep) 100%
+    );
+    box-shadow: 0 0 6px rgba(157, 63, 227, 0.6);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 250ms ease-out;
+  }
+
+  .primary-nav a:hover,
+  .primary-nav a[aria-current="page"] {
+    color: var(--color-electric-purple-glow);
+    text-shadow:
+      0 0 8px rgba(157, 63, 227, 0.55),
+      0 0 16px rgba(244, 160, 255, 0.3);
+  }
+
+  .primary-nav a:hover::after,
+  .primary-nav a[aria-current="page"]::after {
+    transform: scaleX(1);
+  }
+
+  /* ============================================================================
+     Hamburger (medium + small only; hidden on large)
+     ============================================================================
+     Brass icon on a 135deg copper gradient (copper → copper-light → copper-dark)
+     with a beveled two-stop inset shadow (copper-light highlight on top-left,
+     copper-oxidized shadow on bottom-right) for the raised-metal feel. SVG
+     icon scaled to 2rem; padding tightened to 0.25rem so the overall button
+     footprint matches the previous 24px-icon + 0.5rem-padding button.
+
+     Background brightness shifts: 0.8 resting → 1.05 hover via a 200ms filter
+     transition. The filter lives on a ::before pseudo-element (the gradient
+     layer) so it only affects the background, not the brass icon — the SVG
+     stays at native brass-light brightness in all states.
+
+     Press state inverts the bevel for tactile feedback. */
+  .hamburger {
+    position: relative;                           /* anchor for ::before gradient layer */
+    isolation: isolate;                           /* contain ::before's z-index */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-copper-oxidized);
+    border-radius: var(--radius);
+    background: transparent;                      /* gradient moved to ::before */
+    color: var(--color-brass-light);              /* brass-light icon, unaffected by filter */
+    cursor: pointer;
+    padding: 0.25rem;
+    /* Explicit `top: 0` (rather than the default `top: auto`) so the
+       740px breakpoint's `top: 1rem` shift can be CSS-interpolated to a
+       smooth slide — `auto` is not a length and won't transition. With
+       both sides numeric (0 ↔ 1rem) the 300ms transition below animates
+       the button (and its absolute-positioned children: the diagonal
+       ::after and the .hamburger-beam-h hook) in lockstep with the bar
+       min-height + main max-width transitions at the same breakpoint. */
+    top: 0;
+    /* Inner beveled shadow — copper-light highlight (top-left) + copper-oxidized
+       shadow (bottom-right) at low alpha for subtlety. Reads as "raised button"
+       resting state. Renders on the button itself, on top of the ::before.
+       Outer layers (added 2026-05-11) wrap the button in a purple-glow halo:
+         - 5px / 15px spread blurs of --color-electric-purple-deep — softer
+           outer bleed, reading as the button's resident energy.
+         - 0-blur / 1px-spread ring of --color-electric-purple-glow as the
+           sharp outer perimeter line, matching the bar's laser channels. */
+    box-shadow:
+      inset 1.5px 1.5px 0 rgba(218, 138, 74, 0.55),
+      inset -1.5px -1.5px 0 rgba(74, 40, 18, 0.55),
+      0 0 5px 1px var(--color-electric-purple-deep),
+      0 0 15px 1px var(--color-electric-purple-deep),
+      0 0 0 1px var(--color-electric-purple-glow);
+    transition:
+      color var(--transition-fast),
+      box-shadow var(--transition-fast),
+      /* 300ms to match the bar's min-height, main's max-width, and the
+         logo's left transitions at the 740 breakpoint — keeps all the
+         header pieces moving together as one cohesive slide. */
+      top 300ms ease-out;
+  }
+  /* Background gradient layer — isolated so the brightness filter only affects
+     the gradient, leaving the brass icon at its native brightness. */
+  .hamburger::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      var(--color-copper) 15%,
+      var(--color-copper-light),
+      var(--color-copper-dark) 90%
+    );
+    filter: brightness(0.8);                      /* resting: dimmed */
+    transition: filter 200ms ease;
+    z-index: -1;                                  /* behind the icon */
+  }
+  /* Icon size — 2rem SVG so the icon reads larger inside the same overall
+     button footprint (icon-up + padding-down preserves the total dimensions).
+     drop-shadow (vs box-shadow) follows the actual stroke shape of the bars,
+     casting a soft down-right shadow that reads as the brass mounted slightly
+     above the copper background. Direction is consistent with the gradient's
+     top-left light source. Hover reduces the shadow (lighter offset + lower
+     opacity) — reads as the icon settling closer to the background as the
+     button lights up. Transition matches the 200ms gradient brightness shift. */
+  .hamburger svg {
+    width: 2rem;
+    height: 2rem;
+    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.7));
+    transform: translate(0, 0);
+    transition:
+      filter 200ms ease,
+      transform 200ms ease;
+  }
+  /* On hover, the icon shifts 1px down-right while the shadow softens —
+     reads as the brass settling slightly into the lit surface, moving toward
+     where the shadow used to be cast. */
+  .hamburger:hover svg {
+    filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.5));
+    transform: translate(1px, 1px);
+  }
+  .hamburger:hover::before {
+    /* Lift the background gradient on hover; icon stays at native brightness */
+    filter: brightness(1.05);
+  }
+  .hamburger:active {
+    /* Inverted bevel — reads as "pressed in". Outer purple glow layers
+       preserved (otherwise the press visually drops the halo for a
+       moment between mouse-down and the pulse animation taking over). */
+    box-shadow:
+      inset 1.5px 1.5px 0 rgba(74, 40, 18, 0.55),
+      inset -1.5px -1.5px 0 rgba(218, 138, 74, 0.55),
+      0 0 5px 1px var(--color-electric-purple-deep),
+      0 0 15px 1px var(--color-electric-purple-deep),
+      0 0 0 1px var(--color-electric-purple-glow);
+  }
+  .hamburger:focus-visible {
+    outline: 2px solid var(--color-electric-cyan);
+    outline-offset: 4px;
+  }
+  /* Diagonal laser beam approaching the hamburger button from one side,
+     plus a short horizontal "hook" (.hamburger-beam-h, a span sibling of
+     the SVG) that continues from the diagonal's tip behind the icon to
+     the button's horizontal center (revised 2026-05-11).
+
+     Two orientations per viewport tier:
+       - <640px: diagonal enters from UPPER-LEFT going down-right (top:
+         -0.9rem anchor, rotate(-45deg)). Pairs with the visible TOP beam
+         at this tier — the diagonal feels like a branch off the top beam.
+       - 640–1039px: diagonal enters from LOWER-LEFT going up-right
+         (bottom: -1.4rem anchor, rotate(45deg)). Pairs with the visible
+         BOTTOM beam at this tier — the diagonal feels like a branch off
+         the bottom beam.
+     The single 640–1039 media query replaces the previous separate
+     640–739 / 740+ overrides — at 740+ the button's top: 1rem shift
+     moves the button itself; the beam (positioned absolute inside the
+     button) rides along, so no separate beam override is needed.
+
+     z-index layering inside .hamburger's stacking context (created by
+     isolation: isolate on the button):
+       - ::after diagonal at z-index: -2 → paints first, BEHIND the
+         ::before gradient. The portion overlapping the button box is
+         hidden by the gradient; the portion extending past the box
+         (outside the button) remains visible.
+       - .hamburger-beam-h span at z-index: -1 → paints AFTER ::before
+         in source order with the same -1 level → renders ON TOP of the
+         gradient but BEHIND the SVG icon (in-flow content paints above
+         negative-z layers). So the horizontal hook stays visible inside
+         the button, behind the icon, until it stops at button center.
+     At ≥1040 the hamburger parent is display: none, so neither renders. */
+  .hamburger::after {
+    content: '';
+    position: absolute;
+    left: -75%;
+    transform: rotate(-45deg) translateX(-50%);
+    width: 1.5px;
+    height: 2.5rem;
+    top: -0.9rem;
+    bottom: -0.75rem;
+    background: var(--color-electric-purple-glow);
+    box-shadow: 0 0 4px rgba(157, 63, 227, 0.6);
+    pointer-events: none;
+    z-index: -2;
+  }
+
+  @media (min-width: 640px) and (max-width: 1039.98px) {
+    .hamburger::after {
+      /* Flip the diagonal: anchor from the BOTTOM of the button and
+         rotate +45deg so the line now enters from lower-left and rises
+         to its upper-right tip just outside the button's left edge. */
+      top: auto;
+      bottom: -1.4rem;
+      transform: rotate(45deg) translateX(-50%);
+      height: 2.95rem;
+    }
+  }
+
+  /* Horizontal "hook" beam — continues from the diagonal's inward tip
+     into the button (behind the icon), stopping at a width-defined
+     length so it does NOT protrude past the right side. Default values
+     target the <640 tier (diagonal tip at ~y = 1.23rem from button
+     top); the 640–1039 override flips vertical anchoring to match the
+     lower-anchored diagonal and shortens the width to 35%. Height
+     is 2px at every tier (uniform thickness across viewports). */
+  .hamburger-beam-h {
+    position: absolute;
+    /* X: from the diagonal's tip (~1rem left of button), extending
+       40% of button width to the right. width: 40% gives a fixed-
+       proportion hook rather than one that always stops at button
+       center. Left value nudged to -1rem (from the geometric -1.14rem
+       computed from -75% × button_width + cos45 × 1.25rem) to land
+       the joint flush on the diagonal's actual rendered tip. */
+    left: -1rem;
+    width: 40%;
+    /* Y: at the diagonal's tip — 1.23rem below the button's top edge
+       (computed from the diagonal's center-Y = -0.9rem + 2.5rem/2 = 0.35rem,
+       plus sin45 × 1.25rem ≈ 0.88rem). */
+    top: 1.23rem;
+    transform: translateY(-50%);
+    height: 2px;
+    background: var(--color-electric-purple-glow);
+    box-shadow: 0 0 4px rgba(157, 63, 227, 0.6);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  @media (min-width: 640px) and (max-width: 1039.98px) {
+    .hamburger-beam-h {
+      /* Diagonal flipped to lower anchor. Anchoring from BOTTOM keeps
+         the horizontal joint stable regardless of the 740+ top: 1rem
+         shift on the button. Tuned 2026-05-11 to land the joint flush
+         on the diagonal's tip: left -0.9rem / bottom 0.978rem.
+         Width 35% (vs. base 40% at <640) — the diagonal at this tier
+         enters from lower-left and meets the horizontal slightly
+         further into the button, so the hook is tightened a touch to
+         stop at a clean spot behind the icon. */
+      left: -0.9rem;
+      width: 35%;
+      top: auto;
+      bottom: 0.978rem;
+    }
+  }
+
+  /* Click pulse — when the hamburger is clicked, the button flashes a
+     bright purple glow (peak brighter than --color-electric-purple-glow)
+     and then quickly settles to an "elevated" glow that's brighter than
+     the resting state but less than the peak. Triggered by JS adding the
+     .pulsing class on click; removed on animationend. The 100% keyframe
+     is intentionally matched to the .hamburger[aria-expanded="true"]
+     rule below, so when the animation ends and the cascaded style takes
+     over, there is no visual jump — the elevated glow simply persists
+     while the nav drawer is open. When the drawer closes (aria-expanded
+     reverts to false), the box-shadow transition declared on .hamburger
+     animates back to the resting state.
+
+     The pulse is short (300ms) so the menu's drawer-enter animation can
+     start to follow with a 150ms delay while the pulse is still peaking
+     visually — overlapping the two creates the "the click caused the
+     beam to shoot out" reading. */
+  @keyframes hamburger-pulse {
+    0% {
+      box-shadow:
+        inset 1.5px 1.5px 0 rgba(218, 138, 74, 0.55),
+        inset -1.5px -1.5px 0 rgba(74, 40, 18, 0.55),
+        0 0 5px 1px var(--color-electric-purple-deep),
+        0 0 15px 1px var(--color-electric-purple-deep),
+        0 0 0 1px var(--color-electric-purple-glow);
+    }
+    20% {
+      /* Bright flash — 244,160,255 is the "extra bright" purple already
+         used elsewhere (the brass-edge highlight), pushed to ~0.95 alpha
+         here so it reads as a flash brighter than the normal glow ring.
+         Outer halo widens to 20/8 + 45/15 spreads for the explode-out. */
+      box-shadow:
+        inset 1.5px 1.5px 0 rgba(218, 138, 74, 0.55),
+        inset -1.5px -1.5px 0 rgba(74, 40, 18, 0.55),
+        0 0 20px 8px rgba(244, 160, 255, 0.95),
+        0 0 45px 15px var(--color-electric-purple-glow),
+        0 0 0 2px rgba(244, 160, 255, 1);
+    }
+    100% {
+      /* Settled elevated state — between resting and peak. Must match
+         .hamburger[aria-expanded="true"] below for seamless handoff. */
+      box-shadow:
+        inset 1.5px 1.5px 0 rgba(218, 138, 74, 0.55),
+        inset -1.5px -1.5px 0 rgba(74, 40, 18, 0.55),
+        0 0 8px 2px var(--color-electric-purple-glow),
+        0 0 20px 4px var(--color-electric-purple-deep),
+        0 0 0 1px var(--color-electric-purple-glow);
+    }
+  }
+  .hamburger.pulsing {
+    animation: hamburger-pulse 300ms ease-out;
+  }
+
+  /* Elevated glow state — persists while the nav drawer is open
+     (aria-expanded="true"). Must match @keyframes hamburger-pulse's
+     100% keyframe exactly so the pulse animation ends seamlessly into
+     this state. On close (aria-expanded → false), the box-shadow
+     transition on .hamburger (declared in the base rule) handles the
+     fade back to resting. */
+  .hamburger[aria-expanded="true"] {
+    box-shadow:
+      inset 1.5px 1.5px 0 rgba(218, 138, 74, 0.55),
+      inset -1.5px -1.5px 0 rgba(74, 40, 18, 0.55),
+      0 0 8px 2px var(--color-electric-purple-glow),
+      0 0 20px 4px var(--color-electric-purple-deep),
+      0 0 0 1px var(--color-electric-purple-glow);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hamburger.pulsing { animation: none; }
+  }
+  /* At ≥740px (where the bar grows to 7rem and the full logo overhangs more
+     dramatically), nudge the hamburger button down 1rem from its flex-
+     centered position. `position: relative` is already declared in the
+     base .hamburger rule (for the ::before gradient anchor); `top: 1rem`
+     just shifts the rendered position without affecting flex layout
+     (other items aren't pushed). Only visible on 740–1039px since
+     the next rule below hides it at ≥1040px. */
+  @media (min-width: 740px) {
+    .hamburger {
+      top: 1rem;
+    }
+  }
+
+  /* ============================================================================
+     Search button (magnifying glass icon)
+     ============================================================================
+     Positioned absolutely relative to .header-bar (the bar has
+     position: relative + z-index: 2). Per-tier placement:
+       - <640px (bar 4rem): aligned with hamburger's y-center; right
+         offset puts the icon ~5-6rem left of the hamburger.
+       - 640–739px (bar 5rem): same idea, adjusted for taller bar.
+       - 740–1039px (bar 7rem, hamburger shifted down 1rem): icon's
+         top accounts for the hamburger's downward shift.
+       - ≥1040px: above the over-nav top beam, top-right corner of the
+         screen with the icon's h-center aligned to the center of the
+         terminal circle at the end of the over-nav beam. */
+  .header-search {
+    position: absolute;
+    z-index: 3;
+    /* Circular purple laser outline — same energy vocabulary as the
+       header bar's edge beams and the over-nav. Border + border-radius
+       50% on a square button gives the circle. */
+    border: 1px solid var(--color-electric-purple-glow);
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    padding: 0.25rem;
+    color: var(--color-electric-purple-glow);
+    isolation: isolate;  /* stacking context for the diagonal ::after */
+    /* Outer purple glow halo + soft inner glow — reads as the icon is
+       made of the same energy as the bar's laser channels. */
+    box-shadow:
+      0 0 6px 1px var(--color-electric-purple-deep),
+      0 0 12px 1px rgba(157, 63, 227, 0.4),
+      inset 0 0 6px 0 rgba(157, 63, 227, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Position transitions for breakpoint crossings:
+         - top 300ms ease-out: smooths the 740px crossing where the
+           search drops down (1.2rem → 3.2rem) to match the hamburger's
+           top:1rem shift at the same tier.
+         - right 300ms ease-out: smooths the 896px crossing where the
+           search shifts inward (9rem → calc(3% + 9rem)) tracking the
+           hamburger's inward movement as main goes from full-width to
+           94% with a 3% gutter.
+       Diagonal ::after and horizontal hook span are positioned
+       absolutely INSIDE the button, so they move along with the button
+       automatically — no separate transitions needed on them. */
+    transition:
+      color var(--transition-fast),
+      filter var(--transition-fast),
+      box-shadow var(--transition-fast),
+      background var(--transition-fast),
+      top 300ms ease-out,
+      right 300ms ease-out;
+  }
+
+  .header-search svg {
+    width: 2rem;
+    height: 2rem;
+    /* Soft purple drop-shadow gives the icon a "laser-beam stroke"
+       quality — the magnifying-glass shape reads as drawn in light
+       rather than just colored line art. */
+    filter: drop-shadow(0 0 3px var(--color-electric-purple-glow));
+    transition: filter var(--transition-fast);
+  }
+  .header-search:hover {
+    box-shadow:
+      0 0 10px 2px var(--color-electric-purple-glow),
+      0 0 20px 4px rgba(157, 63, 227, 0.5),
+      inset 0 0 8px 0 rgba(157, 63, 227, 0.35);
+  }
+  .header-search:hover svg {
+    filter: drop-shadow(0 0 5px var(--color-electric-purple-glow));
+  }
+  .header-search:focus-visible {
+    outline: 2px solid var(--color-electric-cyan);
+    outline-offset: 4px;
+  }
+
+  /* Diagonal laser beam approaching the search button — mirrors the
+     hamburger's beam vocabulary. At <640px the diagonal enters from
+     UPPER-LEFT (pairs with the visible top beam at that tier); at
+     640-1039px it flips to enter from LOWER-LEFT (pairs with the
+     visible bottom beam). Hidden at ≥1040px (different connecting
+     beam placement TBD). z-index: -2 inside the button's stacking
+     context keeps the portion overlapping the button BEHIND the
+     icon; portions extending OUTSIDE the button's box (the diagonal's
+     reach into the surrounding bar) stay visible.
+     opacity + transition (with 300ms delay on fade-in) keeps the
+     beams invisible while the icon slides between its <1040 and ≥1040
+     positions, then fades them in after the icon arrives. See the
+     @media (min-width: 1040px) override below. */
+  .header-search::after {
+    content: '';
+    position: absolute;
+    left: -75%;
+    transform: rotate(-45deg) translateX(-50%);
+    width: 1.5px;
+    height: 2.5rem;
+    top: -0.9rem;
+    background: var(--color-electric-purple-glow);
+    box-shadow: 0 0 4px rgba(157, 63, 227, 0.6);
+    pointer-events: none;
+    z-index: -2;
+    opacity: 1;
+    /* 300ms delay matches the .header-search top/right transition
+       duration — beams stay invisible while the icon slides to its
+       new position, then fade in over 200ms once it arrives. */
+    transition: opacity 200ms ease-out 300ms;
+  }
+
+  @media (min-width: 640px) and (max-width: 1039.98px) {
+    .header-search::after {
+      /* Flip: anchor from the bottom and rotate +45deg so the diagonal
+         enters from lower-left and rises to upper-right (the search
+         button's left edge area). */
+      top: auto;
+      bottom: -1.4rem;
+      transform: rotate(45deg) translateX(-50%);
+      height: 2.95rem;
+    }
+  }
+
+  /* Horizontal "hook" beam — continues from the diagonal's inward tip
+     into the search button, behind the magnifying-glass icon, stopping
+     inside the circular outline. Same vocabulary as .hamburger-beam-h.
+     Default values target the <640 tier; the 640–1039 override flips
+     vertical anchoring. z-index: -1 paints above the button's
+     background (transparent) but below the SVG icon.
+     Same opacity-transition treatment as the diagonal — fades in
+     300ms after the icon's position transition completes. */
+  .header-search-beam-h {
+    position: absolute;
+    left: -1rem;
+    width: 40%;
+    top: 1.23rem;
+    transform: translateY(-50%);
+    height: 2px;
+    background: var(--color-electric-purple-glow);
+    box-shadow: 0 0 4px rgba(157, 63, 227, 0.6);
+    pointer-events: none;
+    z-index: -1;
+    opacity: 1;
+    transition: opacity 200ms ease-out 300ms;
+  }
+
+  @media (min-width: 640px) and (max-width: 1039.98px) {
+    .header-search-beam-h {
+      left: -0.9rem;
+      width: 35%;
+      top: auto;
+      bottom: 0.99rem;
+    }
+  }
+
+  /* 896-1039: both the hamburger's and the search's horizontal hook
+     beams shift their left anchor slightly (-0.9rem → -0.85rem) for
+     better alignment with the diagonal beam's inward tip at this
+     specific tier. Applied to both classes together so the two icons
+     stay paired in their treatment. */
+  @media (min-width: 896px) and (max-width: 1039.98px) {
+    .hamburger-beam-h,
+    .header-search-beam-h {
+      left: -0.85rem;
+    }
+  }
+
+  /* ≥1040px: beams hidden via opacity (not display) so the transition
+     between visible/hidden state can be animated. The 100ms fast hide
+     (no delay) on resize 1039→1040 lets the beams vanish as the icon
+     starts sliding to its top-right position; the inverse 1040→1039
+     resize uses the base rule's 200ms 300ms-delay transition so beams
+     wait for the icon to arrive before fading in.
+
+     Position properties are LOCKED here to the 640–1039 tier values.
+     Without this lock, at the 1040 crossing the beams revert to the
+     BASE rule's positioning (::after: top:-0.9rem + rotate(-45deg);
+     beam-h: top:1.23rem) — a vertical FLIP relative to the 640–1039
+     positioning (::after: bottom:-1.4rem + rotate(45deg); beam-h:
+     bottom:0.99rem). The position snap is instant while opacity is
+     transitioning over 100ms, producing a visible flicker as the
+     beams flip orientation right before fading out. Locking the
+     positions here keeps the beams in place while they fade. */
+  @media (min-width: 1040px) {
+    .header-search::after {
+      opacity: 0;
+      top: auto;
+      bottom: -1.4rem;
+      transform: rotate(45deg) translateX(-50%);
+      height: 2.95rem;
+      transition: opacity 100ms ease-out 0ms;
+    }
+    .header-search-beam-h {
+      opacity: 0;
+      left: -0.85rem;
+      width: 35%;
+      top: auto;
+      bottom: 0.99rem;
+      transition: opacity 100ms ease-out 0ms;
+    }
+  }
+
+  /* Per-tier positioning. Top values calibrated to match the
+     hamburger's y-center at each tier. Right values place the search
+     icon ~8rem center-to-center left of the hamburger (was 6rem; +2rem
+     additional separation per spec 2026-05-12).
+
+     Top values nudged up 0.3rem (2026-05-12 follow-up) — the search
+     button is 2.625rem total (2rem SVG + 0.5rem padding + ~0.125rem
+     border), matching the hamburger exactly. Center_y - 1.3125rem
+     gives the correct top value (the earlier values used 1rem half-
+     height, which was off by 0.3rem). Aligning the search to the
+     hamburger's exact y also lands the diagonal beam's outer tip
+     directly on the bar's visible beam (top beam at <640, bottom
+     beam at 640-1039), so the diagonal reads as a clean split-off
+     from the running laser line. */
+  @media (max-width: 639.98px) {
+    .header-search {
+      /* Bar 4rem, hamburger flex-centered at y=2rem center;
+         top = 2 - 1.3125 = 0.6875rem ≈ 0.7rem. */
+      top: 0.7rem;
+      right: 9rem;
+    }
+  }
+  /* On very narrow viewports (<460px) the 9rem horizontal gap pushes
+     the search icon too far from the hamburger — there's not enough
+     viewport width to support that spacing without crowding other
+     elements. Tighten back to 7rem (matches the 640-739 tier's value)
+     for breathing room. Top value inherits from the <640 rule above. */
+  @media (max-width: 459.98px) {
+    .header-search {
+      right: 7rem;
+    }
+  }
+  @media (min-width: 640px) and (max-width: 739.98px) {
+    .header-search {
+      /* Bar 5rem, hamburger center at y=2.5rem;
+         top = 2.5 - 1.3125 = 1.1875rem ≈ 1.2rem. */
+      top: 1.2rem;
+      right: 7rem;
+    }
+  }
+  @media (min-width: 740px) and (max-width: 1039.98px) {
+    .header-search {
+      /* Bar 7rem, hamburger center at y=4.5rem (flex-center 3.5rem +
+         top:1rem shift); top = 4.5 - 1.3125 = 3.1875rem ≈ 3.2rem. */
+      top: 3.2rem;
+      right: 9rem;
+    }
+  }
+
+  /* 896-1039: main switches to 94% with 3% gutter, so the hamburger
+     moves inward by 3% from the viewport-right edge. Search follows
+     with calc(3% + 9rem) — preserves the same 8rem center-to-center
+     gap between the two icons. */
+  @media (min-width: 896px) and (max-width: 1039.98px) {
+    .header-search {
+      right: calc(3% + 9rem);
+    }
+  }
+
+  /* ≥1040px: search moves up above the over-nav beam, anchored at the
+     right side of the screen. right: calc(3% - 1.5rem) places the
+     icon's right edge slightly inward from the over-nav beam's right
+     end (which sits at right: 3%).
+
+     Transition override adds a 100ms delay to top/right at this tier.
+     Going 1039→1040 (resize up), the icon's attached beams (::after
+     diagonal + .header-search-beam-h horizontal hook) fade out via
+     their own 100ms 0ms-delay transition. The icon then waits 100ms
+     before starting its own position move, so the beams are fully
+     gone BEFORE the icon slides to the top-right corner. Going
+     1040→1039, the base rule's no-delay transition applies — the icon
+     moves immediately, and the beams fade in after a 300ms delay
+     (see the base rule on .header-search::after / .header-search-beam-h)
+     so they wait for the icon to arrive before reappearing. */
+  @media (min-width: 1040px) {
+    .header-search {
+      top: 0.5rem;
+      right: calc(3% - 1.5rem);
+      transition:
+        color var(--transition-fast),
+        filter var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast),
+        top 300ms ease-out 100ms,
+        right 300ms ease-out 100ms;
+    }
+  }
+  @media (min-width: 1520px) {
+    .header-search {
+      right: calc((100% - var(--main-max-width)) / 2 - 19px);
+    }
+  }
+
+  /* Click pulse for the search icon — same vocabulary as the hamburger
+     pulse but ~2/3 brightness. The flash peak at 20% brightens to
+     rgba(244, 160, 255, 0.65) (vs hamburger's 0.95) with smaller
+     spreads (13px@5 + 30px@10 vs hamburger's 20px@8 + 45px@15). The
+     100% keyframe matches the resting state since the search icon
+     doesn't have an "elevated while open" persistent visual — once
+     the pulse plays, the icon returns to its normal glow (the
+     search FIELD takes over as the visible "opened" indicator). */
+  @keyframes search-pulse {
+    0% {
+      box-shadow:
+        0 0 6px 1px var(--color-electric-purple-deep),
+        0 0 12px 1px rgba(157, 63, 227, 0.4),
+        inset 0 0 6px 0 rgba(157, 63, 227, 0.25);
+    }
+    20% {
+      box-shadow:
+        0 0 13px 5px rgba(244, 160, 255, 0.65),
+        0 0 30px 10px var(--color-electric-purple-glow),
+        0 0 0 1.5px rgba(244, 160, 255, 0.65),
+        inset 0 0 8px 0 rgba(157, 63, 227, 0.4);
+    }
+    100% {
+      box-shadow:
+        0 0 6px 1px var(--color-electric-purple-deep),
+        0 0 12px 1px rgba(157, 63, 227, 0.4),
+        inset 0 0 6px 0 rgba(157, 63, 227, 0.25);
+    }
+  }
+  .header-search.pulsing {
+    animation: search-pulse 300ms ease-out;
+  }
+
+  /* Open state (search field showing) — fill the icon's circular
+     interior with a translucent purple glow, brighter near the edges
+     (close to the outline border). Two reinforcing layers:
+       1. Edge-heavy radial gradient: lighter at center (0.10 alpha),
+          gradually denser outward, brightest at the circle edge
+          (0.55 alpha). Reads as the energy contained inside the
+          icon is collecting along the outline border.
+       2. Stronger inset box-shadow than the resting state (10px@2,
+          0.55 alpha vs the resting 6px@0, 0.25 alpha) — adds an
+          extra ring of soft glow just inside the border.
+     Outer halo layers (unchanged from resting) carry through. */
+  .header-search[aria-expanded="true"] {
+    background: radial-gradient(
+      circle at center,
+      rgba(157, 63, 227, 0.10) 0%,
+      rgba(157, 63, 227, 0.25) 55%,
+      rgba(157, 63, 227, 0.55) 100%
+    );
+    box-shadow:
+      0 0 6px 1px var(--color-electric-purple-deep),
+      0 0 12px 1px rgba(157, 63, 227, 0.4),
+      inset 0 0 10px 2px rgba(157, 63, 227, 0.55);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .header-search.pulsing { animation: none; }
+  }
+
+  /* ============================================================================
+     Search field — slide-down energy panel
+     ============================================================================
+     Position: fixed at top:0 so the field's box extends from the
+     viewport top edge down to the bottom of its visible portion. The
+     field has z-index: 4 — ABOVE the header bar (z-index: 2) and the
+     logo (z-index: 3) — so clicks on the visible input area land on
+     the field rather than being intercepted by the logo's transparent
+     overhang (the full logo image extends well below its anchor's
+     3.5rem-tall box, and its transparent pixels at the bottom-right
+     used to sit on top of the field's z-index 1, hijacking clicks
+     meant for the search input — Sean's bug 2026-05-12).
+
+     The "slides down from below the bar" visual is preserved via a
+     clip-path on the field that excludes everything above the bar's
+     bottom edge (y < bar-height). With z-index above the bar, the
+     field would otherwise paint OVER the bar's brushed-nickel; the
+     clip-path keeps the painted area restricted to the visible
+     region below the bar. clip-path also affects pointer events, so
+     clicks at y < bar-height pass through the field to the bar/logo
+     beneath (the search icon, nav links, gear, etc. all stay
+     clickable while the field is open).
+
+     Treatment matches the mobile nav drawer's "energy HUD" base:
+     translucent black backdrop + intense purple radial gradient + 2px
+     purple border on the bottom edge + multi-layer glow.
+
+     Per-tier open heights: header bar height + 3rem extra below for
+     the input form. The form is anchored to bottom: 0.75rem so it
+     sits in the visible (below-bar) portion regardless of tier-
+     specific bar height. Clip-path's top edge is at a FIXED-y bar
+     height (not a percentage of field height) so the visible region
+     only opens up once field height grows past the bar — preserving
+     the original "nothing visible until h > bar-height, then visible
+     panel grows from 0 to 3rem" animation pacing. */
+  .header-search-field {
+    position: fixed;
+    /* top: 0 at the <640 tier — at this size the field's visible top
+       sits at the bar's bottom edge without an upward nudge (the
+       smaller bar at <640 has the beam closer to the bar's bottom
+       and a sub-pixel gap is less perceptible here). The 640+ rule
+       below shifts top to -0.24rem so the visible top reaches the
+       underside of the bar's bottom-edge beam (.header-bar::after,
+       5px / ~0.3125rem tall, anchored at the bar's bottom) on the
+       larger tiers. The shift is in field-local coordinates so the
+       clip-path's top-y (4rem/5rem/7rem at each tier) cascades with
+       it uniformly. */
+    top: 0;
+    /* Minimum width 360px so the search input stays usable at very
+       narrow viewports. At <360px viewports the field will overflow
+       the viewport-right edge by the difference. */
+    min-width: 360px;
+    left: 0;
+    right: 0;
+    height: 0;
+    z-index: 4;
+    overflow: hidden;
+    /* Backdrop + energy gradient — same layering as the mobile drawer. */
+    background-color: rgba(0, 0, 0, 0.7);
+    background-image: radial-gradient(ellipse at center, rgba(157, 63, 227, 0.92), transparent);
+    /* Bottom border = the visible "edge" of the field. The top edge of
+       the field's box (y=0) is clipped out by clip-path, so border-top
+       wouldn't render anyway. 2px purple-glow matches the drawer's
+       border. */
+    border-bottom: 2px solid var(--color-electric-purple-glow);
+    /* Outer glow extends BELOW the field; inner wraps the border. */
+    box-shadow:
+      0 4px 16px 2px rgba(157, 63, 227, 0.5),
+      inset 0 0 18px 3px rgba(157, 63, 227, 0.4);
+    /* Clip top edge at the bar height for the <640 tier (bar 4rem).
+       Higher tiers override this in their own media queries below.
+
+       min(4rem, 100%) on the top-y keeps the polygon non-inverted as
+       the field's height transitions through values smaller than the
+       bar height. Without it, when field.height < bar-height during
+       the open/close animation, the polygon's vertices flip (top-y
+       value exceeds bottom-y), and depending on browser handling of
+       degenerate polygons, the *inverse* region can render — flashing
+       the field's purple/glow across the bar area for a few frames.
+       With min(), the polygon either resolves normally (height >=
+       bar) or collapses to all-vertices-at-same-y (height < bar),
+       producing a zero-area shape that reliably renders nothing. */
+    clip-path: polygon(
+      0 min(4rem, 100%),
+      100% min(4rem, 100%),
+      100% 100%,
+      0 100%
+    );
+    /* Close transition (no delay) on height, plus left/right transitions
+       so the field's width morphs smoothly when the viewport crosses the
+       740/896/1060/1520 breakpoints (each of which adjusts left or right).
+       Without these, the field snapped to its new width — visually
+       jarring during an active browser resize. */
+    transition:
+      height 300ms ease-out,
+      left 300ms ease-out,
+      right 300ms ease-out;
+  }
+
+  /* Top beam at the field's visible top edge — only at <640 because
+     at this tier the bar's bottom-edge beam (.header-bar::after) is
+     hidden (see the @media (max-width: 639.98px) rule on .header-bar
+     above), leaving the search panel's top edge unmarked when open.
+     Matches the style of the field's lower edge (border-bottom 2px
+     solid purple-glow): a 2px solid purple-glow line plus a small
+     surrounding glow via box-shadow.
+     Positioned at top: 4rem (= the clip-path's top-y at this tier =
+     bar height) inside the field's box. Field's clip-path also clips
+     the pseudo's rendering, so it only shows when the field is open
+     enough that the pseudo's y is within the (non-degenerate) polygon
+     — i.e., when field.height > 4rem, exactly when the visible panel
+     itself starts showing. The min(4rem, 100%) clip-path math means
+     during the open/close animation the pseudo appears/disappears in
+     lockstep with the field's visible area, no separate timing needed. */
+  @media (max-width: 639.98px) {
+    .header-search-field::before {
+      content: '';
+      position: absolute;
+      top: 4rem;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--color-electric-purple-glow);
+      box-shadow: 0 0 6px rgba(157, 63, 227, 0.5);
+      pointer-events: none;
+    }
+  }
+
+  /* 640+: bar is 5rem tall — shift clip-path's top edge down to match.
+     Same min(bar-height, 100%) trick as the base rule above to keep the
+     polygon non-inverting during height transitions.
+     top: -0.24rem activates here (overrides the base top: 0) so the
+     field's visible top reaches the underside of the bar's bottom-edge
+     beam at the larger bar heights (5rem at 640-739, 7rem at ≥740). */
+  @media (min-width: 640px) {
+    .header-search-field {
+      top: -0.24rem;
+      clip-path: polygon(
+        0 min(5rem, 100%),
+        100% min(5rem, 100%),
+        100% 100%,
+        0 100%
+      );
+    }
+  }
+
+  /* <740: field's z-index drops BELOW the logo so the mobile logo's
+     diamond (z-index 3) renders ON TOP of the field's purple panel
+     where they overlap (mobile logo overhang extends well below the
+     bar into the visible field area). The form (sibling of the field,
+     with z-index 5) still sits above the logo so the input stays
+     clickable. To get the field above the bar at the same time, the
+     bar's z-index is lowered to 1 at this tier (was 2) — putting the
+     stack at: bar (1) < field (2) < logo (3) < form (5).
+     At ≥740, field's z-index returns to 4 (above logo at 3, below
+     form at 5) — same as before the 2026-05-12 split. */
+  @media (max-width: 739.98px) {
+    .header-search-field {
+      z-index: 2;
+    }
+    .header-bar {
+      z-index: 1;
+    }
+  }
+
+  /* Open state: per-tier height targets (bar height + 3rem extra). */
+  .header-search-field[data-open="true"] {
+    height: 7rem;
+    /* Open transition: 200ms delay so the field expansion starts AFTER
+       the search icon's pulse peak. */
+    transition: height 300ms ease-out 200ms;
+  }
+  @media (min-width: 640px) and (max-width: 739.98px) {
+    .header-search-field[data-open="true"] {
+      height: 8rem;
+    }
+  }
+  @media (min-width: 740px) {
+    .header-search-field {
+      /* At ≥740px the field no longer spans the full viewport — it
+         shrinks to ~2/3 width and slides into the right-of-center
+         region. left: 33% + right: 1rem (overridden to 3% at ≥896
+         and to a main-max-width-anchored calc at ≥1520) gives a
+         consistent right-favoring panel.
+
+         clip-path combines TWO cuts in a single polygon:
+           1. Top exclusion at y=7rem (bar height at this tier) —
+              keeps the visible region restricted to below the bar,
+              same as the <640/640-739 tiers' top exclusion but with
+              the larger bar height.
+           2. Diagonal left edge running from (2.1rem, 7rem) [where
+              the diagonal intersects the top-exclusion line] down
+              to (3rem, 100%) [field's bottom-shifted-right vertex].
+         Polygon: (2.1rem 7rem, 100% 7rem, 100% 100%, 3rem 100%).
+         Slope of the diagonal: 0.9rem horizontal over 3rem vertical
+         = 0.3 (= the same 16.7° from vertical as the previous
+         full-field polygon's diagonal). Functionally identical
+         visible cut; the upper-left wedge that the previous polygon
+         extended above the bar was always hidden behind the bar
+         anyway, so trimming it here changes nothing visible — it
+         just means the field's clip-path no longer overlaps the
+         bar region at all, which is what lets z-index: 4 above the
+         bar work without the field covering the bar's brushed-
+         nickel surface.
+
+         The form's left is pushed to 3rem at this tier (override
+         below) so the input stays clear of the diagonal cut — at
+         input.bottom y=9.75rem the polygon's left edge is at
+         x=2.925rem; the input at 3.25rem (3rem form-left + 0.25rem
+         input-margin-left) has ~0.3rem of buffer past the diagonal.
+
+         border-left removed since the clip-path defines the left
+         boundary instead (and a rectangular border would peek through
+         the clipped corner). border-bottom-radius set to 0 because
+         clip-path's straight polygon edges would clip a rounded
+         corner into an awkward partial-rounded shape. */
+      left: 33%;
+      right: 1rem;
+      border-left: 0;
+      /* No right border at this tier — the convex mask below takes
+         over as the right-edge treatment (a solid 2px line plus a
+         radial fade would compete visually, with the line cutting
+         through the fade). Moved from the previous ≥1040 location
+         on 2026-05-12 per Sean's spec: the fade-out should apply
+         everywhere the field has its 2/3-width slide-in form, not
+         just at the widest tier. */
+      border-right: 0;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      /* min(7rem, 100%) on the top-y vertices (same fix as the
+         base and 640-739 rules above) — keeps the polygon non-
+         inverting when field.height transitions through values
+         smaller than the bar height during open/close. */
+      clip-path: polygon(
+        2.1rem min(7rem, 100%),
+        100% min(7rem, 100%),
+        100% 100%,
+        3rem 100%
+      );
+      /* Convex fade-out at the right edge. Circle center is pushed
+         0.5rem PAST the field's right edge so the fade is slightly
+         asymmetric (more vertical on the right side of the circle,
+         more horizontal on the left). Center y=83% lands ~1.3rem from
+         the top of the 3rem visible portion (= y=8.3rem of a 10rem
+         field; clip-path keeps y=7-10rem visible). 2rem radius +
+         transparent-0%-to-60% stops give a 0.8rem-wide fade ring
+         that smoothly dissolves the right edge.
+         (Geometry tuned by Sean in devtools 2026-05-12.) */
+      -webkit-mask-image: radial-gradient(
+        circle 2rem at calc(100% + 0.5rem) 83%,
+        transparent 0%,
+        transparent 60%,
+        black 100%
+      );
+      mask-image: radial-gradient(
+        circle 2rem at calc(100% + 0.5rem) 83%,
+        transparent 0%,
+        transparent 60%,
+        black 100%
+      );
+    }
+    .header-search-field[data-open="true"] {
+      height: 10rem;
+    }
+  }
+
+  /* ≥896px: match the field's right edge to main's right gutter (3%
+     from viewport-right, since main has max-width: 94% at this tier). */
+  @media (min-width: 896px) {
+    .header-search-field {
+      right: 3%;
+    }
+  }
+
+  /* Diagonal laser beam — rides the field's diagonal left edge from
+     (0, 0) at the field's top-left to (3rem, 100%) at the field's
+     bottom 3rem inset. Same purple-glow vocabulary as the bar's
+     bottom beam, so the two visually connect at the bar/field
+     boundary.
+
+     The diagonal geometry is baked into the BEAM's OWN clip-path
+     (no CSS rotation involved). The element is a rectangle
+     calc(3rem + 3px) wide × 10rem tall, full of solid purple. The
+     clip-path carves out a thin parallelogram running along the
+     polygon's diagonal: top-left corner at (0, 0), top-right at
+     (3px, 0), bottom-right at (3rem+3px, 10rem), bottom-left at
+     (3rem, 10rem). The parallelogram's LEFT edge coincides exactly
+     with the parent field's polygon diagonal; its RIGHT edge is
+     3px parallel-shifted into the polygon interior. Net visible
+     stripe: ~3px wide (perpendicular ~2.87px), running corner-to-
+     corner along the field's cut edge.
+
+     Why clip-path instead of `transform: rotate(16.7deg)`: the
+     rotation approach appeared to fail silently in some rendering
+     contexts (likely some interaction with the parent's clip-path
+     or the sticky header ancestor), leaving the beam un-rotated as
+     a vertical line. As a sibling, that vertical line rendered at
+     viewport `left: 33%` — visibly displaced WEST of the polygon's
+     diagonal. As a child, the same un-rotated vertical line at
+     local left:0 falls entirely OUTSIDE the parent's polygon
+     interior (which requires x > 0.3*y for any y > 0) and is
+     clipped away by the field's clip-path. Both modes broke. The
+     clip-path approach bakes the diagonal into geometry — no
+     transform to fail — so the shape is correct unconditionally. */
+  .header-search-diagonal-beam {
+    display: none;
+  }
+  @media (min-width: 740px) {
+    .header-search-diagonal-beam {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: calc(3rem + 3px);
+      height: 10rem;
+      background: var(--color-electric-purple-glow);
+      clip-path: polygon(
+        0 0,
+        3px 0,
+        100% 100%,
+        calc(100% - 3px) 100%
+      );
+      opacity: 0;
+      transition: opacity 300ms ease-out;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .header-search-field[data-open="true"] .header-search-diagonal-beam {
+      opacity: 1;
+      /* 200ms delay so the beam appears after the field finishes
+         expanding (matches the form's fade-in timing). */
+      transition: opacity 300ms ease-out 200ms;
+    }
+  }
+
+  /* (The ≥1040 convex right-edge mask was moved to the ≥740 rule above
+     on 2026-05-12 per Sean's spec — the fade should apply everywhere
+     the field has its 2/3-width slide-in form, not just at the widest
+     tier. Mask values tuned by Sean in devtools 2026-05-12: circle 2rem
+     at calc(100% + 0.5rem) 83%, transparent 0–60% → black 100%.) */
+
+  /* ≥1060px: shrink the field from 2/3 width to half-width. Beyond
+     this size the 2/3 panel starts to feel oversized for a quick-
+     search bar — half-width keeps the field right-of-center while
+     leaving more of the screen visible. left: 50% with right: 3%
+     gives a ~47% wide field anchored to main's right gutter. */
+  @media (min-width: 1060px) {
+    .header-search-field {
+      left: 50%;
+    }
+  }
+
+  /* ≥1520px: main is capped at --main-max-width. Anchor the field's
+     left to main.left + main.width / 2 (= main's horizontal center,
+     since the field is now half-width per the 1060 rule above) and
+     right to main.right edge. Keeps the field at exactly half of
+     main's width regardless of viewport. */
+  @media (min-width: 1520px) {
+    .header-search-field {
+      left: calc((100% - var(--main-max-width)) / 2 + var(--main-max-width) / 2);
+      right: calc((100% - var(--main-max-width)) / 2);
+    }
+  }
+
+  /* Form — positioned in the bottom portion of the field (below the
+     bar). bottom: 0.25rem keeps the form snug against the bottom
+     border of the field. Opacity faded in AFTER the field reaches
+     its open height so the form doesn't appear mid-expansion. */
+  /* Form is a SIBLING of the field (not a child) — see the markup
+     comment near the form for the z-index rationale. Position: fixed
+     anchors it to the viewport at viewport-relative coords matching
+     what it had when nested inside the field. z-index: 5 puts it
+     above the logo (z-index 3) and above the field at any tier
+     (field is at 2 at <740 / 4 at ≥740 — form sits above both).
+
+     pointer-events: none on the form itself so the form's empty area
+     (between the form's left edge and the input's left edge — the
+     input has a per-tier margin-left to clear the logo's diamond) does
+     NOT intercept clicks meant for elements beneath (the mobile logo
+     at <640 occupies x≈0–120px and the form's empty area overlaps
+     there). The input and submit each set pointer-events: auto to
+     re-enable interactivity on themselves only. */
+  .header-search-form {
+    position: fixed;
+    /* top values position the form's box so its content (input height
+       ~2rem) sits in the bottom 1rem of the visible 3rem search panel
+       below the bar — matching the prior bottom:0.25rem-inside-field
+       layout. Field.bottom in viewport = field.top (-0.24rem) +
+       field.height (bar + 3rem). Form.bottom = field.bottom - 0.25rem.
+       Form.top = form.bottom - form.height ≈ bar.height + 0.5rem at
+       each tier (where form.height is content-driven, ~2.25rem). */
+    top: 4.3rem;
+    left: var(--space-lg);
+    right: var(--space-md);
+    z-index: 5;
+    display: flex;
+    gap: var(--space-sm);
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    /* left/right transition smoothly when crossing 740 (var(--space-md)
+       → 3rem-from-field-left etc.), 896 (right shifts), 1060 (left
+       shifts), 1520 (calc-anchored). top transitions across all bar-
+       height changes. */
+    transition:
+      opacity 150ms ease-out,
+      top 300ms ease-out,
+      left 300ms ease-out,
+      right 300ms ease-out;
+  }
+  @media (min-width: 640px) {
+    .header-search-form {
+      top: 5rem;
+    }
+  }
+  @media (min-width: 740px) {
+    .header-search-form {
+      top: 7rem;
+      /* Form's left = field's left (33%) + the original 3rem inset
+         the form had inside the field at this tier. */
+      left: calc(33% + 3rem);
+      /* Form's right = field's right (1rem from viewport-right) +
+         the original var(--space-md) (1rem) inset = 2rem. */
+      right: 2rem;
+    }
+  }
+  @media (min-width: 896px) {
+    .header-search-form {
+      /* Field's right shifts to 3% here, so form's right = 3% + 1rem. */
+      right: calc(3% + 1rem);
+    }
+  }
+  @media (min-width: 1060px) {
+    .header-search-form {
+      /* Field's left shifts to 50% — form's left tracks it. */
+      left: calc(50% + 3rem);
+    }
+  }
+  @media (min-width: 1520px) {
+    .header-search-form {
+      /* Field at this tier uses the calc-anchored left/right; form
+         tracks the same anchors with the 3rem / 1rem insets. */
+      left: calc((100% - var(--main-max-width)) / 2 + var(--main-max-width) / 2 + 3rem);
+      right: calc((100% - var(--main-max-width)) / 2 + 1rem);
+    }
+  }
+  /* Sibling combinator: form is a sibling of the field, so target it
+     via ~. Used to fade the form in only after the field has finished
+     expanding (200ms delay + 300ms expansion = 500ms from click).
+     Also re-enables pointer events so the input/submit can be focused
+     and clicked. */
+  .header-search-field[data-open="true"] ~ .header-search-form {
+    opacity: 1;
+    pointer-events: auto;
+    transition:
+      opacity 200ms ease-out 500ms,
+      top 300ms ease-out,
+      left 300ms ease-out,
+      right 300ms ease-out;
+  }
+  /* When field is open, also explicitly enable pointer-events on the
+     input and submit (they're set to `none` by default — see the
+     base rules below — so they don't intercept page-content clicks
+     when the search is closed and invisible). Without these explicit
+     overrides, the input/submit would inherit none from the form
+     parent ALSO when the form has pointer-events: auto, but explicit
+     overrides remove any ambiguity around inheritance edge cases. */
+  .header-search-field[data-open="true"] ~ .header-search-form .header-search-input,
+  .header-search-field[data-open="true"] ~ .header-search-form .header-search-submit {
+    pointer-events: auto;
+  }
+
+  .header-search-input {
+    flex: 1;
+    min-width: 0;
+    /* position: relative + z-index: 5 — the form parent already sits
+       at site-header z-index 5 above the logo (z-index 3), but
+       making the input itself a stacking context with explicit
+       z-index makes the "input above logo" relationship explicit at
+       the input element (per Sean's 2026-05-12 spec). */
+    position: relative;
+    z-index: 5;
+    /* Explicit pointer-events: none when search is closed. The
+       sibling-combinator rule near the bottom of this section
+       overrides to `auto` when the field has data-open="true".
+       Without this, the input's invisible box (at y=68-103 on <640)
+       intercepts page-content clicks that scroll into that y-range
+       — Sean's bug 2026-05-13: privacy-policy link unclickable when
+       scrolled into the form's vertical band. */
+    pointer-events: none;
+    /* Left margin clears the mobile overhang logo at <640px (logo
+       diamond extends ~7.5rem from viewport-left). 4rem at smallest
+       screens, 3rem at ≥640.
+       Right padding (2.25rem) reserves space inside the input for the
+       arrow icon, which is now absolutely positioned ON TOP of the
+       input (rather than as a separate flex sibling). The input thus
+       visually extends all the way to where the arrow's right edge
+       used to be — no more separate button-sized chunk to its right. */
+    margin-left: 4rem;
+    padding: 0.5rem 2.25rem 0.5rem 0.75rem;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--color-electric-purple-glow);
+    border-radius: var(--radius);
+    color: #e0d4f5;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    outline: none;
+    /* margin-left and margin-right transitions smooth out the 640 (4rem→3rem)
+       and 740 (3rem→0.25rem; 0→0.25rem) breakpoint snaps so the input
+       morphs along with the field's width during a resize. */
+    transition:
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast),
+      margin-left 300ms ease-out,
+      margin-right 300ms ease-out;
+  }
+  @media (min-width: 640px) {
+    .header-search-input {
+      margin-left: 3rem;
+    }
+  }
+  /* ≥740px: input gets a tiny symmetric margin (0.25rem each side)
+     so it "almost fills" the form's content area, with the submit
+     arrow's right value adjusted to keep it 0.5rem from the input's
+     right edge after the new margin.
+     (Previously this block also set .header-search-form { left: 3rem
+     } — a leftover from the form-inside-field design where the form
+     was position: absolute relative to the field. Now that the form
+     is position: fixed and a sibling of the field, the form's left
+     is set viewport-relative at calc(33% + 3rem) in the primary 740
+     rule above. The stale `left: 3rem` was overriding the correct
+     value via cascade order and has been removed.) */
+  @media (min-width: 740px) {
+    .header-search-input {
+      margin-left: 0.25rem;
+      margin-right: 0.25rem;
+    }
+    .header-search-submit {
+      /* Compensate for the input's new right margin (0.25rem) so the
+         submit arrow stays at 0.5rem from the input's right edge.
+         Submit.right CSS = input.margin-right (0.25rem) + 0.5rem. */
+      right: 0.75rem;
+    }
+  }
+  .header-search-input::placeholder {
+    color: rgba(224, 212, 245, 0.55);
+  }
+
+  /* Native clear-button override (WebKit/Chrome/Safari).
+     The default is a gray "x" icon styled by the OS — replace it with
+     an SVG-masked purple X to match the submit arrow's color. The mask
+     approach paints the icon shape using the background-color, so
+     changing the color is just a CSS variable swap (vs encoding the
+     color inside an inline SVG URL).
+     Firefox doesn't render a clear button by default for input[type="search"];
+     this rule is a no-op there. */
+  .header-search-input::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1rem;
+    height: 1rem;
+    margin-left: 0.25rem;
+    background-color: var(--color-electric-purple-glow);
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 4 L12 12 M12 4 L4 12' stroke='black' stroke-width='2' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 4 L12 12 M12 4 L4 12' stroke='black' stroke-width='2' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");
+    -webkit-mask-size: contain;
+            mask-size: contain;
+    -webkit-mask-position: center;
+            mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+    cursor: pointer;
+    transition: filter var(--transition-fast);
+  }
+  .header-search-input::-webkit-search-cancel-button:hover {
+    filter: drop-shadow(0 0 4px var(--color-electric-purple-glow));
+  }
+  .header-search-input:focus {
+    border-color: var(--color-electric-purple-glow);
+    box-shadow:
+      0 0 8px 1px rgba(157, 63, 227, 0.4),
+      inset 0 0 4px 0 rgba(157, 63, 227, 0.25);
+  }
+
+  /* Submit arrow — now a bare symbol overlaid on the input's right
+     side rather than a separate boxed button. position: absolute
+     anchors the arrow 0.5rem from the form's right edge (which aligns
+     with the input's right edge, since the input now fills the entire
+     remaining form width). transform: translateY(-50%) centers it
+     vertically against the input. No border, no background, no
+     padding — just the symbol with a subtle hover halo. */
+  .header-search-submit {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    /* z-index: 6 sits one above the input's z-index 5 so the submit
+       arrow paints OVER the input's right-edge area (the input
+       reserves space via padding-right but the arrow overlays it). */
+    z-index: 6;
+    /* Explicit pointer-events: none when search is closed (overridden
+       to `auto` by the sibling-combinator rule when field opens).
+       Same reasoning as the input above. */
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    color: var(--color-electric-purple-glow);
+    cursor: pointer;
+    /* right transitions smoothly when crossing 740px (0.5rem → 0.75rem) so
+       the submit arrow stays glued to the input's right edge as the input
+       grows its margin-right during the resize. */
+    transition:
+      color var(--transition-fast),
+      filter var(--transition-fast),
+      right 300ms ease-out;
+  }
+  .header-search-submit svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .header-search-submit:hover {
+    filter: drop-shadow(0 0 4px var(--color-electric-purple-glow));
+  }
+  .header-search-submit:focus-visible {
+    outline: 2px solid var(--color-electric-cyan);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* visually-hidden — hide label from sight but keep it for screen readers */
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .header-search-field,
+    .header-search-form {
+      transition: none;
+    }
+  }
+
+  /* On large (≥1040px), hide hamburger in BOTH main (replaced by horizontal nav)
+     AND minimal (per "minimal = SR diamond only" lock). Breakpoint matches
+     the .primary-nav { display: block } breakpoint — they switch together. */
+  @media (min-width: 1040px) {
+    .header-main .hamburger,
+    .header-minimal .hamburger {
+      display: none;
+    }
+  }
+
+  /* ============================================================================
+     HUD-style nav drawer + backdrop
+     ============================================================================
+     The mobile nav drawer (used at <1040px, where the hamburger is visible)
+     opens with a "beam summoning a HUD panel" animation:
+
+       Phase 0 (0–300ms):    Hamburger pulse animation (separate, on the
+                             button itself — see @keyframes hamburger-pulse).
+       Phase 1 (150–350ms):  Drawer is a 2px-wide vertical beam — height
+                             grows from 0 to 1.5rem (descends below bar).
+       Phase 2 (350–550ms):  Width expands from 2px to nav width (~80%/360px)
+                             — beam becomes a thin horizontal strip.
+       Phase 3 (550–750ms):  Height grows to full HUD box.
+       Phase 4 (790–930ms):  Double-flicker (opacity 1→0.3→1→0.3→1).
+       Phase 5 (930ms+):     .nav-drawer-inner opacity transitions to 1,
+                             revealing close button + nav links.
+
+     The drawer is anchored top-right just below the header bar, with
+     per-tier `top` values matching the bar's height ladder. The
+     `--drawer-target-height` CSS variable holds the per-tier final
+     height value — used both in @keyframes nav-drawer-enter's later
+     keyframes AND in the [data-open="true"] target so that the
+     animation lands at the same value the cascaded selector specifies
+     (no jump at animation end). Backdrop dims the rest of the page,
+     click-to-dismiss. Close: reversed via transitions on .nav-drawer
+     and .nav-drawer-inner. */
+  .nav-drawer {
+    position: fixed;
+    /* Default <640: bar 4rem; drawer top anchored at bar bottom. */
+    top: 4rem;
+    /* Aligned roughly with the hamburger button's right edge —
+       sits just inside the viewport's right gutter. */
+    right: 1rem;
+    width: 2px;
+    /* Height is content-driven via height: auto, capped by max-height.
+       max-height: 0 in the base state keeps the drawer collapsed when
+       closed. The animation and the [data-open="true"] selector below
+       grow max-height to var(--drawer-target-height) — that target is
+       the CEILING (so the drawer never overflows the viewport on
+       short screens), not a target the drawer is forced to reach. In
+       practice, content is shorter than the ceiling, so the actual
+       drawer height = content height. No more empty space below the
+       last link. */
+    height: auto;
+    max-height: 0;
+    /* Darker base (rgba(0,0,0,0.7)) gives nav text more contrast
+       against whatever page content shows through the translucent
+       panel. Combined with the intense purple radial-gradient on
+       top, the box reads as a true energy HUD. */
+    background-color: rgba(0, 0, 0, 0.7);
+    background-image: radial-gradient(ellipse at center, rgba(157, 63, 227, 0.92), transparent);
+    /* 2px purple-glow border — the brightest "edge of energy" line. */
+    border: 2px solid var(--color-electric-purple-glow);
+    /* Inner + outer glow stacks make the box read as built FROM purple
+       energy rather than just bordered by it. Each stack has two
+       layers: a tight high-intensity ring close to the border, then
+       a wide softer bloom farther out. Outer layers spill into the
+       surroundings (the halo); inset layers spill inward from the
+       border toward the box's interior. */
+    box-shadow:
+      /* Outer glow stack */
+      0 0 8px 1px var(--color-electric-purple-glow),
+      0 0 25px 4px rgba(157, 63, 227, 0.55),
+      0 0 45px 8px rgba(157, 63, 227, 0.3),
+      /* Inner glow stack */
+      inset 0 0 8px 1px var(--color-electric-purple-glow),
+      inset 0 0 20px 3px rgba(157, 63, 227, 0.45);
+    z-index: 200;
+    overflow: hidden;
+    box-sizing: border-box;
+    /* Per-tier target height — viewport height minus the top offset
+       and a 1rem bottom gap. Used in @keyframes interpolation AND in
+       the [data-open="true"] selector below. */
+    --drawer-target-height: calc(100% - 5rem);
+    /* Default opacity: 0 — hides the 2px×0 collapsed-state border dot
+       that would otherwise render as a tiny purple pixel cluster
+       when the drawer is closed. The open-state opacity transition
+       below brings it back to 1 just before the beam-emerge phase. */
+    opacity: 0;
+    /* Close transitions: max-height collapses first, width shrinks
+       after, opacity fades over the full close duration (so the
+       drawer fades AS it shrinks rather than after — avoids the
+       brief tail where the collapsed dot would otherwise be visible). */
+    transition:
+      max-height 200ms ease-out,
+      width 200ms ease-out 200ms,
+      opacity 400ms ease-out;
+  }
+
+  @media (min-width: 640px) and (max-width: 739.98px) {
+    .nav-drawer {
+      top: 5rem;
+      --drawer-target-height: calc(100% - 6rem);
+    }
+  }
+
+  @media (min-width: 740px) {
+    .nav-drawer {
+      top: 7rem;
+      --drawer-target-height: calc(100% - 8rem);
+    }
+  }
+
+  .nav-drawer[data-open="true"] {
+    /* Width: tight 14rem ceiling, calibrated to fit the current longest
+       link "Lessons Learned" + 1rem horizontal padding. If a longer
+       link is ever added, this number needs adjusting. (CSS can't
+       cleanly animate from a fixed length to max-content, so an
+       explicit ceiling is required — the 80% piece keeps the drawer
+       responsive at narrower viewports.) */
+    width: min(80%, 14rem);
+    /* max-height (not height) — drawer's actual height = content height
+       up to this ceiling. The ceiling exists so the drawer never
+       overflows the viewport on short screens; it is NOT a target
+       the drawer is forced to reach. In normal use the drawer is
+       exactly as tall as its content. */
+    max-height: var(--drawer-target-height);
+    opacity: 1;
+    /* 1000ms duration + 150ms delay (so the hamburger pulse peaks first
+       and the beam visibly emerges AFTER the click flash).
+       `backwards` fill-mode holds the 0% keyframe values DURING the
+       150ms delay — keeps the drawer at opacity 0 + width 2px +
+       max-height 0 until the animation actually starts, instead of
+       letting cascaded transitions interpolate during the delay
+       (which caused a visible "snap-to-open-then-back" flicker). */
+    animation: nav-drawer-enter 1000ms ease-out 150ms backwards;
+  }
+
+  @keyframes nav-drawer-enter {
+    /* Beam start (0% = 150ms post-click): 2px wide, max-height 0,
+       opacity 0 — invisible. With `animation-fill-mode: backwards`,
+       these values also apply during the 150ms animation-delay. */
+    0% {
+      width: 2px;
+      max-height: 0;
+      opacity: 0;
+    }
+    /* Quick fade-in to opacity 1 (5% = 200ms post-click, 50ms into
+       animation) — the 2px beam dot becomes visible just BEFORE the
+       beam descent starts at 20%. Sean's "quickly to full opacity
+       just before expanding" cue. */
+    5% {
+      width: 2px;
+      max-height: 0;
+      opacity: 1;
+    }
+    /* Beam descended ~1.5rem past the bar (20% = 350ms). */
+    20% {
+      width: 2px;
+      max-height: 1.5rem;
+      opacity: 1;
+    }
+    /* Width expanded leftward to full nav width (40% = 550ms). */
+    40% {
+      width: min(80%, 14rem);
+      max-height: 1.5rem;
+      opacity: 1;
+    }
+    /* max-height grown to ceiling (60% = 750ms). Actual rendered
+       height stops at content height once max-height passes it —
+       no visual growth beyond the content's natural size. */
+    60% {
+      width: min(80%, 14rem);
+      max-height: var(--drawer-target-height);
+      opacity: 1;
+    }
+    /* Double flicker — two rapid dips to 0.3 opacity in quick
+       succession, ending bright. The links fade in via separate
+       transition delay (.nav-drawer-inner below) so they appear at
+       the end of the second flicker, NOT during it. */
+    64% { opacity: 0.3; }
+    68% { opacity: 1; }
+    74% { opacity: 0.3; }
+    78% { opacity: 1; }
+    /* Settled (100% = 1150ms). */
+    100% {
+      width: min(80%, 14rem);
+      max-height: var(--drawer-target-height);
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-drawer[data-open="true"] {
+      animation: none;
+    }
+  }
+
+  .nav-drawer-inner {
+    /* Top padding (3rem) reserves clearance for the absolutely-
+       positioned close button (sits at top: 0.5rem with a 2.5rem
+       button height, ending at 3rem from drawer top) — keeps the
+       first nav link from sliding under the close button. Other
+       sides keep var(--space-md). min-height: 100% removed —
+       drawer height is content-driven now, so forcing the inner
+       to 100% is no longer meaningful (and would be self-referential
+       since drawer height ≡ inner content height). */
+    padding: 3rem var(--space-md) var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    /* Default (closed): hidden. Quick 100ms fade-out on close. */
+    opacity: 0;
+    transition: opacity 100ms ease-out;
+  }
+
+  /* Opening: links + close button fade in at the end of the second
+     flicker. Drawer-enter delay (150ms) + flicker-2 end (~78% × 1000ms
+     = 780ms) = 930ms after click. Fade duration 250ms. */
+  .nav-drawer[data-open="true"] .nav-drawer-inner {
+    opacity: 1;
+    transition: opacity 250ms ease-out 930ms;
+  }
+
+  /* Close button — pale-lavender to match the nav-link color (see
+     below). Hover intensifies toward near-white with a brighter-lavender
+     drop-shadow halo. drop-shadow (not text-shadow) because the X is
+     an SVG icon, not text — drop-shadow follows the actual stroke
+     shape rather than a rectangular text bounding box.
+
+     Position absolute at top: 0.5rem / right: 0.5rem so the X sits
+     half-spacing in from the drawer's top-right corner (previously
+     ~1rem in via the inner's padding + flex-end alignment). Taken
+     out of flex flow — .nav-drawer-inner has a 3rem padding-top to
+     reserve clearance below the absolute close button. z-index: 2
+     so the button paints above the nav-links background glow if
+     the drawer ever gets narrow enough for them to overlap. */
+  .nav-drawer-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 2;
+    border: 0;
+    background: transparent;
+    color: #e0d4f5;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    transition:
+      color var(--transition-fast),
+      filter var(--transition-fast);
+  }
+  .nav-drawer-close:hover {
+    color: #f4e6ff;
+    filter:
+      drop-shadow(0 0 6px rgba(244, 230, 255, 0.8))
+      drop-shadow(0 0 12px rgba(244, 230, 255, 0.4));
+  }
+  .nav-drawer-close:focus-visible {
+    outline: 2px solid var(--color-electric-cyan);
+    outline-offset: 4px;
+  }
+
+  /* Stylized vertical nav list — no list decorators per Sean's spec.
+     Links use #e0d4f5 (pale lavender / blue-white) so the text reads
+     as luminous "hologram" content INSIDE the purple HUD chassis —
+     same temperature family as the box, lower aggression than cyan.
+     Hover + aria-current brighten toward near-white with a soft
+     lavender text-shadow halo (going toward white = "more illuminated"
+     vs. just adding a tinted glow). Separator borders are a faint
+     purple matching the box's energy — read as subtle structure
+     inside the HUD rather than hard lines. */
+  .nav-drawer-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .nav-drawer-list a {
+    display: block;
+    position: relative;                 /* anchor for the ::after underline */
+    padding: var(--space-sm) 0;
+    color: #e0d4f5;
+    text-decoration: none;
+    font-family: var(--font-subhead);   /* Cardo for stylized vertical list */
+    font-size: 1.5rem;
+    border-bottom: 1px solid rgba(157, 63, 227, 0.25);
+    /* Small constant purple glow behind each link — denser than the
+       drawer's interior radial-gradient, so each link reads as a
+       distinct energy patch against whatever page content shows
+       through the 40% translucent background. Subtle enough not to
+       compete with the box's bright border + edge glow. */
+    background: radial-gradient(
+      ellipse at center,
+      rgba(157, 63, 227, 0.22) 0%,
+      transparent 75%
+    );
+    transition:
+      color var(--transition-fast),
+      text-shadow var(--transition-fast);
+  }
+  .nav-drawer-list a:hover {
+    color: #f4e6ff;
+    text-shadow:
+      0 0 8px rgba(244, 230, 255, 0.7),
+      0 0 16px rgba(244, 230, 255, 0.35);
+  }
+  .nav-drawer-list a[aria-current="page"] {
+    color: #f4e6ff;
+    text-shadow:
+      0 0 6px rgba(244, 230, 255, 0.55),
+      0 0 14px rgba(244, 230, 255, 0.3);
+  }
+
+  /* Inline-block span wrapping the link label — gives the underline
+     pseudo-element below a positioning context sized to the TEXT,
+     not to the link's full block width. The link stays display:
+     block (full-width hit area, big tap target); only the underline
+     is text-width-confined. */
+  .nav-drawer-list-label {
+    position: relative;
+    display: inline-block;
+  }
+
+  /* Animated purple underline — same vocabulary as the primary-nav
+     underline (gradient deep→glow→deep, scaleX from left, soft halo
+     via box-shadow). Scales in on hover; permanently scaled-1 for
+     the current page so its underline is always visible. Positioned
+     at bottom: -2px so it sits just below the text's descender (still
+     well above the link's border-bottom separator). Because it lives
+     on the inline-block span (sized to text), left/right: 0 spans
+     the TEXT width, not the link's full block width. */
+  .nav-drawer-list-label::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      var(--color-electric-purple-deep) 0%,
+      var(--color-electric-purple) 35%,
+      var(--color-electric-purple-glow) 50%,
+      var(--color-electric-purple) 65%,
+      var(--color-electric-purple-deep) 100%
+    );
+    box-shadow: 0 0 6px rgba(157, 63, 227, 0.6);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 250ms ease-out;
+  }
+  .nav-drawer-list a:hover .nav-drawer-list-label::after,
+  .nav-drawer-list a[aria-current="page"] .nav-drawer-list-label::after {
+    transform: scaleX(1);
+  }
+
+  .nav-drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 199;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 250ms ease-out;
+  }
+  .nav-drawer-backdrop[data-open="true"] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-drawer,
+    .header-bar,
+    .nav-drawer-backdrop,
+    .logo-overhang {
+      transition: none;
+    }
+  }
 </style>

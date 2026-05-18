@@ -2,15 +2,20 @@
 import Header from '~/components/astro/Header.astro';
 import Footer from '~/components/astro/Footer.astro';
 import ConsentBanner from '~/components/astro/ConsentBanner.astro';
+import screenEdgeRope from '~/assets/images/screen-edge-rope.png';
 import '~/styles/global.css';
 
 interface Props {
   title: string;
   description?: string;
   noindex?: boolean;
+  /* Set true on pages that render their own custom page-title markup inside
+     the slot (e.g., the 404 page with its mono "404" treatment). When true,
+     BaseLayout skips the default full-bleed <h1>{title}</h1> banner. */
+  noPageTitleBar?: boolean;
 }
 
-const { title, description, noindex } = Astro.props;
+const { title, description, noindex, noPageTitleBar } = Astro.props;
 const fullTitle = title === 'Sean Reardon' ? title : `${title} — Sean Reardon`;
 ---
 <!DOCTYPE html>
@@ -23,7 +28,7 @@ const fullTitle = title === 'Sean Reardon' ? title : `${title} — Sean Reardon`
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="canonical" href={Astro.url.href} />
-    <link rel="alternate" type="application/rss+xml" title="Sean Reardon — writing" href="/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title="Sean Reardon — Lessons Learned" href="/rss.xml" />
 
     {/* Adobe Fonts — Mostra Nuova (display typeface for h1 / large titles).
         Self-hosted via the Adobe Fonts web project; replace this <link> with
@@ -40,10 +45,128 @@ const fullTitle = title === 'Sean Reardon' ? title : `${title} — Sean Reardon`
   </head>
   <body>
     <Header />
-    <main>
-      <slot />
-    </main>
+    {/* main-wrapper is full-viewport-width; <main> inside it is bounded at
+        --main-max-width and centered. On wide viewports the gutters on each
+        side of main are the natural home for edge-anchored decorations
+        (vines, marginalia, section ornaments) — they live here as siblings
+        of <main> and position themselves relative to main's outer edges.
+
+        The page-title h1 is rendered as the first child of <main> (not as
+        a wrapper sibling), so it full-bleeds to MAIN's edges via a negative
+        inline margin — not to viewport edges. On viewports wider than
+        --main-max-width the title bar has visible gutters; on narrower
+        viewports where main fills the wrapper, the title bar reaches the
+        viewport edges naturally. */}
+    <div class="main-wrapper">
+      <main>
+        {!noPageTitleBar && <h1>{title}</h1>}
+        <slot />
+      </main>
+    </div>
     <Footer />
     <ConsentBanner />
+
+    {/* Screen-edge rope decoration — vertical strip riding main's RIGHT
+        edge. Image's natural width flows in via --rope-width (so the
+        element's width and the center-on-main-edge math both use the
+        actual pixel size). Fixed positioning so the rope stays in the
+        same viewport spot regardless of scroll; z-index sits below the
+        header (z-index 100) and footer (50) so both occlude the rope's
+        top + bottom portions naturally. */}
+    <div
+      class="screen-edge-rope"
+      style={`--rope-image: url('${screenEdgeRope.src}'); --rope-width: ${screenEdgeRope.width}px;`}
+      aria-hidden="true"
+    ></div>
+
+    {/* Custom cyan-laser scroll indicator on the left side of viewport.
+        Replaces the hidden native page scrollbar. Track is a fixed cyan strip;
+        thumb is a glowing light-cyan blur driven by page scroll position via
+        the script below. Hides itself when content fits viewport (no scroll). */}
+    <div class="scroll-indicator" data-hidden="false" aria-hidden="true">
+      <div class="scroll-indicator-thumb"></div>
+    </div>
+
+    <script>
+      const indicator = document.querySelector('.scroll-indicator') as HTMLElement | null;
+      const thumb = document.querySelector('.scroll-indicator-thumb') as HTMLElement | null;
+      const rope = document.querySelector('.screen-edge-rope') as HTMLElement | null;
+
+      // Scroll indicator is visible on every page at every viewport size —
+      // Sean direction 2026-05-18 (revised from prior behavior that hid the
+      // indicator at <896px when content fits the viewport). The indicator
+      // is now a permanent aesthetic element of the layout's left-edge
+      // anchoring; pages with short content (e.g., About Me) show the track
+      // with the thumb parked at the top, so the visual composition stays
+      // consistent across pages.
+
+      function checkScrollable(): boolean {
+        // Buffer of 2px to avoid edge cases where content barely overflows
+        return document.documentElement.scrollHeight > window.innerHeight + 2;
+      }
+
+      function updateIndicator() {
+        if (!indicator || !thumb) return;
+
+        // Always-visible: indicator stays shown regardless of scrollability
+        // or viewport width.
+        indicator.setAttribute('data-hidden', 'false');
+
+        const canScroll = checkScrollable();
+        if (!canScroll) {
+          // Content fits — park the thumb at the top (no scroll progress
+          // to display, but the track itself is still visible).
+          thumb.style.transform = 'translateY(0)';
+          return;
+        }
+
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollProgress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+        const trackHeight = window.innerHeight;
+        const thumbHeight = thumb.offsetHeight;
+        const maxThumbTop = Math.max(0, trackHeight - thumbHeight);
+
+        thumb.style.transform = `translateY(${scrollProgress * maxThumbTop}px)`;
+      }
+
+      /* Screen-edge rope — the element itself is position: fixed and stays
+         pinned to the viewport, but Sean wants the IMAGE to appear anchored
+         to main's content (so scrolling down moves the rope's visible image
+         upward, like a parallax fixed to the document). Solution: shift the
+         background-position-Y by the negated scroll offset on every frame.
+         At scrollY=0 the image's first tile starts at viewport top; at
+         scrollY=400 the first tile starts 400px above viewport top (with
+         repeat-y, subsequent tiles fill what's visible). Net effect: the
+         rope's pattern appears to scroll along with the page content. */
+      function updateRope() {
+        if (!rope) return;
+        rope.style.backgroundPositionY = `${-window.scrollY}px`;
+      }
+
+      // Throttled via requestAnimationFrame — same rAF tick updates both
+      // the scroll indicator and the rope's background-position, so all
+      // scroll-driven changes share one frame.
+      let ticking = false;
+      function onScrollOrResize() {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            updateIndicator();
+            updateRope();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      }
+
+      window.addEventListener('scroll', onScrollOrResize, { passive: true });
+      window.addEventListener('resize', onScrollOrResize);
+      // Initial + after resources finish loading (in case content height changes)
+      updateIndicator();
+      updateRope();
+      window.addEventListener('load', () => {
+        updateIndicator();
+        updateRope();
+      });
+    </script>
   </body>
 </html>

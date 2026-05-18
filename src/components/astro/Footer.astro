@@ -1,10 +1,31 @@
 ---
 const year = new Date().getFullYear();
 ---
-<footer class="site-footer">
+{/*
+  Obsidian-finish footer (locked 2026-05-12) — solid black volcanic glass
+  rather than the metallic finishes used in the header.
+
+  Slide-out behavior (revised 2026-05-12):
+    - position: fixed at the viewport bottom; footer is ALWAYS at full
+      height (6rem). State toggles transform: translateY, not min-height.
+    - <=820px: two states.
+        * "minimal": transform: translateY(50%) — the bottom 3rem of
+          the footer slides below the viewport bottom edge. Only the
+          top 3rem (copyright row) remains visible.
+        * "full": transform: translateY(0) — the full footer is in view.
+        * Triggers for "full": (a) user scrolls within BOTTOM_THRESHOLD
+          px of the page bottom, OR (b) user clicks the visible portion
+          of the footer.
+        * Manual click sets `manuallyExpanded = true` which keeps the
+          footer expanded across scroll events. Flag clears when the
+          user clicks anywhere OUTSIDE the footer (document delegate)
+          or reaches the page bottom (auto-expand path).
+    - >820px: state machine suppressed — always at full position.
+*/}
+<footer class="site-footer" data-state="minimal">
   <div class="footer-inner">
-    <p class="copyright">Sean Reardon · 2015–{year}</p>
-    <nav aria-label="secondary">
+    <p class="copyright">© Sean Reardon · 2015–{year}</p>
+    <nav aria-label="secondary" class="footer-secondary-nav">
       <ul>
         <li><a href="/subscribe/">Subscribe</a></li>
         <li><a href="/privacy/">Privacy</a></li>
@@ -16,32 +37,425 @@ const year = new Date().getFullYear();
 </footer>
 
 <style>
+  /* ============================================================================
+     Obsidian footer — solid black volcanic glass
+     ============================================================================
+     Captures the FEEL of obsidian via:
+       1. Pitch-black base (#07070a) with very slight cool undertone.
+       2. THREE glossy linear-gradient ribbons crossing the surface at
+          different angles — the canonical "polished glass catching
+          sweeping reflections" look. Two are bright-white (the main
+          light source); one is cool blue (an iridescent fracture glint).
+            - 115° white ribbon: the primary sweep across the surface.
+            - 72° blue ribbon: a crossing iridescent streak.
+            - 55° white ribbon (added 2026-05-12): a third sweep that
+              cuts through the mid-to-lower-LEFT corner area. The 55°
+              direction goes from bottom-left toward upper-right; with
+              the bright zone at 10-20% of the gradient, the streak
+              lands in the lower-left quadrant.
+       3. Ambient soft radial glow — keeps the dark areas from feeling
+          inert.
+       4. Chipped top edge via clip-path polygon — irregular jagged
+          variation along the top boundary (constant 9px pixel range,
+          so the chip depth stays consistent regardless of how much of
+          the footer is currently visible). Reads as broken obsidian
+          rather than a clean machined cut.
+       5. Subsurface fracture lines via inline-SVG ::before — three
+          thin curved white paths at low alpha, suggesting fracture
+          cracks running through the glass body. */
+
   .site-footer {
-    border-top: 1px solid var(--color-muted);
-    padding-block: var(--space-md);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
     color: var(--color-muted);
     font-size: 0.875rem;
+    isolation: isolate;  /* contain the fracture-line ::before pseudo */
+
+    /* Footer always 6rem tall. State toggles transform: translateY()
+       rather than height — content is always rendered at full size,
+       just slid below the viewport edge when "minimal". */
+    min-height: 6rem;
+
+    /* Background-image stack (paint order: FIRST layer paints on TOP).
+         1. Top-ridge highlight — bright horizontal band at y=0.
+         2. Right-edge cleanup gradient — gradual dark fade from the
+            middle onward, covering residual decorative brightness
+            along the right edge so no visible vertical "edge" appears
+            between the gradient layers and the base color. Uses
+            multiple intermediate stops (50% → 70% → 85% → 95% → 100%)
+            so the opacity ramp has no derivative discontinuity. The
+            earlier two-stop version (transparent 85% → #07070a 100%)
+            produced a flat-then-ramping curve with a visible kink at
+            x=85% — most obvious at <820px where the footer is 6rem
+            tall and the residual brightness at the kink point is
+            wider than at the 3rem-tall ≥820px tier.
+         3. Glossy white sweep at 115°.
+         4. Cool blue iridescent streak at 72° — bright zone shifted
+            further LEFT (was 65-79%, now 40-55%) so the right side is
+            entirely the dark base, eliminating the right-edge artifact
+            that the previous wider-fade attempt didn't fully resolve.
+         5. White sweep at 55° (lower-left ribbon).
+         6. Ambient soft radial glow. */
+    background-image:
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.22) 0px,
+        rgba(255, 255, 255, 0.12) 2px,
+        rgba(255, 255, 255, 0.04) 5px,
+        transparent 10px
+      ),
+      linear-gradient(
+        90deg,
+        transparent 0%,
+        transparent 50%,
+        rgba(7, 7, 10, 0.1) 70%,
+        rgba(7, 7, 10, 0.4) 85%,
+        rgba(7, 7, 10, 0.75) 95%,
+        #07070a 100%
+      ),
+      linear-gradient(
+        115deg,
+        transparent 25%,
+        rgba(255, 255, 255, 0.10) 42%,
+        rgba(255, 255, 255, 0.20) 50%,
+        rgba(255, 255, 255, 0.10) 58%,
+        transparent 85%
+      ),
+      linear-gradient(
+        72deg,
+        transparent 50%,
+        rgba(100, 170, 230, 0.16) 65%,
+        rgba(150, 210, 250, 0.24) 72%,
+        rgba(100, 170, 230, 0.16) 79%,
+        transparent 100%
+      ),
+      linear-gradient(
+        55deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.10) 10%,
+        rgba(255, 255, 255, 0.18) 15%,
+        rgba(255, 255, 255, 0.10) 20%,
+        transparent 32%
+      ),
+      radial-gradient(
+        ellipse 90% 100% at 50% 60%,
+        rgba(255, 255, 255, 0.06) 0%,
+        transparent 75%
+      );
+    background-color: #07070a;
+    /* Per-layer position. Only the 55° ribbon (layer 5) is shifted —
+       background-position-x: -1.5rem moves the gradient image 1.5rem
+       to the left, so the bright streak lands further into the
+       lower-left corner. Other layers remain at 0 0. */
+    background-position: 0 0, 0 0, 0 0, 0 0, -1.5rem 0, 0 0;
+    background-repeat: repeat, no-repeat, no-repeat, no-repeat, repeat, no-repeat;
+
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+
+    /* Slide state: default minimal = shifted so exactly 3rem stays
+       visible at the bottom of the viewport. Using a FIXED-distance
+       translate (calc(100% - 3rem)) instead of a percentage means the
+       visible amount stays at 3rem regardless of how tall the footer
+       actually grows when content wraps (long links wrapping at narrow
+       widths can push the footer past 6rem; a percentage-based shift
+       would expose proportionally more content). The grid layout below
+       reserves the top 3rem for the copyright row, so the visible 3rem
+       always shows copyright and never the nav, however much the nav
+       wraps. */
+    transform: translateY(calc(100% - 3rem));
+    transition: transform 350ms ease-out;
+
+    /* Minimal-state cursor hint: pointer indicates the footer is
+       clickable to expand. Once full, cursor returns to default
+       (link/text cursors apply on their respective targets). */
+    cursor: pointer;
   }
+
+  .site-footer[data-state="full"] {
+    transform: translateY(0);
+    cursor: default;
+  }
+
+  /* SVG fracture-line overlay REMOVED (2026-05-12) — the SVG paths
+     terminated at x=400 (the viewBox right edge), creating visible
+     line endpoints at the footer's right edge that read as a small
+     visual artifact. The gradient ribbons + ambient glow + top-ridge
+     highlight provide enough visual interest without it. */
+
   .footer-inner {
+    position: relative;
+    z-index: 1;
     width: 100%;
-    max-width: 72rem;
+    max-width: 100%;
     margin: 0 auto;
+    padding-block: var(--space-sm);
     padding-inline: var(--space-md);
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-md);
-    justify-content: space-between;
+    /* Grid layout at <=820px: fixed 3rem top row for copyright (the
+       row that stays VISIBLE when the footer is in minimal-slid state),
+       then an auto-sized second row for the nav (always HIDDEN when
+       slid). This separation guarantees the visible 3rem only ever
+       shows copyright, no matter how tall the nav grows when its long
+       links wrap at narrow viewport widths.
+       justify-items: center and align-items: center keep each row's
+       content centered within its cell. */
+    display: grid;
+    grid-template-rows: 3rem auto;
+    justify-items: center;
     align-items: center;
+    gap: var(--space-sm);
   }
-  .copyright { margin: 0; }
-  nav ul {
+
+  /* Row layout for >820px (where the footer is always fully visible).
+     Switches from the mobile grid layout to flex row. min-height of
+     3rem matches the visible-offhang amount on the mobile minimal
+     state, keeping a consistent visual footprint across tiers. */
+  @media (min-width: 820px) {
+    .footer-inner {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: var(--space-md);
+      min-height: 3rem;
+    }
+  }
+
+  @media (min-width: 896px) {
+    .footer-inner { max-width: 94%; }
+  }
+  @media (min-width: 1520px) {
+    .footer-inner { max-width: var(--main-max-width); }
+  }
+
+  .copyright {
+    margin: 0;
+    /* MINIMAL state at <820: nudge up 1rem from the grid-row's
+       vertical center so the text sits well above the viewport bottom
+       edge when the footer is slid out. FULL state at <820 (override
+       below) drops the nudge so the copyright sits at its natural
+       grid-row center — once the second row of links comes into view,
+       the high-nudge looks unbalanced.
+       Transition timing matches .site-footer's transform transition so
+       the copyright shift and the panel reveal happen as one motion. */
+    position: relative;
+    top: -1rem;
+    transition: top 350ms ease-out;
+  }
+
+  /* <820, FULL state: copyright drops back to grid-center (shift down
+     1rem from the minimal -1rem) so it doesn't look top-heavy when
+     the nav row appears beneath it. */
+  @media (max-width: 819.98px) {
+    .site-footer[data-state="full"] .copyright {
+      top: 0;
+    }
+  }
+
+  @media (min-width: 820px) {
+    .copyright {
+      top: 0;
+    }
+  }
+
+  .footer-secondary-nav {
+    /* position: relative so the FULL-state override at <820 can
+       nudge the nav row up via `top`. Default top: 0 = grid-row's
+       natural y. Matches the copyright's transition so both rows
+       glide together with the panel reveal. */
+    position: relative;
+    top: 0;
+    transition: top 350ms ease-out;
+  }
+
+  /* <820, FULL state: nav row nudges UP 0.5rem so the two rows feel
+     visually closer once both are visible (otherwise the natural
+     grid-row gap reads as too loose at the small height). */
+  @media (max-width: 819.98px) {
+    .site-footer[data-state="full"] .footer-secondary-nav {
+      top: -0.5rem;
+    }
+  }
+
+  .footer-secondary-nav ul {
     display: flex;
     gap: var(--space-md);
     margin: 0;
     padding: 0;
     list-style: none;
     flex-wrap: wrap;
+    /* Center wrapped items horizontally — without this, items left-align
+       within the ul when they wrap to multiple rows at narrow widths. */
+    justify-content: center;
   }
-  nav a { color: var(--color-muted); }
-  nav a:hover { color: var(--color-accent); }
+  .footer-secondary-nav a {
+    color: var(--color-muted);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+  .footer-secondary-nav a:hover { color: var(--color-accent); }
+
+  /* >820px: footer always at full position (no slide-out behavior) AND
+     shorter overall height since the row layout fits all content on
+     one line. min-height drops from 6rem to 3rem. */
+  @media (min-width: 820px) {
+    .site-footer {
+      transform: translateY(0);
+      cursor: default;
+      min-height: 3rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-footer {
+      transition: none;
+    }
+  }
 </style>
+
+<style is:global>
+  /* Body padding-bottom reserves space for the fixed footer's
+     VISIBLE portion (so content isn't covered while scrolling).
+     <=820px: 3rem (= 50% of 6rem footer, the visible top half
+       when in minimal state).
+     >820px: 3rem (full footer height at this tier — the row layout
+       fits all content on one line, so the footer is only 3rem tall).
+
+     Transition matches the footer's 350ms slide so the content shift
+     and the footer reveal happen in lockstep when the footer expands
+     to its "full" state (see the :has() rule below). */
+  body {
+    padding-bottom: 3rem;
+    transition: padding-bottom 350ms ease-out;
+  }
+  @media (min-width: 820px) {
+    body {
+      padding-bottom: 3rem;
+    }
+  }
+
+  /* <=820px AND footer is in "full" state: extend body's padding-bottom
+     from 3rem (reserved for the minimal-state visible portion) to 6rem
+     (the full footer height at this tier). Without this, when a user
+     scrolls to the page bottom and the footer auto-expands to show its
+     nav row, the expanded footer's bottom 3rem covers the last 3rem of
+     main's content. The extra padding-bottom shifts content up so
+     nothing is hidden under the expanded footer.
+     :has() lets the parent (body) react to the footer's data-state
+     change without needing JS to mirror the state on body. Modern
+     browser support is broad (Chrome 105+, Safari 15.4+, Firefox 121+);
+     older browsers fall through to the base 3rem padding (cosmetic
+     issue only — content is still readable, just clipped at bottom). */
+  @media (max-width: 819.98px) {
+    body:has(.site-footer[data-state="full"]) {
+      padding-bottom: 6rem;
+    }
+  }
+</style>
+
+<script>
+  // Footer state machine — slide-out variant:
+  //   - At >820px: always "full", no slide behavior.
+  //   - At <=820px: "minimal" by default (footer 50% slid below viewport).
+  //     Triggers for "full":
+  //       (a) Scroll within BOTTOM_THRESHOLD of document bottom.
+  //       (b) User clicks the footer.
+  //     Manual click sets manuallyExpanded flag — keeps the footer
+  //     expanded across subsequent scroll events.
+  //     Flag clears when:
+  //       - User clicks anywhere OUTSIDE the footer (document delegate).
+  //       - User reaches the page bottom (auto-expand resets state).
+  const footer = document.querySelector('.site-footer') as HTMLElement | null;
+  const FULL_HEIGHT_BREAKPOINT = 820;
+  const BOTTOM_THRESHOLD = 50;
+
+  let manuallyExpanded = false;
+
+  // Body padding: matches the footer's visible portion so content
+  // never lands under the footer. Minimal state always shows 3rem;
+  // full state needs the ACTUAL footer height (which can exceed 6rem
+  // when long nav links wrap to extra rows at narrow widths — the
+  // case the previous static-6rem CSS couldn't handle).
+  function setBodyPadding() {
+    if (!footer) return;
+    const state = footer.getAttribute('data-state');
+    if (state === 'minimal') {
+      document.body.style.paddingBottom = '3rem';
+    } else {
+      document.body.style.paddingBottom = footer.offsetHeight + 'px';
+    }
+  }
+
+  function updateFooterState() {
+    if (!footer) return;
+
+    if (window.innerWidth > FULL_HEIGHT_BREAKPOINT) {
+      footer.setAttribute('data-state', 'full');
+      setBodyPadding();
+      return;
+    }
+
+    const distanceFromBottom = document.documentElement.scrollHeight
+      - (window.scrollY + window.innerHeight);
+    const atBottom = distanceFromBottom <= BOTTOM_THRESHOLD;
+
+    if (atBottom) {
+      footer.setAttribute('data-state', 'full');
+      manuallyExpanded = false;  // reaching bottom clears manual flag
+    } else if (manuallyExpanded) {
+      footer.setAttribute('data-state', 'full');
+    } else {
+      footer.setAttribute('data-state', 'minimal');
+    }
+    setBodyPadding();
+  }
+
+  // Click on footer expands it (only when currently minimal — clicking
+  // a link inside the already-full footer should navigate, not toggle).
+  footer?.addEventListener('click', () => {
+    if (window.innerWidth > FULL_HEIGHT_BREAKPOINT) return;
+    if (footer.getAttribute('data-state') === 'minimal') {
+      manuallyExpanded = true;
+      footer.setAttribute('data-state', 'full');
+      setBodyPadding();
+    }
+  });
+
+  // Click outside footer clears the manual expansion. Then re-evaluate
+  // state (which collapses unless user happens to be at the page bottom).
+  document.addEventListener('click', (e) => {
+    if (!footer) return;
+    if (footer.contains(e.target as Node)) return;  // ignore clicks inside footer
+    if (manuallyExpanded) {
+      manuallyExpanded = false;
+      updateFooterState();
+    }
+  });
+
+  // Throttled scroll/resize handler
+  let ticking = false;
+  function onScrollOrResize() {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        updateFooterState();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }
+
+  // ResizeObserver catches footer-height changes that scroll/resize
+  // events don't fire for — e.g., links re-wrapping after a font load,
+  // or content re-flowing inside the nav. Keeps body padding in sync
+  // with actual footer height in all cases.
+  if (footer && typeof ResizeObserver === 'function') {
+    new ResizeObserver(setBodyPadding).observe(footer);
+  }
+
+  window.addEventListener('scroll', onScrollOrResize, { passive: true });
+  window.addEventListener('resize', onScrollOrResize);
+  updateFooterState();
+  window.addEventListener('load', updateFooterState);
+</script>

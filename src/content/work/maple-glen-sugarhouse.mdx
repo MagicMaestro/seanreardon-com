@@ -1,8 +1,7 @@
 ---
 title: "Maple Glen Sugarhouse"
 completed: 2017-05-31
-sh_desc: "Maple Glen Sugarhouse is a local producer of several maple syrup products. Their previous website was in need of updating to a more mobile-friendly format. The new site does just that and includes a full shop where customers can order any of their maple p"
-projLink: "http://mapleglensyrup.com"
+sh_desc: "A mobile-responsive WordPress rebuild for a small maple syrup producer — marketing site with a Square-integrated webstore the owners could keep current themselves between tapping seasons."
 legacyMainImg: "2132958_01.jpg"
 legacyOtherImg: "2132958_02.jpg,2132958_03.jpg"
 projLanguage: ["html","css","javascript","php","wordpress"]
@@ -11,21 +10,10 @@ active: true
 legacyProjID: 2132958
 ---
 
-Maple Glen Sugarhouse is a local producer of many different maple syrup products. When I first spoke with them, they had a very real need to update their current website and make it more mobile-responsive.
+A 2017 rebuild for a maple sugarhouse client — small, owner-operated, no internal web team. Their existing site was a desktop-era marketing page with no mobile layout and no way to take orders online; what they needed was both, plus a way to update product inventory themselves between tapping seasons.
 
-The site includes a featured slider on the homepage, showing the most popular pages on Maple Glen's website. It also provides a page with information on taking a tour through their facility, a page detailing the production methods of their maple syrup, frequently asked questions (FAQ's), and of course a contact page with detailed information on how to contact Maple Glen and also where they're located.
+The interesting constraint wasn't technical — it was operational. The owners would be running the webstore alone, between making syrup. They needed a CMS they could log into on a phone in February at 11pm and update without breaking anything. WordPress was the right answer here even though I'd built fancier stacks before — it had a webstore ecosystem (WooCommerce + a Square payments plugin) that the owners could realistically operate without me on call, and a theme architecture I could customize without pulling in plugins I didn't want.
 
-In addition to a mobile-friendly site design, they also needed an online store so that customers would be able to shop with them all year round. Because of this, they needed an easy and cost-effective way to regularly update their store with new products, on their own and without hiring a developer. For this reason, the WordPress platform was chosen for the new website.
+The build was a custom WordPress theme — responsive grid layout, a featured-products slider on the homepage, a tour-information page, and the storefront with Square checkout. The Square integration was straightforward at the time; what took longer was tuning the editorial admin experience so adding a new syrup grade was three fields and a photo upload, not twelve.
 
-The webstore currently displays about 20 products, and comes complete with a customer shopping cart and checkout.  Payments are processed through Square, which is integrated directly into the website.
-
-## Objective
-
-- Create a completely redesigned, mobile-friendly website for Maple Glen Sugarhouse
-- Website needs to have a homepage, with a rotating featured page slider, a page describing the syrup process and how to take a tour, frequently asked questions (FAQs), contact and location information, and a webstore
-- The webstore must include a customer shopping cart, and checkout
-- Checkout should integrate with Square in order to accept online payments
-
----
-
-*Retrospective forthcoming. Frontmatter and body above were migrated from the legacy MariaDB `projects` table on 2026-05-02; the retrospective layer is editorial work to be added.*
+The site is still up nearly a decade later, which is probably the strongest signal you can get for "right tool for the people who'd own it long-term." Not the most ambitious project I shipped that year, but the one I think about when a client asks about something more elaborate that they wouldn't be able to maintain.

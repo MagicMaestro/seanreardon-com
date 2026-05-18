@@ -1,15 +1,15 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
+import LaserCard from '~/components/astro/LaserCard.astro';
 import { getCollection } from 'astro:content';
 
 const work = (await getCollection('work', ({ data }) => data.active !== false))
   .sort((a, b) => b.data.completed.valueOf() - a.data.completed.valueOf());
 ---
 <BaseLayout
-  title="Work"
+  title="Projects"
   description="Shipped projects by Sean Reardon — a track record of production web work, with brief retrospective writeups focused on technical decisions and outcomes."
 >
-  <h1>Work</h1>
   <p>
     A track record of shipped web projects, with brief retrospective writeups
     focused on technical decisions and outcomes.
@@ -17,20 +17,23 @@ const work = (await getCollection('work', ({ data }) => data.active !== false))
 
   {work.length === 0 ? (
     <p>
-      <em>(Work entries will be migrated from the legacy MariaDB
+      <em>(Project entries will be migrated from the legacy MariaDB
       <code>projects</code> table — 10 rows, oldest 2015, newest 2020. See
       <code>inventory/seanreardon-com-2026-05-02.md</code> in the planning
       project for the migration plan.)</em>
     </p>
   ) : (
-    <ul class="work-list">
+    <ul class="laser-card-list">
       {work.map((project) => (
         <li>
-          <a href={`/work/${project.slug}/`}>
-            <h3>{project.data.title}</h3>
-            <p>{project.data.sh_desc}</p>
-            <small>{project.data.completed.getFullYear()}</small>
-          </a>
+          <LaserCard
+            href={`/projects/${project.slug}/`}
+            kind="Project"
+            title={project.data.title}
+            summary={project.data.sh_desc}
+            dateISO={project.data.completed.toISOString()}
+            dateDisplay={project.data.completed.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
+          />
         </li>
       ))}
     </ul>
@@ -38,23 +41,17 @@ const work = (await getCollection('work', ({ data }) => data.active !== false))
 </BaseLayout>
 
 <style>
-  .work-list {
+  /* Single-column list of LaserCards. Cards self-contain their visual
+     treatment (see LaserCard.astro); this list just controls layout
+     and spacing. At wider tiers the cards naturally widen with main's
+     max-width — no responsive column changes needed for the projects
+     view since each entry warrants the full reading width. */
+  .laser-card-list {
     list-style: none;
     padding: 0;
+    margin: 0;
     display: grid;
     gap: var(--space-md);
+    grid-template-columns: 1fr;
   }
-  .work-list li a {
-    display: block;
-    padding: var(--space-md);
-    border: 1px solid var(--color-muted);
-    border-radius: var(--radius);
-    text-decoration: none;
-    color: inherit;
-    transition: border-color var(--transition-fast);
-  }
-  .work-list li a:hover { border-color: var(--color-accent); }
-  .work-list h3 { margin: 0; color: var(--color-accent); }
-  .work-list p { margin: 0.5rem 0; color: var(--color-muted); }
-  .work-list small { color: var(--color-muted); }
 </style>

@@ -5,9 +5,9 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
   title="Search"
   description="Search writing and work on seanreardon.com."
 >
-  <h1>Search</h1>
   <p class="search-note">
-    Searches across <a href="/writing/">writing</a> and <a href="/work/">work</a>.
+    Searches across <a href="/writing/">writing</a> and <a href="/projects/">projects</a>.
+    Refine your query using the search bar in the header.
   </p>
 
   <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
@@ -17,12 +17,22 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
     window.addEventListener('DOMContentLoaded', () => {
       // Pagefind UI is provided by the script tag above; mounts into #search
       // and reads the index built by `pagefind --site dist` in the build script.
-      if (typeof PagefindUI !== 'undefined') {
-        new PagefindUI({
-          element: '#search',
-          showSubResults: true,
-          resetStyles: false,
-        });
+      if (typeof PagefindUI === 'undefined') return;
+
+      const ui = new PagefindUI({
+        element: '#search',
+        showSubResults: true,
+        resetStyles: false,
+      });
+
+      // Wire the URL ?q= parameter to Pagefind's search input. The header
+      // search submits to /search/?q=value — without this, Pagefind would
+      // initialize with an empty query and the user would have to retype.
+      // Pagefind UI's triggerSearch fills its (now-hidden) input AND runs
+      // the search; the results appear automatically.
+      const urlQuery = new URLSearchParams(window.location.search).get('q');
+      if (urlQuery) {
+        ui.triggerSearch(urlQuery);
       }
     });
   </script>
@@ -62,5 +72,12 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
     --pagefind-ui-image-border-radius: 0.25rem;
     --pagefind-ui-image-box-ratio: 3 / 2;
     --pagefind-ui-font: var(--font-body);
+  }
+  /* Hide Pagefind UI's built-in search input — the header search bar is
+     the primary entry point. Users refining their query on the results
+     page use the header search (which persists with the query value per
+     the on-load restoration in Header.astro). */
+  :global(.pagefind-ui__form) {
+    display: none;
   }
 </style>

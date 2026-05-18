@@ -1,0 +1,1026 @@
+---
+/* ============================================================================
+   MarqueeFeature — homepage marquee with steam-clearing reveal
+   ============================================================================
+   Sits between the hero (h1 question + h2 tagline) and the Recent grid on
+   the home page. Carries one featured AI feature card at a time, rotates
+   through multiple when more than one is provided. Full visual + behavioral
+   spec: `portfolio-redesign-agent/decisions/002-homepage-marquee-and-nozzle-affordance.md`
+   (Candidate C locked 2026-05-14).
+
+   Visual anatomy (back to front):
+     1. Warm-dark substrate — radial gradient #14110e center → #0a0805 edges
+     2. Heat glow — copper-orange radial at bottom (machinery below visible band)
+     3. Steam wisps — 6 independently-animated drifting wisps; warm fire-tinted
+     4. Clearing halo — radial mask on the wisp layer, thinning steam in the center
+     5. Transition fog — overlay that fades in during content-swap rotations
+     6. Content slots — eyebrow + title + framing + CTAs, stacked for rotation
+
+   Steam vocabulary is shared with the nozzle affordance (decisions/002 §4)
+   but at lower intensity / continuous cadence. Marquee invites; nozzle acts.
+
+   Rotation mechanism is built at v1 even though v1 launches with a single
+   interim item (post 010). When items.length > 1: auto-cycle 10s per item,
+   pauses on hover/focus, disabled under prefers-reduced-motion.
+
+   Placeholder wisps for the initial scaffold (CSS radial gradients +
+   filter:blur). Swap to PSD-painted wisp PNGs as a polish pass once
+   structure is proven. */
+
+export interface MarqueeItem {
+  /** Optional eyebrow override; default "CURRENTLY RUNNING" */
+  eyebrow?: string;
+  /** Card title — brass, subhead font */
+  title: string;
+  /** 1–2 sentence framing copy */
+  framing: string;
+  /** Primary action — brass button with electric-yellow hover */
+  primaryCta: { href: string; label: string };
+  /** Optional secondary action — cyan text link */
+  secondaryCta?: { href: string; label: string };
+}
+
+interface Props {
+  items: MarqueeItem[];
+}
+
+const { items } = Astro.props;
+const EYEBROW_DEFAULT = 'CURRENTLY RUNNING';
+---
+<section class="marquee" aria-label="Currently featured">
+  {/* Heat glows — copper-orange radials anchored at top AND bottom.
+      Bottom-only is the physically-realistic version (heat rising from
+      machinery beneath); top symmetric heat was added 2026-05-14 as a
+      deliberate departure that frames the band between two heat
+      sources — chamber, not just rising plume. Both rendered as
+      separate elements for independent tuning. */}
+  <div class="marquee-heat" aria-hidden="true"></div>
+  <div class="marquee-heat-top" aria-hidden="true"></div>
+
+  {/* Wisp layer — 14 drifting wisps (CSS radial-gradient + blur).
+      Mask-image thins the wisps in a centered clearing so content reads
+      through wisp residue, not a clean cutout.
+
+      Density distribution:
+        - 1–10: mixed sizes across the band's vertical middle
+        - 7 + 9: LARGE (65% / 70% widths) — anchor "thickening events"
+        - 11 + 12: top-region wisps (centers near 10–15% of marquee)
+        - 13 + 14: bottom-region wisps (centers near 85–95%)
+
+      The top/bottom wisps sit mostly OUTSIDE the clearing mask, so
+      they show at full intensity — giving the band visible activity
+      at its edges rather than just down the middle. */}
+  <div class="marquee-wisps" aria-hidden="true">
+    <span class="wisp wisp-1"></span>
+    <span class="wisp wisp-2"></span>
+    <span class="wisp wisp-3"></span>
+    <span class="wisp wisp-4"></span>
+    <span class="wisp wisp-5"></span>
+    <span class="wisp wisp-6"></span>
+    <span class="wisp wisp-7"></span>
+    <span class="wisp wisp-8"></span>
+    <span class="wisp wisp-9"></span>
+    <span class="wisp wisp-10"></span>
+    <span class="wisp wisp-11"></span>
+    <span class="wisp wisp-12"></span>
+    <span class="wisp wisp-13"></span>
+    <span class="wisp wisp-14"></span>
+  </div>
+
+  {/* Transition veil — display:none by default; activates when
+      .is-transitioning is added. Inside: 8 directional wisps flow in
+      from each edge/corner toward center, converge to thick fog, then
+      slowly roll back outward past the marquee edges.
+
+      Phase A (0–1000ms): wisps flow inward → thick fog at center
+        - old text fades 500–1000ms (halfway through Phase A)
+      Phase B (1000–3000ms): wisps roll outward past edges
+        - new text fades 2000–3000ms (halfway through Phase B)
+      Total: 3000ms */}
+  <div class="marquee-transition-veil" aria-hidden="true">
+    {/* Two stacked base-fog layers fill the "donut hole" the converging
+        wisps would leave. Horizontal layer fogs top + bottom edges
+        (linear-gradient top→bottom with dense ends, transparent middle).
+        Vertical layer fogs left + right edges. Together they cover all
+        four edges; corners are double-covered. Both fade 0→1→0 in
+        lockstep with the wisp animation so the whole fog system clears
+        during Phase B. */}
+    <div class="veil-base-h"></div>
+    <div class="veil-base-v"></div>
+    <span class="veil-wisp veil-wisp-top"></span>
+    <span class="veil-wisp veil-wisp-tr"></span>
+    <span class="veil-wisp veil-wisp-right"></span>
+    <span class="veil-wisp veil-wisp-br"></span>
+    <span class="veil-wisp veil-wisp-bottom"></span>
+    <span class="veil-wisp veil-wisp-bl"></span>
+    <span class="veil-wisp veil-wisp-left"></span>
+    <span class="veil-wisp veil-wisp-tl"></span>
+  </div>
+
+  {/* Content slots — one per item, stacked. First slot active at mount;
+      script toggles aria-hidden + opacity to swap during rotation. */}
+  <div class="marquee-content-wrap">
+    {items.map((item, index) => (
+      <div class="marquee-content" data-index={index} aria-hidden={index !== 0 ? 'true' : 'false'}>
+        <span class="marquee-eyebrow">{item.eyebrow ?? EYEBROW_DEFAULT}</span>
+        <h2 class="marquee-title">{item.title}</h2>
+        <p class="marquee-framing">{item.framing}</p>
+        <div class="marquee-ctas">
+          <a class="marquee-cta-primary" href={item.primaryCta.href}>
+            <span class="marquee-cta-label">{item.primaryCta.label}</span>
+          </a>
+          {item.secondaryCta && (
+            <a class="marquee-cta-secondary" href={item.secondaryCta.href}>{item.secondaryCta.label}</a>
+          )}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  {/* Rotation indicators — one button per item, bottom-center. Clicking
+      a dot jumps to that card and extends the next auto-rotation wait
+      to 20s (vs the default 10s). Click target padded to ~18px via
+      transparent border while the visible dot stays at 6px. Buttons
+      get proper focus styles for keyboard nav. */}
+  {items.length > 1 && (
+    <div class="marquee-indicators" aria-label="Rotation control">
+      {items.map((_, index) => (
+        <button
+          type="button"
+          class={`indicator-dot${index === 0 ? ' is-active' : ''}`}
+          data-index={index}
+          aria-label={`Show feature ${index + 1}`}
+          aria-pressed={index === 0 ? 'true' : 'false'}
+        ></button>
+      ))}
+    </div>
+  )}
+</section>
+
+<style>
+  /* ============================================================================
+     Container — full-bleed horizontal band, locked heights per breakpoint
+     ============================================================================
+     Negative margin-inline matches the hero h2 stone strip's full-bleed
+     pattern, anchoring the marquee to main's outer edges (not viewport).
+
+     Top margin: 0 — marquee touches the hero h2's bottom edge directly,
+     producing a single uninterrupted vertical column from question →
+     tagline → marquee. Bottom margin: 0 — whatever sits beneath (the
+     stone ledge on the home page) decides its own spacing relative to
+     the marquee.
+
+     Heights (locked 2026-05-14 after first-render review): 360px under
+     740px, 340px at ≥740px. Previously had three breakpoints (360/280/260);
+     mobile and tablet felt tight, so collapsed to two values and bumped
+     both — the marquee carries the same weight at all sizes. */
+  .marquee {
+    position: relative;
+    isolation: isolate;
+    margin-block: 0;
+    margin-inline: calc(-1 * var(--space-md));
+    height: 360px;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse at 50% 50%, #14110e 0%, #0a0805 100%);
+    /* border-bottom removed 2026-05-15 — the marquee now meets the
+       homepage's stone ledge directly, no dividing line between them.
+       box-shadow added 2026-05-18: soft white halo (1px y-offset, 5px
+       blur, 1px spread, 50% alpha) frames the marquee as a discrete
+       lit element against the page bg. */
+    box-shadow: 0 1px 5px 1px rgba(255, 255, 255, 0.5);
+  }
+  @media (min-width: 740px) {
+    .marquee {
+      height: 340px;
+    }
+  }
+
+  /* ============================================================================
+     Heat glow — copper-orange radial at bottom
+     ============================================================================
+     Punched up 2026-05-14: alpha 0.18 → 0.38, ellipse widened to 100%
+     × 70% (was 80% × 60%), and a mid-stop added so the falloff is
+     stronger near the bottom edge before fading. Reads as more active
+     heat from below rather than a faint warm tint. */
+  .marquee-heat {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: radial-gradient(ellipse 100% 70% at 50% 110%,
+      rgba(196, 110, 50, 0.38) 0%,
+      rgba(196, 110, 50, 0.18) 30%,
+      transparent 70%);
+    pointer-events: none;
+  }
+
+  /* Top heat radial — mirror of `.marquee-heat`, anchored at 50% -10%.
+     Same color/intensity/curve. Frames the band between two heat
+     sources rather than just rising-from-below. Locked 2026-05-14. */
+  .marquee-heat-top {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: radial-gradient(ellipse 100% 70% at 50% -10%,
+      rgba(196, 110, 50, 0.38) 0%,
+      rgba(196, 110, 50, 0.18) 30%,
+      transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ============================================================================
+     Wisp layer — placeholder steam
+     ============================================================================
+     6 wisps, varied size/position/duration/delay. Color is warm fire-tinted
+     off-white (NOT cool white) — steam in a warm chamber catches the chamber's
+     light. Mask-image creates the centered clearing where content reads.
+
+     mask-image stops:
+       - center (clearing): rgba(0,0,0,0.2) → wisps drop to ~20% opacity
+       - edges: black → wisps at full opacity
+
+     This is "thinned wisps in clearing" not "cutout" — atmospheric
+     continuity preserved per spec. */
+  .marquee-wisps {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    mask-image: radial-gradient(
+      ellipse 65% 80% at center,
+      rgba(0, 0, 0, 0.2) 0%,
+      rgba(0, 0, 0, 0.85) 60%,
+      black 100%
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse 65% 80% at center,
+      rgba(0, 0, 0, 0.2) 0%,
+      rgba(0, 0, 0, 0.85) 60%,
+      black 100%
+    );
+  }
+
+  .wisp {
+    position: absolute;
+    display: block;
+    background: radial-gradient(ellipse 50% 40% at center,
+      rgba(225, 200, 175, 0.28) 0%,
+      rgba(225, 200, 175, 0.12) 40%,
+      transparent 75%);
+    filter: blur(24px);
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  /* Six wisps — varied size, vertical position, horizontal anchor,
+     direction, duration, delay.
+
+     `left` is the wisp's peak-opacity horizontal anchor (where the wisp
+     sits when it's most visible at the 50% keyframe). Distributed across
+     the band 0%–70% so peak positions span the full width — without this,
+     all wisps congregated in the left half because the keyframes peak at
+     translateX(0%) which puts a wisp at its `left` position.
+
+     Durations 12–18s (down from 28–42s): faster traverse so motion reads
+     as motion rather than something you have to stare at. Delays scaled
+     down proportionally to keep wisps at different lifecycle phases on
+     page load. */
+  .wisp-1 {
+    width: 45%;
+    height: 80%;
+    top: 5%;
+    left: 0%;
+    animation: drift-ltr 14s linear infinite;
+    animation-delay: 0s;
+  }
+  .wisp-2 {
+    width: 55%;
+    height: 70%;
+    top: 30%;
+    left: 30%;
+    animation: drift-rtl 16s linear infinite;
+    animation-delay: -3s;
+  }
+  .wisp-3 {
+    width: 40%;
+    height: 75%;
+    top: 15%;
+    left: 55%;
+    animation: drift-ltr 12s linear infinite;
+    animation-delay: -6s;
+  }
+  .wisp-4 {
+    width: 50%;
+    height: 65%;
+    top: 35%;
+    left: 10%;
+    animation: drift-rtl 18s linear infinite;
+    animation-delay: -10s;
+  }
+  .wisp-5 {
+    width: 38%;
+    height: 70%;
+    top: 0%;
+    left: 70%;
+    animation: drift-rtl 13s linear infinite;
+    animation-delay: -2s;
+  }
+  .wisp-6 {
+    width: 48%;
+    height: 75%;
+    top: 25%;
+    left: 40%;
+    animation: drift-ltr 15s linear infinite;
+    animation-delay: -7s;
+  }
+  /* Wisp 7 — LARGE (65% width). Anchors a thickening event mid-band. */
+  .wisp-7 {
+    width: 65%;
+    height: 75%;
+    top: 10%;
+    left: 20%;
+    animation: drift-ltr 17s linear infinite;
+    animation-delay: -4s;
+  }
+  .wisp-8 {
+    width: 42%;
+    height: 70%;
+    top: 5%;
+    left: 65%;
+    animation: drift-rtl 14s linear infinite;
+    animation-delay: -9s;
+  }
+  /* Wisp 9 — LARGE (70% width). Anchors a thickening event left-of-center. */
+  .wisp-9 {
+    width: 70%;
+    height: 80%;
+    top: 20%;
+    left: 5%;
+    animation: drift-rtl 18s linear infinite;
+    animation-delay: -12s;
+  }
+  .wisp-10 {
+    width: 35%;
+    height: 70%;
+    top: 30%;
+    left: 50%;
+    animation: drift-ltr 13s linear infinite;
+    animation-delay: -5s;
+  }
+  /* Top-region wisps — centers around 10–15% of marquee. Negative `top`
+     values + shorter `height` keep the gradient's bright center near
+     the top edge; mostly outside the clearing mask so they show at
+     full intensity. */
+  .wisp-11 {
+    width: 55%;
+    height: 50%;
+    top: -15%;
+    left: 15%;
+    animation: drift-ltr 16s linear infinite;
+    animation-delay: -7s;
+  }
+  .wisp-12 {
+    width: 50%;
+    height: 45%;
+    top: -10%;
+    left: 60%;
+    animation: drift-rtl 14s linear infinite;
+    animation-delay: -3s;
+  }
+  /* Bottom-region wisps — centers around 85–95%. Lower `top` values
+     keep the bright centers near the bottom edge where steam would
+     pool above the heat source. */
+  .wisp-13 {
+    width: 60%;
+    height: 55%;
+    top: 65%;
+    left: 25%;
+    animation: drift-rtl 17s linear infinite;
+    animation-delay: -10s;
+  }
+  .wisp-14 {
+    width: 45%;
+    height: 50%;
+    top: 70%;
+    left: 5%;
+    animation: drift-ltr 13s linear infinite;
+    animation-delay: -2s;
+  }
+
+  /* Drift L→R — wisp enters from off-screen left, drifts right, exits
+     off-screen right. Slight upward bias (-12% translateY at exit).
+     Fade-in/peak/fade-out shape via opacity keyframes. */
+  @keyframes drift-ltr {
+    0%   { transform: translateX(-110%) translateY(0); opacity: 0; }
+    8%   { opacity: 0.4; }
+    25%  { opacity: 0.9; }
+    50%  { transform: translateX(0%) translateY(-6%); opacity: 1; }
+    75%  { opacity: 0.9; }
+    92%  { opacity: 0.4; }
+    100% { transform: translateX(110%) translateY(-12%); opacity: 0; }
+  }
+
+  /* Drift R→L — mirrored. */
+  @keyframes drift-rtl {
+    0%   { transform: translateX(110%) translateY(0); opacity: 0; }
+    8%   { opacity: 0.4; }
+    25%  { opacity: 0.9; }
+    50%  { transform: translateX(0%) translateY(-6%); opacity: 1; }
+    75%  { opacity: 0.9; }
+    92%  { opacity: 0.4; }
+    100% { transform: translateX(-110%) translateY(-12%); opacity: 0; }
+  }
+
+  /* ============================================================================
+     Transition veil — converging-then-dispersing wisps during rotation
+     ============================================================================
+     The veil container is display:none by default; it activates (display:
+     block) only when .is-transitioning is added to the parent marquee.
+     Activation also assigns each wisp child its directional animation,
+     so the animations restart fresh on every transition (rather than
+     persisting from a previous run).
+
+     Eight wisps total — one per edge (top/right/bottom/left) plus one
+     per corner (tl/tr/bl/br) — each with its own keyframe animation
+     traveling from outside the marquee → center (Phase A) → back out
+     past its starting edge (Phase B).
+
+     z-index 4 sits above the content layer (z-index 3). overflow: visible
+     lets wisps roll outside the marquee box during Phase B.
+
+     Timing per wisp animation:
+       - 0–33% (0–1000ms):  Phase A — wisp flows in from edge to center,
+                             opacity 0→1 (fades in around 20% mark)
+       - 33–100% (1000–3000ms): Phase B — wisp rolls back outward past
+                                 its starting edge, opacity 1→0 (intermediate
+                                 opacity stop at 66% keeps fog dense while
+                                 new text fades in 2000–3000ms)
+     Total per-wisp animation duration: 3000ms */
+  .marquee-transition-veil {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    overflow: visible;
+  }
+  /* opacity: 0.5 on the container halves everything inside in one pass —
+     base fog + all 8 wisps. Important because the 8 wisps stack at
+     center convergence: 1 − (1 − 0.43)^8 ≈ 0.997 effective alpha if not
+     dampened. The container-level halving prevents the compounding from
+     reaching full opacity. */
+  .marquee.is-transitioning .marquee-transition-veil {
+    display: block;
+    opacity: 0.5;
+  }
+
+  /* Base fog — two stacked linear-gradient layers replacing the
+     previous radial. The radial left a donut shape because its dense
+     ring was a circle; the stacked linear layers cover EVERY edge
+     instead (top + bottom via horizontal layer, left + right via
+     vertical layer), so no donut hole forms regardless of where the
+     wisps are in their traversal. Corners are double-covered (both
+     layers dense), edges single-covered, center is double-transparent
+     (wisps converge there).
+
+     Both layers share the same opacity keyframe animation so they
+     fade in 0→1 during Phase A (0–33% / 0–1000ms), peak at
+     convergence, and fade 1→0 during Phase B (33–100% / 1000–3000ms)
+     in lockstep with the wisp dispersal. At t=3000ms everything is at
+     opacity 0; JS removes .is-transitioning and the veil container
+     reverts to display:none (handled at container level — see above). */
+  .veil-base-h,
+  .veil-base-v {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+  }
+  .veil-base-h {
+    background: linear-gradient(to bottom,
+      rgba(225, 200, 175, 1) 0%,
+      rgba(225, 200, 175, 0.6) 15%,
+      transparent 35%,
+      transparent 65%,
+      rgba(225, 200, 175, 0.6) 85%,
+      rgba(225, 200, 175, 1) 100%);
+  }
+  .veil-base-v {
+    background: linear-gradient(to right,
+      rgba(225, 200, 175, 1) 0%,
+      rgba(225, 200, 175, 0.6) 15%,
+      transparent 35%,
+      transparent 65%,
+      rgba(225, 200, 175, 0.6) 85%,
+      rgba(225, 200, 175, 1) 100%);
+  }
+  .marquee.is-transitioning .veil-base-h,
+  .marquee.is-transitioning .veil-base-v {
+    animation: veil-base-fade 3000ms ease-out forwards;
+  }
+  @keyframes veil-base-fade {
+    0%   { opacity: 0; }     /* t=0:    start invisible */
+    33%  { opacity: 1; }     /* t=1000: peak at wisp convergence */
+    100% { opacity: 0; }     /* t=3000: fully cleared as wisps disperse */
+  }
+
+  .veil-wisp {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60%;
+    height: 65%;
+    /* Alpha values now ~50% of original (0.85/0.55/0.2 → 0.43/0.28/0.10)
+       per 2026-05-14 follow-up. With 8 wisps overlapping at convergence
+       AND the base fog covering edges, the per-wisp alpha can run very
+       light — overlap compounds quickly. */
+    background: radial-gradient(circle at center,
+      rgba(225, 200, 175, 0.43) 0%,
+      rgba(225, 200, 175, 0.28) 35%,
+      rgba(225, 200, 175, 0.10) 65%,
+      transparent 85%);
+    filter: blur(22px);
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  /* Animations only apply while .is-transitioning is on; they're unset
+     between cycles so the next transition starts at keyframe 0%. */
+  .marquee.is-transitioning .veil-wisp-top    { animation: veil-top    3000ms ease-out forwards; }
+  .marquee.is-transitioning .veil-wisp-bottom { animation: veil-bottom 3000ms ease-out forwards; }
+  .marquee.is-transitioning .veil-wisp-left   { animation: veil-left   3000ms ease-out forwards; }
+  .marquee.is-transitioning .veil-wisp-right  { animation: veil-right  3000ms ease-out forwards; }
+  .marquee.is-transitioning .veil-wisp-tl     { animation: veil-tl     3000ms ease-out forwards; }
+  .marquee.is-transitioning .veil-wisp-tr     { animation: veil-tr     3000ms ease-out forwards; }
+  .marquee.is-transitioning .veil-wisp-bl     { animation: veil-bl     3000ms ease-out forwards; }
+  .marquee.is-transitioning .veil-wisp-br     { animation: veil-br     3000ms ease-out forwards; }
+
+  @keyframes veil-top {
+    0%   { transform: translate(-50%, -50%) translateY(-220%); opacity: 0; }
+    20%  { opacity: 0.7; }
+    33%  { transform: translate(-50%, -50%); opacity: 1; }
+    66%  { opacity: 0.6; }
+    100% { transform: translate(-50%, -50%) translateY(-320%); opacity: 0; }
+  }
+  @keyframes veil-bottom {
+    0%   { transform: translate(-50%, -50%) translateY(220%); opacity: 0; }
+    20%  { opacity: 0.7; }
+    33%  { transform: translate(-50%, -50%); opacity: 1; }
+    66%  { opacity: 0.6; }
+    100% { transform: translate(-50%, -50%) translateY(320%); opacity: 0; }
+  }
+  @keyframes veil-left {
+    0%   { transform: translate(-50%, -50%) translateX(-200%); opacity: 0; }
+    20%  { opacity: 0.7; }
+    33%  { transform: translate(-50%, -50%); opacity: 1; }
+    66%  { opacity: 0.6; }
+    100% { transform: translate(-50%, -50%) translateX(-300%); opacity: 0; }
+  }
+  @keyframes veil-right {
+    0%   { transform: translate(-50%, -50%) translateX(200%); opacity: 0; }
+    20%  { opacity: 0.7; }
+    33%  { transform: translate(-50%, -50%); opacity: 1; }
+    66%  { opacity: 0.6; }
+    100% { transform: translate(-50%, -50%) translateX(300%); opacity: 0; }
+  }
+  @keyframes veil-tl {
+    0%   { transform: translate(-50%, -50%) translate(-160%, -160%); opacity: 0; }
+    20%  { opacity: 0.7; }
+    33%  { transform: translate(-50%, -50%); opacity: 1; }
+    66%  { opacity: 0.6; }
+    100% { transform: translate(-50%, -50%) translate(-240%, -240%); opacity: 0; }
+  }
+  @keyframes veil-tr {
+    0%   { transform: translate(-50%, -50%) translate(160%, -160%); opacity: 0; }
+    20%  { opacity: 0.7; }
+    33%  { transform: translate(-50%, -50%); opacity: 1; }
+    66%  { opacity: 0.6; }
+    100% { transform: translate(-50%, -50%) translate(240%, -240%); opacity: 0; }
+  }
+  @keyframes veil-bl {
+    0%   { transform: translate(-50%, -50%) translate(-160%, 160%); opacity: 0; }
+    20%  { opacity: 0.7; }
+    33%  { transform: translate(-50%, -50%); opacity: 1; }
+    66%  { opacity: 0.6; }
+    100% { transform: translate(-50%, -50%) translate(-240%, 240%); opacity: 0; }
+  }
+  @keyframes veil-br {
+    0%   { transform: translate(-50%, -50%) translate(160%, 160%); opacity: 0; }
+    20%  { opacity: 0.7; }
+    33%  { transform: translate(-50%, -50%); opacity: 1; }
+    66%  { opacity: 0.6; }
+    100% { transform: translate(-50%, -50%) translate(240%, 240%); opacity: 0; }
+  }
+
+  /* ============================================================================
+     Content layer — eyebrow + title + framing + CTAs
+     ============================================================================
+     Slots stacked at the same absolute position; first slot active at
+     mount (aria-hidden=false). Rotation script toggles aria-hidden +
+     opacity to swap. */
+  .marquee-content-wrap {
+    position: relative;
+    z-index: 3;
+    height: 100%;
+  }
+
+  .marquee-content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-md) var(--space-lg);
+    text-align: center;
+    opacity: 0;
+    /* Fade-IN transition (used when aria-hidden becomes false): 1000ms
+       ease-out, no delay. JS swaps aria-hidden at t=1000ms (the
+       moment the old text has just finished fading out); new text
+       starts fading in immediately, completing at t=2000ms. Wisps
+       continue dispersing 2000–3000ms in front of the now-visible new
+       text — reads as the text emerging through clearing fog. */
+    transition: opacity 1000ms ease-out;
+    pointer-events: none;
+  }
+  .marquee-content[aria-hidden="false"] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  /* Fade-OUT transition (used when aria-hidden becomes true): 500ms
+     ease-in with 500ms delay. JS sets aria-hidden=true at t=0; the
+     delay holds the old content visible until t=500ms (Phase A halfway),
+     then it fades out over 500ms to t=1000ms (end of Phase A → wisps
+     have converged to thick fog). */
+  .marquee-content[aria-hidden="true"] {
+    opacity: 0;
+    transition: opacity 500ms ease-in 500ms;
+  }
+
+  /* Eyebrow — mono caps, copper, small, letterspaced. Reads as
+     instrument-panel label rather than decorative chip. */
+  .marquee-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-copper-light);
+    margin-block-end: var(--space-xs);
+  }
+
+  /* Title — brass, subhead font, scales by viewport. Slightly smaller
+     than hero h1 so it doesn't compete; text-wrap: balance keeps
+     multi-line shapes intentional. */
+  .marquee-title {
+    margin: 0 0 var(--space-xs);
+    font-family: var(--font-subhead);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--color-brass);
+    text-wrap: balance;
+    max-width: 22ch;
+  }
+  @media (min-width: 740px) {
+    .marquee-title {
+      font-size: 1.75rem;
+    }
+  }
+  @media (min-width: 1040px) {
+    .marquee-title {
+      font-size: 2rem;
+    }
+  }
+
+  /* Framing — body copy, warm-fg, 1–2 sentences. text-wrap: balance
+     for shapeful line breaks. */
+  .marquee-framing {
+    margin: 0 0 var(--space-md);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--color-fg);
+    text-wrap: balance;
+    max-width: 50ch;
+  }
+  @media (min-width: 740px) {
+    .marquee-framing {
+      font-size: 1rem;
+    }
+  }
+
+  /* CTAs — brass button (primary) + cyan text link (secondary). */
+  .marquee-ctas {
+    display: flex;
+    gap: var(--space-md);
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* Primary CTA — brass border + dark fill at rest; hover keeps the
+     same brass-toned outline (no hue shift) and adds a strong brass
+     glow (outer halo + inner glow) plus a slightly darker fill.
+
+     Standing rule captured 2026-05-14: navigational-button hover keeps
+     the rest-state outline color and adds (or strengthens) the glow —
+     the hover energy is "the same outline, lit up" rather than "a new
+     color." Exception: LaserCards keep their brass→electric-yellow
+     hover; the yellow shift is part of the laser-beam identity, not
+     generic-button vocabulary. */
+  .marquee-cta-primary {
+    display: inline-block;
+    padding: var(--space-xs) var(--space-md);
+    font-family: var(--font-subhead);
+    font-weight: 800;
+    font-size: 0.9375rem;
+    color: var(--color-brass);
+    text-decoration: none;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(196, 149, 57, 0.55);
+    border-radius: var(--radius);
+    /* Transition split: background eases fast (matches general UI snap);
+       box-shadow eases at 200ms per 2026-05-14 direction so the glow
+       fades in and out as a deliberate, perceptible effect rather than
+       snapping. */
+    transition:
+      background var(--transition-fast) ease-out,
+      box-shadow 200ms ease-out;
+  }
+  .marquee-cta-primary:hover,
+  .marquee-cta-primary:focus-visible {
+    font-weight: 900;
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow:
+      0 0 16px 3px rgba(196, 149, 57, 0.55),
+      inset 0 0 14px 2px rgba(196, 149, 57, 0.45);
+    outline: none;
+  }
+
+  /* CTA label wrapper — shifts 1px down + 1px right on hover. The label
+     is wrapped in a span (rather than transforming the whole button) so
+     the border stays put while the text moves inside — reads as the
+     text pressing into the lit-up button frame. */
+  .marquee-cta-label {
+    display: inline-block;
+    transition: transform var(--transition-fast) ease-out;
+  }
+  .marquee-cta-primary:hover .marquee-cta-label,
+  .marquee-cta-primary:focus-visible .marquee-cta-label {
+    transform: translate(1px, 1px);
+  }
+
+  /* Secondary CTA — uses --color-copper-light to match the eyebrow text
+     ("CURRENTLY RUNNING"). Visual hierarchy: brass-orange primary
+     button (warmer, with outline) sits above the copper-light secondary
+     link (subordinate, no outline, ties to the eyebrow's framing copy
+     visually). Cyan was tried and rejected — too cool. brass-dark was
+     also tried — too close in tone to the primary, hierarchy got
+     muddy. Copper-light reads as kin to the eyebrow + clearly
+     subordinate to the primary. */
+  .marquee-cta-secondary {
+    color: var(--color-copper-light);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    transition: text-shadow 200ms ease-out;
+  }
+  /* Hover: rest color preserved + copper-light text-shadow glow fades
+     in. Same "outline keeps its color, hover adds the glow" pattern as
+     the primary CTA and LaserCard h3. */
+  .marquee-cta-secondary:hover,
+  .marquee-cta-secondary:focus-visible {
+    text-shadow:
+      0 0 6px rgba(218, 138, 74, 0.75),
+      0 0 14px rgba(218, 138, 74, 0.4);
+    outline: none;
+  }
+
+  /* Rotation indicators — one button per item, bottom-center. Translucent
+     brass; active dot more visible but still subdued ("don't put a lot
+     of emphasis on them, keep them sort of faded against the
+     background"). Buttons are clickable — visitor can jump to a card,
+     which holds it open for 20s before the next auto-rotation. z-index 5
+     places them above the fog layer (z-index 4). */
+  .marquee-indicators {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    display: flex;
+    align-items: center;  /* vertically center dots of different sizes */
+    gap: 4px;
+  }
+
+  /* Indicator buttons — direct sizing, no transparent-border hit-area
+     tricks. width/height IS the visible dot size. Active 12px (bright,
+     larger); inactive 9px (dim, smaller). Active is the brighter+larger
+     dot to clearly mark "currently visible item"; inactive dots are
+     the smaller dimmer dots representing other items in the rotation. */
+  .indicator-dot {
+    display: block;
+    width: 9px;
+    height: 9px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(196, 149, 57, 0.18);
+    cursor: pointer;
+    transition: background 300ms ease-out,
+                width 300ms ease-out,
+                height 300ms ease-out;
+  }
+  .indicator-dot:hover {
+    background: rgba(196, 149, 57, 0.35);
+  }
+  .indicator-dot:focus-visible {
+    outline: 2px solid var(--color-electric-cyan-glow);
+    outline-offset: 2px;
+  }
+  .indicator-dot.is-active {
+    width: 12px;
+    height: 12px;
+    background: rgba(196, 149, 57, 0.45);
+  }
+
+  /* ============================================================================
+     Reduced motion — wisps freeze at hand-picked positions
+     ============================================================================
+     Static composition should still feel intentional (not "broken
+     animation"). Heat glow remains; clearing remains; content fade-on-
+     rotate becomes instant (handled in JS by skipping the transition). */
+  @media (prefers-reduced-motion: reduce) {
+    .wisp {
+      animation: none !important;
+      opacity: 0.65;
+    }
+    .wisp-1 { transform: translateX(-15%) translateY(-4%); }
+    .wisp-2 { transform: translateX(20%) translateY(-8%); }
+    .wisp-3 { transform: translateX(-30%) translateY(-2%); }
+    .wisp-4 { transform: translateX(10%) translateY(-10%); }
+    .wisp-5 { transform: translateX(35%) translateY(-5%); }
+    .wisp-6 { transform: translateX(-5%) translateY(-12%); }
+
+    .veil-wisp {
+      animation: none !important;
+    }
+    .marquee-transition-veil {
+      display: none !important;
+    }
+    .marquee-content {
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+  /* ============================================================================
+     MarqueeFeature rotation script
+     ============================================================================
+     Astro hoists this once per page. Rotation activates when
+     items.length > 1.
+
+     Transition choreography (3000ms total — restructured 2026-05-14
+     to use a converging-wisp veil rather than a single fog overlay):
+
+     Phase A (0–1000ms) — wisps converge:
+       - `.is-transitioning` added → veil container goes display:block;
+         each veil-wisp begins its directional keyframe animation
+       - Current slot's aria-hidden=true → content fade-out triggers
+         (CSS handles 500ms delay + 500ms duration → fades 500–1000ms)
+       - At t=1000ms wisps have converged at center → dense fog covers
+         text fully (which is also at opacity 0 by now)
+
+     Phase B (1000–3000ms) — wisps disperse:
+       - JS swaps aria-hidden on slots + active indicator at t=1000ms
+         (invisible under the dense fog overhead)
+       - New slot's aria-hidden=false → content fade-in starts immediately
+         (no CSS delay; 1000ms duration → fades 1000–2000ms, right
+         after the old text finished fading out at t=1000ms)
+       - 2000–3000ms: new text fully visible while wisps continue
+         dissipating in front of it (reads as text emerging through
+         clearing fog)
+       - At t=3000ms wisps have rolled outside marquee edges, fog gone
+       - JS removes .is-transitioning → veil deactivates (display:none)
+
+     Auto-cycle interval: 10000ms default. Click on an indicator dot
+     resets the wait to 20000ms for the resulting card (lets the visitor
+     pin a card open longer), then returns to 10000ms for subsequent
+     auto-rotations.
+
+     Paused on mouseenter/focusin; resumed on mouseleave/focusout.
+     Disabled under prefers-reduced-motion. */
+  (function () {
+    const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const ROTATION_INTERVAL_MS = 10000;
+    const EXTENDED_INTERVAL_MS = 20000;
+    const SWAP_AT = 1000;                // wisps converged — swap under cover of fog
+    const TRANSITION_TOTAL_MS = 3000;    // wisps have dispersed past marquee edges
+
+    function setupMarquee(root: Element) {
+      const slots = root.querySelectorAll<HTMLElement>('.marquee-content');
+      const indicators = root.querySelectorAll<HTMLElement>('.indicator-dot');
+      if (slots.length < 2) return;        // single item — no rotation
+      if (REDUCED_MOTION) return;          // reduced motion — no auto-cycle
+
+      let currentIndex = 0;
+      let activeTimeouts: number[] = [];
+      let paused = false;
+      let extendedTimer = false;
+      let inTransition = false;
+
+      function clearAllTimeouts() {
+        activeTimeouts.forEach((id) => window.clearTimeout(id));
+        activeTimeouts = [];
+      }
+
+      function scheduleNext() {
+        clearAllTimeouts();
+        const interval = extendedTimer ? EXTENDED_INTERVAL_MS : ROTATION_INTERVAL_MS;
+        extendedTimer = false;
+        const id = window.setTimeout(autoRotate, interval);
+        activeTimeouts.push(id);
+      }
+
+      function autoRotate() {
+        if (paused) {
+          scheduleNext();
+          return;
+        }
+        const nextIndex = (currentIndex + 1) % slots.length;
+        executeRotation(nextIndex);
+      }
+
+      function executeRotation(targetIndex: number) {
+        clearAllTimeouts();
+        inTransition = true;
+
+        // Phase A trigger (0ms): activate veil + start old content fade-out
+        //  - .is-transitioning → veil display:block; veil-wisp animations
+        //    begin (3000ms each, converge 0–1000ms then disperse 1000–3000ms)
+        //  - current slot's aria-hidden=true → content fade-out (CSS:
+        //    500ms delay + 500ms duration → 500–1000ms)
+        root.classList.add('is-transitioning');
+        slots[currentIndex].setAttribute('aria-hidden', 'true');
+
+        // Phase B start (t=1000ms): swap content + indicator under cover
+        // of dense fog. New slot's aria-hidden=false triggers content
+        // fade-in (CSS: 1000ms delay + 1000ms duration → 2000–3000ms).
+        const swapId = window.setTimeout(() => {
+          slots[targetIndex].setAttribute('aria-hidden', 'false');
+          indicators[currentIndex]?.classList.remove('is-active');
+          indicators[targetIndex]?.classList.add('is-active');
+          indicators[currentIndex]?.setAttribute('aria-pressed', 'false');
+          indicators[targetIndex]?.setAttribute('aria-pressed', 'true');
+          currentIndex = targetIndex;
+        }, SWAP_AT);
+        activeTimeouts.push(swapId);
+
+        // Transition end (t=3000ms): remove .is-transitioning so the
+        // veil deactivates (display:none). Wisp animations are already
+        // at their final state (off-screen, opacity 0) via fill-forwards;
+        // class removal lets them reset for the next cycle.
+        const endId = window.setTimeout(() => {
+          root.classList.remove('is-transitioning');
+          inTransition = false;
+          scheduleNext();
+        }, TRANSITION_TOTAL_MS);
+        activeTimeouts.push(endId);
+      }
+
+      function jumpToIndex(targetIndex: number) {
+        if (inTransition) return;       // ignore clicks mid-transition
+        extendedTimer = true;           // next wait will be 20s, not 10s
+
+        if (targetIndex === currentIndex) {
+          // Already on this card; just extend the timer, no transition
+          scheduleNext();
+          return;
+        }
+        executeRotation(targetIndex);
+      }
+
+      // Indicator click handlers
+      indicators.forEach((dot, index) => {
+        dot.addEventListener('click', () => jumpToIndex(index));
+      });
+
+      // Pause cycle on hover/focus over the marquee body
+      root.addEventListener('mouseenter', () => { paused = true; });
+      root.addEventListener('focusin', () => { paused = true; });
+      root.addEventListener('mouseleave', () => { paused = false; });
+      root.addEventListener('focusout', () => { paused = false; });
+
+      scheduleNext();
+    }
+
+    function init() {
+      document.querySelectorAll('.marquee').forEach(setupMarquee);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+</script>

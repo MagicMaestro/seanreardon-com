@@ -1,8 +1,7 @@
 ---
 title: "Security Line Card"
 completed: 2016-10-31
-sh_desc: "The Security Line Card is a customer-facing comparison matrix which assists in comparing different features within several security products. Products are categorized into 5 main categories, with over 40 subcategories."
-projLink: "http://securitylinecard.info"
+sh_desc: "An interactive JavaScript filter that pointed internal reps to the right contact during a phone-system migration. Surface was a vendor comparison matrix; the actual problem was extension churn."
 legacyMainImg: "3473721_01.jpg"
 legacyOtherImg: "3473721_02.jpg,3473721_03.jpg"
 projLanguage: ["html","css","javascript"]
@@ -11,23 +10,10 @@ active: true
 legacyProjID: 3473721
 ---
 
-The Security Line Card is a comparison web tool developed for Ingram Micro customers and employees. With over 30 vendors to choose from, narrowing down the appropriate security product required can be a daunting task. The Security Line Card helps to address this challenge by allowing for feature-based comparisons between the growing list of vendors.
+This shipped in 2016 as a customer-facing vendor comparison matrix for a security products line card — pick up to five vendors, compare features, drill into hardware vs. software vs. cloud. That was the surface.
 
-Customers (or employees) can choose from a custom list of up to 5 vendors to compare the security products that are offered. If a customer wishes to compare more than 5 vendors, they also have the ability to manually select as many vendors as they wish to compare.
+The actual problem it solved was internal: we were mid-migration to a new VOIP phone system. Team extensions were changing weekly. Reps fielding customer questions about specific vendors needed to know who to transfer the call to *today*, not last week. Static documentation went stale faster than anyone could update it.
 
-Once the vendors have been selected, users can see which type of product is offered for the feature the user requires. These product types are labeled as hardware, software, and/or cloud-based products.
+So under the comparison UI was a JSON file that mapped every vendor and product category to a current contact. The matrix's hover state surfaced that contact in real time. Updating extensions meant editing one JSON object — no deploys, no developer in the loop. Reps could keep the file accurate themselves. Customer-facing the tool looked like a feature matrix; internally it was a self-maintaining routing layer for a phone tree that wouldn't sit still.
 
-For more detailed information on the the products offered, or to view the appropriate team to contact, a user can hover over the specific cell in the Security Line Card matrix.
-
-## Objective
-
-- Create a Security Line Card comparison matrix of security products that can be regularly updated with minimal training
-- The Security Line Card should be able to pull all data from a JSON style list, and dynamically populate vendors, categories and subcategories dynamically
-- Users must be able to select up to 5 vendors to compare, with the use of preselected drop downs. Additional vendors can be compared by selecting manually
-- Products should be categorized into hardware, software, and/or cloud-based
-- Team contact and product information should display when a user hovers over the cell
-- Users will be viewing the SLC from desktops, so a responsive design is not needed
-
----
-
-*Retrospective forthcoming. Frontmatter and body above were migrated from the legacy MariaDB `projects` table on 2026-05-02; the retrospective layer is editorial work to be added.*
+Stack was deliberately small — vanilla JS pulling from JSON, dropdowns for vendor selection, CSS Grid for the matrix layout. The interesting design move was where to put the contact info: hover-on-cell rather than a separate panel, so the rep's eye-trace was vendor → category → contact in one motion. The phone migration finished a few months later and the JSON file got smaller, but the pattern — one-file routing layer surfaced through a customer feature — stayed useful for a while.

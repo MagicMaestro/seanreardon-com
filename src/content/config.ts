@@ -7,7 +7,7 @@ const writing = defineCollection({
     date: z.coerce.date(),
     summary: z.string(),
     tags: z.array(z.string()).optional(),
-    project: z.string().optional(),  // optional link to a /work/<slug> entry
+    project: z.string().optional(),  // optional link to a /projects/<slug> entry
     status: z.enum(['draft', 'published']).default('draft'),
   }),
 });
