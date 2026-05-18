@@ -13,10 +13,31 @@ interface Props {
      the slot (e.g., the 404 page with its mono "404" treatment). When true,
      BaseLayout skips the default full-bleed <h1>{title}</h1> banner. */
   noPageTitleBar?: boolean;
+  /* Include this page in the Pagefind site-search index (standard header
+     search). Default false — pages opt IN by passing searchable={true}.
+     The opted-in set is intentionally narrow per `decisions/ai-features-v1.md`
+     decision 9: writing posts + about/static pages only. Listing pages,
+     utility pages (search, subscribe, reach-out, 404), and work entries
+     stay out so the index reflects substantive content, not navigation.
+     The same corpus rule governs the MiniLM AI-search index — kept in
+     sync via `src/lib/search/chunker.ts`'s STATIC_PAGES list and the
+     status==='published' filter on writing posts.
+
+     Mechanism: when searchable=false, BaseLayout emits `data-pagefind-ignore`
+     on <main> and Pagefind skips the page entirely. When searchable=true,
+     no attribute is added and the PAGE is responsible for marking its
+     content element (typically an <article>) with `data-pagefind-body` —
+     that scope-limits indexing to the article body, excluding nav/footer/
+     page-title from the index. */
+  searchable?: boolean;
 }
 
-const { title, description, noindex, noPageTitleBar } = Astro.props;
+const { title, description, noindex, noPageTitleBar, searchable = false } = Astro.props;
 const fullTitle = title === 'Sean Reardon' ? title : `${title} — Sean Reardon`;
+/* Either `data-pagefind-ignore` or nothing — spread onto <main> below.
+   Object-spread keeps the JSX terse and lets Astro omit the attribute when
+   `searchable` is true (no key to render). */
+const mainPagefindAttrs = searchable ? {} : { 'data-pagefind-ignore': '' };
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -58,7 +79,7 @@ const fullTitle = title === 'Sean Reardon' ? title : `${title} — Sean Reardon`
         viewports where main fills the wrapper, the title bar reaches the
         viewport edges naturally. */}
     <div class="main-wrapper">
-      <main>
+      <main {...mainPagefindAttrs}>
         {!noPageTitleBar && <h1>{title}</h1>}
         <slot />
       </main>

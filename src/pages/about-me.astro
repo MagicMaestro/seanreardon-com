@@ -4,16 +4,23 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 <BaseLayout
   title="About Me"
   description="About Sean Reardon — building since 1998, currently focused on AI integration in the web stack."
+  searchable={true}
 >
-  <p>
-    Building since 1998. Currently focused on AI integration in the web stack
-    — shipping projects, writing about technical decisions, and exploring what
-    becomes possible when modern language models are first-class citizens of a
-    web application.
-  </p>
-  <p>
-    Based in Buffalo, NY.
-  </p>
+  {/* `data-pagefind-body` scope-limits Pagefind's indexing to this content
+      wrapper — excludes nav/footer/page-title from the index per the corpus
+      rule in BaseLayout's `searchable` prop docstring. Same pattern as the
+      lessons-learned post route and the privacy page's <article>. */}
+  <div data-pagefind-body>
+    <p>
+      Building since 1998. Currently focused on AI integration in the web stack
+      — shipping projects, writing about technical decisions, and exploring what
+      becomes possible when modern language models are first-class citizens of a
+      web application.
+    </p>
+    <p>
+      Based in Buffalo, NY.
+    </p>
+  </div>
 
   {/* Full bio, recurring themes, current preoccupations to follow once the IA + about-page plan lands. */}
 </BaseLayout>

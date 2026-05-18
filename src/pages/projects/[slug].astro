@@ -18,7 +18,17 @@ const { project } = Astro.props;
 const { Content } = await project.render();
 ---
 <BaseLayout title={project.data.title} description={project.data.sh_desc}>
-  <article data-pagefind-body>
+  {/* No `data-pagefind-body` here — work entries are deliberately OUT of the
+      v1 search corpus per `decisions/ai-features-v1.md` decision 9 ("short
+      metadata-heavy stubs"; not the visitor-search target). BaseLayout's
+      default `searchable={false}` puts `data-pagefind-ignore` on <main>, and
+      without an inner `data-pagefind-body` to override that, Pagefind skips
+      these pages entirely. If a future scope change adds work entries to
+      the corpus, set `searchable={true}` on the BaseLayout call AND add
+      `data-pagefind-body` to this article (mirroring the lessons-learned
+      route). Update `src/lib/search/chunker.ts` in lockstep so the MiniLM
+      and Pagefind corpora stay aligned. */}
+  <article>
     <p class="meta">
       Completed {project.data.completed.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
       {project.data.projLink && (

@@ -6,8 +6,12 @@ const lastUpdated = '2026-05-03';
 <BaseLayout
   title="Privacy Policy"
   description="Privacy policy for seanreardon.com — what's collected, who it's shared with, how long it's kept, and your rights as a visitor."
+  searchable={true}
 >
-  <article class="privacy-policy">
+  {/* `data-pagefind-body` scope-limits Pagefind's indexing to the article
+      body — excludes nav/footer/page-title from the index. See BaseLayout's
+      `searchable` prop docstring for the full corpus rule. */}
+  <article class="privacy-policy" data-pagefind-body>
     <p class="last-updated"><strong>Last updated:</strong> {lastUpdated}</p>
 
     <p>
