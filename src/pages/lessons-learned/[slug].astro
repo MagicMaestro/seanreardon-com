@@ -19,7 +19,6 @@ const { Content } = await post.render();
 ---
 <BaseLayout title={post.data.title} description={post.data.summary}>
   <article data-pagefind-body>
-    <h1>{post.data.title}</h1>
     <p class="meta">
       {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
       {post.data.tags && post.data.tags.length > 0 && (

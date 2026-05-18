@@ -1,0 +1,56 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import LaserCard from '~/components/astro/LaserCard.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('writing', ({ data }) => data.status === 'published'))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+<BaseLayout
+  title="Lessons Learned"
+  description="Short retrospective articles on the lessons I've learned from AI-focused experiments and the technical choices behind rebuilding this AI-integrated site."
+>
+  <p>
+    A collection of generally short retrospective articles and posts, which
+    outline many of the lessons I've learned from my AI-focused experiments,
+    and explain the technical choices I've made along the path to rebuilding
+    this AI-integrated site.
+  </p>
+
+  {posts.length === 0 ? (
+    <p>
+      <em>(No published posts yet. Eight ideas captured in the planning
+      project's <code>post-ideas/</code> directory — they'll land here as
+      drafts get written.)</em>
+    </p>
+  ) : (
+    <ul class="laser-card-list">
+      {posts.map((post) => (
+        <li>
+          <LaserCard
+            href={`/lessons-learned/${post.slug}/`}
+            kind="Writing"
+            title={post.data.title}
+            summary={post.data.summary}
+            dateISO={post.data.date.toISOString()}
+            dateDisplay={post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+          />
+        </li>
+      ))}
+    </ul>
+  )}
+</BaseLayout>
+
+<style>
+  /* Single-column list of LaserCards. Cards self-contain their visual
+     treatment (see LaserCard.astro); this list just controls layout
+     and spacing. */
+  .laser-card-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--space-md);
+    grid-template-columns: 1fr;
+  }
+</style>
