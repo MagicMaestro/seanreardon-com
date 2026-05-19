@@ -119,14 +119,26 @@ jobs:
         # mental model. Can be optimized later via a separate api package.json
         # if disk pressure ever appears.
         #
-        # Absolute path to npm is required: cPanel's jailshell doesn't include
-        # /opt/cpanel/ea-nodejs22/bin on PATH, so a bare `npm ci` fails with
-        # `jailshell: npm: command not found`. REMOTE_NODE_BIN expands on the
-        # GHA runner before the SSH command is sent — jailshell receives the
-        # fully-resolved path.
+        # The remote SSH command does TWO things to work around jailshell's minimal PATH:
+        #   1. `export PATH=${REMOTE_NODE_BIN}:$PATH` prepends the cPanel ea-nodejs22 bin
+        #      dir to PATH so that npm's CHILD lifecycle scripts (sharp's install hook
+        #      runs `sh -c "node install/check.js || npm run build"`) can resolve
+        #      `node` and `npm`. SPR-0012 fixed the top-level npm call via absolute path
+        #      but didn't help children — sharp's install ran into `sh: node: command
+        #      not found` (sharp arrived via @huggingface/transformers in SPR-0011;
+        #      the old @xenova used pure-JS onnxruntime-web with no native install hook).
+        #   2. We STILL call npm by absolute path (`${REMOTE_NODE_BIN}/npm`) — belt and
+        #      suspenders. PATH-resolution would suffice given the export above, but
+        #      the absolute-path call site documents intent and survives any future
+        #      PATH reordering.
+        #
+        # Quoting: `${REMOTE_NODE_BIN}` (no escape) expands on the GHA RUNNER. `\$PATH`
+        # (escaped) survives runner expansion and is evaluated by the REMOTE shell
+        # against the remote environment. Without the escape, the runner would
+        # substitute its own PATH and bake runner-local paths into the SSH payload.
         run: |
           ssh -i ~/.ssh/deploy_key -p 7822 sreardon@ssh.seanreardon.com \
-            "cd /home/sreardon/apps/portfolio-search && ${REMOTE_NODE_BIN}/npm ci --omit=dev"
+            "export PATH=${REMOTE_NODE_BIN}:\$PATH && cd /home/sreardon/apps/portfolio-search && ${REMOTE_NODE_BIN}/npm ci --omit=dev"
 
       - name: Restart Passenger worker
         # touch tmp/restart.txt is Passenger's documented restart sentinel.
