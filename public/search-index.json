@@ -2,7 +2,7 @@
   "schema": 1,
   "model": "Xenova/all-MiniLM-L6-v2",
   "dim": 384,
-  "builtAt": "2026-05-19T01:59:11.738Z",
+  "builtAt": "2026-05-19T16:48:29.360Z",
   "entries": [
     {
       "id": "static-page:about-me",

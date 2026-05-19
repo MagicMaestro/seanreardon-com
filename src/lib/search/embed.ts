@@ -1,5 +1,7 @@
 /**
- * MiniLM embedding via `@xenova/transformers` (transformers.js Node port).
+ * MiniLM embedding via `@huggingface/transformers` (transformers.js, the
+ * rename + active fork of `@xenova/transformers`; same maintainer, fresh
+ * onnxruntime stack — see SPR-0011 commit for the migration rationale).
  *
  * Model: `Xenova/all-MiniLM-L6-v2`. 22M params, 384-dim output, MIT license.
  * ~80MB on disk, ~150MB resident. The library caches the model to
@@ -20,7 +22,7 @@
  * to a dot product (see `similarity.ts`).
  */
 
-import { pipeline, env, type FeatureExtractionPipeline } from '@xenova/transformers';
+import { pipeline, env, type FeatureExtractionPipeline } from '@huggingface/transformers';
 
 // Allow remote model downloads (default behavior on first run). If the cache
 // is pre-warmed in production, `env.allowRemoteModels = false` can be set
