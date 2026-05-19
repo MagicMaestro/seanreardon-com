@@ -16,6 +16,10 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+# AI-search aggregated query logs (decision 8 — no IP / session / identifier
+# data ever written, but the log file itself stays out of git as a matter
+# of hygiene; logs are operational state, not source)
+logs/
 
 # OS / IDE
 .DS_Store

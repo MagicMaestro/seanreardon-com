@@ -1,0 +1,143 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Semantic Search"
+  description="How the AI semantic search on seanreardon.com works — self-hosted MiniLM, zero third-party data flow, aggregate-only query logging."
+  searchable={true}
+>
+  {/* `data-pagefind-body` scope-limits Pagefind to this article (excludes
+      nav/footer/page-title). Same pattern as about-me, privacy, and the
+      lessons-learned post route. See BaseLayout's `searchable` prop docstring
+      for the corpus rule. */}
+  <article class="lab-feature" data-pagefind-body>
+    <p class="lead">
+      Type a phrase. The site finds the writing and pages most semantically related to it —
+      even when the words don't match exactly.
+    </p>
+
+    <h2 id="what-it-does">What it does</h2>
+
+    <p>
+      This site ships two search surfaces:
+    </p>
+
+    <ul>
+      <li>
+        <strong>Standard search</strong> (the magnifying-glass icon in the header) does
+        exact-word matching. Best when you remember the wording you're looking for.
+      </li>
+      <li>
+        <strong>AI semantic search</strong> finds content by <em>meaning</em>. A query for
+        "going beyond what the law requires" surfaces the privacy-compliance post even though
+        those exact words don't appear in it. A query for "what AI changes about the developer's
+        role" surfaces the AI-integration retrospective even though that post never uses the
+        phrase "developer's role."
+      </li>
+    </ul>
+
+    <p>
+      They're complementary, not competing. The standard search wins on precision when you
+      remember the words; the AI search wins on recall when you don't.
+    </p>
+
+    <h2 id="how-it-works">How it works</h2>
+
+    <p>
+      Most "AI search" implementations route every query to OpenAI, Anthropic, or a hosted
+      vector database. That's a privacy posture, a cost commitment, and a vendor dependency
+      bundled together. Here, the architecture is simpler — and entirely on this site's own
+      infrastructure:
+    </p>
+
+    <ol>
+      <li>
+        <strong>At build time</strong>, every published post and reference page (about, privacy,
+        this page) gets embedded into a 384-dimensional vector by
+        <code>all-MiniLM-L6-v2</code> — a small open-source sentence-embedding model from
+        Hugging Face, 22M parameters, MIT-licensed. The vectors are written to a static JSON
+        file that ships alongside the rest of the site's assets.
+      </li>
+      <li>
+        <strong>At query time</strong>, your query is sent to a small Node service on this
+        site's server. That service runs the same MiniLM model resident in memory, embeds your
+        query, and compares it against every page vector via cosine similarity. The top 10
+        results come back as JSON: title, URL, snippet, similarity score.
+      </li>
+      <li>
+        <strong>That's it.</strong> No vector database. No third-party AI API. No tracking
+        pixels. About 260 MB of resident memory on the server, well under the 20% per-site
+        budget on the shared VPS.
+      </li>
+    </ol>
+
+    <h2 id="why-server-side">Why server-side, not client-side</h2>
+
+    <p>
+      Client-side embedding (running MiniLM in the visitor's browser via
+      <code>transformers.js</code>) was tempting — zero server cost, perfect privacy by
+      construction. It was rejected after a careful look at the first-query UX: client-side
+      embedding means the visitor's browser downloads ~80 MB of model files on first search,
+      with a cold-start time anywhere from 3 to 60 seconds depending on connection speed.
+      That's a poor first impression on a search feature.
+    </p>
+
+    <p>
+      Server-side means the model is warm-loaded once per process and stays resident.
+      First-query latency in the ~50 ms range. The privacy story is preserved by other means:
+      the query reaches a server that the site owner controls, doesn't leave that server, and
+      isn't logged in any form that could identify the visitor (see below).
+    </p>
+
+    <h2 id="privacy">Privacy</h2>
+
+    <p>
+      Search queries don't leave this site's infrastructure. No third-party AI provider
+      (Anthropic, OpenAI, Google, etc.) is involved. The local query log is aggregated and
+      anonymized — each log entry contains the query text, the number of results returned,
+      the top result's identifier, and a timestamp truncated to the hour. <strong>No IP, no
+      session, no user identifier.</strong>
+    </p>
+
+    <p>
+      The full breakdown is in the <a href="/privacy/#what-is-collected">privacy policy</a>.
+      No consent step is required for semantic search because no personal information is
+      processed.
+    </p>
+
+    <h2 id="try-it">Try it</h2>
+
+    <p>
+      The dedicated AI-search interface — a separate trigger from the standard header search —
+      ships in a follow-up release. Until then, the standard keyword search lives at
+      <a href="/search/">/search/</a> and is reachable from the magnifying-glass icon in
+      the header on every page.
+    </p>
+
+    <h2 id="retrospective">Retrospective</h2>
+
+    <p>
+      A longer write-up on building this — the model choice, the corpus split between search
+      and a future chat feature, the per-site resource budget, the deployment topology — is in
+      the queue and will land at <a href="/lessons-learned/">Lessons Learned</a> once it's
+      drafted.
+    </p>
+  </article>
+</BaseLayout>
+
+<style>
+  .lab-feature {
+    max-width: 70ch;
+  }
+  .lab-feature .lead {
+    font-size: 1.125rem;
+    color: var(--color-fg);
+  }
+  .lab-feature h2 {
+    margin-top: var(--space-lg);
+  }
+  .lab-feature code {
+    font-family: var(--font-mono);
+    font-size: 0.9375em;
+  }
+</style>

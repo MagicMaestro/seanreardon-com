@@ -236,6 +236,12 @@ const STATIC_PAGES: Array<{ path: string; title: string; url: string; id: string
     title: 'Privacy Policy',
     url: '/privacy/',
   },
+  {
+    id: 'static-page:lab-semantic-search',
+    path: 'lab/semantic-search.astro',
+    title: 'Semantic Search',
+    url: '/lab/semantic-search/',
+  },
 ];
 
 /**

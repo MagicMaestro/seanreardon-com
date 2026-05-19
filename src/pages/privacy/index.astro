@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 
-const lastUpdated = '2026-05-03';
+const lastUpdated = '2026-05-18';
 ---
 <BaseLayout
   title="Privacy Policy"
@@ -18,8 +18,8 @@ const lastUpdated = '2026-05-03';
       This policy describes how <a href="https://seanreardon.com">seanreardon.com</a> — a personal
       portfolio and writing site operated by Sean Reardon — collects, uses, and discloses
       information about visitors. It applies to all interactions with the site, including
-      reading content, submitting forms, and using interactive AI features when those
-      eventually ship.
+      reading content, submitting forms, using site search, and (when they ship) using
+      interactive AI chat features.
     </p>
 
     <p>
@@ -111,11 +111,22 @@ const lastUpdated = '2026-05-03';
     </p>
 
     <p>
-      <strong>AI features (planned, not yet live):</strong> when AI-powered features ship on the
-      site, your input may be sent to a language-model provider (primarily Anthropic). Each AI
-      feature will explicitly disclose what's transmitted and request your consent at the point
-      of use. Inputs and outputs are not retained on this site's servers unless strictly necessary
-      for the feature.
+      <strong>Site search</strong> — both the standard keyword search (Pagefind) and the AI
+      semantic search — runs entirely on this site's own infrastructure. The keyword search is
+      static and client-side: your query never leaves your browser. The AI semantic search
+      sends your query to this site's server, where a self-hosted language model processes it;
+      <strong>your query is not sent to any third-party AI provider</strong>. Search queries
+      are processed on our server and retained only in aggregated, anonymized form (query text
+      + result count + truncated timestamp). No IP, session, or user identifier is logged.
+    </p>
+
+    <p>
+      <strong>AI chat (planned, not yet live):</strong> when the AI chat feature ships, your
+      input will be sent to a third-party language-model provider (Anthropic). The chat feature
+      will display a one-time consent modal the first time you use it; nothing is transmitted
+      before you accept. Inputs and outputs are not retained on this site's servers unless
+      strictly necessary for the feature, and Anthropic's commercial terms include
+      no-training-on-user-data by default.
     </p>
 
     <h2 id="processors">Third-party processors</h2>
@@ -159,9 +170,9 @@ const lastUpdated = '2026-05-03';
           <td><a href="https://www.adobe.com/privacy/policy.html" rel="external nofollow noopener">adobe.com/privacy/policy</a></td>
         </tr>
         <tr>
-          <td>Anthropic <em>(when AI features ship)</em></td>
-          <td>Your input to specific AI features at the moment of use</td>
-          <td>Generating AI responses you've explicitly invoked</td>
+          <td>Anthropic <em>(when AI chat ships — not used for AI search)</em></td>
+          <td>Your input to the AI chat feature at the moment of use</td>
+          <td>Generating chat responses you've explicitly invoked</td>
           <td><a href="https://www.anthropic.com/legal/privacy" rel="external nofollow noopener">anthropic.com/legal/privacy</a></td>
         </tr>
       </tbody>
@@ -213,7 +224,11 @@ const lastUpdated = '2026-05-03';
           <td>90 days from receipt, then purged from server logs and inbox</td>
         </tr>
         <tr>
-          <td>AI feature inputs/outputs <em>(when shipped)</em></td>
+          <td>AI search query aggregates (no IP, no session, no identifier)</td>
+          <td>Indefinite — there is no personal data to expire</td>
+        </tr>
+        <tr>
+          <td>AI chat inputs/outputs <em>(when shipped)</em></td>
           <td>Not retained on this site's servers</td>
         </tr>
       </tbody>
@@ -314,16 +329,33 @@ const lastUpdated = '2026-05-03';
       I'll delete it.
     </p>
 
-    <h2 id="ai-features">AI features (forward-looking)</h2>
+    <h2 id="ai-features">AI features</h2>
+
+    <h3>Live: AI semantic search</h3>
 
     <p>
-      Currently this site has no live AI features. When they ship:
+      The site offers an AI-powered semantic search alongside the standard keyword search. It
+      lets you find content by meaning rather than exact-word match (e.g., a query for "going
+      beyond what the law requires" surfaces the post on privacy compliance, even though those
+      exact words aren't in the post). Architecturally:
     </p>
 
     <ul>
-      <li>Each feature will display a clear notice describing what's sent to which provider</li>
+      <li>The language model (a small open-source sentence-embedding model) runs entirely on this site's own server. Your query never leaves our infrastructure.</li>
+      <li>No third-party AI provider is involved. Anthropic, OpenAI, Google, and other commercial LLM providers receive nothing from search queries.</li>
+      <li>No consent step is required because no personal information is processed. The aggregated query log (see <a href="#what-is-collected">What data is collected</a>) does not record IP, session, or any user identifier.</li>
+    </ul>
+
+    <h3>Forward-looking: AI chat</h3>
+
+    <p>
+      An AI chat feature is planned for a future release. When it ships:
+    </p>
+
+    <ul>
+      <li>Each invocation will display a clear notice describing what's sent to which provider</li>
       <li>Anthropic will be the primary LLM provider; their commercial terms include no-training-on-user-data by default (your input does not train future models)</li>
-      <li>AI feature consent will be requested at the point of feature invocation, not via a generic banner</li>
+      <li>Consent will be requested at the point of feature invocation (a one-time modal the first time you use the feature), not via a generic banner</li>
       <li>Inputs and outputs will not be retained on this site's servers unless strictly necessary for the feature</li>
     </ul>
 
