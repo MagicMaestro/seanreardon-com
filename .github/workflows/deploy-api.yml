@@ -48,6 +48,13 @@ env:
   # The PRODUCTION app runs Node 22 via cPanel's ea-nodejs22 — this var only
   # affects GitHub Actions' own JS-action runtime, not our app's runtime.
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  # Absolute path to the cPanel ea-nodejs22 bin dir on the production server
+  # (per optimizer-handoff 009; verified Node 22.22.2 / npm 10.9.7 at this path).
+  # cPanel's jailshell PATH does NOT include this dir, so any remote npm/node/npx
+  # invocation over SSH must use the absolute path. Apache+Passenger find Node via
+  # `PassengerNodejs` in applications.json — that's a separate code path that
+  # doesn't help our SSH sessions.
+  REMOTE_NODE_BIN: /opt/cpanel/ea-nodejs22/bin
 
 jobs:
   deploy:
@@ -106,14 +113,20 @@ jobs:
 
       - name: Install production deps on server
         # --omit=dev skips wrangler, typescript, @types/*, @cloudflare/workers-types.
-        # Keeps the runtime set (tsx, @xenova/transformers, etc.). The static-site
+        # Keeps the runtime set (tsx, @huggingface/transformers, etc.). The static-site
         # deps (astro, react, pagefind, fonts) are also installed; small disk
         # waste, but co-locating package.json across surfaces is the simpler
         # mental model. Can be optimized later via a separate api package.json
         # if disk pressure ever appears.
+        #
+        # Absolute path to npm is required: cPanel's jailshell doesn't include
+        # /opt/cpanel/ea-nodejs22/bin on PATH, so a bare `npm ci` fails with
+        # `jailshell: npm: command not found`. REMOTE_NODE_BIN expands on the
+        # GHA runner before the SSH command is sent — jailshell receives the
+        # fully-resolved path.
         run: |
           ssh -i ~/.ssh/deploy_key -p 7822 sreardon@ssh.seanreardon.com \
-            "cd /home/sreardon/apps/portfolio-search && npm ci --omit=dev"
+            "cd /home/sreardon/apps/portfolio-search && ${REMOTE_NODE_BIN}/npm ci --omit=dev"
 
       - name: Restart Passenger worker
         # touch tmp/restart.txt is Passenger's documented restart sentinel.
