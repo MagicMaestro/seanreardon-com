@@ -21,6 +21,11 @@ yarn-error.log*
 # of hygiene; logs are operational state, not source)
 logs/
 
+# Migration / scratch staging dir. Holds legacy images pulled from the server
+# during the projects-page migration (~5 MB) and the resulting CF Images URL
+# mapping JSON. Both are derived data — never committed.
+tmp/
+
 # OS / IDE
 .DS_Store
 Thumbs.db

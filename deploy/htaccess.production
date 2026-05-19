@@ -20,37 +20,40 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 # 301 redirects from legacy PHP URLs (added during cutover)
 # Format: RewriteRule ^old-path$ /new-path/ [R=301,L]
 
-# Legacy site routes from the inventory:
+# Legacy site routes from the inventory (targets updated 2026-05-19 to reflect
+# the IA renames from SPR-0004: about → about-me, work → projects, contact →
+# reach-out, writing → lessons-learned).
 RewriteRule ^home\.php$ / [R=301,L]
-RewriteRule ^about\.php$ /about/ [R=301,L]
-RewriteRule ^projects\.php$ /work/ [R=301,L]
-RewriteRule ^services\.php$ /about/ [R=301,L]
-RewriteRule ^contact\.php$ /contact/ [R=301,L]
+RewriteRule ^about\.php$ /about-me/ [R=301,L]
+RewriteRule ^projects\.php$ /projects/ [R=301,L]
+RewriteRule ^services\.php$ /about-me/ [R=301,L]
+RewriteRule ^contact\.php$ /reach-out/ [R=301,L]
 
 # Single-project query-param redirects from the legacy /project.php?projID=N URLs.
 # Each rule pairs RewriteCond on %{QUERY_STRING} with a RewriteRule on the path.
 # Trailing `?` on the target strips the original query string so the redirect lands
-# cleanly at /work/<slug>/ without ?projID=... appended.
-# Generated from each MDX entry's legacyProjID frontmatter.
+# cleanly at /projects/<slug>/ without ?projID=... appended.
+# Generated from each MDX entry's legacyProjID frontmatter; targets updated
+# 2026-05-19 to /projects/ (was /work/) per the IA rename in SPR-0004.
 RewriteCond %{QUERY_STRING} ^projID=2839760$
-RewriteRule ^project\.php$ /work/avox-supplier-portal/? [R=301,L]
+RewriteRule ^project\.php$ /projects/avox-supplier-portal/? [R=301,L]
 RewriteCond %{QUERY_STRING} ^projID=1320212$
-RewriteRule ^project\.php$ /work/azalias-juicery/? [R=301,L]
+RewriteRule ^project\.php$ /projects/azalias-juicery/? [R=301,L]
 RewriteCond %{QUERY_STRING} ^projID=10946275$
-RewriteRule ^project\.php$ /work/invisible-creation-photography/? [R=301,L]
+RewriteRule ^project\.php$ /projects/invisible-creation-photography/? [R=301,L]
 RewriteCond %{QUERY_STRING} ^projID=2132958$
-RewriteRule ^project\.php$ /work/maple-glen-sugarhouse/? [R=301,L]
+RewriteRule ^project\.php$ /projects/maple-glen-sugarhouse/? [R=301,L]
 RewriteCond %{QUERY_STRING} ^projID=14375097$
-RewriteRule ^project\.php$ /work/peaceful-soul-farmers-market/? [R=301,L]
+RewriteRule ^project\.php$ /projects/peaceful-soul-farmers-market/? [R=301,L]
 RewriteCond %{QUERY_STRING} ^projID=3473721$
-RewriteRule ^project\.php$ /work/security-line-card/? [R=301,L]
+RewriteRule ^project\.php$ /projects/security-line-card/? [R=301,L]
 RewriteCond %{QUERY_STRING} ^projID=1574811$
-RewriteRule ^project\.php$ /work/sr-web-portfolio/? [R=301,L]
+RewriteRule ^project\.php$ /projects/sr-web-portfolio/? [R=301,L]
 RewriteCond %{QUERY_STRING} ^projID=15955631$
-RewriteRule ^project\.php$ /work/triple-cities-insurance-site/? [R=301,L]
-# Bare /project.php (no projID) → /work/ index
+RewriteRule ^project\.php$ /projects/triple-cities-insurance-site/? [R=301,L]
+# Bare /project.php (no projID) → /projects/ index
 RewriteCond %{QUERY_STRING} ^$
-RewriteRule ^project\.php$ /work/ [R=301,L]
+RewriteRule ^project\.php$ /projects/ [R=301,L]
 
 # Invisible Light Photography URLs (retired 2026-05-02; will 301 to the
 # Angular site's domain once that's known):

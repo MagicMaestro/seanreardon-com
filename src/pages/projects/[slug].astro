@@ -36,7 +36,38 @@ const { Content } = await project.render();
       )}
     </p>
     <p class="lead">{project.data.sh_desc}</p>
+
+    {/* Hero image — renders only when mainImg has a Cloudflare Images URL
+        populated. The legacy-project migration pipeline (see
+        scripts/MIGRATION-README.md) is what populates this field; before
+        that runs, mainImg is undefined and this block is skipped. The
+        legacyMainImg field stays in frontmatter regardless as a paper
+        trail. */}
+    {project.data.mainImg && (
+      <img
+        src={project.data.mainImg}
+        alt={`${project.data.title} — main image`}
+        class="project-hero-img"
+        loading="lazy"
+      />
+    )}
+
     <Content />
+
+    {/* Secondary images — comma-separated CF Images URLs. Same population
+        story as mainImg; renders nothing until the migration runs. */}
+    {project.data.otherImg && (
+      <div class="project-other-imgs">
+        {project.data.otherImg.split(',').map((url) => url.trim()).filter(Boolean).map((url, i) => (
+          <img
+            src={url}
+            alt={`${project.data.title} — image ${i + 2}`}
+            class="project-other-img"
+            loading="lazy"
+          />
+        ))}
+      </div>
+    )}
   </article>
 </BaseLayout>
 
@@ -46,4 +77,24 @@ const { Content } = await project.render();
     font-size: 0.875rem;
   }
   .lead { font-size: 1.125rem; }
+  .project-hero-img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin-block: var(--space-md);
+    border-radius: 0.25rem;
+  }
+  .project-other-imgs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    gap: var(--space-sm);
+    margin-block: var(--space-md);
+  }
+  .project-other-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 0.25rem;
+  }
 </style>
