@@ -44,6 +44,26 @@ import { topN } from '../src/lib/search/similarity.ts';
 import type { SearchIndex } from '../src/lib/search/types.ts';
 
 // ---------------------------------------------------------------------------
+// Env loading
+// ---------------------------------------------------------------------------
+//
+// Load env vars from a `.env` file in the app's working directory if one
+// exists. cPanel's UAPI envvar mechanism (the `envvars` block in
+// applications.json) is **non-functional** for OSS-Passenger Node children —
+// SetEnv populates CGI environment, not the Passenger child's process env,
+// and `PassengerSetEnvVar` is Enterprise-only. The authoritative env-var
+// source on the production server is therefore a `.env` file at the app's
+// root (`/home/sreardon/apps/portfolio-search/.env`), per the brief 009
+// hand-back. Node 22's built-in `process.loadEnvFile()` reads it without a
+// `dotenv` dep. The try/catch makes a missing `.env` a no-op (the common
+// case in local dev, where defaults below take over).
+try {
+  process.loadEnvFile();
+} catch {
+  // No `.env` present — defaults in the configuration block apply.
+}
+
+// ---------------------------------------------------------------------------
 // Configuration
 // ---------------------------------------------------------------------------
 

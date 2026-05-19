@@ -6,11 +6,13 @@ Deploy artifacts and Apache configuration consumed by the GitHub Actions workflo
 
 - `htaccess.staging` — `.htaccess` for `staging.seanreardon.com`. Adds `X-Robots-Tag: noindex` for all responses (staging shouldn't be indexed), forces HTTPS, sets cache headers for static assets. Copied to `dist/.htaccess` during the deploy-staging workflow.
 - `htaccess.production` — `.htaccess` for `seanreardon.com` (production). Allows indexing, includes 301 redirects from the legacy PHP routes (`home.php → /`, `about.php → /about/`, etc.), forces HTTPS, sets cache headers. Per-project query-param redirects (`project.php?projID=N → /work/<slug>/`) are TBD during cutover.
+- `api-files.txt` — rsync manifest (`--files-from`) for the AI search Node app deploy. Lists exactly what gets copied to `/home/sreardon/apps/portfolio-search/`: the `app.js` cPanel entrypoint shim, `api-server/`, `src/lib/search/`, `public/search-index.json`, `tsconfig.json`, `package.json` + lockfile. Deliberately omits `.env`, `logs/`, `tmp/`, `node_modules/` — those are server-managed (established by `optimizer-handoffs/009-portfolio-search-app-deploy.md`) and the deploy never touches them.
 - `README.md` — this file.
 
 ## Workflows that consume these
 
 - `.github/workflows/deploy-staging.yml` — runs on push to `main` or via manual trigger. Builds the Astro site, copies `htaccess.staging` to `dist/.htaccess`, then rsyncs `dist/` to `/home/sreardon/staging/` over SSH:7822.
+- `.github/workflows/deploy-api.yml` — runs on push to `main` when any input to the runtime or search corpus changes (or via manual trigger). Rebuilds `public/search-index.json`, rsyncs the api-files.txt manifest to `/home/sreardon/apps/portfolio-search/`, runs `npm ci --omit=dev` on the server, touches `tmp/restart.txt` to swap Passenger workers, then health-checks the live endpoint at `https://seanreardon.com/api/search`. Runs in parallel with deploy-staging on the same push when both are triggered. First-deploy cold-start is ~3–5s (MiniLM model downloads to `~/.cache/transformers/` on first run); warm-query path is ~50ms.
 - `.github/workflows/deploy-production.yml` — TBD. Will run on a tagged release (e.g. `v1.0.0`) after staging is verified. Will copy `htaccess.production` and rsync to `/home/sreardon/public_html/`. Production deploy is gated on the legacy PHP site being archived first.
 
 ## Required GitHub secrets

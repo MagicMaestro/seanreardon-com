@@ -1,0 +1,143 @@
+name: Deploy AI search API
+
+# Deploys the standalone Node.js semantic-search backend (api-server/) to the
+# cPanel Application Manager slot at /home/sreardon/apps/portfolio-search/.
+#
+# Triggers on push to main when ANY input to the runtime or the search corpus
+# changes. The static-site deploy (deploy-staging.yml) runs in parallel for
+# the same push when relevant — they're independent concerns (apps/portfolio-search/
+# vs public_html/).
+#
+# Server-side prerequisites (one-time, established by optimizer-handoff brief 009):
+#   - Node 22.22.2 installed at /opt/cpanel/ea-nodejs22/bin/node
+#   - `portfolio-search` app registered via UAPI; vhost includes in place
+#   - PassengerMaxInstancesPerApp 1 enforced server-wide (single worker)
+#   - .env file at /home/sreardon/apps/portfolio-search/.env (env vars; cPanel's
+#     UAPI envvar delivery doesn't reach OSS-Passenger Node children)
+#   - logs/, tmp/, public/ directories exist
+#
+# After this workflow's rsync overwrites the placeholder app.js with the real
+# entrypoint and Passenger restarts (via touch tmp/restart.txt), the cold-start
+# downloads the MiniLM model (~80 MB) on first request; expect ~3–5s first-
+# response latency, then ~50 ms warm.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app.js'
+      - 'api-server/**'
+      - 'src/lib/search/**'
+      - 'src/content/writing/**'
+      - 'src/pages/about-me.astro'
+      - 'src/pages/privacy/index.astro'
+      - 'src/pages/lab/**'
+      - 'scripts/build-search-index.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'deploy/api-files.txt'
+      - '.github/workflows/deploy-api.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-api
+  cancel-in-progress: false
+
+env:
+  # Match the staging workflow's Node 24 opt-in for actions JS runtimes.
+  # The PRODUCTION app runs Node 22 via cPanel's ea-nodejs22 — this var only
+  # affects GitHub Actions' own JS-action runtime, not our app's runtime.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+          cache: 'npm'
+
+      - name: Install dependencies (CI build env)
+        # Full install so we can run the indexer locally before rsync.
+        # The server gets its own --omit=dev install in a later step.
+        run: npm ci
+
+      - name: Rebuild search index
+        # Picks up any content changes in writing/ + the indexable static pages.
+        # Incremental cache (SHA256 of doc text) means unchanged entries are
+        # reused — fast. Output: public/search-index.json — included in the
+        # rsync manifest below.
+        run: npm run build:search-index
+
+      - name: Configure SSH
+        # Uses ssh.seanreardon.com (DNS-only origin record) per the
+        # deploy-staging workflow's documented rationale — port 7822 doesn't
+        # traverse Cloudflare's proxy on the apex.
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p 7822 -H ssh.seanreardon.com >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Rsync to portfolio-search app slot
+        # Selective sync via deploy/api-files.txt manifest. Notably absent from
+        # the manifest (server-managed, never touched by the deploy):
+        #   - .env (env vars, established by optimizer brief 009)
+        #   - logs/ (app writes its query log here)
+        #   - tmp/ (Passenger restart sentinel lives here)
+        #   - node_modules/ (built on server in the next step)
+        # No --delete: cruft is tolerated; intentional state on the server
+        # (the three dirs above + .env) is never at risk.
+        run: |
+          rsync -avz \
+            --files-from=deploy/api-files.txt \
+            --exclude='desktop.ini' \
+            --exclude='.DS_Store' \
+            --exclude='Thumbs.db' \
+            -e "ssh -i ~/.ssh/deploy_key -p 7822" \
+            ./ sreardon@ssh.seanreardon.com:/home/sreardon/apps/portfolio-search/
+
+      - name: Install production deps on server
+        # --omit=dev skips wrangler, typescript, @types/*, @cloudflare/workers-types.
+        # Keeps the runtime set (tsx, @xenova/transformers, etc.). The static-site
+        # deps (astro, react, pagefind, fonts) are also installed; small disk
+        # waste, but co-locating package.json across surfaces is the simpler
+        # mental model. Can be optimized later via a separate api package.json
+        # if disk pressure ever appears.
+        run: |
+          ssh -i ~/.ssh/deploy_key -p 7822 sreardon@ssh.seanreardon.com \
+            "cd /home/sreardon/apps/portfolio-search && npm ci --omit=dev"
+
+      - name: Restart Passenger worker
+        # touch tmp/restart.txt is Passenger's documented restart sentinel.
+        # On next request, Passenger sees the new mtime and spawns a fresh
+        # worker with the updated code. No Apache reload needed.
+        run: |
+          ssh -i ~/.ssh/deploy_key -p 7822 sreardon@ssh.seanreardon.com \
+            "touch /home/sreardon/apps/portfolio-search/tmp/restart.txt"
+
+      - name: Verify deploy
+        # Give Passenger a beat to spawn the worker + load the MiniLM model.
+        # First-deploy cold-start is ~3–5s (model download to ~/.cache/transformers/);
+        # subsequent restarts after the cache is warm are ~1s. Sleep generously
+        # so the health check isn't a flake.
+        run: |
+          sleep 10
+          echo "=== Health check ==="
+          curl -sS https://seanreardon.com/api/search/health || echo "health endpoint not yet responding"
+          echo ""
+          echo "=== Sample query ==="
+          curl -sS -X POST \
+            -H "Content-Type: application/json" \
+            -d '{"q":"AI integration"}' \
+            https://seanreardon.com/api/search \
+            | head -c 600 \
+            || echo "search endpoint not yet responding"
+          echo ""
