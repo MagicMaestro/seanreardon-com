@@ -233,6 +233,14 @@ const LIST_UUID = import.meta.env.PUBLIC_LISTMONK_LIST_UUID || '';
     border: 1px solid var(--color-muted);
     border-radius: var(--radius);
     transition: border-color var(--transition-fast);
+    /* Width hygiene — same rationale as ContactForm.astro's inputs.
+       Without width: 100% + min-width: 0, user-agent intrinsic input
+       widths can exceed the viewport on narrow screens; combined with
+       global.css's `html { overflow-x: clip }` the overflow is hidden
+       and header icons anchored with `right` end up clipped off-screen. */
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
   .signup-fields input:focus {
     outline: none;

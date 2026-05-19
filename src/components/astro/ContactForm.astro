@@ -385,6 +385,19 @@ const ENDPOINT = '/api/contact';
     border: 1px solid var(--color-muted);
     border-radius: var(--radius);
     transition: border-color var(--transition-fast);
+    /* Width hygiene — without these, form fields default to their
+       user-agent intrinsic width (text inputs ~150–180px from size=20;
+       textareas wider). At narrow viewports (e.g., 360px) the total
+       width can exceed the viewport, and since `html { overflow-x:
+       clip }` is set in global.css, the overflow is HIDDEN — but
+       header icons anchored with `right` end up positioned relative
+       to the wider-than-viewport parent and land off-screen invisibly.
+       width: 100% + box-sizing: border-box (set globally) keeps each
+       field within its container; min-width: 0 lets flex/grid items
+       shrink below their content's intrinsic width. */
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
   .contact-form input:focus,
   .contact-form select:focus,

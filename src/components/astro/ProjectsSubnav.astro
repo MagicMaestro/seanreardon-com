@@ -36,21 +36,37 @@
  */
 ---
 
-{/* Container is position: fixed and covers the viewport. pointer-events default
-    is none so the rest of the page receives clicks; switching data-open="true"
-    flips it to auto so the backdrop + drawer become interactive. */}
+{/* Container is position: fixed and covers the viewport for the drawer's
+    own positioning. pointer-events: none ensures clicks pass through to
+    whatever's underneath when the sub-nav is closed. On open, the backdrop
+    + drawer flip to pointer-events: auto to intercept clicks.
+
+    Click-mask revision (2026-05-19): a full-viewport invisible backdrop
+    sits BEHIND the drawer (source order before, so drawer paints above)
+    and intercepts every click that doesn't land on the drawer itself.
+    Replaces the document-level click listener that was previously relied
+    on — the doc listener didn't prevent clicks from reaching page content
+    underneath (links would navigate accidentally). The backdrop catches
+    the click, runs the close logic, and the underlying element never
+    receives the event. */}
 <div class="projects-subnav" data-open="false" aria-hidden="true">
-  {/* Click-outside catch — transparent. Clicks here close the drawer. */}
-  <button
-    type="button"
-    class="projects-subnav-backdrop"
-    aria-label="Close Projects sub-navigation"
-    data-projects-subnav-backdrop
-  ></button>
+  {/* Full-viewport invisible backdrop. Intercepts clicks anywhere outside
+      the drawer; click handler in the script below decides whether to
+      close just the sub-nav or also the hamburger drawer beneath. Uses a
+      <div> (not <button>) to keep the backdrop out of the keyboard focus
+      order — Escape key remains the keyboard close path. */}
+  <div class="projects-subnav-backdrop" aria-hidden="true"></div>
 
   {/* Top spark pair — attachment indicator. Pinned at the clicked parent's
-      Y position via inline CSS custom properties set by JS at click time. */}
+      position via inline CSS custom properties set by JS at click time.
+      At <1040px (mobile/tablet), Spark 1 sits just LEFT of the clicked
+      link's vertical center and the horizontal laser shoots LEFT to the
+      scrollbar. At ≥1040px (desktop, primary-nav inline), Spark 1 sits
+      just BELOW the clicked link at the header bar's bottom edge; an
+      additional vertical-attach laser descends ~3.5rem before the
+      horizontal laser cuts LEFT toward the scrollbar (L-shape). */}
   <span class="projects-subnav-spark projects-subnav-spark--1" aria-hidden="true"></span>
+  <span class="projects-subnav-laser projects-subnav-laser--vertical-attach" aria-hidden="true"></span>
   <span class="projects-subnav-laser projects-subnav-laser--horizontal" aria-hidden="true"></span>
   <span class="projects-subnav-spark projects-subnav-spark--2" aria-hidden="true"></span>
 
@@ -59,19 +75,29 @@
   <span class="projects-subnav-spark projects-subnav-spark--3" aria-hidden="true"></span>
   <span class="projects-subnav-laser projects-subnav-laser--vertical" aria-hidden="true"></span>
 
-  {/* The drawer box itself. Two children — locked in decisions/002 §5. */}
+  {/* Spark 4 — terminal indicator at the drawer's top-left corner.
+      Only rendered at ≥600px (where the drawer detaches from the
+      scrollbar and the bridge laser carries the energy across to the
+      drawer). Appears AFTER the bridge laser reaches the drawer's
+      top-left, BEFORE the drawer expansion fires. Hidden via CSS at
+      <600px since the drawer-attached-to-vertical-laser pattern at
+      that tier doesn't need a terminal spark. */}
+  <span class="projects-subnav-spark projects-subnav-spark--4" aria-hidden="true"></span>
+
+  {/* The drawer box itself. Two children — locked in decisions/002 §5
+      (labels refined 2026-05-19: shortened from "Client Portfolio" /
+      "AI Laboratory" to "Portfolio" / "AI Lab", and the per-link
+      descriptions were removed for a cleaner read). */}
   <aside class="projects-subnav-drawer" aria-label="Projects sub-navigation">
     <ul class="projects-subnav-list">
       <li>
         <a href="/projects/" class="projects-subnav-link">
-          <span class="projects-subnav-link-label">Client Portfolio</span>
-          <span class="projects-subnav-link-desc">Shipped client &amp; freelance projects</span>
+          <span class="projects-subnav-link-label">Portfolio</span>
         </a>
       </li>
       <li>
         <a href="/lab/" class="projects-subnav-link">
-          <span class="projects-subnav-link-label">AI Laboratory</span>
-          <span class="projects-subnav-link-desc">AI features built into this site</span>
+          <span class="projects-subnav-link-label">AI Lab</span>
         </a>
       </li>
     </ul>
@@ -101,56 +127,104 @@
     position: fixed;
     inset: 0;
     z-index: 200;
+    /* pointer-events: none on the container by default — clicks pass
+       through to underlying page content when the sub-nav is closed.
+       On open, the backdrop child + the drawer box both flip to
+       pointer-events: auto. The backdrop covers the whole viewport
+       except the drawer, so every click outside the drawer is captured
+       and run through the close logic in the script below; page links
+       and main-nav links are NEVER triggered accidentally while the
+       sub-nav is open. */
     pointer-events: none;
     /* CSS custom properties set by JS at click time. Spark 1's anchor:
        just-to-the-left-of the clicked Projects link, at its vertical center.
        Fallback values keep the layout sensible if JS hasn't run yet. */
     --subnav-attach-x: 6rem;
     --subnav-attach-y: 1.5rem;
-    /* Spark / laser dimensions. Spark diameter = 1.33× the scroll
-       indicator's track width (which is set in global.css; matched here
-       as a literal because the scroll indicator's CSS uses px units). */
-    --subnav-spark-size: 0.8rem;
-    --subnav-laser-thickness: 0.2rem;
+    /* Spark / laser dimensions. Spark CORE diameter = 1.33× the scroll
+       indicator's track width per the locked spec (6px × 1.33 ≈ 8px ≈
+       0.5rem). The visible "spark" extends well beyond the core via the
+       multi-layer box-shadow glow stack (~28px halo), so the orb reads
+       larger than its core dimension.
+
+       Laser thickness bumped 2026-05-19 from 0.2rem → 0.3rem (1.5×) —
+       previous thickness read too thin against the glow halo. The
+       glow halo's pixel values (in box-shadow below) stay constant so
+       they no longer feel disproportionate to the line itself. */
+    --subnav-spark-size: 0.5rem;
+    --subnav-laser-thickness: 0.3rem;
+    /* Vertical-attach laser height (only relevant at ≥1040px). Determines
+       how far the laser descends from Spark 1 before bending 90° left
+       toward the scrollbar. */
+    --subnav-vertical-attach-height: 3.5rem;
     /* Bottom-frame anchor — Spark 3 sits at 33% down the viewport,
-       over the scroll indicator's track (which sits at left: 0 with
-       a small width). */
+       horizontally CENTERED over the scroll indicator's track. The
+       scroll indicator is 6px wide; its `left` value tracks the
+       responsive `main` ladder (see global.css .scroll-indicator).
+       The default value below matches the <896px tier (scroll indicator
+       at left: 0); the media queries below shift the anchor to track
+       the scroll indicator at the 896 and 1520 breakpoint crossings.
+       3px = half the scroll indicator's 6px width, so the spark CENTER
+       lands over the indicator's center. */
     --subnav-bottom-anchor-y: 33vh;
-    --subnav-bottom-anchor-x: 0.25rem;
-    /* Drawer dimensions. Width is content-driven within a min/max range. */
-    --subnav-drawer-width: 17rem;
-    --subnav-drawer-height: 11rem;
+    --subnav-bottom-anchor-x: 3px;
+    /* Drawer dimensions. Bumped tighter 2026-05-19 after visual review —
+       width 18rem → 12rem (cut horizontal empty space roughly in half)
+       and height 12rem → 8.5rem (cut bottom empty to about 1/3). The
+       height value is read by both the drawer's min-height (drawer
+       baseline) and the vertical laser's height at <600px (where the
+       laser sits along the drawer's left edge — they must match so
+       the laser doesn't extend below the drawer). */
+    --subnav-drawer-width: 12rem;
+    --subnav-drawer-height: 8.5rem;
+    /* Single source of truth for the drawer's LEFT edge — read by both
+       the drawer's `left` property AND the bridge laser's `width`
+       calculation (at ≥600px where the laser repurposes as a horizontal
+       bridge connecting Spark 3 to the drawer's top-left corner).
+       Default (<600px): drawer attached to vertical laser at the
+       scrollbar. Each ≥600/680/1040 tier below overrides this value. */
+    --subnav-drawer-left: calc(var(--subnav-bottom-anchor-x) + var(--subnav-laser-thickness));
   }
 
-  /* When open, the container becomes interactive so the backdrop +
-     drawer can receive clicks. */
-  .projects-subnav[data-open="true"] {
-    pointer-events: auto;
-  }
-
-  /* Backdrop — transparent button covering the viewport. Catches
-     click-outside-to-close. Hidden + inert when drawer is closed. */
+  /* Full-viewport invisible click-catcher. pointer-events: auto only
+     when the sub-nav is open (so closed-state clicks pass through
+     normally). Source order places this BEFORE the drawer, so the
+     drawer paints above it within the same stacking context and clicks
+     on the drawer reach the drawer (the backdrop is "below" the drawer
+     for hit-testing). The backdrop's job is to intercept clicks that
+     would otherwise land on page content or main nav links — without
+     this, clicking outside the sub-nav could accidentally trigger
+     navigation instead of closing. */
   .projects-subnav-backdrop {
-    position: absolute;
+    position: fixed;
     inset: 0;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
     background: transparent;
-    border: none;
-    cursor: pointer;
-    opacity: 0;
     pointer-events: none;
-    transition: opacity 300ms ease-out;
+    cursor: pointer;
   }
   .projects-subnav[data-open="true"] .projects-subnav-backdrop {
-    opacity: 1;
     pointer-events: auto;
+  }
+
+  /* Match the .scroll-indicator's left-position ladder so Spark 2,
+     Spark 3, and the vertical laser stay centered over the scroll
+     track regardless of viewport size. The +3px offset centers the
+     element on the 6px track. */
+  @media (min-width: 896px) {
+    .projects-subnav {
+      --subnav-bottom-anchor-x: calc(3% + 3px);
+    }
+  }
+  @media (min-width: 1520px) {
+    .projects-subnav {
+      --subnav-bottom-anchor-x: calc((100% - var(--main-max-width)) / 2 + 3px);
+    }
   }
 
   /* ----- Sparks ----- */
 
+  /* Sparks — core orb + multi-layer glow stack. Intensity mirrors the
+     mobile nav's energy-HUD vibrance, swapped to the cyan family. */
   .projects-subnav-spark {
     position: absolute;
     width: var(--subnav-spark-size);
@@ -158,15 +232,19 @@
     border-radius: 50%;
     background: radial-gradient(
       circle at center,
-      rgba(225, 248, 255, 1) 0%,
-      rgba(180, 240, 250, 0.85) 30%,
-      rgba(102, 232, 255, 0.65) 55%,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(225, 248, 255, 0.95) 35%,
+      rgba(102, 232, 255, 0.75) 65%,
       rgba(102, 232, 255, 0) 100%
     );
+    /* Glow stack: tight bright halo close to the core, two wider blooms
+       further out. ~10px → 22px → 36px radii produce a visible spark
+       far larger than the 0.5rem core. */
     box-shadow:
-      0 0 6px 1px rgba(225, 248, 255, 0.8),
-      0 0 14px 3px rgba(102, 232, 255, 0.55),
-      0 0 28px 6px rgba(102, 232, 255, 0.28);
+      0 0 6px 1px rgba(255, 255, 255, 0.9),
+      0 0 12px 2px var(--color-electric-cyan-glow),
+      0 0 22px 5px rgba(102, 232, 255, 0.6),
+      0 0 36px 10px rgba(102, 232, 255, 0.35);
     opacity: 0;
     transform: scale(0);
     pointer-events: none;
@@ -193,6 +271,18 @@
     transition: opacity 150ms ease-out 500ms, transform 150ms ease-out 500ms;
   }
 
+  /* Spark 4 — terminal indicator at the drawer's top-left corner.
+     Hidden by default (display: none) because the <600px tier has
+     the drawer attached to the vertical laser; no terminal spark
+     needed there. The ≥600 media query below flips display + sets
+     timing so it appears AFTER the bridge laser arrives and BEFORE
+     the drawer's two-phase expand kicks in. */
+  .projects-subnav-spark--4 {
+    display: none;
+    left: calc(var(--subnav-drawer-left) - var(--subnav-spark-size) / 2);
+    top: calc(var(--subnav-bottom-anchor-y) - var(--subnav-spark-size) / 2);
+  }
+
   /* All sparks visible at full opacity + full scale when drawer is open. */
   .projects-subnav[data-open="true"] .projects-subnav-spark {
     opacity: 1;
@@ -201,19 +291,35 @@
 
   /* ----- Lasers ----- */
 
+  /* Lasers — cyan beam with a "glowing core" gradient running ACROSS
+     the line's thickness (perpendicular to its long axis). Mirrors the
+     scroll indicator's pattern in global.css: a center-bright stripe
+     down the middle with darker edges, giving the line a "laser core"
+     feel. Glow stack matches the spark glow's lower tiers so the laser
+     reads as an extension of the spark's energy.
+
+     Base orientation = 180deg (top-to-bottom), correct for HORIZONTAL
+     lasers (the common case — main bar across the viewport). The
+     vertical variants override to 90deg (left-to-right) below.
+
+     Note 2026-05-19: the original gradient ran ALONG the line's length
+     (90deg/180deg matching orientation), which fades the endpoints and
+     pulls attention to the middle — wrong pattern. Flipped perpendicular
+     to match the scroll indicator. */
   .projects-subnav-laser {
     position: absolute;
     background: linear-gradient(
-      90deg,
-      rgba(102, 232, 255, 0.1) 0%,
-      rgba(180, 240, 250, 0.6) 30%,
-      rgba(225, 248, 255, 0.95) 50%,
-      rgba(180, 240, 250, 0.6) 70%,
-      rgba(102, 232, 255, 0.1) 100%
+      180deg,
+      rgba(102, 232, 255, 0.3) 0%,
+      rgba(180, 240, 250, 0.8) 25%,
+      rgba(255, 255, 255, 1) 50%,
+      rgba(180, 240, 250, 0.8) 75%,
+      rgba(102, 232, 255, 0.3) 100%
     );
     box-shadow:
-      0 0 4px 1px rgba(225, 248, 255, 0.5),
-      0 0 10px 2px rgba(102, 232, 255, 0.4);
+      0 0 6px 1px rgba(225, 248, 255, 0.7),
+      0 0 14px 3px rgba(102, 232, 255, 0.55),
+      0 0 28px 6px rgba(102, 232, 255, 0.3);
     opacity: 0;
     pointer-events: none;
   }
@@ -249,14 +355,17 @@
     width: var(--subnav-laser-thickness);
     height: var(--subnav-drawer-height);
     border-radius: var(--subnav-laser-thickness);
-    /* Re-orient the linear gradient so center-bright runs along the line. */
+    /* Vertical laser → gradient runs ACROSS its narrow width (90deg =
+       left-to-right) so the perpendicular-to-length "core" pattern
+       holds. The base 180deg is overridden here because this is the
+       VERTICAL variant. */
     background: linear-gradient(
-      180deg,
-      rgba(102, 232, 255, 0.1) 0%,
-      rgba(180, 240, 250, 0.6) 30%,
-      rgba(225, 248, 255, 0.95) 50%,
-      rgba(180, 240, 250, 0.6) 70%,
-      rgba(102, 232, 255, 0.1) 100%
+      90deg,
+      rgba(102, 232, 255, 0.3) 0%,
+      rgba(180, 240, 250, 0.8) 25%,
+      rgba(255, 255, 255, 1) 50%,
+      rgba(180, 240, 250, 0.8) 75%,
+      rgba(102, 232, 255, 0.3) 100%
     );
     transform-origin: top center;
     transform: scaleY(0);
@@ -269,31 +378,50 @@
 
   /* ----- Drawer box ----- */
 
+  /* Drawer box — cyan energy HUD, mirrors the mobile nav-drawer's
+     vocabulary (rgba(0,0,0,0.7) black + center-bright radial-gradient
+     + 2px glowing border + outer/inner glow stacks) but in the cyan
+     family rather than the purple workhorse. The mobile drawer's
+     `--color-electric-purple-glow` → `--color-electric-cyan-glow`
+     swap is the only family change; intensity / alpha values match
+     so visual heft is consistent between the two drawers. */
   .projects-subnav-drawer {
     position: absolute;
     /* Top edge aligns with Spark 3's Y so the drawer extends downward
        from the L-frame's elbow. */
     top: var(--subnav-bottom-anchor-y);
-    /* Left edge sits to the right of the vertical laser (which is at
-       --subnav-bottom-anchor-x). Add a thin gap so the drawer doesn't
-       overlap the laser line. */
+    /* Left edge sits to the right of the vertical laser. Add a thin
+       gap so the drawer doesn't overlap the laser line. */
     left: calc(var(--subnav-bottom-anchor-x) + var(--subnav-laser-thickness));
     width: var(--subnav-drawer-width);
     min-height: var(--subnav-drawer-height);
-    /* Black ground with a subtle radial cyan halo from inside —
-       matches the hero question's energy-HUD vocabulary. */
-    background: radial-gradient(
-        ellipse at left center,
-        rgba(150, 230, 255, 0.12) 0%,
-        rgba(0, 0, 0, 0.85) 60%,
-        rgba(0, 0, 0, 0.92) 100%
-      );
-    border: 1px solid rgba(225, 248, 255, 0.45);
+    /* Cyan energy-HUD: dark base + intense center-bright cyan radial.
+       Compare global.css .nav-drawer rgba(157, 63, 227, 0.92) — same
+       alpha, swapped channel for the cyan family. Bumped to 0.9 alpha
+       2026-05-19 (was 0.7) for more contrast against whatever the
+       page content shows through the translucent panel. */
+    background-color: rgba(0, 0, 0, 0.9);
+    background-image: radial-gradient(
+      ellipse at center,
+      rgba(102, 232, 255, 0.92),
+      transparent
+    );
+    /* 2px cyan-glow border — the brightest "edge of energy" line. */
+    border: 2px solid var(--color-electric-cyan-glow);
     border-left: none; /* the vertical laser IS the left edge */
     border-radius: 0 var(--radius) var(--radius) 0;
+    /* Outer + inner glow stacks. Each stack has two layers: tight
+       high-intensity ring close to the border, then a wide softer
+       bloom farther out. Mirrors the .nav-drawer pattern; intensities
+       match so the two drawers feel equally "lit." */
     box-shadow:
-      0 0 10px 2px rgba(102, 232, 255, 0.3),
-      inset 0 0 20px 5px rgba(102, 232, 255, 0.1);
+      /* Outer glow stack */
+      0 0 8px 1px var(--color-electric-cyan-glow),
+      0 0 25px 4px rgba(102, 232, 255, 0.55),
+      0 0 45px 8px rgba(102, 232, 255, 0.3),
+      /* Inner glow stack */
+      inset 0 0 8px 1px var(--color-electric-cyan-glow),
+      inset 0 0 20px 3px rgba(102, 232, 255, 0.45);
     /* Reveal animation — width expands from 0 to full while opacity
        fades in. transform-origin: left so the expansion radiates from
        the vertical laser's right edge. */
@@ -314,47 +442,71 @@
   .projects-subnav-list {
     list-style: none;
     margin: 0;
-    padding: var(--space-sm);
+    /* Revised 2026-05-19 — top slightly less than bottom (1.125 vs 1.5),
+       sides tightened from var(--space-md) to 0.5rem. Combined with the
+       drawer-width reduction (18rem → 12rem), the visible empty space
+       around the centered link labels is cut roughly in half horizontally
+       and to about a third at the bottom. */
+    padding: 1.125rem 0.5rem 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.125rem;
   }
 
+  /* Per-link constant cyan glow patch — same vocabulary as the mobile
+     nav's .nav-drawer-list a radial-gradient backing (which uses purple
+     at 0.22 alpha). Gives each link enough light against the drawer's
+     interior radial-gradient so the labels read clearly.
+     2026-05-19: text-align: center to center the labels; padding
+     tightened from 0.75rem → 0.5rem on top/bottom. */
   .projects-subnav-link {
     display: block;
-    padding: var(--space-sm) var(--space-md);
-    color: rgba(225, 248, 255, 0.92);
+    padding: 0.5rem var(--space-sm);
+    color: rgba(225, 248, 255, 0.95);
+    text-align: center;
     text-decoration: none;
     border-radius: var(--radius);
+    background-image: radial-gradient(
+      ellipse at center,
+      rgba(102, 232, 255, 0.22) 0%,
+      transparent 75%
+    );
     transition:
       background-color 180ms ease-out,
-      box-shadow 180ms ease-out;
+      box-shadow 180ms ease-out,
+      text-shadow 180ms ease-out;
   }
   .projects-subnav-link:hover,
   .projects-subnav-link:focus-visible {
-    background-color: rgba(102, 232, 255, 0.12);
-    box-shadow: inset 0 0 0 1px rgba(225, 248, 255, 0.4);
+    background-color: rgba(102, 232, 255, 0.18);
+    box-shadow: inset 0 0 0 1px rgba(225, 248, 255, 0.5);
+    text-shadow:
+      0 0 8px rgba(225, 248, 255, 0.6),
+      0 0 16px rgba(102, 232, 255, 0.4);
     outline: none;
   }
   /* Active route — surface which child the visitor is currently inside.
      Uses aria-current set by the script when location.pathname matches. */
   .projects-subnav-link[aria-current="page"] {
-    background-color: rgba(102, 232, 255, 0.18);
-    box-shadow: inset 0 0 0 1px rgba(225, 248, 255, 0.55);
+    background-color: rgba(102, 232, 255, 0.22);
+    box-shadow: inset 0 0 0 1px rgba(225, 248, 255, 0.6);
+    text-shadow:
+      0 0 6px rgba(225, 248, 255, 0.5),
+      0 0 14px rgba(102, 232, 255, 0.3);
   }
 
+  /* Larger, more confident type — closer to the mobile nav's 1.5rem
+     anchor. Now sized at 1.5rem (was 1.25 with sub-descriptions) since
+     descriptions were removed 2026-05-19 — the label is the whole
+     content and can grow to match the mobile drawer's anchor.
+     Cardo (var(--font-subhead)) matches the mobile drawer's typeface. */
   .projects-subnav-link-label {
     display: block;
     font-family: var(--font-subhead);
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 1.5rem;
+    line-height: 1.2;
     letter-spacing: 0.02em;
-  }
-  .projects-subnav-link-desc {
-    display: block;
-    margin-top: 0.125rem;
-    font-size: 0.8125rem;
-    color: rgba(180, 240, 250, 0.7);
   }
 
   /* ----- Flicker effect (re-click on active sub-route) ----- */
@@ -366,6 +518,277 @@
   }
   .projects-subnav[data-flicker="true"] .projects-subnav-spark {
     animation: projects-subnav-flicker 350ms ease-in-out 1;
+  }
+
+  /* ----- Vertical-attach laser (≥1040px only) ----- */
+
+  /* New L-shape segment at desktop: a vertical laser descending from
+     Spark 1 (now below the clicked link) before the horizontal laser
+     cuts left toward the scrollbar. At <1040px this element is hidden
+     entirely — the choreography is a direct horizontal laser between
+     Spark 1 and Spark 2 with no bend. */
+  .projects-subnav-laser--vertical-attach {
+    display: none;
+  }
+
+  /* ============================================================================
+     Breakpoint tier 2 — ≥600px: drawer detaches from the scrollbar.
+     Two-phase choreography revision (2026-05-19):
+
+     1. The .projects-subnav-laser--vertical span REPURPOSES as a
+        horizontal "bridge" laser that runs from Spark 3 (on the
+        scrollbar at 33vh) RIGHT to the drawer's top-left corner.
+        Replaces the old "vertical descent down the drawer's left edge"
+        that was visually disconnected once the drawer moved away from
+        the scrollbar.
+
+     2. The drawer's reveal animation switches from scaleX-from-left
+        (which only made sense when the drawer was attached to the
+        vertical laser's right edge) to a TWO-PHASE expand:
+        a. scaleY 0 → 1 (drops down from the top-left like a fold-out)
+        b. scaleX 0 → 1 (opens to full width from the now-tall sliver)
+        Phase 1 fires first, then phase 2 — total ~500ms.
+     ============================================================================ */
+  @media (min-width: 600px) {
+    /* Drawer left edge: small inset from the scrollbar's laser core. */
+    .projects-subnav {
+      --subnav-drawer-left: calc(
+        var(--subnav-bottom-anchor-x) + var(--subnav-laser-thickness) + 1.5rem
+      );
+    }
+
+    /* Repurpose .projects-subnav-laser--vertical as the BRIDGE laser:
+       a horizontal line from Spark 3 to the drawer's top-left corner. */
+    .projects-subnav-laser--vertical {
+      left: var(--subnav-bottom-anchor-x);
+      top: calc(var(--subnav-bottom-anchor-y) - var(--subnav-laser-thickness) / 2);
+      width: calc(var(--subnav-drawer-left) - var(--subnav-bottom-anchor-x));
+      height: var(--subnav-laser-thickness);
+      border-radius: var(--subnav-laser-thickness);
+      /* Bridge is horizontal → gradient runs perpendicular to length
+         (180deg, top-to-bottom across the thin height). */
+      background: linear-gradient(
+        180deg,
+        rgba(102, 232, 255, 0.3) 0%,
+        rgba(180, 240, 250, 0.8) 25%,
+        rgba(255, 255, 255, 1) 50%,
+        rgba(180, 240, 250, 0.8) 75%,
+        rgba(102, 232, 255, 0.3) 100%
+      );
+      transform-origin: left center;
+      transform: scaleX(0);
+      transition: transform 250ms ease-out 650ms, opacity 100ms ease-out 650ms;
+    }
+    .projects-subnav[data-open="true"] .projects-subnav-laser--vertical {
+      transform: scaleX(1);
+      opacity: 1;
+    }
+
+    /* Spark 4 — terminal at drawer's top-left, fires after the bridge
+       laser (which ends at 900ms = 650ms delay + 250ms duration).
+       Slots in 900ms → 1050ms; drawer expansion picks up at 1050ms. */
+    .projects-subnav-spark--4 {
+      display: block;
+      transition: opacity 150ms ease-out 900ms, transform 150ms ease-out 900ms;
+    }
+
+    /* Drawer: position at --subnav-drawer-left (single source of truth
+       — the bridge laser's width calculation reads the same var). The
+       two-phase reveal animation runs after Spark 4 materializes; see
+       @keyframes projects-subnav-drawer-expand below.
+
+       animation-fill-mode: BOTH (not just forwards) — without this,
+       the base `data-open="true"` rule's transform: scaleX(1) would
+       apply during the animation-delay and the drawer would flash
+       open early, then snap closed when the animation finally starts
+       at its 0% keyframe (scale 0,0). `both` holds the 0% value during
+       the delay so the drawer stays invisible until the animation
+       actually fires. (And the forwards portion still holds the 100%
+       value after the animation ends.) */
+    .projects-subnav-drawer {
+      left: var(--subnav-drawer-left);
+      transform-origin: top left;
+      transform: scale(0, 0);
+      transition: opacity 200ms ease-out, transform 200ms ease-out;
+    }
+    .projects-subnav[data-open="true"] .projects-subnav-drawer {
+      animation: projects-subnav-drawer-expand 500ms
+        cubic-bezier(0.4, 0, 0.2, 1) 1050ms both;
+    }
+  }
+
+  /* ============================================================================
+     Breakpoint tier 3 — ≥680px and <1040px: drawer's RIGHT edge sits
+     ~1.5rem from the LEFT edge of the hamburger nav drawer.
+
+     The hamburger has `right: 1rem` and `width: min(80%, 14rem)`, so
+     its left edge is at viewport.right - 15rem. Sub-nav's right edge
+     therefore belongs at viewport.right - 16.5rem (15rem + 1.5rem gap).
+     At this tier the inline primary nav is hidden (it appears at
+     ≥1040), so Projects is reached via the hamburger drawer; both
+     drawers are visible side-by-side.
+
+     The bridge laser still runs from Spark 3 to the drawer's top-left
+     — just longer, since the drawer now sits further across the
+     viewport. The bridge width calculation reads --subnav-drawer-left
+     so updating the drawer position auto-updates the bridge.
+     ============================================================================ */
+  @media (min-width: 680px) and (max-width: 1039.98px) {
+    .projects-subnav {
+      /* Drawer's left edge = viewport - 16.5rem (right gap) - drawer width */
+      --subnav-drawer-left: calc(100vw - 16.5rem - var(--subnav-drawer-width));
+    }
+    .projects-subnav-drawer {
+      right: auto;
+    }
+  }
+
+  /* ============================================================================
+     Breakpoint tier 4 — ≥1040px: inline primary nav is visible. Hamburger
+     drawer is no longer the user's path; Projects is clicked directly
+     from the inline nav at the top of the header bar.
+
+     Composed choreography:
+       1. L-shape attachment (2026-05-19): Spark 1 sits BELOW the clicked
+          link (at the header bar's bottom edge); a vertical-attach laser
+          descends ~3.5rem; the horizontal laser cuts LEFT to the scrollbar
+          (an L). Locks the click to the scrollbar's energy column.
+       2. Bridge laser (also 2026-05-19): the repurposed
+          .projects-subnav-laser--vertical from the ≥600 block extends
+          from Spark 3 across the viewport to the drawer's top-left.
+       3. Drawer: centered horizontally on the page width; same two-phase
+          scaleY-then-scaleX reveal as ≥600 but with translateX(-50%)
+          preserved throughout so the drawer stays centered while it
+          expands.
+     ============================================================================ */
+  @media (min-width: 1040px) {
+    .projects-subnav {
+      /* Drawer's left edge = horizontal center − half drawer width. */
+      --subnav-drawer-left: calc(50vw - var(--subnav-drawer-width) / 2);
+    }
+
+    /* The L-shape's new descending segment. Anchored at (attach-x,
+       attach-y) — JS sets attach-x to the trigger's X CENTER and
+       attach-y to just below the trigger's bottom edge at this tier. */
+    .projects-subnav-laser--vertical-attach {
+      display: block;
+      left: calc(var(--subnav-attach-x) - var(--subnav-laser-thickness) / 2);
+      top: var(--subnav-attach-y);
+      width: var(--subnav-laser-thickness);
+      height: var(--subnav-vertical-attach-height);
+      border-radius: var(--subnav-laser-thickness);
+      /* Vertical laser → gradient runs ACROSS its narrow width (90deg =
+         left-to-right) — perpendicular-to-length core pattern, same
+         as .projects-subnav-laser--vertical above. */
+      background: linear-gradient(
+        90deg,
+        rgba(102, 232, 255, 0.3) 0%,
+        rgba(180, 240, 250, 0.8) 25%,
+        rgba(255, 255, 255, 1) 50%,
+        rgba(180, 240, 250, 0.8) 75%,
+        rgba(102, 232, 255, 0.3) 100%
+      );
+      transform-origin: top center;
+      transform: scaleY(0);
+      transition: transform 200ms ease-out 150ms, opacity 100ms ease-out 150ms;
+    }
+    .projects-subnav[data-open="true"] .projects-subnav-laser--vertical-attach {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+
+    /* Horizontal laser shifts DOWN by vertical-attach-height — it now
+       starts at the bottom of the vertical-attach segment, not at the
+       click's Y. Delay also shifts later so it fires after the
+       vertical-attach completes. */
+    .projects-subnav-laser--horizontal {
+      top: calc(
+        var(--subnav-attach-y)
+        + var(--subnav-vertical-attach-height)
+        - var(--subnav-laser-thickness) / 2
+      );
+      transition: transform 250ms ease-out 350ms, opacity 100ms ease-out 350ms;
+    }
+
+    /* Spark 2 lands at the elbow's destination — same Y as the new
+       horizontal laser position. */
+    .projects-subnav-spark--2 {
+      top: calc(
+        var(--subnav-attach-y)
+        + var(--subnav-vertical-attach-height)
+        - var(--subnav-spark-size) / 2
+      );
+      transition: opacity 150ms ease-out 550ms, transform 150ms ease-out 550ms;
+    }
+
+    /* Re-cascade Spark 3 + vertical laser to fire after the new Spark 2
+       timing, keeping the "rest of the animation stays the same"
+       relative ordering. */
+    .projects-subnav-spark--3 {
+      transition: opacity 150ms ease-out 700ms, transform 150ms ease-out 700ms;
+    }
+    .projects-subnav-laser--vertical {
+      transition: transform 300ms ease-out 850ms, opacity 100ms ease-out 850ms;
+    }
+
+    /* Spark 4 timing — shifted to match the longer ≥1040 cascade. Bridge
+       ends at 1150ms (850ms delay + 300ms duration); Spark 4 fires at
+       1150ms, drawer expansion picks up at 1300ms. */
+    .projects-subnav-spark--4 {
+      transition: opacity 150ms ease-out 1150ms, transform 150ms ease-out 1150ms;
+    }
+
+    /* Drawer centered on page width via translateX(-50%). The two-phase
+       expand animation runs the scaleY/scaleX phases while translateX
+       holds the centering throughout. Restore left border + full corner
+       radius — drawer is no longer attached to the vertical laser.
+
+       animation-fill-mode: BOTH (not just forwards) so the 0% keyframe
+       state — translateX(-50%) scale(0,0) — applies DURING the delay
+       too. Without this, the base `data-open="true"` rule's transform
+       would flash the drawer open early. See the ≥600 block for the
+       same fix and its rationale. */
+    .projects-subnav-drawer {
+      left: 50%;
+      right: auto;
+      border-left: 2px solid var(--color-electric-cyan-glow);
+      border-radius: var(--radius);
+      transform-origin: top left;
+      transform: translateX(-50%) scale(0, 0);
+    }
+    .projects-subnav[data-open="true"] .projects-subnav-drawer {
+      animation: projects-subnav-drawer-expand-centered 500ms
+        cubic-bezier(0.4, 0, 0.2, 1) 1300ms both;
+    }
+    /* Closed state at ≥1040: keep the translateX so the drawer doesn't
+       jump horizontally as it fades out. */
+    .projects-subnav[data-open="false"] .projects-subnav-drawer {
+      animation: none;
+      transform: translateX(-50%) scale(0, 0);
+    }
+  }
+
+  /* Two-phase drawer reveal — used at ≥600 (and inherited at ≥680 via
+     cascade). Phase 1 (0–40%, ~200ms): scaleY 0 → 1 — drawer drops down
+     from the top-left like a fold-out, no width yet. Phase 2 (40–100%,
+     ~300ms): scaleX 0 → 1 — opens to full width. transform-origin: top
+     left is set on the drawer rule above so the expansion radiates from
+     the bridge laser's endpoint at the drawer's top-left corner. */
+  @keyframes projects-subnav-drawer-expand {
+    0%   { transform: scale(0, 0); opacity: 0.5; }
+    40%  { transform: scale(0, 1); opacity: 1; }
+    100% { transform: scale(1, 1); opacity: 1; }
+  }
+
+  /* ≥1040 variant — same keyframe shape but with translateX(-50%)
+     preserved at every step so the drawer stays horizontally centered
+     while it scales. (Plain translateX outside the keyframe wouldn't
+     survive the animation's runtime; CSS animations override transforms
+     during their duration, so the keyframes must restate it.) */
+  @keyframes projects-subnav-drawer-expand-centered {
+    0%   { transform: translateX(-50%) scale(0, 0); opacity: 0.5; }
+    40%  { transform: translateX(-50%) scale(0, 1); opacity: 1; }
+    100% { transform: translateX(-50%) scale(1, 1); opacity: 1; }
   }
 
   /* ----- Closed state — speed up the fade-out so close feels snappy ----- */
@@ -380,19 +803,35 @@
     transition-delay: 0ms;
   }
 
-  /* Reduced motion — collapse the choreography to a simple fade. */
+  /* Reduced motion — collapse the choreography to a simple fade. The
+     `animation: none` neutralizes the keyframe-driven drawer expansion
+     (added 2026-05-19 for the two-phase reveal at ≥600). The
+     translateX(-50%) needs to survive at ≥1040 so the drawer stays
+     centered, so we DON'T zero transform unconditionally — only the
+     scale portions. */
   @media (prefers-reduced-motion: reduce) {
     .projects-subnav-spark,
     .projects-subnav-laser,
     .projects-subnav-drawer {
       transition: opacity 150ms ease-out !important;
       transition-delay: 0ms !important;
+      animation: none !important;
       transform: none !important;
     }
     .projects-subnav[data-open="true"] .projects-subnav-laser--horizontal,
     .projects-subnav[data-open="true"] .projects-subnav-laser--vertical,
+    .projects-subnav[data-open="true"] .projects-subnav-laser--vertical-attach,
     .projects-subnav[data-open="true"] .projects-subnav-drawer {
       transform: none !important;
+    }
+    /* ≥1040 centered drawer — restore the centering transform that the
+       `transform: none` above zeroed out. Without this, the centered
+       drawer would jump to left:50% with no centering offset. */
+    @media (min-width: 1040px) {
+      .projects-subnav-drawer,
+      .projects-subnav[data-open="true"] .projects-subnav-drawer {
+        transform: translateX(-50%) !important;
+      }
     }
   }
 </style>
@@ -402,36 +841,45 @@
    * Sub-nav state machine.
    *
    * Triggers: any element with [data-projects-subnav-trigger] attribute.
-   * The Header.astro Projects buttons (inline + inside hamburger drawer)
-   * get this attribute.
+   * Header.astro adds the attribute to the Projects parent button in both
+   * nav surfaces (inline desktop nav ≥1040px and inside the hamburger
+   * drawer at <1040px).
    *
    * On trigger click:
    *   1. Read the trigger's bounding rect to set --subnav-attach-x and
-   *      --subnav-attach-y CSS variables on the container.
-   *   2. If the click came from inside the hamburger nav drawer, close
-   *      that drawer first (one drawer open at a time).
-   *   3. Set data-open="true" on the container → cascading transitions fire.
-   *   4. If the visitor is already on a /projects/* or /lab/* route AND
-   *      the drawer was just opened (or is already open), trigger the
-   *      flicker animation on the sparks.
+   *      --subnav-attach-y CSS variables on the container (anchors Spark 1
+   *      to the clicked button's position).
+   *   2. Set data-open="true" on the sub-nav container → cascading
+   *      transitions fire and the drawer reveals.
+   *   3. The hamburger drawer (if open) STAYS open — visitor can see both
+   *      drawers at once. Close logic below handles each independently.
+   *   4. If the visitor is already on a /projects/* or /lab/* route, trigger
+   *      the flicker animation on the sparks as a visual ack.
    *
-   * Close paths:
-   *   - Click on the backdrop button (anywhere not on the drawer or trigger).
-   *   - Click on a child link (navigation handles the close via page change).
-   *   - Press Escape.
+   * Close paths (per 2026-05-19 design revision):
+   *   - Click inside the sub-nav drawer: do nothing (clicks pass to the
+   *     child links or the drawer's own content).
+   *   - Click inside the hamburger drawer but OUTSIDE the sub-nav drawer:
+   *     close ONLY the sub-nav. Hamburger drawer stays open so the
+   *     visitor can still see / use the main nav links.
+   *   - Click OUTSIDE both drawers: close the sub-nav AND the hamburger
+   *     drawer together.
+   *   - Press Escape: close the sub-nav (matches single-drawer convention
+   *     of dismissing the topmost only).
+   *   - Click a child link inside the sub-nav: navigation handles the
+   *     close via page change.
    *
-   * The hamburger drawer's own listeners are unchanged — this script only
-   * touches its data-open attribute on the "close before open" path.
+   * No backdrop element — click-outside is handled at the document level
+   * so the hamburger drawer underneath remains interactive.
    */
 
   const subnav = document.querySelector('.projects-subnav') as HTMLElement | null;
-  const backdrop = subnav?.querySelector('[data-projects-subnav-backdrop]') as HTMLElement | null;
-  const drawer = subnav?.querySelector('.projects-subnav-drawer') as HTMLElement | null;
+  const drawerEl = subnav?.querySelector('.projects-subnav-drawer') as HTMLElement | null;
   const links = subnav?.querySelectorAll('.projects-subnav-link') as NodeListOf<HTMLAnchorElement> | undefined;
   const triggers = document.querySelectorAll<HTMLElement>('[data-projects-subnav-trigger]');
   const hamburgerDrawer = document.getElementById('nav-drawer');
 
-  if (subnav && backdrop && drawer && triggers.length > 0) {
+  if (subnav && drawerEl && triggers.length > 0) {
     // Mark the currently-active child link with aria-current for highlight.
     // /projects/* → Client Portfolio; /lab/* → AI Laboratory.
     function markActiveChild() {
@@ -459,45 +907,50 @@
       window.setTimeout(() => subnav.removeAttribute('data-flicker'), 400);
     }
 
+    /**
+     * Compute Spark 1's anchor position (and by extension the X anchor
+     * for the horizontal laser, the vertical-attach laser at ≥1040, and
+     * everything else attached to the click's spawn point).
+     *
+     * Two branches:
+     *   - <1040px: Spark 1 sits JUST LEFT of the clicked link, at the
+     *     link's vertical center. Horizontal laser shoots LEFT to the
+     *     scrollbar. Single-segment choreography.
+     *   - ≥1040px: Spark 1 sits JUST BELOW the clicked link (at the
+     *     link's X center). A vertical-attach laser descends ~3.5rem
+     *     before the horizontal laser cuts LEFT to the scrollbar.
+     *     L-shape choreography.
+     *
+     * The DESKTOP_BREAKPOINT is matched to the CSS @media (min-width:
+     * 1040px) so the JS branching and CSS layout stay in lockstep.
+     */
+    const DESKTOP_BREAKPOINT = 1040;
+
     function openSubnav(trigger: HTMLElement) {
       if (!subnav) return;
-      // Anchor Spark 1 + horizontal laser to the trigger's position.
-      // attach-x = trigger's left edge minus a small offset (so the spark
-      // sits "just to the left of" the parent link). attach-y = trigger's
-      // vertical center.
       const rect = trigger.getBoundingClientRect();
-      const attachX = Math.max(rect.left - 12, 24); // floor so spark doesn't
-                                                    //  fly off to the scrollbar
-      const attachY = rect.top + rect.height / 2;
+      const isDesktop = window.innerWidth >= DESKTOP_BREAKPOINT;
+
+      let attachX: number;
+      let attachY: number;
+      if (isDesktop) {
+        // L-shape: Spark 1 below the link at its X center.
+        attachX = rect.left + rect.width / 2;
+        attachY = rect.bottom + 4; // small offset below link
+      } else {
+        // Direct horizontal: Spark 1 just to the left of the link.
+        attachX = Math.max(rect.left - 12, 24);
+        attachY = rect.top + rect.height / 2;
+      }
       subnav.style.setProperty('--subnav-attach-x', `${attachX}px`);
       subnav.style.setProperty('--subnav-attach-y', `${attachY}px`);
-
-      // If the trigger lives inside the hamburger drawer, close that drawer
-      // first so the two don't overlap on screen. The hamburger drawer's
-      // own click-outside listener may also fire — that's fine, it just
-      // means the close runs once or twice idempotently.
-      if (hamburgerDrawer && trigger.closest('#nav-drawer')) {
-        hamburgerDrawer.setAttribute('data-open', 'false');
-        const backdropEl = document.querySelector('.nav-drawer-backdrop');
-        backdropEl?.setAttribute('data-open', 'false');
-        // Match the hamburger drawer's hamburger toggle aria-expanded.
-        document.querySelectorAll('.hamburger').forEach((h) => {
-          h.setAttribute('aria-expanded', 'false');
-        });
-      }
 
       const wasOpen = subnav.getAttribute('data-open') === 'true';
       subnav.setAttribute('data-open', 'true');
       subnav.setAttribute('aria-hidden', 'false');
 
-      // Flicker if the visitor is on a Projects child route. If the drawer
-      // was already open, the flicker is the only visible response (no
-      // re-running of the open animation). If it was closed, the flicker
-      // runs after the open animation starts — both layered effects play
-      // simultaneously which is the visual ack Sean specified.
+      // Flicker if the visitor is on a Projects child route.
       if (isOnProjectsChild()) {
-        // Slight delay if newly opening so the flicker reads against
-        // already-visible sparks; immediate if already open.
         window.setTimeout(flicker, wasOpen ? 0 : 800);
       }
     }
@@ -508,17 +961,101 @@
       subnav.setAttribute('aria-hidden', 'true');
     }
 
+    /**
+     * Close the hamburger drawer (when we want both drawers to close
+     * together — i.e., on a click that lands outside both). Sets the
+     * same three attributes the hamburger drawer's own listeners do
+     * (data-open on the drawer + backdrop, aria-expanded on each
+     * hamburger toggle button) — idempotent if those listeners also fire.
+     */
+    function closeHamburgerDrawer() {
+      if (!hamburgerDrawer) return;
+      hamburgerDrawer.setAttribute('data-open', 'false');
+      document.querySelector('.nav-drawer-backdrop')?.setAttribute('data-open', 'false');
+      document.querySelectorAll('.hamburger').forEach((h) => {
+        h.setAttribute('aria-expanded', 'false');
+      });
+    }
+
     triggers.forEach((trigger) => {
       trigger.addEventListener('click', (event) => {
         event.preventDefault();
+        // stopPropagation so this click doesn't bubble up to the
+        // document-level handler below (which would immediately close
+        // the drawer we just opened, since this click target is the
+        // trigger button — which is OUTSIDE the sub-nav drawer).
         event.stopPropagation();
         openSubnav(trigger);
       });
     });
 
-    backdrop.addEventListener('click', closeSubnav);
+    /**
+     * Backdrop click handler — replaces the document-level click listener
+     * from earlier iterations. The backdrop is a full-viewport invisible
+     * element above page content / main nav but below the sub-nav drawer.
+     * When the sub-nav is open, the backdrop has pointer-events: auto and
+     * intercepts every click that doesn't land on the drawer itself.
+     * Page links, hamburger drawer items, etc. are unreachable while the
+     * sub-nav is open — clicking those areas just closes the sub-nav,
+     * never navigates accidentally.
+     *
+     * Special case — clicking the Projects trigger button while the
+     * sub-nav is already open. The trigger sits behind the backdrop, so
+     * its click handler would otherwise be unreachable. Before treating
+     * the click as a close, check whether the click coordinates fall on
+     * any trigger element's bounding rect; if so, synthesize a click on
+     * the trigger and bail out of the close. This preserves the spec'd
+     * flicker-on-active-route behavior (Sean's 2026-05-19 design call).
+     *
+     * Three-way close logic kept from the previous document-level listener:
+     *   - Click inside sub-nav drawer → never fires (drawer paints above
+     *     backdrop, drawer's own children handle clicks).
+     *   - Click inside hamburger drawer's bounding rect → close sub-nav
+     *     only; hamburger stays open for continued main-nav use.
+     *   - Click anywhere else → close sub-nav AND hamburger.
+     */
+    const backdrop = subnav.querySelector('.projects-subnav-backdrop') as HTMLElement | null;
+    if (backdrop) {
+      backdrop.addEventListener('click', (event) => {
+        if (subnav.getAttribute('data-open') !== 'true') return;
 
-    // Esc key closes the drawer.
+        // Trigger-button hit-test: re-click on Projects while sub-nav is
+        // open should fire the trigger's own handler (handles flicker
+        // for active sub-routes), not close.
+        for (const trigger of triggers) {
+          const rect = trigger.getBoundingClientRect();
+          if (rect.width <= 0 || rect.height <= 0) continue; // skip hidden triggers
+          if (
+            event.clientX >= rect.left && event.clientX <= rect.right &&
+            event.clientY >= rect.top && event.clientY <= rect.bottom
+          ) {
+            // Synthesize a click on the trigger — runs the existing
+            // openSubnav() path which handles flicker.
+            (trigger as HTMLElement).click();
+            return;
+          }
+        }
+
+        // Always close the sub-nav.
+        closeSubnav();
+
+        // Decide whether to also close the hamburger drawer. If the
+        // click landed inside the hamburger's bounding rect, the visitor
+        // is still engaging with the main nav — leave that drawer open.
+        if (hamburgerDrawer && hamburgerDrawer.getAttribute('data-open') === 'true') {
+          const hRect = hamburgerDrawer.getBoundingClientRect();
+          const insideHamburger =
+            event.clientX >= hRect.left && event.clientX <= hRect.right &&
+            event.clientY >= hRect.top && event.clientY <= hRect.bottom;
+          if (!insideHamburger) {
+            closeHamburgerDrawer();
+          }
+        }
+      });
+    }
+
+    // Esc key closes the sub-nav (only — leave the hamburger drawer to
+    // its own Escape handler if it has one).
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && subnav.getAttribute('data-open') === 'true') {
         closeSubnav();
