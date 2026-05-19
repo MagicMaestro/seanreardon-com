@@ -3,13 +3,22 @@ import { Image } from 'astro:assets';
 import gearIcon from '~/assets/images/gear.png';
 import fullLogo from '~/assets/images/fullLogo.png';
 import mobileLogo from '~/assets/images/mobileLogo.png';
+import ProjectsSubnav from '~/components/astro/ProjectsSubnav.astro';
 
 const { pathname } = Astro.url;
 const isActive = (path: string): 'page' | undefined =>
   pathname === path || pathname.startsWith(path + '/') ? 'page' : undefined;
 
+/* `parent: true` flags Projects as a sub-nav trigger rather than a direct
+   link. Both nav surfaces (inline desktop ≥1040px and inside the hamburger
+   drawer at <1040px) render it as a <button> with data-projects-subnav-trigger
+   instead of an <a>. The full choreography spec is in
+   `decisions/002-homepage-marquee-and-nozzle-affordance.md` §5 — locked
+   2026-05-19. The actual drawer markup + animation lives in
+   `src/components/astro/ProjectsSubnav.astro` (imported above and rendered
+   as a sibling of the hamburger nav drawer at the end of this file). */
 const navLinks = [
-  { href: '/projects/', label: 'Projects', match: '/projects' },
+  { href: '/projects/', label: 'Projects', match: '/projects', parent: true },
   { href: '/lessons-learned/', label: 'Lessons Learned', match: '/lessons-learned' },
   { href: '/about-me/', label: 'About Me', match: '/about-me' },
   { href: '/reach-out/', label: 'Reach Out', match: '/reach-out' },
@@ -163,11 +172,28 @@ const navLinks = [
           <ul>
             {navLinks.map(link => (
               <li>
-                <a
-                  href={link.href}
-                  aria-current={isActive(link.match)}
-                  {...(link.aria ? { 'aria-label': link.aria } : {})}
-                >{link.label}</a>
+                {link.parent ? (
+                  /* Parent link — renders as a button that opens the
+                     cyan-laser sub-nav drawer (see ProjectsSubnav.astro
+                     for the choreography). Styled to look identical to
+                     the anchor siblings so the visual nav remains uniform;
+                     the data-attribute is what the sub-nav script picks up. */
+                  <button
+                    type="button"
+                    class="primary-nav-parent"
+                    data-projects-subnav-trigger
+                    aria-current={isActive(link.match)}
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    {...(link.aria ? { 'aria-label': link.aria } : {})}
+                  >{link.label}</button>
+                ) : (
+                  <a
+                    href={link.href}
+                    aria-current={isActive(link.match)}
+                    {...(link.aria ? { 'aria-label': link.aria } : {})}
+                  >{link.label}</a>
+                )}
               </li>
             ))}
           </ul>
@@ -234,21 +260,47 @@ const navLinks = [
       <ul class="nav-drawer-list">
         {navLinks.map(link => (
           <li>
-            <a
-              href={link.href}
-              aria-current={isActive(link.match)}
-              {...(link.aria ? { 'aria-label': link.aria } : {})}
-            >{/* Inline-block span wraps the label so the underline ::after
-                  (which spans 100% of its positioning context) is sized
-                  to the text width, not the link's full block width. */}
-              <span class="nav-drawer-list-label">{link.label}</span>
-            </a>
+            {link.parent ? (
+              /* Parent link inside the hamburger drawer — same data-attribute
+                 hook as the inline-nav parent button. The sub-nav script
+                 (in ProjectsSubnav.astro) detects clicks from inside
+                 the hamburger drawer and closes it before opening the
+                 sub-nav, so the two drawers don't stack visually. */
+              <button
+                type="button"
+                class="nav-drawer-parent"
+                data-projects-subnav-trigger
+                aria-current={isActive(link.match)}
+                aria-haspopup="true"
+                aria-expanded="false"
+                {...(link.aria ? { 'aria-label': link.aria } : {})}
+              >
+                <span class="nav-drawer-list-label">{link.label}</span>
+              </button>
+            ) : (
+              <a
+                href={link.href}
+                aria-current={isActive(link.match)}
+                {...(link.aria ? { 'aria-label': link.aria } : {})}
+              >{/* Inline-block span wraps the label so the underline ::after
+                    (which spans 100% of its positioning context) is sized
+                    to the text width, not the link's full block width. */}
+                <span class="nav-drawer-list-label">{link.label}</span>
+              </a>
+            )}
           </li>
         ))}
       </ul>
     </nav>
   </div>
 </aside>
+
+{/* Cyan-laser sub-nav drawer — opens when "Projects" is clicked in either
+    nav surface (inline ≥1040px or inside the hamburger drawer at <1040px).
+    Choreography spec locked in `decisions/002-homepage-marquee-and-nozzle-affordance.md`
+    §5 (amended 2026-05-19). Placed here as a sibling of the hamburger
+    drawer so it gets its own top-level stacking context. */}
+<ProjectsSubnav />
 
 <script>
   // Header state machine + scroll detection + gear/hamburger interactivity.
@@ -1765,6 +1817,58 @@ const navLinks = [
 
   .primary-nav a:hover::after,
   .primary-nav a[aria-current="page"]::after {
+    transform: scaleX(1);
+  }
+
+  /* Parent-link button — visually identical to the anchor siblings, but
+     renders as a <button> because clicking it opens the cyan-laser sub-nav
+     drawer (ProjectsSubnav.astro) instead of navigating. Mirrors the
+     rules above for color, underline, hover, and aria-current; adds a
+     button-default reset at the top so the native button styling
+     (background, border, padding, font) doesn't bleed through. */
+  .primary-nav .primary-nav-parent {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    color: var(--color-fg);
+    text-decoration: none;
+    position: relative;
+    transition:
+      color 200ms ease-out,
+      text-shadow 200ms ease-out;
+  }
+  .primary-nav .primary-nav-parent::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      var(--color-electric-purple-deep) 0%,
+      var(--color-electric-purple) 35%,
+      var(--color-electric-purple-glow) 50%,
+      var(--color-electric-purple) 65%,
+      var(--color-electric-purple-deep) 100%
+    );
+    box-shadow: 0 0 6px rgba(157, 63, 227, 0.6);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 250ms ease-out;
+  }
+  .primary-nav .primary-nav-parent:hover,
+  .primary-nav .primary-nav-parent[aria-current="page"] {
+    color: var(--color-electric-purple-glow);
+    text-shadow:
+      0 0 8px rgba(157, 63, 227, 0.55),
+      0 0 16px rgba(244, 160, 255, 0.3);
+  }
+  .primary-nav .primary-nav-parent:hover::after,
+  .primary-nav .primary-nav-parent[aria-current="page"]::after {
     transform: scaleX(1);
   }
 
@@ -3434,6 +3538,49 @@ const navLinks = [
   }
   .nav-drawer-list a:hover .nav-drawer-list-label::after,
   .nav-drawer-list a[aria-current="page"] .nav-drawer-list-label::after {
+    transform: scaleX(1);
+  }
+
+  /* Parent-link button inside the hamburger drawer — visually identical
+     to the anchor siblings, but renders as a <button> so clicking opens
+     the cyan-laser sub-nav drawer instead of navigating. Native button
+     reset at the top (background, border, padding, font); then mirrors
+     all the .nav-drawer-list a rules above for color, glow, underline,
+     hover, and aria-current. width: 100% so the full-width hit-area
+     behavior of the original block-display anchor is preserved. */
+  .nav-drawer-list .nav-drawer-parent {
+    background: none;
+    border: none;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    display: block;
+    position: relative;
+    padding: var(--space-sm) 0;
+    color: #e0d4f5;
+    font-family: var(--font-subhead);
+    font-size: 1.5rem;
+    border-bottom: 1px solid rgba(157, 63, 227, 0.25);
+    background-image: radial-gradient(
+      ellipse at center,
+      rgba(157, 63, 227, 0.22) 0%,
+      transparent 75%
+    );
+    transition:
+      color var(--transition-fast),
+      text-shadow var(--transition-fast);
+  }
+  .nav-drawer-list .nav-drawer-parent:hover,
+  .nav-drawer-list .nav-drawer-parent[aria-current="page"] {
+    color: #f4e6ff;
+    text-shadow:
+      0 0 8px rgba(244, 230, 255, 0.7),
+      0 0 16px rgba(244, 230, 255, 0.35);
+  }
+  .nav-drawer-list .nav-drawer-parent:hover .nav-drawer-list-label::after,
+  .nav-drawer-list .nav-drawer-parent[aria-current="page"] .nav-drawer-list-label::after {
     transform: scaleX(1);
   }
 
