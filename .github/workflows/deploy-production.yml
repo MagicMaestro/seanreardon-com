@@ -1,0 +1,202 @@
+name: Deploy to production
+
+# Tagged-release trigger: push a tag matching `v*` (e.g., `v1.0.0`,
+# `v1.2.3-rc1`) to fire a production deploy. workflow_dispatch is included
+# as a safety hatch so a botched deploy can be re-run from the GitHub UI
+# without re-tagging.
+#
+# Unlike deploy-staging.yml (which fires on every push to main), production
+# deploys are explicit by design — every production ship is a deliberate
+# action that creates a git tag as a stable named anchor.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+# `cancel-in-progress: false` so a second tag pushed mid-deploy doesn't
+# leave production half-deployed. Each tag's deploy runs to completion
+# (including the backup + smoke test) before the next one starts.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  # Opt JavaScript actions into Node.js 24 ahead of GitHub's June 2026 default flip.
+  # Mirrors deploy-staging.yml.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build static site
+        env:
+          # PUBLIC_* env vars get baked into the build at this step. These
+          # are NOT secrets — they're visible in the rendered HTML. Real
+          # secrets (API keys, tokens) go in GitHub Secrets without the
+          # PUBLIC_ prefix. Production uses the same Listmonk / Turnstile
+          # values as staging (single instances serving both environments).
+          PUBLIC_LISTMONK_HOST: ${{ vars.PUBLIC_LISTMONK_HOST || 'https://lists.seanreardon.com' }}
+          PUBLIC_LISTMONK_LIST_UUID: ${{ vars.PUBLIC_LISTMONK_LIST_UUID }}
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
+        run: npm run build
+
+      - name: Stamp build with commit + timestamp
+        # Production version.txt includes the git tag (github.ref_name) so
+        # the smoke test below can confirm the LIVE site is serving the
+        # expected release. On workflow_dispatch the ref_name is the
+        # branch the workflow was dispatched from — not a tag — but the
+        # commit SHA is still the source of truth.
+        run: |
+          cat > dist/version.txt <<EOF
+          commit: ${{ github.sha }}
+          ref: ${{ github.ref_name }}
+          tag: ${{ github.ref_type == 'tag' && github.ref_name || 'n/a (dispatched)' }}
+          built_at: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          actor: ${{ github.actor }}
+          environment: production
+          EOF
+
+      - name: Stage the production .htaccess
+        run: cp deploy/htaccess.production dist/.htaccess
+
+      - name: Configure SSH
+        # Uses ssh.seanreardon.com (DNS-only A record) rather than
+        # seanreardon.com (CF-proxied) — Cloudflare only proxies HTTP/HTTPS,
+        # so SSH on port 7822 needs the unproxied hostname. Same pattern as
+        # deploy-staging.yml.
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p 7822 -H ssh.seanreardon.com >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Pre-deploy backup of public_html
+        # Snapshots ~/public_html/ to a timestamped dir under ~/backups/
+        # BEFORE the rsync overwrites public_html. Then prunes anything
+        # older than the 5 most-recent backups.
+        #
+        # Recovery flow if a deploy ships something broken:
+        #   ssh sreardon@ssh.seanreardon.com -p 7822
+        #   ls -1dt ~/backups/public_html-*/ | head -5
+        #   rsync -av --delete ~/backups/public_html-<TIMESTAMP>/ ~/public_html/
+        #   (then purge CF cache manually or re-run the workflow's CF step)
+        #
+        # Backup format: ~/backups/public_html-2026-05-20T143022Z/
+        # The `T...Z` UTC timestamp is filesystem-safe (no colons) and
+        # sorts lexicographically, so `ls -1dt` newest-first ordering
+        # matches actual chronological order.
+        run: |
+          ssh -i ~/.ssh/deploy_key -p 7822 \
+            sreardon@ssh.seanreardon.com \
+            "mkdir -p ~/backups && \
+             timestamp=\$(date -u +%Y-%m-%dT%H%M%SZ) && \
+             echo \"Backing up to ~/backups/public_html-\$timestamp/\" && \
+             rsync -a ~/public_html/ ~/backups/public_html-\$timestamp/ && \
+             echo 'Backup complete. Pruning older than 5 newest...' && \
+             ls -1dt ~/backups/public_html-*/ 2>/dev/null | tail -n +6 | xargs -r rm -rf && \
+             echo 'Remaining backups:' && \
+             ls -1dt ~/backups/public_html-*/ 2>/dev/null | head -5"
+
+      - name: Rsync to production
+        # --delete wipes everything in ~/public_html/ that's not in the new
+        # dist/. This intentionally removes the old PHP site files AND the
+        # legacy /disney/ subdirectory (which is preserved separately in
+        # the planning project's archive/disney-2026-05-02/ tarball, per
+        # 2026-05-20 Sean direction). The new Astro static export becomes
+        # the entire content of public_html.
+        run: |
+          rsync -avz --delete \
+            --exclude='desktop.ini' \
+            --exclude='.DS_Store' \
+            --exclude='Thumbs.db' \
+            -e "ssh -i ~/.ssh/deploy_key -p 7822" \
+            dist/ sreardon@ssh.seanreardon.com:/home/sreardon/public_html/
+
+      - name: Purge Cloudflare cache
+        # Purges the entire seanreardon.com zone so visitors don't get
+        # stale cached HTML from before the deploy. The token needs only
+        # Zone:Cache Purge permission scoped to seanreardon.com (per the
+        # deploy/README.md "Required GitHub secrets" section).
+        #
+        # `set -euo pipefail` so a non-2xx response or missing secret fails
+        # the workflow loudly rather than silently letting stale cache
+        # serve. CF returns `{"success": true, ...}` on success; we grep
+        # for that string to validate.
+        run: |
+          set -euo pipefail
+          response=$(curl -sS -X POST \
+            "https://api.cloudflare.com/client/v4/zones/${{ secrets.CF_ZONE_ID }}/purge_cache" \
+            -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}')
+          echo "CF purge response: $response"
+          echo "$response" | grep -q '"success":true' || {
+            echo "::error::Cloudflare cache purge failed"
+            exit 1
+          }
+
+      - name: Smoke test production
+        # Hits 5 representative URLs + version.txt and fails the workflow
+        # on any non-2xx. Catches catastrophic deploy errors (rsync
+        # corrupted a file, .htaccess broke, etc.) quickly.
+        #
+        # The 5 URLs were chosen to cover the IA: root, static page
+        # (about-me), listing page (projects), listing page with content
+        # collection (lessons-learned), and a specific writing post slug
+        # (post 010, stable URL since 2026-05-03).
+        #
+        # version.txt content check confirms the live site is actually
+        # serving the new build (not a stale CF-cached old build) by
+        # matching the commit SHA in the deployed file against the
+        # workflow's own github.sha.
+        #
+        # `sleep 5` before the test gives CF and the origin a beat to
+        # settle after the purge — without it, the first request can
+        # occasionally race the purge and serve stale.
+        run: |
+          set -euo pipefail
+          sleep 5
+          urls=(
+            "https://seanreardon.com/"
+            "https://seanreardon.com/about-me/"
+            "https://seanreardon.com/projects/"
+            "https://seanreardon.com/lessons-learned/"
+            "https://seanreardon.com/lessons-learned/obsolescence-was-the-wrong-fear/"
+            "https://seanreardon.com/version.txt"
+          )
+          for url in "${urls[@]}"; do
+            status=$(curl -o /dev/null -sS -w "%{http_code}" "$url" || echo "000")
+            if [ "$status" -ge 200 ] && [ "$status" -lt 300 ]; then
+              echo "OK  $status  $url"
+            else
+              echo "::error::Smoke test failed: $status on $url"
+              exit 1
+            fi
+          done
+
+          echo "---"
+          echo "version.txt contents:"
+          live_version=$(curl -sS https://seanreardon.com/version.txt)
+          echo "$live_version"
+          expected_commit="${{ github.sha }}"
+          if echo "$live_version" | grep -q "commit: $expected_commit"; then
+            echo "OK  version.txt shows the deployed commit ($expected_commit)"
+          else
+            echo "::error::version.txt commit doesn't match deployed commit. Expected: $expected_commit"
+            exit 1
+          fi
