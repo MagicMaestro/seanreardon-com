@@ -1,0 +1,46 @@
+---
+title: "`npm audit fix --force` is sometimes a downgrade button"
+date: 2026-05-19
+summary: Eleven CVE findings on the portfolio rebuild, with `fixAvailable` entries on most of them. Two of those entries were downgrades wearing a fix's clothes. Here's the thirty-second reading skill that catches it before `--force` does.
+tags: [security, dependencies, retrospective, redesign]
+status: published
+---
+
+`npm audit` came back with eleven findings on the rebuild. One critical — an arbitrary-code-execution CVE in `protobufjs`, four layers deep inside a dependency I'd pulled in for on-device ML. The audit was helpful about it: *fix available via `npm audit fix --force`*.
+
+I almost ran it. Then I read what `--force` was actually offering to do.
+
+```jsonc
+"protobufjs": {
+  "severity": "critical",
+  "range": "<=7.5.5",
+  // ... 8 advisories, including arbitrary code execution at CVSS 9.8 ...
+  "fixAvailable": {
+    "name": "@xenova/transformers",
+    "version": "2.0.1",
+    "isSemVerMajor": true
+  }
+}
+```
+
+The currently installed version was `2.17.2`. The "fix" was `2.0.1` — seventeen minor versions backwards, a release from late 2023. The `isSemVerMajor: true` flag is technically honest: yes, that's a major-version change. It just happens to be a major version going *the wrong direction*.
+
+The second one was the same shape. A moderate `ws` issue, suggesting I roll `wrangler` from `4.87.0` back to `3.107.3` — a full major version backwards, losing the v4 features I'd built around.
+
+Two of eleven findings, both with `fixAvailable` entries that were regressions disguised as patches. `npm audit fix --force` would have applied both.
+
+The mechanism is straightforward once you look. `npm audit` walks the advisory graph and finds the highest version of the top-level package whose dep tree clears the CVE. For `@xenova/transformers`, the bad transitive — vulnerable `protobufjs` via `onnxruntime-web` — was introduced in `2.0.2`. So the only "clean" version left in that package's entire history is `2.0.1` and earlier. The tool isn't wrong. It just doesn't know which API methods my code uses, or that the package has been quietly deprecated in favor of a maintained fork.
+
+The actual triage took three patterns:
+
+- **Five findings resolved with `npm overrides`.** When the issue lives in a transitive — `devalue`, `fast-xml-parser`, `ws` — an override forces resolution to the patched minor while leaving the top-level package untouched. No major-version churn, no API surface change. A few lines in `package.json` cleared three of them in one move.
+
+- **Four findings resolved by migrating to the renamed package.** `@xenova/transformers` is officially deprecated. The same maintainer's actively-developed fork is `@huggingface/transformers`, on an `onnxruntime-web` line that doesn't carry the vulnerable `protobufjs` anywhere. A one-line import swap cleared all four CVEs in that subtree. This is the fix `npm audit` couldn't surface — it doesn't know about renames.
+
+- **Two findings deferred.** Astro v5 → v6 has its own breaking-change story. Not worth bundling into a security sweep.
+
+The thirty-second reading skill is the part worth keeping. Before reaching for `--force`, walk every `fixAvailable` entry where `isSemVerMajor` is `true`, and compare the proposed version against what's actually installed. If proposed > installed: probably a real upgrade, worth investigating. If proposed < installed: a downgrade dressed as a fix. Don't click. Do the work.
+
+`npm audit`'s recommendation engine is one of many automation surfaces in a modern dev workflow that propose specific actions based on pattern-matching against structured data — the same shape lives in pip, cargo, gem, and the OS package managers, anywhere a "fix available" gets computed against a database of patched versions, with no opinion on whether you can actually use them. It works well most of the time. Nine of the eleven findings here had non-regressive fixes, correctly identified. The interesting work is in the cases where the tool's recommendation is *technically valid given the data* but *operationally a regression given the package's evolution* — and that distinction isn't in the CVSS score, the advisory graph, or anywhere else the tool can see.
+
+In [*Embracing AI: Obsolescence was the wrong fear*](/lessons-learned/obsolescence-was-the-wrong-fear), posted a couple weeks back, I argued the ceiling on what one person can ship has moved — that the constraint is curiosity rather than time, but the steering still has to be conscious. This is one small concrete shape of that steering. Read the recommendation before you run it. The version numbers will usually tell you what to do.
