@@ -3,8 +3,21 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 import LaserCard from '~/components/astro/LaserCard.astro';
 import { getCollection } from 'astro:content';
 
+/* Sort order (Sean direction 2026-05-20):
+   Primary key — has a clickable projLink (live or Wayback-archived) first,
+   no-link entries after. Visitors should see actionable artifacts (sites
+   they can actually go look at) before entries that are listed for the
+   record only.
+   Secondary key — completion date, most recent first within each group.
+   The comparator returns -1/+1 based on the boolean group first; ties on
+   the group key fall through to the date comparison. */
 const work = (await getCollection('work', ({ data }) => data.active !== false))
-  .sort((a, b) => b.data.completed.valueOf() - a.data.completed.valueOf());
+  .sort((a, b) => {
+    const aHasLink = a.data.projLink ? 1 : 0;
+    const bHasLink = b.data.projLink ? 1 : 0;
+    if (aHasLink !== bHasLink) return bHasLink - aHasLink;
+    return b.data.completed.valueOf() - a.data.completed.valueOf();
+  });
 ---
 <BaseLayout
   title="Projects"
