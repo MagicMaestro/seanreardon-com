@@ -155,7 +155,18 @@
   --space-xl: 4rem;
 
   /* === Layout primitives === */
+  /* Tight reading measure — kept as the default fallback for paragraphs
+     in form-internal contexts (fineprint, status messages, signup blurb).
+     Also the opt-out value for pages that set `narrowMeasure={true}` on
+     BaseLayout, where forms drive the page and intro paragraphs read
+     better at the tighter setting. */
   --measure: 65ch;
+  /* Wide measure — site-wide default for main-column text (Sean direction
+     2026-05-19, raising from prior 65ch site-wide). ~75% of main's content
+     width with `margin-inline: auto` centers the column inside main, giving
+     balanced gutters on either side. Used by the rule below scoped to
+     direct/near-direct children of <main>. */
+  --measure-wide: 75%;
   --radius: 0.375rem;
   /* Main's max-width on WIDE viewports (≥1520px). Smaller viewports use
      proportional caps via media queries:
@@ -233,6 +244,24 @@ a {
   transition: color var(--transition-fast);
 }
 a:hover { color: var(--color-brass-light); }
+
+/* StoneTagline citation link — opt-out of the global brass-link styling
+   (Sean direction 2026-05-20). The link inside a citation should look
+   visually identical to the surrounding cyan-tinted citation text;
+   the only mouse affordance is the pointer cursor (browser default
+   for <a href>). Lives in global.css (not the component's scoped
+   style block) because slotted <a> elements carry the CONSUMING page's
+   Astro scope-id, not the component's — a scoped rule in StoneTagline
+   wouldn't match them. Specificity (0, 1, 1) beats the general `a`
+   selector (0, 0, 1) above. `:hover` and `:focus` repeat the rule so
+   the global `a:hover` override (also at (0, 1, 1) via pseudo-class)
+   doesn't reintroduce the brass color on hover. */
+.stone-tagline-citation > a,
+.stone-tagline-citation > a:hover,
+.stone-tagline-citation > a:focus {
+  color: rgba(225, 248, 255, 0.85);
+  text-decoration: none;
+}
 
 /* ============================================================================
    Layout
@@ -378,7 +407,11 @@ h1 {
    the same .hero-question class, or this selector can be expanded to
    accept a more general opt-out class if a second variant appears. */
 main > h1:first-of-type:not(.hero-question) {
-  margin-block-start: 0;
+  /* Both block margins zeroed (Sean direction 2026-05-20 iteration 9 for
+     end-margin): the next sibling on About Me is the AI-quote StoneTagline
+     and the two should touch with no gap, matching the homepage's
+     hero-tagline-immediately-after-hero-question pattern. */
+  margin-block: 0;
   margin-inline: calc(-1 * var(--space-md));
   /* Tightened padding — about 1/3 of the previous var(--space-md) */
   padding-block: var(--space-xs);
@@ -406,6 +439,24 @@ main > h1:first-of-type:not(.hero-question) {
   /* Dark text on light beige bg — fg-on-cream-strong is in the warm-dark
      family and reads as ink-on-stone */
   color: var(--color-fg-on-cream-strong);
+  /* Carved-into-stone effect (Sean direction 2026-05-20 iteration 11) —
+     four layered text-shadows that simulate a chiseled inscription:
+     - Bright warm-cream highlight 1px BELOW the text → reads as light
+       reflecting off the bottom rim of the carving's beveled edge.
+     - Dark warm-brown shadow 1px ABOVE the text → reads as the top
+       rim of the carving in shadow (assuming top-down light).
+     - Wider soft cream halo 2px below for atmospheric light-bounce
+       inside the carved depression.
+     - Wider soft dark halo 2px above for recessed-depth feel.
+     Colors are drawn from the existing stone palette: light side is
+     slightly brighter than --color-stone-light (#C9B898); dark side is
+     between --color-stone-deep (#4A4030) and the text color (#1A1612)
+     to keep the contrast in the warm-brown family. */
+  text-shadow:
+    0 1px 0 rgba(229, 220, 190, 0.7),
+    0 -1px 0 rgba(42, 31, 18, 0.55),
+    0 2px 2px rgba(255, 245, 215, 0.25),
+    0 -1px 2px rgba(42, 31, 18, 0.3);
   /* First-line indent for inscribed-plaque feel. 1rem default; bumps to
      1.5rem at the 740px breakpoint (see @media below) to scale with the
      larger bar/logo at that tier. Transition on text-indent animates the
@@ -438,6 +489,300 @@ h2 {
   font-weight: 700;
 }
 
+/* ============================================================================
+   H2 drawer treatment — site-wide (Sean direction 2026-05-20)
+   ============================================================================
+   Section h2's render as slim cyan-lit drawers with an angled left edge,
+   a convex right-edge fade, and a horizontal laser beam at the bottom
+   extending leftward past the drawer's diagonal tip. Vocabulary borrowed
+   from the primary nav drawer (`.header-bar-fill` in Header.astro) but
+   recolored to the cyan family used by the sub-nav and scroll indicator.
+
+   Scope: direct or near-direct h2's inside <main> get the treatment;
+   deeper-nested h2's (form widget headings like NewsletterSignup's
+   "Subscribe to writing", or the deeply-nested .marquee-title in
+   MarqueeFeature) keep their natural sizing. Unlike the wide-measure
+   rule above, this DOESN'T exclude `narrow-measure` pages — Sean direction:
+   "all pages" get the drawer h2 treatment regardless of measure mode.
+   On /subscribe the h2's are full-width (no max-width constraint from
+   wide-measure), so the drawer spans the full content area; the snug
+   feel comes from the drawer's own slim padding, not the width.
+
+   Opt-out: `.full-bleed` h2's keep their existing per-page treatments
+   (homepage hero-tagline, Recent heading).
+
+   Structure:
+   - h2 — the wide-measure 75% centered constraint from above still applies.
+     `position: relative` + `isolation: isolate` creates a stacking context
+     so the pseudo-elements stack behind the text via z-index: -1 without
+     escaping the h2. Padding-inline is generous on the left so text
+     starts past the diagonal cut at all line-heights. text-shadow gives
+     the cyan-glow lighting feel matching the drawer's interior glow.
+   - ::before — drawer body. Dark + cyan radial-gradient fill, clip-path
+     for the diagonal left edge, mask-image for the convex `(`-shaped
+     right-edge fade. Sits behind the text via z-index: -1.
+   - ::after — horizontal laser beam at the drawer's bottom edge,
+     positioned with negative `left` so it extends ~3rem past the drawer
+     into main's gutter. Because the ::after is a sibling of ::before
+     (both children of h2), the ::before's mask doesn't clip the beam.
+
+   Diagonal-tip geometry: 1.25rem horizontal offset on the polygon's
+   top-left vertex. With the h2's computed line-box around 3rem the
+   slope reads as roughly -60° (steeper than the nav drawer's true 45°
+   at 3.04rem-tall × 3.04rem-wide); the steeper angle reads as more
+   delicate at the smaller h2 size. */
+main > h2:not(.full-bleed),
+main > :is(div, article, section) > h2:not(.full-bleed) {
+  position: relative;
+  isolation: isolate;
+  /* `display: flow-root` establishes a new Block Formatting Context so the
+     h2's BLOCK box (not just its line-boxes) narrows beside adjacent floats
+     (Sean direction 2026-05-20). Without this, the h2's box would extend
+     full-width and sit UNDER a float — e.g., the right-floated headshot on
+     About Me whose vertical range overlapped "Then and now" caused the
+     drawer to paint under the image. With flow-root, the h2 narrows to fit
+     beside the float, no overlap. */
+  display: flow-root;
+  /* Slim like the primary nav drawer (Sean direction 2026-05-20). The nav
+     bar is 3.04rem tall; matching that means minimal padding-block and a
+     tight line-height. font-size 1.75rem * line-height 1.15 = 2.01rem
+     text + 0.25rem × 2 padding-block = ~2.5rem total box height. Reads
+     as a slim band rather than a chunky section header.
+
+     Padding-inline tightened to 1rem on both sides (Sean direction
+     2026-05-20 iteration 10 — was asymmetric `0.25rem 1rem 0.25rem 2rem`,
+     with the 2rem left previously reserved for diagonal-cut clearance).
+     Symmetric padding now; the diagonal cut at 2% of h2 width is narrow
+     enough that 1rem left padding clears it on typical h2 widths. */
+  padding: 0.25rem 1rem;
+  /* `white-space: nowrap` (Sean direction 2026-05-20 iteration 10) — h2
+     drawer headings stay on a single line; titles like "Then and now"
+     and "How I work" are short enough that this matches expected
+     behavior on every viewport. Longer h2 text would overflow the
+     drawer; in practice this rule's scope (drawer h2's) only carries
+     short titles. */
+  white-space: nowrap;
+  line-height: 1.15;
+  text-shadow:
+    0 0 4px rgba(225, 248, 255, 0.55),
+    0 0 10px rgba(102, 232, 255, 0.35);
+}
+
+main > h2:not(.full-bleed)::before,
+main > :is(div, article, section) > h2:not(.full-bleed)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  /* Drawer fill — mirror the projects sub-nav drawer's vocabulary EXACTLY:
+     rgba(0,0,0,0.9) dark base + the same center-bright cyan radial gradient.
+     Sean direction 2026-05-20: "the fill should be like the sub-nav fill."
+     The 0.9 black base (vs the prior 0.7) is the key difference — pushes
+     the dark interior darker so the cyan glow reads as energy emerging
+     from a dark cavity, matching the sub-nav's "Portfolio / AI Lab"
+     drawer look. */
+  background-color: rgba(0, 0, 0, 0.9);
+  /* Multi-layer background — top layer is an inline SVG drawing the
+     polygon's STROKE directly (the visible cyan outline tracing top,
+     bottom, and diagonal-left edges); bottom layer is the cyan radial
+     fill glow.
+
+     Why SVG for the stroke: Sean direction 2026-05-20 (3 iterations).
+     drop-shadow filter with offsets compounds non-linearly across the
+     filter chain and didn't produce a perceptible stroke despite many
+     stacked layers. SVG stroke is a true geometric line, drawn at a
+     fixed pixel width regardless of how the SVG scales — far more
+     reliable for "I want a visible cyan line tracing the drawer's
+     perimeter."
+
+     SVG details:
+     - viewBox 0 0 100 30: an arbitrary aspect ratio that's stretched
+       via `preserveAspectRatio='none'` + `background-size: 100% 100%`
+       to fit any h2 dimensions. The polygon scales accordingly.
+     - Polygon points (0,0 100,0 100,30 5,30) mirror the clip-path
+       polygon below, with the diagonal endpoint at x=5 (proportional
+       to clip-path's 1.25rem). The diagonal ANGLE varies slightly
+       with the h2's actual aspect ratio — wider h2's read as a
+       shallower diagonal — but the visual shape stays consistent.
+     - stroke #66E8FF = --color-electric-cyan-glow
+     - stroke-width 4: with the polygon's stroke centered on the path
+       and clip-path bisecting it (clipping the outside half), ~2px
+       of the stroke remains visible on the inside.
+     - vector-effect='non-scaling-stroke': stroke pixel width stays
+       constant across the SVG's stretching transform; without this,
+       the stretching would make the stroke wider horizontally than
+       vertically.
+
+     Layer order: SVG on top (so the stroke paints over the radial),
+     radial below. The cyan glow halo is layered separately via the
+     filter drop-shadows below. */
+  background-image:
+    /* Spark — 80×80 SVG (Sean direction 2026-05-20 iteration 9: doubled
+       size + feathered edges with harsher glow). The circle is filled with
+       a radial gradient that fades from white core → light cyan → cyan low
+       alpha → fully transparent at the edge. This produces a smooth
+       feathered glow rather than a hard-edged circle. Positioned with
+       background-position -40px -40px so its center sits at (0, 0) of
+       ::before = h2's top-left corner (where the horizontal laser meets
+       the drawer's diagonal). clip-path clips half (the part outside the
+       polygon, in the bottom-left triangle), leaving a feathered
+       half-disc inside the polygon. drop-shadow filter on this ::before
+       still renders the outer cyan glow halo around the visible portion. */
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'><defs><radialGradient id='sg'><stop offset='0%25' stop-color='%23FFFFFF' stop-opacity='1'/><stop offset='15%25' stop-color='%23FFFFFF' stop-opacity='0.95'/><stop offset='40%25' stop-color='%23B4F0FA' stop-opacity='0.7'/><stop offset='70%25' stop-color='%2366E8FF' stop-opacity='0.35'/><stop offset='100%25' stop-color='%2366E8FF' stop-opacity='0'/></radialGradient></defs><circle cx='40' cy='40' r='40' fill='url(%23sg)'/></svg>"),
+    /* Outline polygon — 4-stroke stacked for center-bright laser-beam look */
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 30' preserveAspectRatio='none'><polygon points='0,0 100,0 100,30 2,30' fill='none' stroke='%2366E8FF' stroke-opacity='0.3' stroke-width='10' stroke-linejoin='round' vector-effect='non-scaling-stroke'/><polygon points='0,0 100,0 100,30 2,30' fill='none' stroke='%23B4F0FA' stroke-opacity='0.6' stroke-width='7' stroke-linejoin='round' vector-effect='non-scaling-stroke'/><polygon points='0,0 100,0 100,30 2,30' fill='none' stroke='%23B4F0FA' stroke-width='4' stroke-linejoin='round' vector-effect='non-scaling-stroke'/><polygon points='0,0 100,0 100,30 2,30' fill='none' stroke='%23FFFFFF' stroke-width='2' stroke-linejoin='round' vector-effect='non-scaling-stroke'/></svg>"),
+    /* Cyan radial fill */
+    radial-gradient(
+      ellipse at center,
+      rgba(102, 232, 255, 0.45),
+      transparent
+    );
+  background-size: 80px 80px, 100% 100%, 100% 100%;
+  background-position: -40px -40px, 0 0, 0 0;
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  /* Diagonal direction: `\` shape from top-left corner (0,0) down-and-right
+     to a point on the bottom edge — matching the primary nav drawer's
+     diagonal-beam-from-upper-left geometry.
+
+     Diagonal vertex changed from fixed `1.25rem` to proportional `2%`
+     (Sean direction 2026-05-20 iteration 4). Reason: the SVG outline in
+     the background-image above uses proportional coords (viewBox-relative);
+     for the SVG stroke to align with the clip-path boundary, BOTH must use
+     the same coord system. With fixed-rem clip-path + proportional SVG,
+     the stroke drew on a different polygon than the clip-path, so the
+     stroke didn't sit on the visible edge of the drawer. Now both use 2%,
+     and the SVG stroke traces the actual visible edge.
+
+     Trade-off: at ~2% of typical h2 widths (800–1200px), the diagonal is
+     16–24px horizontal — close to the prior 1.25rem (20px) for typical
+     screens. The angle varies slightly with h2 width: narrower h2's read
+     as a steeper slope, wider as shallower. */
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 2% 100%);
+  /* Convex right-edge mask — radius bumped 1.5rem → 2rem (Sean direction
+     2026-05-20, second iteration: "hook on top and bottom of the right
+     outline; increase the height of the convex mask to fully cover the
+     right edge").
+
+     Math behind 2rem: h2 box ~2.5rem tall, half-height = 1.25rem (distance
+     from mask center to top/bottom corner). With the prior 1.5rem radius,
+     corners landed at 1.25/1.5 = 83% of the mask radius — INSIDE the
+     gradient's fade zone (60-100%), making the corners ~57% opaque. The
+     SVG stroke at the corners was thus partially visible while the
+     middle-right was fully transparent, producing the "hook" segments at
+     top-right and bottom-right corners.
+
+     At 2rem radius, corners land at 1.25/2 = 62.5% — just inside the
+     fully-transparent zone (0-60%). Corners become ~94% transparent,
+     the right edge fades smoothly across its entire height with no
+     visible hook. */
+  -webkit-mask-image: radial-gradient(
+    circle 2rem at 100% 50%,
+    transparent 0%,
+    transparent 60%,
+    black 100%
+  );
+  mask-image: radial-gradient(
+    circle 2rem at 100% 50%,
+    transparent 0%,
+    transparent 60%,
+    black 100%
+  );
+  /* Cyan glow halo — atmospheric bloom around the drawer's perimeter.
+     The visible STROKE is now provided by the SVG above (a real
+     geometric line, reliable). drop-shadow's role here is purely the
+     soft outer halo — multiple stacked tiers at progressively wider
+     blur radii fade from a tight ring (4px) to a wide atmospheric
+     bloom (50px). drop-shadow respects clip-path so the halo traces
+     the full visible perimeter including the diagonal left edge. */
+  filter:
+    drop-shadow(0 0 4px var(--color-electric-cyan-glow))
+    drop-shadow(0 0 12px var(--color-electric-cyan-glow))
+    drop-shadow(0 0 28px rgba(102, 232, 255, 0.5))
+    drop-shadow(0 0 50px rgba(102, 232, 255, 0.25));
+}
+
+main > h2:not(.full-bleed)::after,
+main > :is(div, article, section) > h2:not(.full-bleed)::after {
+  content: '';
+  position: absolute;
+  /* Vertical shift to align the laser's bright center with the SVG
+     outline's bright core. Sean direction 2026-05-20 iteration 7:
+     `calc(-0.125rem + 1px)` — empirically tuned to -1px (my computed
+     -2px overshot by 1px; the visible "center of brightness" of the
+     stacked SVG strokes sits at ~y=1.5px rather than y=0.5px because
+     the wider strokes' colors blend the visual midpoint outward from
+     the white core). */
+  top: calc(-0.125rem + 1px);
+  /* Laser left/width driven by `--h2-laser-distance` — set per h2 by the
+     JS in BaseLayout.astro via getBoundingClientRect() (Sean direction
+     2026-05-20 iteration 7). A pure-CSS calc could only handle the
+     no-float default-position case at predicted widths; the JS approach
+     measures each h2's actual rendered position so the laser anchors
+     correctly across ALL viewport widths AND when an h2 has a left-float
+     adjacent to it (h2 has `display: flow-root` which narrows the h2 box
+     beside floats, shifting its left edge).
+
+     Fallback (12.5vw + 1rem) is the no-float default-tier estimate —
+     used only briefly before JS measures and overwrites with the actual
+     computed distance.
+
+     Width = distance + 0.25rem overlap into drawer interior so the
+     laser visually merges into the drawer's top stroke at the corner
+     without a visible seam.
+
+     Transition: matches main's max-width transition (300ms) so when a
+     resize crosses a layout breakpoint (e.g., 896px where main's width
+     jumps), the laser slides smoothly into its new position rather than
+     snapping. Same easing curve as main + scroll-indicator for
+     consistency. */
+  left: calc(-1 * var(--h2-laser-distance, 12.5vw + 1rem));
+  width: calc(var(--h2-laser-distance, 12.5vw + 1rem) + 0.25rem);
+  transition: left 300ms ease-out, width 300ms ease-out;
+  /* 0.3rem thickness matches the sub-nav vertical laser's
+     `--subnav-laser-thickness`. The center-bright gradient runs ACROSS
+     the thickness (perpendicular to the laser's length) — same
+     vocabulary as the sub-nav vertical laser, inverted from vertical
+     to horizontal (gradient angle 180deg now flows top-to-bottom
+     across the 0.3rem height instead of 90deg left-to-right across a
+     0.3rem width). */
+  height: 0.3rem;
+  border-radius: 0.3rem;
+  /* Laser center-bright vertical gradient — bright white at center fading
+     to low-alpha cyan at top/bottom edges. Same vocabulary as the sub-nav
+     vertical laser, just oriented horizontally. Spark moved to ::before
+     (2026-05-20 iteration 8) where it can extend beyond the laser's
+     0.3rem height. */
+  background-image: linear-gradient(
+    180deg,
+    rgba(102, 232, 255, 0.3) 0%,
+    rgba(180, 240, 250, 0.8) 25%,
+    rgba(255, 255, 255, 1) 50%,
+    rgba(180, 240, 250, 0.8) 75%,
+    rgba(102, 232, 255, 0.3) 100%
+  );
+  background-repeat: no-repeat, no-repeat;
+  /* Mask + box-shadow both removed (Sean direction 2026-05-20
+     iteration 7: "overhang extending beyond the scrollbar... should not
+     be visible to the left of the scrollbar").
+     - The mask was faded the leftmost 60% transparent, causing visible
+       bleed past the scrollbar.
+     - The box-shadow (0 0 12px ...) was the main culprit — it extends
+       12px past the laser's left edge regardless of opacity/mask,
+       bleeding into the area past the scrollbar.
+     With both removed, the laser is a clean steady beam terminating
+     exactly at the scrollbar position. The laser's own gradient
+     (cyan low-alpha at top/bottom) provides inherent edge-glow without
+     extending beyond the laser's box. */
+  z-index: -1;
+}
+
+/* Tier-based media-query overrides for ::after's left/width REMOVED
+   (Sean direction 2026-05-20 iteration 7). The JS in BaseLayout.astro
+   now sets `--h2-laser-distance` per h2 via getBoundingClientRect(),
+   which handles all viewport widths AND float-narrowed h2 positions
+   uniformly. The pure-CSS calc was unable to handle floats (h2 with
+   `display: flow-root` shifts when next to a float). */
+
 h3 {
   font-family: var(--font-subhead);
   font-size: 1.25rem;
@@ -450,7 +795,57 @@ h4 {
   font-weight: 600;
 }
 
+/* Default paragraph constraint — applies anywhere `<p>` lives (form internals,
+   asides, deeply-nested content) where the wide-measure rule below doesn't
+   reach. Kept at 65ch for typographic readability. */
 p { max-width: var(--measure); }
+
+/* Wide-measure rule for main content — paragraphs, headings, lists, code
+   blocks, tables, figures, and other text-bearing or content-bearing blocks
+   sitting at direct or near-direct depths within <main> get the wider
+   measure (75% of main) and are centered for balanced left/right gutters
+   relative to main's edges. Sean direction 2026-05-19: "wherever this
+   applies to the paragraphs, it should apply to most sibling elements; an
+   exception would be the images" — hence the broad element list below and
+   the explicit omission of <img> / <picture> / .float-image.
+
+   Scope picks up content under:
+   - <main> directly (most pages)
+   - <main> > <div> (e.g., about-me's `data-pagefind-body` wrapper)
+   - <main> > <article> (e.g., lessons-learned posts, privacy page)
+   - <main> > <section> (e.g., index.astro's .recent section)
+   Deeper-nested content (form internals, list-item paragraphs, etc.) is
+   intentionally left alone so widgets keep their natural sizing.
+
+   Excluded by design:
+   - <img> / <picture> — Sean: keep their current alignments, don't push
+     them further from the edges. Float-images stay anchored to main's
+     padding-box edges via the .float-image rules; raster images otherwise
+     flow at their natural width.
+   - <h1> — the page-title h1 has its own full-bleed treatment in global.css
+     (negative margin-inline to escape main's padding).
+   - .full-bleed — opt-out class for elements that intentionally escape the
+     measure constraint (hero strips, banner sections, etc.). Apply on any
+     element that needs to bleed past the wide-measure column.
+
+   Opt-out scope: `<main class="narrow-measure">` (set via BaseLayout's
+   `narrowMeasure={true}` prop) short-circuits this rule for the whole
+   page — used on /reach-out and /subscribe where forms drive the page
+   and intro paragraphs read tighter at the 65ch left-aligned default.
+
+   Specificity note: the `:not(.full-bleed)` at the end of each compound
+   selector raises specificity to (0, 2, 2). That's deliberate — it lets
+   this rule override Astro-scoped local styles like `.laser-card-list
+   { margin: 0 }` (scoped specificity (0, 2, 0)) without the local
+   component needing to split `margin` into `margin-block` + `margin-inline`.
+   Without the `:not(.full-bleed)` boost, scoped `margin: 0` shorthands
+   would silently override `margin-inline: auto` and content wouldn't
+   center. */
+main:not(.narrow-measure) > :is(p, h2, h3, h4, h5, h6, ul, ol, dl, blockquote, pre, table, figure, hr, aside):not(.full-bleed),
+main:not(.narrow-measure) > :is(div, article, section) > :is(p, h2, h3, h4, h5, h6, ul, ol, dl, blockquote, pre, table, figure, hr, aside):not(.full-bleed) {
+  max-width: var(--measure-wide);
+  margin-inline: auto;
+}
 
 /* ============================================================================
    Code
@@ -667,5 +1062,95 @@ code {
 @media (prefers-reduced-motion: reduce) {
   .scroll-indicator-thumb {
     will-change: auto;
+  }
+}
+
+/* ============================================================================
+   Float-image — shared pattern for content images that wrap text around them
+   ============================================================================
+   Used on About Me and project detail pages — anywhere a body of text would
+   benefit from images placed inline with text flowing around them rather than
+   stacked full-width.
+
+   Default (mobile, <720px): images stack full-width above/below their
+   surrounding text. No float — narrow viewports can't reasonably fit text
+   beside an image without one or the other getting squeezed.
+
+   ≥720px: images float left or right at up to 40% of their container's
+   width. Text flows around the float. The 40% cap keeps two-column-feel
+   sane on tablet widths; the image scales down proportionally on smaller
+   viewports within this tier.
+
+   Markup options:
+   - Apply directly to <img> or Astro <Image> via class names:
+       <img src="..." class="float-image float-image--right" alt="..." />
+   - Or wrap in <figure> for caption support:
+       <figure class="float-image float-image--left">
+         <img src="..." alt="..." />
+         <figcaption>...</figcaption>
+       </figure>
+
+   Surrounding container needs to clear the float after the wrap zone ends —
+   trailing content stacks below the image normally because article-level
+   block formatting handles this; if a float ever extends beyond its
+   intended block, add `overflow: auto` or `clear: both` on the parent. */
+.float-image {
+  display: block;
+  /* `margin-inline: auto` centers the image horizontally when its intrinsic
+     `width` attribute (set on the Astro <Image>) is smaller than the
+     container width — common on tablet-sized viewports below the 720px
+     float breakpoint (Sean direction 2026-05-20). Without auto inline
+     margins the image would left-align to the container's content edge,
+     reading awkwardly next to full-width centered text. The 720px-tier
+     rules below override `margin: 0 ...` with explicit float-side margins,
+     so the auto here only applies in the stacked / non-floated tier. */
+  margin-block: var(--space-md);
+  margin-inline: auto;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  /* `position: relative` + `z-index: 1` lifts the image above neighbor h2
+     elements' stacking contexts (Sean direction 2026-05-20 iteration 5).
+     Without this, an h2 whose `::after` laser-beam (z-index -1 inside h2's
+     `isolation: isolate` context) overlaps the image's horizontal range
+     would paint the laser OVER the image, "cutting it off" visually. With
+     the image at z-index 1, it stacks above the h2's stacking context so
+     the laser passes BEHIND the image as Sean wants. */
+  position: relative;
+  z-index: 1;
+  /* Cyan glow halo around images — mirrors the h2 drawer's drop-shadow
+     halo vocabulary in box-shadow form (4 tiers from tight bright ring
+     to wide atmospheric bloom). Sean direction 2026-05-20 iteration 5:
+     "put a similar outer glow around the images." */
+  box-shadow:
+    0 0 4px var(--color-electric-cyan-glow),
+    0 0 12px var(--color-electric-cyan-glow),
+    0 0 28px rgba(102, 232, 255, 0.5),
+    0 0 50px rgba(102, 232, 255, 0.25);
+}
+
+/* figcaption styling — used when float-image wraps a <figure>. Optional;
+   plain <img class="float-image"> works fine without it. */
+.float-image figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+@media (min-width: 720px) {
+  .float-image {
+    max-width: 40%;
+  }
+  .float-image--left {
+    float: left;
+    margin: 0 var(--space-md) var(--space-sm) 0;
+    /* Don't extend past the parent's left edge */
+    shape-outside: margin-box;
+  }
+  .float-image--right {
+    float: right;
+    margin: 0 0 var(--space-sm) var(--space-md);
+    shape-outside: margin-box;
   }
 }

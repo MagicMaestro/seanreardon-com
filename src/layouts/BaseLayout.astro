@@ -30,9 +30,16 @@ interface Props {
      that scope-limits indexing to the article body, excluding nav/footer/
      page-title from the index. */
   searchable?: boolean;
+  /* Pages that lean on a form widget (currently /reach-out and /subscribe)
+     opt OUT of the site-wide wide-measure rule (`--measure-wide: 75%`,
+     centered) and revert to the tighter `--measure: 65ch` left-aligned
+     setting for their intro paragraphs and supporting copy. Adds a
+     `narrow-measure` class on <main>; the wide-measure rule in global.css
+     short-circuits via `main:not(.narrow-measure)`. Default false. */
+  narrowMeasure?: boolean;
 }
 
-const { title, description, noindex, noPageTitleBar, searchable = false } = Astro.props;
+const { title, description, noindex, noPageTitleBar, searchable = false, narrowMeasure = false } = Astro.props;
 const fullTitle = title === 'Sean Reardon' ? title : `${title} — Sean Reardon`;
 /* Either `data-pagefind-ignore` or nothing — spread onto <main> below.
    Object-spread keeps the JSX terse and lets Astro omit the attribute when
@@ -79,7 +86,7 @@ const mainPagefindAttrs = searchable ? {} : { 'data-pagefind-ignore': '' };
         viewports where main fills the wrapper, the title bar reaches the
         viewport edges naturally. */}
     <div class="main-wrapper">
-      <main {...mainPagefindAttrs}>
+      <main class:list={[{ 'narrow-measure': narrowMeasure }]} {...mainPagefindAttrs}>
         {!noPageTitleBar && <h1>{title}</h1>}
         <slot />
       </main>
@@ -188,6 +195,42 @@ const mainPagefindAttrs = searchable ? {} : { 'data-pagefind-ignore': '' };
         updateIndicator();
         updateRope();
       });
+
+      /* H2 drawer laser positioning — measure each h2's actual viewport
+         position via getBoundingClientRect() and set a CSS custom property
+         the ::after rule uses for `left` and `width` (Sean direction
+         2026-05-20 iteration 7).
+
+         Why JS: the laser's left edge needs to terminate exactly at the
+         scrollbar's right edge across all viewport widths AND when an
+         h2 has a left-float adjacent to it (h2 has `display: flow-root`
+         which narrows it beside floats — its computed left position then
+         differs from a pure wide-measure 12.5%-gutter calculation). A
+         pure-CSS calc can only handle the no-float case at predicted
+         widths; JS handles all cases by measuring the rendered DOM.
+
+         Distance = h2.left - scrollbar.right (clamped to >=0).
+         Property: --h2-laser-distance, set as inline style on each h2.
+         The ::after rule in global.css uses this with a calc()-based
+         fallback for the no-JS / pre-JS-run case. */
+      const drawerH2s = document.querySelectorAll<HTMLElement>(
+        'main > h2:not(.full-bleed), main > div > h2:not(.full-bleed), main > article > h2:not(.full-bleed), main > section > h2:not(.full-bleed)'
+      );
+
+      function updateDrawerH2Lasers() {
+        if (!indicator || drawerH2s.length === 0) return;
+        const scrollbarRect = indicator.getBoundingClientRect();
+        const scrollbarRight = scrollbarRect.right;
+        for (const h2 of drawerH2s) {
+          const h2Rect = h2.getBoundingClientRect();
+          const distance = Math.max(0, h2Rect.left - scrollbarRight);
+          h2.style.setProperty('--h2-laser-distance', `${distance}px`);
+        }
+      }
+
+      updateDrawerH2Lasers();
+      window.addEventListener('resize', updateDrawerH2Lasers);
+      window.addEventListener('load', updateDrawerH2Lasers);
     </script>
   </body>
 </html>

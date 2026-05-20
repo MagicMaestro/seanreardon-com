@@ -1,26 +1,148 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
+import { Image } from 'astro:assets';
+import StoneTagline from '~/components/astro/StoneTagline.astro';
+import linkedinProfile from '~/assets/images/me-photos/linkedin-profile.jpg';
+import africaTrek from '~/assets/images/me-photos/2026-wild-africa-trek.jpg';
+import betweenTwoPlates from '~/assets/images/me-photos/between-two-plates.jpg';
 ---
 <BaseLayout
   title="About Me"
   description="About Sean Reardon — building since 1998, currently focused on AI integration in the web stack."
   searchable={true}
 >
+  {/* AI quote — stone-tagline strip below the page title, above the
+      autobiographical content. Mirrors the homepage hero-tagline pattern
+      (Sean direction 2026-05-20 iteration 8). The StoneTagline component
+      encapsulates the cracked-stone background + dark-glass plaque +
+      corner-standoff treatment so this and the homepage can share the
+      visual without duplicating its CSS in each page. */}
+  <StoneTagline text="The true power of AI lies not in replacing humans, but in working alongside us to achieve what neither can do alone.">
+    {/* Citation passed as a slot (instead of the `citation` string prop)
+        so Sebastian's name can be a clickable link to his Stanford
+        Robotics page. The link inherits all surrounding citation
+        styling — see StoneTagline.astro's `.stone-tagline-citation a`
+        rule. `rel="external noopener"` is the safe default for
+        off-site links (privacy + tab-targeting protection). */}
+    <Fragment slot="citation">
+      — <a href="https://robots.stanford.edu/" target="_blank" rel="external noopener">Sebastian Thrun</a>
+    </Fragment>
+  </StoneTagline>
+
   {/* `data-pagefind-body` scope-limits Pagefind's indexing to this content
       wrapper — excludes nav/footer/page-title from the index per the corpus
       rule in BaseLayout's `searchable` prop docstring. Same pattern as the
       lessons-learned post route and the privacy page's <article>. */}
   <div data-pagefind-body>
+    <Image
+      src={linkedinProfile}
+      alt="Sean Reardon — professional headshot"
+      class="float-image float-image--right"
+      width={300}
+      loading="eager"
+    />
+
     <p>
-      Building since 1998. Currently focused on AI integration in the web stack
-      — shipping projects, writing about technical decisions, and exploring what
-      becomes possible when modern language models are first-class citizens of a
-      web application.
+      I build websites for a living, but most of the work that interests me right now
+      happens at the layer where the website meets a language model. I've been building
+      front-end since 1998, full-stack since 2014, and now, AI integration into secure
+      and scalable systems since 2024. Born and raised in Buffalo, NY with a brief
+      detour to southern California — in my early college years. I grew up loving
+      technology, engineering, and the arts; but especially technology!
     </p>
+
     <p>
-      Based in Buffalo, NY.
+      That's what this site is.
+    </p>
+
+    <p>
+      The site you're reading is the proving ground for what AI-integrated web work
+      actually looks like in practice!
+    </p>
+
+    <h2>Then and now</h2>
+
+    <Image
+      src={africaTrek}
+      alt="Sean Reardon on Disney's Wild Africa Trek, safari vest and sunglasses on a rope suspension bridge"
+      class="float-image float-image--left"
+      width={450}
+      loading="lazy"
+    />
+
+    <p>
+      In 1998 "responsive design" meant "fits on a 1024×768 monitor," and the way into
+      the work was HTML, CSS, JavaScript, then jQuery, then the parade of frameworks.
+      By 2014 I was shipping full-stack applications — server-side rendering, databases,
+      authentication flows, the whole stack from URL bar to disk. Most of the past
+      decade has been C#/.NET and Angular, building line-of-business software for
+      clients with real customers solving real problems. The discipline of shipping
+      code that other people depend on, then maintaining it for years, then watching
+      what breaks under load — <em>that</em> taught me more about software than any
+      course I took.
+    </p>
+
+    <p>
+      About a year ago, the work started shifting. AI language models had been quietly
+      growing more capable in the background of my workflow, and the question stopped
+      being "will this affect how I work" and started being "how do I integrate this
+      without becoming the thing it replaces." The redesign of this website is a big
+      part of my answer.
+    </p>
+
+    <h2>How I work</h2>
+
+    <Image
+      src={betweenTwoPlates}
+      alt="Sean Reardon at Þingvellir, Iceland — the rift between the North American and Eurasian tectonic plates"
+      class="float-image float-image--right"
+      width={400}
+      loading="lazy"
+    />
+
+    <p>
+      A few principles that show up in everything I ship:
+    </p>
+
+    <p>
+      <strong>Ship and explain.</strong> Every meaningful decision becomes a retrospective
+      post — the technical work and the writing about it are the same surface. See
+      <a href="/lessons-learned/">Lessons Learned</a> for the rationale behind every choice
+      on this site, in real time as I'm making them.
+    </p>
+
+    <p>
+      <strong>Distinctive over safe on identity surfaces.</strong> Most design choices
+      reward restraint — body text, navigation, forms, the scaffolding most visitors never
+      consciously notice. But identity surfaces — logos, hero moments, the few places where
+      a site declares what it <em>is</em> — work the other way. A logo that's "tasteful and
+      quiet" disappears the same way navigation does. That's a missed shot.
+    </p>
+
+    <p>
+      <strong>Self-hosted infrastructure when the trade-off lands.</strong> This site runs
+      on a VPS I admin myself. The newsletter platform is self-hosted Listmonk. The AI
+      search is a self-hosted embedding model running on the same box. Managed services
+      have their place, but so does owning the stack — vendor lock-in, ongoing subscription
+      fees, opaque data flows are real costs that managed services impose silently. When
+      the operational overhead pays for itself in control and clarity, I pick the
+      self-hosted path.
+    </p>
+
+    <p>
+      <strong>AI amplifies; it doesn't steer.</strong> I use AI extensively now — agents
+      for cataloging legacy projects, diagnostic agents for cross-stack debugging, embedding
+      models for site search, language models for first drafts. But every output gets
+      reviewed the way I'd review a junior developer's pull request. The judgment of when
+      a model is right and when it's hallucinating is what makes the integration valuable.
+      Without that judgment, you're just generating slop faster.
+    </p>
+
+    <p>
+      The site you're reading is the proof that I practice what I preach. The technical
+      decisions are in the repo and the writing; the design decisions are visible
+      everywhere you look. About me is less interesting than what I do — and the doing
+      is on display.
     </p>
   </div>
-
-  {/* Full bio, recurring themes, current preoccupations to follow once the IA + about-page plan lands. */}
 </BaseLayout>

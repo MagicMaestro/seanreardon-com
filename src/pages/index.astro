@@ -87,7 +87,7 @@ marqueeItems.push({
     What becomes possible when an AI language model is integrated as first-class material into the stack?
   </h1>
   <h2
-    class="hero-tagline"
+    class="hero-tagline full-bleed"
     style={`--hero-tagline-bg: url('${crackedStoneBg.src}'); --hero-tagline-bg-lg: url('${crackedStoneBgLg.src}');`}
   >
     <span>
@@ -126,7 +126,7 @@ marqueeItems.push({
       styles + sine-wave hover animation. Grid scales: 1 col at <740,
       2 cols at ≥740, 3 cols at ≥1040. */}
   <section class="recent" aria-labelledby="recent-heading">
-    <h2 id="recent-heading">Recent</h2>
+    <h2 id="recent-heading" class="full-bleed">Recent</h2>
     <ul class="recent-list">
       {leadProject && (
         <li>
@@ -218,7 +218,10 @@ marqueeItems.push({
        breathing room around the centered plaque. */
     margin-block: 0;
     margin-inline: calc(-1 * var(--space-md));
-    padding: var(--space-md) var(--space-xl);
+    /* Padding tiers (Sean direction 2026-05-20 iteration 9): tight on
+       small phones, normal at ≥460px, generous breathing room at ≥620px.
+       Matches the StoneTagline component's padding ladder. */
+    padding: var(--space-md) var(--space-sm);
     text-align: center;
 
     /* Background: cracked-stone-bg.png (small) by default, swapping to
@@ -253,6 +256,10 @@ marqueeItems.push({
        blur radii and alphas both pulled back ~25–35% so the glow
        reads as a present-but-restrained energy rather than a strong
        halo. Threads visually into the hero-question above. */
+    /* `white-space: nowrap` (Sean direction 2026-05-20 iteration 10) —
+       tagline text stays on a single line, no soft-wrapping at spaces.
+       Same treatment as StoneTagline. */
+    white-space: nowrap;
     color: white;
     text-shadow:
       0 0 3px rgba(225, 248, 255, 0.65),
@@ -389,7 +396,20 @@ marqueeItems.push({
     bottom: 0.5rem;
     right: 0.5rem;
   }
-  @media (min-width: 580px) {
+  /* Padding-inline tier overrides — see the base rule for the reason. */
+  @media (min-width: 460px) {
+    .hero-tagline {
+      padding: var(--space-md) var(--space-md);
+    }
+  }
+  @media (min-width: 620px) {
+    .hero-tagline {
+      padding: var(--space-md) var(--space-xl);
+    }
+  }
+  /* Background-size swap bumped 580px → 680px (Sean direction
+     2026-05-20 iteration 9). */
+  @media (min-width: 680px) {
     .hero-tagline {
       --hero-tagline-bg-size: 100% auto;
     }
@@ -409,9 +429,13 @@ marqueeItems.push({
        viewports — the small variant scaled to 100% width starts to
        feel pixel-stretched here. The indirection variable
        --hero-tagline-image picks up the change without re-declaring
-       the full `background` shorthand. Position + size unchanged. */
+       the full `background` shorthand. Bg-size bumped to `120% auto`
+       (Sean direction 2026-05-20 iteration 10) — slight horizontal
+       overscale keeps the texture's natural proportions reading
+       without visible repeat seams at wide tiers. */
     .hero-tagline {
       --hero-tagline-image: var(--hero-tagline-bg-lg);
+      --hero-tagline-bg-size: 120% auto;
     }
   }
 

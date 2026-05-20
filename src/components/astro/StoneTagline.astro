@@ -1,0 +1,234 @@
+---
+/*
+ StoneTagline.astro
+
+ Reusable cracked-stone tagline strip with a centered dark-glass plaque,
+ four corner standoffs, and cyan-glow text. Extracted from the homepage
+ hero-tagline pattern (index.astro) so it can be reused on About Me's
+ AI quote and any future page that wants the same stone-bar treatment.
+
+ Renders as a full-bleed <h2> (escapes main's padding via negative
+ inline margins, same as the page-title h1 — pair with the `.full-bleed`
+ class so the wide-measure + h2 drawer rules in global.css don't reapply
+ their own treatment on top of this one).
+
+ Props:
+   text — the text inside the plaque
+   citation — optional plain-text citation (e.g., "— Author Name").
+              For citations that need markup (e.g., a link on the
+              author's name), use the `citation` SLOT instead:
+                <StoneTagline text="...">
+                  <Fragment slot="citation">— <a href="...">Name</a></Fragment>
+                </StoneTagline>
+              The slot takes precedence over the prop when both are set.
+
+ Usage:
+   <StoneTagline text="..." citation="— Author Name" />
+*/
+import crackedStoneBg from '~/assets/images/cracked-stone-bg.png';
+import crackedStoneBgLg from '~/assets/images/cracked-stone-bg-lg.png';
+
+interface Props {
+  text: string;
+  citation?: string;
+}
+
+const { text, citation } = Astro.props;
+const hasCitationSlot = Astro.slots.has('citation');
+---
+<h2
+  class="stone-tagline full-bleed"
+  style={`--stone-tagline-bg: url('${crackedStoneBg.src}'); --stone-tagline-bg-lg: url('${crackedStoneBgLg.src}');`}
+>
+  <span>
+    <span class="plaque-standoff" aria-hidden="true"></span>
+    <span class="plaque-standoff" aria-hidden="true"></span>
+    <span class="plaque-standoff" aria-hidden="true"></span>
+    <span class="plaque-standoff" aria-hidden="true"></span>
+    {text}
+    {(hasCitationSlot || citation) && (
+      <span class="stone-tagline-citation">
+        {hasCitationSlot ? <slot name="citation" /> : citation}
+      </span>
+    )}
+  </span>
+</h2>
+
+<style>
+  /* Stone slab — full-bleeds to main's padding-box edges via negative
+     margin-inline. Carved-into-stone text via 3-stop text-shadow.
+     Background: cracked-stone-bg.png at <1080px, cracked-stone-bg-lg.png
+     at ≥1080px (better at wider viewports). URLs pass in via the
+     --stone-tagline-bg and --stone-tagline-bg-lg inline custom
+     properties; the --stone-tagline-image indirection picks the active
+     one per viewport. */
+  .stone-tagline {
+    margin-block: 0;
+    margin-inline: calc(-1 * var(--space-md));
+    /* Padding tiers (Sean direction 2026-05-20 iteration 9): tight on
+       small phones, normal at ≥460px, generous breathing room at ≥620px.
+       Original blanket `var(--space-md) var(--space-xl)` felt too
+       spacious at small viewports where the bar got cramped. */
+    padding: var(--space-md) var(--space-sm);
+    text-align: center;
+
+    --stone-tagline-image: var(--stone-tagline-bg);
+    --stone-tagline-bg-size: 100% 100%;
+    background: var(--stone-tagline-image) center bottom / var(--stone-tagline-bg-size) no-repeat;
+
+    /* `white-space: nowrap` (Sean direction 2026-05-20 iteration 10) —
+       quote text stays on a single line, no soft-wrapping at spaces. On
+       narrow viewports where the quote can't fit, it overflows the
+       plaque rather than wrapping. Trade-off Sean asked for. */
+    white-space: nowrap;
+    color: white;
+    text-shadow:
+      0 0 3px rgba(225, 248, 255, 0.65),
+      0 0 8px rgba(102, 232, 255, 0.45),
+      0 0 16px rgba(102, 232, 255, 0.25);
+
+    /* Inset shadows — warm copper-orange glow at bottom edge,
+       subtle dark at top. Same pattern as the homepage hero-tagline. */
+    box-shadow:
+      inset 0 -6px 18px rgba(196, 110, 50, 0.32),
+      inset 0 4px 6px rgba(0, 0, 0, 0.6);
+
+    font-family: var(--font-subhead);
+    font-weight: 700;
+    font-size: 1.25rem;
+    line-height: 1.4;
+    text-wrap: balance;
+  }
+
+  /* Inner dark-glass plaque — centered black-glass surface holding the
+     text. Glare gradient + glass base + drop-shadow for the
+     mounted-with-depth feel. */
+  .stone-tagline > span {
+    display: block;
+    position: relative;
+    max-width: 47.5rem;
+    margin: 0.4rem auto;
+    padding: 1.5rem 2.5rem;
+    background:
+      linear-gradient(115deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.05) 42%,
+        rgba(255, 255, 255, 0.14) 50%,
+        rgba(255, 255, 255, 0.05) 58%,
+        transparent 70%),
+      rgba(10, 10, 12, 0.88);
+    border-radius: 0.5rem;
+    box-shadow:
+      inset 0 1px 1px rgba(255, 255, 255, 0.08),
+      inset 0 -1px 2px rgba(0, 0, 0, 0.4),
+      0 2px 8px 2px rgba(0, 0, 0, 0.9);
+  }
+
+  /* Citation line — smaller, italicized, lighter weight to read as
+     attribution rather than primary text. Sits below the main quote
+     text on its own line via display: block. */
+  .stone-tagline-citation {
+    display: block;
+    margin-top: 0.75rem;
+    font-size: 0.9em;
+    font-style: italic;
+    font-weight: 500;
+    color: rgba(225, 248, 255, 0.85);
+  }
+
+  /* Citation link styling is in global.css (not here) — slotted <a>
+     elements come from the consuming page (e.g., about-me.astro), so
+     they carry that page's Astro scope-id, not this component's. A
+     scoped rule here wouldn't match them. See `.stone-tagline-citation
+     > a` in global.css for the actual styling. */
+
+  /* Plaque standoffs — four cut-steel circles at the plaque's corners,
+     painted via conic-gradient. Same 8-stop bright/dark gray pattern as
+     the homepage's hero-tagline standoffs. */
+  .stone-tagline .plaque-standoff {
+    position: absolute;
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 50%;
+    background: conic-gradient(
+      #e8e8e8 0deg,
+      #989898 45deg,
+      #d8d8d8 90deg,
+      #a0a0a0 135deg,
+      #ececec 180deg,
+      #909090 225deg,
+      #e0e0e0 270deg,
+      #a8a8a8 315deg,
+      #e8e8e8 360deg
+    );
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.55),
+      inset 0 -1px 1px rgba(0, 0, 0, 0.35),
+      inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  }
+  .stone-tagline .plaque-standoff:first-child {
+    top: 0.5rem;
+    left: 0.5rem;
+  }
+  .stone-tagline .plaque-standoff:nth-child(2) {
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+  .stone-tagline .plaque-standoff:nth-child(3) {
+    bottom: 0.5rem;
+    left: 0.5rem;
+  }
+  /* `:nth-child(4)` (not `:last-child`) so the rule still matches the 4th
+     standoff even when a citation span follows the standoffs in the
+     plaque (Sean direction 2026-05-20 iteration 9). With a citation,
+     the LAST child is the citation — so `:last-child` was matching
+     nothing for `.plaque-standoff`, and the 4th standoff inherited only
+     `position: absolute` (no top/bottom/left/right), defaulting to its
+     in-flow position which landed near the top of the plaque. */
+  .stone-tagline .plaque-standoff:nth-child(4) {
+    bottom: 0.5rem;
+    right: 0.5rem;
+  }
+
+  /* Padding-inline tier overrides — see the base rule for the reason. */
+  @media (min-width: 460px) {
+    .stone-tagline {
+      padding: var(--space-md) var(--space-md);
+    }
+  }
+  @media (min-width: 620px) {
+    .stone-tagline {
+      padding: var(--space-md) var(--space-xl);
+    }
+  }
+
+  /* Background-size swap bumped 580px → 680px (Sean direction
+     2026-05-20 iteration 9): the `100% auto` sizing was kicking in too
+     early at 580px on intermediate-width viewports. */
+  @media (min-width: 680px) {
+    .stone-tagline {
+      --stone-tagline-bg-size: 100% auto;
+    }
+  }
+  @media (min-width: 740px) {
+    .stone-tagline {
+      font-size: 1.5rem;
+    }
+  }
+  @media (min-width: 1040px) {
+    .stone-tagline {
+      font-size: 1.75rem;
+    }
+  }
+  @media (min-width: 1080px) {
+    /* Wider viewports get the larger texture variant — small stretches
+       past natural-pixel-size start to feel pixel-stretched. Bg-size
+       bumped to `120% auto` (Sean direction 2026-05-20 iteration 10):
+       slight horizontal overscale keeps the texture's natural
+       proportions reading without visible repeat seams at wide tiers. */
+    .stone-tagline {
+      --stone-tagline-image: var(--stone-tagline-bg-lg);
+      --stone-tagline-bg-size: 120% auto;
+    }
+  }
+</style>
