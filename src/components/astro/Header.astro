@@ -1565,23 +1565,48 @@ const navLinks = [
        2 in that context; .logo at 3 paints above the bar's bg/content so the
        full logo is visible in front of the bar in full state. */
     z-index: 3;
-    /* Clip-path inscribes the visible-logo shape inside the link's
-       bounding box (revised 2026-05-18 after Sean flagged the diamond's
-       upper-left edge and lower tip being clipped). The polygon's
-       upper/lower hexagon vertices moved out from 15%/15-95% to
-       10%/0-100% so the diagonals run OUTSIDE the diamond's actual
-       upper-left + lower-left edges (the diamond's top tip sits near
-       y=0% of the image, the bottom tip near y=100%, so the old 15%/
-       95% bounds were cutting into the diamond). The polygon's right
-       side still encloses the wordmark + tagline area. Trade-off:
-       the wider polygon now includes some transparent area above and
-       below the wordmark, so the hit area is slightly more generous —
-       but the diamond's visible content is no longer clipped. */
+    /* Clip-path traces the visible content of fullLogo.png — the diamond on
+       the left and the wordmark+tagline panel on the right.
+
+       Iteration history:
+         - 2026-05-18 (Sean): widened the diamond's hexagon vertices from
+           15%/15-95% to 10%/0-100% so the diagonals stop clipping the
+           diamond's upper-left edge + lower tip. Trade-off accepted at the
+           time: hit area extended past the wordmark's bottom (y=100% across
+           the whole right side), so transparent area below the wordmark
+           was clickable.
+         - 2026-05-21 (Sean): tighten the bottom — the polygon now closes at
+           y=70% across the wordmark panel and walks the diamond's lower-
+           right edge from (16%, 70%) down to (10%, 100%). Eliminates the
+           dead zone below the wordmark+tagline while keeping the diamond's
+           lower portion clickable.
+
+       Polygon walks clockwise from the diamond's left vertex:
+         (0%   50%)  diamond left point
+         (10%  0%)   diamond top point — same as previous
+         (100% 0%)   top-right of wordmark panel
+         (100% 70%)  bottom-right of wordmark+tagline panel (NEW)
+         (16%  70%)  on the diamond's lower-right edge at panel-bottom height (NEW)
+         (10%  100%) diamond bottom point — same as previous
+         (0%   50%)  back to start
+
+       How the (16%, 70%) value is derived: with the diamond inscribed in
+       the left ~20% of the box and centered at x=10%, its right vertex sits
+       at (20%, 50%). The lower-right edge runs from (20%, 50%) to
+       (10%, 100%). At y=70%, x = 20% - (70%-50%)/50% × 10% = 16%.
+
+       Tuning knobs: the 70% (panel-bottom height) and the 16% (diamond's
+       right edge at that height) move in lockstep — if the panel actually
+       ends at y=65% or y=75%, recompute the diamond intercept with the
+       formula above. The 10% diamond-vertex coordinates are unchanged from
+       the previous polygon (Sean confirmed the diamond's visible content
+       wasn't clipped at those values). */
     clip-path: polygon(
       0% 50%,
       10% 0%,
       100% 0%,
-      100% 100%,
+      100% 70%,
+      16% 70%,
       10% 100%,
       0% 50%
     );
@@ -1747,18 +1772,22 @@ const navLinks = [
        top of the bar's bg rather than being occluded by it. */
     z-index: 3;
     /* clip-path limits BOTH the visible render AND the clickable hit area
-       to a diamond shape inscribed in the 10.8rem × 10.8rem box. The
-       mobileLogo PNG already only paints its diamond mark inside roughly
-       this region (surrounding pixels are transparent), so the visible
-       output is unchanged. The hit-area side is what matters: clicks on
-       the diamond reach the link (so it navigates home in every state),
-       clicks on the corner regions of the bounding box pass through to
-       page content beneath — preserving the prior fix where main-page
+       to an inscribed circle in the 10.8rem × 10.8rem box. The mobileLogo
+       PNG paints a diamond mark with a cyan glow halo that extends OUTWARD
+       past the diamond's edges into the box's corner regions. Earlier
+       polygon-based diamond clip (`polygon(50% 0%, 100% 50%, 50% 100%, 0%
+       50%)` — inscribed diamond) cut the glow off at the diamond's edges,
+       making the clip feel "tight" and showing sub-pixel-rendering
+       unevenness on the polygon's 4 vertices (Sean direction 2026-05-21).
+       Switching to `circle(50%)` = inscribed circle: the diamond's 4
+       vertices lie ON the circle, but the circle bulges outward into the
+       corner regions, capturing the glow. The four "wedge" regions in
+       the box's actual corners (outside the circle, where the PNG is
+       fully transparent) are still excluded — clicks there pass through
+       to page content beneath. Preserves the prior fix where main-page
        links underneath the logo's transparent extent stayed clickable.
-       This replaces the previous `pointer-events: none` rules on the
-       hidden/minimal states, which had made the visible logo
-       decoratively-only and broken its home-link affordance. */
-    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+       A circle also has no 4-vertex sub-pixel-rounding tells on render. */
+    clip-path: circle(50%);
     transition: top 300ms ease-out, left 300ms ease-out;
   }
 
