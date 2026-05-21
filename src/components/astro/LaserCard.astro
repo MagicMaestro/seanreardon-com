@@ -259,6 +259,82 @@ const { href, kind, title, summary, dateISO, dateDisplay } = Astro.props;
      prefers-reduced-motion: reduce → skip rAF, render static phase=0. */
   (function () {
     const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const TOUCH_PRIMARY = window.matchMedia('(pointer: coarse)').matches;
+
+    /* Module-scoped state for the touch-device single-active-card model
+       (Sean direction 2026-05-21, iteration 2 of SPR-0028). The earlier
+       per-card IntersectionObserver let multiple cards intersect the center
+       band simultaneously on tall viewports — feels noisy. This refactor
+       picks the single card whose center is CLOSEST to viewport center,
+       recomputed on every scroll/resize frame. Exactly one card animates
+       at a time; the rest are at rest.
+
+       Shared across all cards on the page:
+       - touchCards: every LaserCard on the page (populated in setupCard)
+       - activeCard: the currently-animating element (or null)
+       - rafScheduled: dedupe flag for scroll throttling */
+    interface TouchCardEntry {
+      card: Element;
+      start: () => void;
+      stop: () => void;
+    }
+    const touchCards: TouchCardEntry[] = [];
+    let activeCard: Element | null = null;
+    let rafScheduled = false;
+
+    /* recomputeActiveCard — find the card whose center is closest to
+       viewport center, switch the .is-active class + rAF animation if it
+       changed. Bounded by an activation radius so cards far from the
+       center (or off-screen entirely) don't activate. */
+    function recomputeActiveCard() {
+      const viewportHeight = window.innerHeight;
+      const viewportCenter = viewportHeight / 2;
+      /* ACTIVATION_RADIUS = 35% of viewport height. A card's CENTER must be
+         within this distance of viewport center to be eligible. Outside the
+         radius → not a candidate. Matches the spatial feel of the prior
+         "center 30% band" intersection model but enforces single-card
+         winner rather than allowing co-intersections. */
+      const ACTIVATION_RADIUS = viewportHeight * 0.35;
+
+      let bestEntry: TouchCardEntry | null = null;
+      let bestDistance = Infinity;
+      for (const entry of touchCards) {
+        const rect = (entry.card as HTMLElement).getBoundingClientRect();
+        const cardCenter = (rect.top + rect.bottom) / 2;
+        const distance = Math.abs(cardCenter - viewportCenter);
+        if (distance > ACTIVATION_RADIUS) continue;
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          bestEntry = entry;
+        }
+      }
+
+      const newActive = bestEntry?.card ?? null;
+      if (newActive === activeCard) return;
+
+      /* Deactivate previous */
+      if (activeCard) {
+        activeCard.classList.remove('is-active');
+        const prevEntry = touchCards.find((e) => e.card === activeCard);
+        prevEntry?.stop();
+      }
+
+      /* Activate new */
+      activeCard = newActive;
+      if (newActive && bestEntry) {
+        newActive.classList.add('is-active');
+        bestEntry.start();
+      }
+    }
+
+    function scheduleRecompute() {
+      if (rafScheduled) return;
+      rafScheduled = true;
+      requestAnimationFrame(() => {
+        rafScheduled = false;
+        recomputeActiveCard();
+      });
+    }
 
     /**
      * Generate SVG path data for a sine wave traced around a rectangle's
@@ -362,50 +438,41 @@ const { href, kind, title, summary, dateISO, dateDisplay } = Astro.props;
       card.addEventListener('mouseleave', stop);
       card.addEventListener('focusout', stop);
 
-      /* Touch-primary devices: no :hover state, so the cards never animate
-         on mobile under the desktop event model. IntersectionObserver toggles
-         `.is-active` (the CSS mirror of :hover) as each card scrolls through
-         the center band of the viewport — passive "as you scroll past, you
-         see them light up" pattern. Sean direction 2026-05-21.
+      /* Touch-primary devices: register the card with the shared touchCards
+         array so the module-level recomputeActiveCard() can pick a single
+         winner per scroll frame (Sean direction 2026-05-21 iteration 2 of
+         SPR-0028 — was per-card IntersectionObserver, replaced for the
+         single-active-card requirement).
 
-         Guard: only attach on touch-primary devices. `@media (pointer:
-         coarse)` is the touch-only signal — covers phones, tablets, but not
-         desktop touchscreens (those have `pointer: fine` from the mouse).
-         Desktop hover behavior is untouched.
-
-         rootMargin '-35% 0px -35% 0px' shrinks the IO root vertically to the
-         center 30% of viewport height. A card "intersects" only when its
-         box overlaps that center band. Threshold 0 means any overlap counts
-         — the card activates as soon as it enters the band, deactivates as
-         soon as it leaves. Multiple cards can be active simultaneously on
-         viewports where the band is taller than a single card.
+         Guard: pointer:coarse covers phones + tablets without desktop
+         touchscreens (those have pointer:fine from the mouse). Desktop
+         hover behavior is untouched — the touchCards array stays empty
+         and the shared scroll listener (attached in init()) early-exits
+         since recomputeActiveCard finds no entries.
 
          Quick tap navigation is unchanged: the click handler on <a href>
          fires on touchstart→touchend without movement. Scroll gestures
          (touchstart→touchmove→touchend) don't fire the click. The two
-         behaviors don't compete. */
-      const TOUCH_PRIMARY = window.matchMedia('(pointer: coarse)').matches;
-      if (TOUCH_PRIMARY && typeof IntersectionObserver === 'function') {
-        const io = new IntersectionObserver((entries) => {
-          for (const entry of entries) {
-            if (entry.isIntersecting) {
-              card.classList.add('is-active');
-              start();
-            } else {
-              card.classList.remove('is-active');
-              stop();
-            }
-          }
-        }, {
-          rootMargin: '-35% 0px -35% 0px',
-          threshold: 0,
-        });
-        io.observe(card);
+         behaviors operate on independent event channels. */
+      if (TOUCH_PRIMARY) {
+        touchCards.push({ card, start, stop });
       }
     }
 
     function init() {
       document.querySelectorAll('.laser-card').forEach(setupCard);
+
+      /* Single shared scroll + resize listeners drive recomputeActiveCard
+         on touch-primary devices. rAF throttling caps recompute at one per
+         frame (~60fps) regardless of scroll event frequency. Initial
+         recompute on init handles the case where a card is already in
+         the activation radius on page load (e.g., direct nav to /projects/
+         with the first card centered). */
+      if (TOUCH_PRIMARY && touchCards.length > 0) {
+        window.addEventListener('scroll', scheduleRecompute, { passive: true });
+        window.addEventListener('resize', scheduleRecompute, { passive: true });
+        recomputeActiveCard();
+      }
     }
 
     if (document.readyState === 'loading') {
