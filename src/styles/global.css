@@ -161,12 +161,17 @@
      BaseLayout, where forms drive the page and intro paragraphs read
      better at the tighter setting. */
   --measure: 65ch;
-  /* Wide measure — site-wide default for main-column text (Sean direction
-     2026-05-19, raising from prior 65ch site-wide). ~75% of main's content
-     width with `margin-inline: auto` centers the column inside main, giving
-     balanced gutters on either side. Used by the rule below scoped to
-     direct/near-direct children of <main>. */
-  --measure-wide: 75%;
+  /* Wide measure — site-wide default for main-column text. Viewport-dependent
+     (Sean direction 2026-05-21): on small screens the auto-centered 75%
+     leaves ~25% as side-gutters, compressing the content area to ~284px on
+     a 443px viewport. Long unwrappable content (code lines, URLs, table
+     cells) then overflows the constrained column and pushes the page
+     wider than viewport. Fix: drop to `100%` (= main's content area
+     width) on <720px so content fills the available space with NO inner
+     gutter; keep `75%` ≥720px where the centered column reads cleanly.
+     The `margin-inline: auto` on the wide-measure rule becomes a no-op
+     when max-width is 100% (no leftover space to distribute as margins). */
+  --measure-wide: 100%;
   --radius: 0.375rem;
   /* Main's max-width on WIDE viewports (≥1520px). Smaller viewports use
      proportional caps via media queries:
@@ -181,6 +186,17 @@
   /* === Motion === */
   --transition-fast: 150ms;
   --transition-med: 250ms;
+}
+
+/* --measure-wide bump from 100% → 75% at ≥720px. The 100% default applies
+   on mobile (full content width, no inner gutter); ≥720px the centered-
+   75%-column treatment kicks in. 720px was chosen to match the float-image
+   activation breakpoint — same threshold where the layout starts having
+   enough horizontal room for centered-column treatments to read cleanly. */
+@media (min-width: 720px) {
+  :root {
+    --measure-wide: 75%;
+  }
 }
 
 /* ============================================================================
@@ -857,6 +873,35 @@ code {
   background: rgba(255,255,255,0.06);
   padding: 0.1em 0.3em;
   border-radius: 0.2em;
+}
+
+/* pre + table overflow handling (Sean direction 2026-05-21). Default browser
+   styling has `pre { overflow: visible; white-space: pre }` — long code lines
+   don't wrap AND don't scroll within the pre, so they spill past the pre's
+   right edge and end up extending the page width past viewport. This was
+   the root cause of horizontal-scroll-on-mobile reports: html's
+   `overflow-x: clip` was hiding the visible scroll but the LAYOUT overflow
+   still pushed right-anchored header elements (search icon, hamburger, rope)
+   off-screen.
+
+   `overflow-x: auto` makes the pre scroll INTERNALLY on long lines instead
+   of overflowing the page. `max-width: 100%` defends against the pre being
+   wider than its container (the wide-measure rule already constrains it,
+   but explicit max-width is cheap insurance).
+
+   Tables get the same treatment (display: block needed for overflow to work
+   on tables; trade-off is that the cells lay out differently than a true
+   table, but for content tables of reasonable width this is fine and the
+   tradeoff is "rare overflow case looks ok" vs "common reading case breaks
+   the page"). */
+pre {
+  overflow-x: auto;
+  max-width: 100%;
+}
+table {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
 }
 
 /* ============================================================================
