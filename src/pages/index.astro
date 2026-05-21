@@ -2,10 +2,9 @@
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import LaserCard from '~/components/astro/LaserCard.astro';
 import MarqueeFeature, { type MarqueeItem } from '~/components/astro/MarqueeFeature.astro';
+import StoneTagline from '~/components/astro/StoneTagline.astro';
 import brokenLedge from '~/assets/images/broken-ledge.png';
 import brokenLedgeLg from '~/assets/images/broken-ledge-lg.png';
-import crackedStoneBg from '~/assets/images/cracked-stone-bg.png';
-import crackedStoneBgLg from '~/assets/images/cracked-stone-bg-lg.png';
 import { getCollection } from 'astro:content';
 
 /* Hero recent-items grid: 1 most-recent featured project + 2 most-recent
@@ -86,18 +85,16 @@ marqueeItems.push({
   <h1 class="hero-question">
     What becomes possible when an AI language model is integrated as first-class material into the stack?
   </h1>
-  <h2
-    class="hero-tagline full-bleed"
-    style={`--hero-tagline-bg: url('${crackedStoneBg.src}'); --hero-tagline-bg-lg: url('${crackedStoneBgLg.src}');`}
-  >
-    <span>
-      <span class="plaque-standoff" aria-hidden="true"></span>
-      <span class="plaque-standoff" aria-hidden="true"></span>
-      <span class="plaque-standoff" aria-hidden="true"></span>
-      <span class="plaque-standoff" aria-hidden="true"></span>
-      Building front-end since 1998 and full-stack since 2014 — and lately, that's the question driving my designs.
-    </span>
-  </h2>
+  {/* Hero tagline — refactored 2026-05-20 from inline h2+CSS-block (~225 lines)
+      to the StoneTagline component. The previous block in this file was a
+      duplicate of the same stone-bar treatment the StoneTagline component
+      now encapsulates (extracted in the About Me work to support the AI
+      quote). Component identity-mapping: `text` prop = the line that
+      previously lived inside the inner span. The component handles the
+      cracked-stone bg, dark-glass plaque, four corner standoffs, padding
+      tiers, bg-size swap at ≥1080px, white-space nowrap, and the
+      .full-bleed opt-out from the wide-measure + h2 drawer global rules. */}
+  <StoneTagline text="Building front-end since 1998 and full-stack since 2014 — and lately, that's the question driving my designs." />
 
   {/* Marquee — single featured AI-features item, full-bleed steam-clearing
       band. v1 launches with post 010 as the interim item; rotation
@@ -200,252 +197,22 @@ marqueeItems.push({
     }
   }
 
-  /* Tagline — h2 stone strip following the hero question. Heavily
-     weathered dark-blotched stone, distinct from h1's lighter
-     sandstone via dominant dark wear patches. Full-bleeds to main's
-     padding-box edges via negative margin-inline. Carved-into-stone
-     text via 3-stop text-shadow (down-right highlight + up-left dark
-     + soft halo). */
-  .hero-tagline {
-    /* Bottom margin: 0 — marquee sits directly beneath, the two
-       segments touch (per 2026-05-14 Sean direction).
-       Reverted 2026-05-18 (third pass) — the max-width, border-radius
-       and outer box-shadow that briefly lived here actually belong on
-       the inner .hero-tagline > span (the dark glass plaque). The h2
-       returns to its full-bleed stone-slab role.
-       Padding bumped 2026-05-18 (later) — var(--space-md) vertical /
-       var(--space-xl) horizontal — gives the stone slab more visible
-       breathing room around the centered plaque. */
-    margin-block: 0;
-    margin-inline: calc(-1 * var(--space-md));
-    /* Padding tiers (Sean direction 2026-05-20 iteration 9): tight on
-       small phones, normal at ≥460px, generous breathing room at ≥620px.
-       Matches the StoneTagline component's padding ladder. */
-    padding: var(--space-md) var(--space-sm);
-    text-align: center;
+  /* Hero tagline styling lives in src/components/astro/StoneTagline.astro
+     (refactored 2026-05-20 — was ~230 lines of duplicate CSS in this file).
+     Markup is now `<StoneTagline text="..." />` above; the component
+     handles the cracked-stone bg + dark-glass plaque + 4 corner
+     standoffs + padding tiers + bg-size swap at ≥1080px + nowrap, and
+     applies the `.full-bleed` opt-out class so the wide-measure + h2
+     drawer global rules don't reapply. */
 
-    /* Background: cracked-stone-bg.png (small) by default, swapping to
-       cracked-stone-bg-lg.png at ≥1080px viewports. URLs come in via
-       the --hero-tagline-bg and --hero-tagline-bg-lg inline custom
-       properties (set on the h2 element); the --hero-tagline-image
-       indirection variable below picks whichever is active for the
-       current viewport.
-
-       Sizing is responsive (2026-05-18):
-         <480px:  100% 100% — stretches both axes so the image fully
-                  fills the narrow band (distortion is acceptable at
-                  small viewports, where the band is short and content
-                  is what matters).
-         ≥480px:  100% auto — image scales to full width with height
-                  auto-derived from natural aspect (no distortion;
-                  may crop or leave subtle space depending on the
-                  image's aspect vs the band's aspect).
-
-       Position pinned to `center bottom` so any vertical crop (from
-       `100% auto` when the scaled height exceeds the band) is taken
-       from the TOP — keeping the lower edge of the texture (where
-       the most ledge-detail typically lives) anchored. */
-    --hero-tagline-image: var(--hero-tagline-bg);
-    --hero-tagline-bg-size: 100% 100%;
-    background: var(--hero-tagline-image) center bottom / var(--hero-tagline-bg-size) no-repeat;
-
-    /* White text + light-cyan glow (reverted 2026-05-18, fourth pass —
-       the copper-warm version felt off; reverting to the cyan palette
-       pulled from .hero-question's energy-box outline, but dialed
-       SUBTLER than the prior cyan attempt). Same three-layer structure;
-       blur radii and alphas both pulled back ~25–35% so the glow
-       reads as a present-but-restrained energy rather than a strong
-       halo. Threads visually into the hero-question above. */
-    /* `white-space: nowrap` (Sean direction 2026-05-20 iteration 10) —
-       tagline text stays on a single line, no soft-wrapping at spaces.
-       Same treatment as StoneTagline. */
-    white-space: nowrap;
-    color: white;
-    text-shadow:
-      0 0 3px rgba(225, 248, 255, 0.65),
-      0 0 8px rgba(102, 232, 255, 0.45),
-      0 0 16px rgba(102, 232, 255, 0.25);
-
-    /* Inner shadow added 2026-05-18 — mirrors the .marquee-ledge's
-       inset shadow pair (which has warm copper-orange heat glow at the
-       TOP and dark inset at the bottom), flipped vertically here so the
-       hero-tagline carries the warm glow on its BOTTOM edge. Visually
-       continues the marquee's top heat into the tagline's bottom edge,
-       reading as one heated zone spanning the marquee+tagline interface.
-       Color matches the marquee heat-glow palette: rgba(196, 110, 50).
-       border-bottom removed 2026-05-18 (later) — it was rendering as a
-       visible black hairline at the tagline/marquee seam; now the warm
-       glow + marquee's top heat meet directly with no dividing line. */
-    box-shadow:
-      inset 0 -6px 18px rgba(196, 110, 50, 0.32),
-      inset 0 4px 6px rgba(0, 0, 0, 0.6);
-
-    font-family: var(--font-subhead);
-    font-weight: 700;
-    font-size: 1.25rem;
-    line-height: 1.4;
-    text-wrap: balance;
-  }
-
-  /* Black glass plaque inside the stone-slab band. The span sits as
-     a discrete plate on the stacked-stone slab, providing readable
-     backing for the white tagline text.
-
-     Restructured 2026-05-18 (second pass): standoffs were previously
-     painted as radial-gradient layers on this span's background;
-     they're now real <span class="plaque-standoff"> elements nested
-     inside, absolutely positioned at the four corners (see rules
-     below). This span no longer carries any standoff styling — just
-     the glass base + glare. `position: relative` anchors the
-     standoff children. */
-  .hero-tagline > span {
-    display: block;
-    position: relative;
-    /* max-width, border-radius, and the heavier box-shadow moved here
-       2026-05-18 (third pass) — they belong on the plaque, not on the
-       outer h2 stone slab. margin-inline auto so the plaque centers
-       horizontally within the wider h2 (especially noticeable on wide
-       viewports where the slab extends to main's full-bleed edges
-       and the plaque sits centered with stone visible to either side). */
-    max-width: 47.5rem;            /* 760px / 16 */
-    margin: 0.4rem auto;
-    padding: 1.5rem 2.5rem;
-    background:
-      /* Diagonal highlight glare — narrow bright streak across the
-         glass at ~50% along a 115° angle. Subtle but visible. */
-      linear-gradient(115deg,
-        transparent 30%,
-        rgba(255, 255, 255, 0.05) 42%,
-        rgba(255, 255, 255, 0.14) 50%,
-        rgba(255, 255, 255, 0.05) 58%,
-        transparent 70%),
-      /* Black glass base — translucent so the stone-slab tint reads
-         through faintly */
-      rgba(10, 10, 12, 0.88);
-    border-radius: 0.5rem;
-    box-shadow:
-      /* Top edge subtle inner highlight */
-      inset 0 1px 1px rgba(255, 255, 255, 0.08),
-      /* Bottom edge slight inset shadow */
-      inset 0 -1px 2px rgba(0, 0, 0, 0.4),
-      /* Outer drop shadow — mounted-with-depth feel against the
-         stone slab (heavier than the previous attempt: 2px spread,
-         0.9 alpha — per the spec Sean originally aimed at the h2). */
-      0 2px 8px 2px rgba(0, 0, 0, 0.9);
-  }
-
-  /* Plaque standoffs — four absolutely-positioned span children of
-     the .hero-tagline's inner span. Each is a 1.5rem-diameter circle
-     painted with a conic-gradient for a cut-stainless-steel feel —
-     8 facets alternating between brighter and darker grays, with
-     sharp edges between facets (color stops repeated at adjacent
-     angles produce hard transitions instead of smooth interpolation).
-
-     Positioned via :first-child / :nth-child / :last-child relative
-     to their parent span (which has position: relative). Each sits
-     0.5rem from the two edges meeting in its corner. Standoff
-     backgrounds are isolated — the inner span's glass background
-     does not show through.
-
-     A small box-shadow stack adds depth: a subtle outer drop, a
-     bottom inset for the recessed-into-the-plaque illusion, and a
-     top inset highlight. */
-  .hero-tagline .plaque-standoff {
-    position: absolute;
-    width: 1.1rem;
-    height: 1.1rem;
-    border-radius: 50%;
-    /* Conic gradient with SMOOTH transitions between color stops
-       (revised 2026-05-18 — the previous paired-angle stops produced
-       hard-edged facets that read as a prize-wheel pattern instead
-       of cut steel). Each color stop is now placed at a single angle;
-       CSS interpolates smoothly between adjacent stops. Same 8 alternating
-       bright/dark grays as before — the colors do the cut-steel
-       sphere-with-multiple-reflections work; the smooth transition
-       just removes the prize-wheel facet edges. The first and last
-       stops match (#e8e8e8) so the 360°→0° wrap is seamless. */
-    background: conic-gradient(
-      #e8e8e8 0deg,
-      #989898 45deg,
-      #d8d8d8 90deg,
-      #a0a0a0 135deg,
-      #ececec 180deg,
-      #909090 225deg,
-      #e0e0e0 270deg,
-      #a8a8a8 315deg,
-      #e8e8e8 360deg
-    );
-    box-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.55),
-      inset 0 -1px 1px rgba(0, 0, 0, 0.35),
-      inset 0 1px 1px rgba(255, 255, 255, 0.25);
-  }
-  .hero-tagline .plaque-standoff:first-child {
-    top: 0.5rem;
-    left: 0.5rem;
-  }
-  .hero-tagline .plaque-standoff:nth-child(2) {
-    top: 0.5rem;
-    right: 0.5rem;
-  }
-  .hero-tagline .plaque-standoff:nth-child(3) {
-    bottom: 0.5rem;
-    left: 0.5rem;
-  }
-  .hero-tagline .plaque-standoff:last-child {
-    bottom: 0.5rem;
-    right: 0.5rem;
-  }
-  /* Padding-inline tier overrides — see the base rule for the reason. */
-  @media (min-width: 460px) {
-    .hero-tagline {
-      padding: var(--space-md) var(--space-md);
-    }
-  }
-  @media (min-width: 620px) {
-    .hero-tagline {
-      padding: var(--space-md) var(--space-xl);
-    }
-  }
-  /* Background-size swap bumped 580px → 680px (Sean direction
-     2026-05-20 iteration 9). */
-  @media (min-width: 680px) {
-    .hero-tagline {
-      --hero-tagline-bg-size: 100% auto;
-    }
-  }
-  @media (min-width: 740px) {
-    .hero-tagline {
-      font-size: 1.5rem;
-    }
-  }
-  @media (min-width: 1040px) {
-    .hero-tagline {
-      font-size: 1.75rem;
-    }
-  }
-  @media (min-width: 1080px) {
-    /* Swap to the larger cracked-stone-bg-lg.png variant at wide
-       viewports — the small variant scaled to 100% width starts to
-       feel pixel-stretched here. The indirection variable
-       --hero-tagline-image picks up the change without re-declaring
-       the full `background` shorthand. Bg-size bumped to `120% auto`
-       (Sean direction 2026-05-20 iteration 10) — slight horizontal
-       overscale keeps the texture's natural proportions reading
-       without visible repeat seams at wide tiers. */
-    .hero-tagline {
-      --hero-tagline-image: var(--hero-tagline-bg-lg);
-      --hero-tagline-bg-size: 120% auto;
-    }
-  }
-
-  /* Recent-section heading — standalone copy of the hero-tagline stone
-     strip styling (per 2026-05-15 direction: keep separate from
-     .hero-tagline since the hero tagline is likely to evolve and the
-     Recent heading shouldn't drift with it). If both surfaces should
-     stay visually identical going forward, the chained-selector version
-     was easier to maintain — but Sean explicitly chose duplication so
-     the two can diverge independently. */
+  /* Recent-section heading — standalone copy of the StoneTagline stone-strip
+     styling (per 2026-05-15 direction: keep separate so the hero tagline
+     and Recent heading can evolve independently). Refactored above to the
+     StoneTagline component; this .recent h2 block stays inline because
+     it's a deliberately-divergent copy. If the two surfaces should stay
+     visually identical going forward, this block could ALSO move into
+     the StoneTagline component or a sister component — but Sean's
+     original direction was to let them diverge, so this stays. */
   .recent h2 {
     margin-block: 0 var(--space-md);
     margin-inline: calc(-1 * var(--space-md));

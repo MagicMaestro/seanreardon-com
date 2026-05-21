@@ -55,6 +55,15 @@ RewriteRule ^project\.php$ /projects/triple-cities-insurance-site/? [R=301,L]
 RewriteCond %{QUERY_STRING} ^$
 RewriteRule ^project\.php$ /projects/ [R=301,L]
 
+# /disney/ — the legacy code-gated Disney app got rsynced out of public_html
+# at the 2026-05-20 cutover (preserved separately in the planning project's
+# archive/disney_archive_2026-05-02.tar.gz). Return 410 Gone (vs. the
+# default 404 Not Found) to signal "resource was permanently removed" —
+# more accurate semantically, and search engines drop the URL from indexes
+# faster on 410 than 404 (Sean direction 2026-05-20). The `-` target with
+# `[G,L]` returns 410 immediately with no substitution.
+RewriteRule ^disney/?.*$ - [G,L]
+
 # Invisible Light Photography URLs (retired 2026-05-02; will 301 to the
 # Angular site's domain once that's known):
 # RewriteRule ^invisiblelight/?(.*)$ https://<future-photography-domain>/$1 [R=301,L]
