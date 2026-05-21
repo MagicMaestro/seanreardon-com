@@ -750,6 +750,21 @@ const navLinks = [
         });
         observer.observe(searchField, { attributes: true, attributeFilter: ['data-open'] });
       }
+
+      // Re-position the dropdown when the header collapses/expands (2026-
+      // 05-21). The search field follows the bar's slide off-screen via
+      // CSS rules tied to .site-header[data-state]; the dropdown is
+      // positioned absolutely from the input's getBoundingClientRect(),
+      // so it needs an explicit re-compute when the input moves.
+      // The dropdown's CSS has a 300ms top/left transition that animates
+      // the inline style change in lockstep with the form's transition.
+      const siteHeaderEl = document.querySelector('.site-header');
+      if (siteHeaderEl && resultsContainer) {
+        const stateObserver = new MutationObserver(() => {
+          if (!resultsContainer.hidden) positionDropdown();
+        });
+        stateObserver.observe(siteHeaderEl, { attributes: true, attributeFilter: ['data-state'] });
+      }
     }
   }
 </script>
@@ -2863,9 +2878,13 @@ const navLinks = [
        so the field's width morphs smoothly when the viewport crosses the
        740/896/1060/1520 breakpoints (each of which adjusts left or right).
        Without these, the field snapped to its new width — visually
-       jarring during an active browser resize. */
+       jarring during an active browser resize.
+       `top` is also transitioned at 300ms so the follow-header-collapse
+       behavior (added 2026-05-21 — see the `data-state="hidden|minimal"`
+       overrides below) animates smoothly when the bar slides off. */
     transition:
       height 300ms ease-out,
+      top 300ms ease-out,
       left 300ms ease-out,
       right 300ms ease-out;
   }
@@ -2939,15 +2958,83 @@ const navLinks = [
   /* Open state: per-tier height targets (bar height + 3rem extra). */
   .header-search-field[data-open="true"] {
     height: 7rem;
-    /* Open transition: 200ms delay so the field expansion starts AFTER
-       the search icon's pulse peak. */
-    transition: height 300ms ease-out 200ms;
+    /* Open transition: 200ms delay on height so the field expansion starts
+       AFTER the search icon's pulse peak. `top` has no delay — it follows
+       the header's collapse/expand immediately so the field tracks the
+       bar's slide-off-screen in lockstep (2026-05-21 follow-header-collapse
+       behavior). */
+    transition:
+      height 300ms ease-out 200ms,
+      top 300ms ease-out;
   }
   @media (min-width: 640px) and (max-width: 739.98px) {
     .header-search-field[data-open="true"] {
       height: 8rem;
     }
   }
+
+  /* Follow-header-collapse behavior (Sean direction 2026-05-21): when the
+     header bar slides off-screen (data-state="hidden" at <640 OR
+     data-state="minimal" at ≥640) AND the search field is open, shift the
+     field's top up by the bar's height so the visible 3rem panel aligns
+     with the top of the viewport instead of floating in place where the
+     bar used to be.
+
+     The form (sibling of the field) needs the same shift via the existing
+     `~` sibling combinator pattern so the input stays positioned correctly
+     inside the visible panel. The `top` transition on both (added above
+     for the field, already present on the form) animates the shift in
+     lockstep with the bar's translateY transition.
+
+     Sean's spec: "we can keep the search bar open (only if it was already
+     open, we don't open it by default when the header collapses) and move
+     the search bar up so it joins the top edge of the viewport." The
+     `[data-open="true"]` qualifier in every selector enforces the
+     "only-if-already-open" half of the rule — collapsing the bar while
+     the field is closed leaves the field closed.
+
+     The search button itself lives INSIDE .header-bar so it slides
+     off-screen with the bar — meaning the user can't OPEN the search
+     while the header is in collapsed state, only keep open / close an
+     existing open search. */
+
+  /* <640 / data-state="hidden" — bar is 4rem tall; shift field up by 4rem
+     so the visible panel's top edge aligns with viewport-y=0. Form follows
+     to top: 0.3rem (preserving the same 0.3rem visual inset the form had
+     below the bar at this tier — was 4.3rem with bar at 4rem). */
+  @media (max-width: 639.98px) {
+    .site-header[data-state="hidden"] .header-search-field[data-open="true"] {
+      top: -4rem;
+    }
+    .site-header[data-state="hidden"] .header-search-field[data-open="true"] ~ .header-search-form {
+      top: 0.3rem;
+    }
+  }
+
+  /* 640-739 / data-state="minimal" — bar is 5rem tall. Form was at top: 5rem
+     (flush with bar's bottom edge), so when shifted up by 5rem the form
+     sits flush with viewport-y=0. */
+  @media (min-width: 640px) and (max-width: 739.98px) {
+    .site-header[data-state="minimal"] .header-search-field[data-open="true"] {
+      top: -5rem;
+    }
+    .site-header[data-state="minimal"] .header-search-field[data-open="true"] ~ .header-search-form {
+      top: 0;
+    }
+  }
+
+  /* ≥740 / data-state="minimal" — bar is 7rem tall. Form was at top: 7rem
+     (flush with bar's bottom edge), so when shifted up by 7rem the form
+     sits at viewport-y=0. */
+  @media (min-width: 740px) {
+    .site-header[data-state="minimal"] .header-search-field[data-open="true"] {
+      top: -7rem;
+    }
+    .site-header[data-state="minimal"] .header-search-field[data-open="true"] ~ .header-search-form {
+      top: 0;
+    }
+  }
+
   @media (min-width: 740px) {
     .header-search-field {
       /* At ≥740px the field no longer spans the full viewport — it
@@ -3248,6 +3335,16 @@ const navLinks = [
       0 0 24px 4px rgba(102, 232, 255, 0.4),
       0 4px 12px 2px rgba(0, 0, 0, 0.6);
     padding: var(--space-sm);
+    /* Top/left transitions track the input as the search field follows the
+       header's collapse/expand state (2026-05-21). The dropdown's inline
+       top/left/width are set by JS from the input's getBoundingClientRect();
+       when the input transitions over 300ms (form `top` change), the CSS
+       transition here animates the dropdown's inline-style change in
+       lockstep. Width is intentionally NOT transitioned because the input
+       width doesn't change with collapse/expand — only its position. */
+    transition:
+      top 300ms ease-out,
+      left 300ms ease-out;
     /* Pagefind UI CSS-variable overrides — scoped to the dropdown so
        they don't leak to the /search/ page's PagefindUI instance.
        Same token mapping as global.css's :root overrides on /search/,
