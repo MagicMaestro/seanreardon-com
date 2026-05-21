@@ -897,11 +897,40 @@ code {
 pre {
   overflow-x: auto;
   max-width: 100%;
+  /* Critical: override the intrinsic min-content size. `pre` with
+     `white-space: pre` reports its min-content as the longest unbreakable
+     line's pixel width. In a CSS Grid context (body is `display: grid`),
+     auto-sized grid columns size to their items' min-content — so the
+     longest code line was widening the body grid past viewport, even
+     though pre had overflow-x: auto for its OWN display. `min-width: 0`
+     explicitly overrides the intrinsic min-content; combined with
+     max-width: 100% the pre now fits the available space and scrolls
+     internally on overflow (Sean direction 2026-05-21, iteration 2 of
+     the mobile-overflow diagnostic). */
+  min-width: 0;
 }
 table {
   display: block;
   overflow-x: auto;
   max-width: 100%;
+  /* Same intrinsic-min-content trap as pre — wide tables would
+     widen the parent grid past viewport. */
+  min-width: 0;
+}
+
+/* Body is `display: grid` (auto rows: header, main-wrapper, footer).
+   Grid auto-sizes columns based on grid items' min-content; if any
+   item's min-content exceeds viewport width, the whole grid widens
+   and right-anchored absolute children (header icons, the rope) get
+   pushed off-screen. `min-width: 0` on every direct child of body
+   stops intrinsic min-content from widening the grid column.
+
+   `* > *` is too broad and the grid item's `> *` direct-child reach
+   suffices — children of those items have their own containing-block
+   constraints inherited from grid sizing. (Sean direction 2026-05-21:
+   defensive belt-and-suspenders alongside the pre/table fixes above.) */
+body > * {
+  min-width: 0;
 }
 
 /* ============================================================================
