@@ -244,6 +244,13 @@ body {
   min-width: 360px;
   display: grid;
   grid-template-rows: auto 1fr auto;
+  /* Belt-and-suspenders alongside html's overflow-x: clip (Sean direction
+     2026-05-21 iteration 3): on Sean's Pixel 10 Pro XL the html-level clip
+     wasn't preventing the layout-level overflow from propagating up through
+     body's grid to widen the header. Adding clip at the body level catches
+     the overflow before it can size the grid column. `clip` (vs `hidden`)
+     keeps sticky positioning of .site-header working correctly. */
+  overflow-x: clip;
 }
 
 /* ============================================================================
@@ -300,6 +307,17 @@ a:hover { color: var(--color-brass-light); }
   display: flex;
   flex-direction: column;
   width: 100%;
+  /* Belt-and-suspenders mobile-overflow containment (Sean direction
+     2026-05-21 iteration 3). Mirrors the same defensive clip applied at
+     .site-header and on body — any content inside main that has an
+     intrinsic min-content wider than viewport (long code lines, wide
+     tables, decorations anchored off-edge) gets clipped at the wrapper
+     level rather than propagating up to body's grid sizing. The pre and
+     table elements already handle their own internal scroll via the
+     min-width: 0 / overflow-x: auto rules above; this is insurance for
+     anything else that might widen the wrapper's flex column. `clip`
+     (not `hidden`) avoids creating a scroll container. */
+  overflow-x: clip;
 }
 
 /* Main content area — bounded responsively. Three sizing tiers (the 896px

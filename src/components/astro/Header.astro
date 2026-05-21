@@ -762,6 +762,21 @@ const navLinks = [
     position: sticky;
     top: 0;
     z-index: 100;
+    /* Belt-and-suspenders mobile-overflow containment (Sean direction
+       2026-05-21 iteration 3). The header has absolutely-positioned children
+       that INTENTIONALLY overhang to the right of viewport: the .header-toggle
+       gear (width 8.8rem, right: -2.64rem) and on small tier the .logo-overhang
+       diamond (left: -3.25rem). html's `overflow-x: clip` cosmetically hides
+       those extensions at viewport edge, but on Sean's Pixel 10 Pro XL (~457px
+       viewport) Chrome was still treating their layout footprint as widening
+       the header's grid column past viewport — pushing the right-anchored
+       search icon, hamburger, and screen-edge rope off-screen. Clipping at the
+       header level guarantees those decorative overhangs can't propagate to
+       body's grid sizing. The visual result is identical (the parts that get
+       clipped are the same parts html's clip was hiding anyway), but the
+       layout no longer needs to make room for them. `clip` (not `hidden`)
+       preserves the sticky positioning above. */
+    overflow-x: clip;
   }
 
   /* When the bar is collapsed off-screen (state="hidden" at <640;
