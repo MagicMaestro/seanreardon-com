@@ -111,8 +111,16 @@ const { href, kind, title, summary, dateISO, dateDisplay } = Astro.props;
       box-shadow 150ms ease-out;
   }
 
+  /* `.is-active` mirrors :hover / :focus-visible (Sean direction 2026-05-21).
+     Used on touch-primary devices where there's no :hover state — the inline
+     script below attaches an IntersectionObserver that toggles .is-active
+     as cards scroll through the center band of the viewport. CSS state is
+     identical to hover/focus; only the trigger differs. Listing .is-active
+     in every hover rule (rather than a separate parallel block) guarantees
+     the two states stay visually in sync as the card design evolves. */
   .laser-card:hover,
-  .laser-card:focus-visible {
+  .laser-card:focus-visible,
+  .laser-card.is-active {
     background: rgba(0, 0, 0, 0.4);
     outline: none;
   }
@@ -121,7 +129,8 @@ const { href, kind, title, summary, dateISO, dateDisplay } = Astro.props;
      (245, 229, 61), R and G nearly equal, low B — reads as electric
      yellow-gold without the orange cast of the rest-state brass. */
   .laser-card:hover::before,
-  .laser-card:focus-visible::before {
+  .laser-card:focus-visible::before,
+  .laser-card.is-active::before {
     border: 3px solid #F5E53D;
     box-shadow:
       inset 0 0 0 1px var(--color-brass-oxidized),
@@ -165,7 +174,8 @@ const { href, kind, title, summary, dateISO, dateDisplay } = Astro.props;
   }
 
   .laser-card:hover .weave-svg,
-  .laser-card:focus-visible .weave-svg {
+  .laser-card:focus-visible .weave-svg,
+  .laser-card.is-active .weave-svg {
     opacity: 1;
   }
 
@@ -202,7 +212,8 @@ const { href, kind, title, summary, dateISO, dateDisplay } = Astro.props;
     transition: text-shadow 200ms ease-out;
   }
   .laser-card:hover h3,
-  .laser-card:focus-visible h3 {
+  .laser-card:focus-visible h3,
+  .laser-card.is-active h3 {
     text-shadow:
       0 0 6px rgba(232, 185, 94, 0.8),
       0 0 18px rgba(196, 149, 57, 0.5);
@@ -350,6 +361,47 @@ const { href, kind, title, summary, dateISO, dateDisplay } = Astro.props;
       card.addEventListener('focusin', start);
       card.addEventListener('mouseleave', stop);
       card.addEventListener('focusout', stop);
+
+      /* Touch-primary devices: no :hover state, so the cards never animate
+         on mobile under the desktop event model. IntersectionObserver toggles
+         `.is-active` (the CSS mirror of :hover) as each card scrolls through
+         the center band of the viewport — passive "as you scroll past, you
+         see them light up" pattern. Sean direction 2026-05-21.
+
+         Guard: only attach on touch-primary devices. `@media (pointer:
+         coarse)` is the touch-only signal — covers phones, tablets, but not
+         desktop touchscreens (those have `pointer: fine` from the mouse).
+         Desktop hover behavior is untouched.
+
+         rootMargin '-35% 0px -35% 0px' shrinks the IO root vertically to the
+         center 30% of viewport height. A card "intersects" only when its
+         box overlaps that center band. Threshold 0 means any overlap counts
+         — the card activates as soon as it enters the band, deactivates as
+         soon as it leaves. Multiple cards can be active simultaneously on
+         viewports where the band is taller than a single card.
+
+         Quick tap navigation is unchanged: the click handler on <a href>
+         fires on touchstart→touchend without movement. Scroll gestures
+         (touchstart→touchmove→touchend) don't fire the click. The two
+         behaviors don't compete. */
+      const TOUCH_PRIMARY = window.matchMedia('(pointer: coarse)').matches;
+      if (TOUCH_PRIMARY && typeof IntersectionObserver === 'function') {
+        const io = new IntersectionObserver((entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              card.classList.add('is-active');
+              start();
+            } else {
+              card.classList.remove('is-active');
+              stop();
+            }
+          }
+        }, {
+          rootMargin: '-35% 0px -35% 0px',
+          threshold: 0,
+        });
+        io.observe(card);
+      }
     }
 
     function init() {
