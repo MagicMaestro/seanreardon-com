@@ -1568,45 +1568,69 @@ const navLinks = [
     /* Clip-path traces the visible content of fullLogo.png — the diamond on
        the left and the wordmark+tagline panel on the right.
 
+       Image geometry (measured from src/assets/images/fullLogo.png — 1270
+       × 465 px, aspect 2.73): the diamond is roughly square (~465 × 465 px),
+       so its horizontal extent is 465/1270 ≈ 36.6% of the image width. The
+       diamond's vertices are:
+         - Left:   (0%,   50%)
+         - Top:    (18.3%, 0%)
+         - Right:  (36.6%, 50%)
+         - Bottom: (18.3%, 100%)
+       The wordmark+tagline panel occupies the top ~70% of the image height
+       to the right of the diamond.
+
        Iteration history:
-         - 2026-05-18 (Sean): widened the diamond's hexagon vertices from
-           15%/15-95% to 10%/0-100% so the diagonals stop clipping the
-           diamond's upper-left edge + lower tip. Trade-off accepted at the
-           time: hit area extended past the wordmark's bottom (y=100% across
-           the whole right side), so transparent area below the wordmark
-           was clickable.
-         - 2026-05-21 (Sean): tighten the bottom — the polygon now closes at
-           y=70% across the wordmark panel and walks the diamond's lower-
-           right edge from (16%, 70%) down to (10%, 100%). Eliminates the
-           dead zone below the wordmark+tagline while keeping the diamond's
-           lower portion clickable.
+         - 2026-05-18: widened the diamond's polygon vertices from 15%/15-95%
+           to 10%/0-100% to stop clipping the diamond's upper-left + lower
+           tip. Trade-off: included transparent area below the wordmark.
+         - 2026-05-21 iter A: added (100%, 70%) and (16%, 70%) intercept to
+           exclude the dead area below the panel.
+         - 2026-05-21 iter B (THIS): the (16%, 70%) value was derived
+           assuming the diamond centered at x=10% (i.e., width 20% of
+           bounding box). Actual measurement above shows the diamond is
+           centered at x=18.3% (width 36.6%) — much wider. The previous
+           (16%, 70%) → (10%, 100%) edge cut DEEPLY into the diamond's
+           bottom-right portion (e.g., at y=85% the polygon was at x≈26%
+           while the diamond's actual right edge was at x≈12% on the
+           left and x≈24% on the right — diamond's bottom slice at y∈[80%,
+           100%] was entirely clipped). Fix: intercept moves out to
+           (30%, 70%) — past the diamond's bottom-right edge at y=70%
+           (which is at x≈29.3%). New intermediate vertex (22%, 100%)
+           brackets the diamond's bottom point at (18.3%, 100%) so the
+           polygon stays generously outside the diamond's lower edges on
+           both sides.
 
        Polygon walks clockwise from the diamond's left vertex:
          (0%   50%)  diamond left point
-         (10%  0%)   diamond top point — same as previous
+         (10%  0%)   generous top — same as previous (polygon's edge from
+                     here back to (0%, 50%) is wider than the actual diamond's
+                     top-left edge, so transparent area above the diamond on
+                     the left is in the hit area — benign)
          (100% 0%)   top-right of wordmark panel
-         (100% 70%)  bottom-right of wordmark+tagline panel (NEW)
-         (16%  70%)  on the diamond's lower-right edge at panel-bottom height (NEW)
-         (10%  100%) diamond bottom point — same as previous
+         (100% 70%)  bottom-right of wordmark+tagline panel
+         (30%  70%)  intercept slightly past diamond's bottom-right edge at
+                     y=70% (diamond edge at y=70 is at x≈29.3%)
+         (22%  100%) past diamond's bottom point, generous on the right
+         (10%  100%) generous on the left — same as previous (polygon's edge
+                     from here back to (0%, 50%) has slope 5, steeper than
+                     the diamond's bottom-left edge slope 2.73, so polygon is
+                     below the diamond's edge at every x ∈ [0%, 10%])
          (0%   50%)  back to start
 
-       How the (16%, 70%) value is derived: with the diamond inscribed in
-       the left ~20% of the box and centered at x=10%, its right vertex sits
-       at (20%, 50%). The lower-right edge runs from (20%, 50%) to
-       (10%, 100%). At y=70%, x = 20% - (70%-50%)/50% × 10% = 16%.
-
-       Tuning knobs: the 70% (panel-bottom height) and the 16% (diamond's
-       right edge at that height) move in lockstep — if the panel actually
-       ends at y=65% or y=75%, recompute the diamond intercept with the
-       formula above. The 10% diamond-vertex coordinates are unchanged from
-       the previous polygon (Sean confirmed the diamond's visible content
-       wasn't clipped at those values). */
+       Tuning knobs: 70% (panel-bottom y), 30% (intercept on diamond's
+       bottom-right edge at y=70), 22% (polygon's bottom-right x). If the
+       panel bottom is actually at y=65% or y=75%, recompute the 30% using
+       the diamond's bottom-right edge equation: x = 36.6% - (y - 50%)/50%
+       × 18.3%. The (22%, 100%) value can stay anywhere in [18.3%, ~25%]
+       without affecting the diamond's coverage — it's just the polygon's
+       bottom-right corner past the diamond's bottom point. */
     clip-path: polygon(
       0% 50%,
       10% 0%,
       100% 0%,
       100% 70%,
-      16% 70%,
+      30% 70%,
+      22% 100%,
       10% 100%,
       0% 50%
     );
