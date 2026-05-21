@@ -132,6 +132,26 @@ const navLinks = [
       </svg>
     </button>
   </form>
+
+  {/* Pagefind UI live-as-you-type results dropdown (Phase 3 §1 of
+      decisions/ai-features-v1.md). Lazy-loaded on first search-field
+      open so the ~30KB Pagefind bundle isn't paid for on every page
+      view. Sibling of the form so it can be positioned (via JS-set
+      `top` / `left` / `width` inline styles read from the input's
+      getBoundingClientRect()) just below the input across all
+      viewports.
+
+      The form's `action="/search/"` + Enter behavior is preserved as
+      a graceful-degradation fallback: JS off → Enter submits the form
+      and the user lands on the standalone /search/ page with the same
+      results. JS on → dropdown shows results as the user types AND
+      Enter still navigates to /search/?q=... for the "see all in
+      context" flow.
+
+      On the /search/ page itself the dropdown stays disabled (the
+      page already shows the full result set; a duplicate dropdown
+      would be redundant). The skip is wired in the script below. */}
+  <div id="header-search-results" class="header-search-results" aria-hidden="true" hidden></div>
   <div id="header-bar" class="header-bar">
     {/* Large-viewport (≥1040px) trapezoidal fill between the bottom beam,
         the over-nav beam, and the diagonal — gives the over-nav region
@@ -576,6 +596,160 @@ const navLinks = [
       searchField.setAttribute('data-open', 'true');
       searchField.setAttribute('aria-hidden', 'false');
       searchButton.setAttribute('aria-expanded', 'true');
+    }
+
+    /* Pagefind UI live-as-you-type dropdown (Phase 3 §1 of
+       decisions/ai-features-v1.md).
+
+       Skipped entirely on /search/ — the standalone page already shows
+       the full result set so a duplicate dropdown would be redundant
+       (and the page's own PagefindUI instance mounts a /#search element,
+       different from the header's /#header-search-results — they
+       wouldn't clobber each other, but the visual duplication is
+       wasteful).
+
+       Lazy load: the ~30KB Pagefind bundle (pagefind-ui.js +
+       pagefind-ui.css + pagefind.js worker) doesn't download until the
+       user actually starts typing in the header search. Saves the
+       bytes on every page view that doesn't trigger search.
+
+       Dev caveat: `public/pagefind/` only exists after `npm run build`.
+       In `npm run dev` the script loads will 404; the catch handler
+       logs a quiet warning and leaves the dropdown hidden. The form's
+       `action="/search/"` graceful-degradation path stays available. */
+    if (!onSearchResultsPage && searchInput) {
+      const resultsContainer = document.getElementById('header-search-results') as HTMLDivElement | null;
+      const searchForm = document.querySelector('.header-search-form') as HTMLFormElement | null;
+      let pagefindUI: any = null;
+      let pagefindLoadPromise: Promise<void> | null = null;
+      let inputDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+      function ensurePagefindLoaded(): Promise<void> {
+        if (pagefindLoadPromise) return pagefindLoadPromise;
+        pagefindLoadPromise = new Promise<void>((resolve, reject) => {
+          // Idempotent: don't add duplicate link/script if the /search/
+          // page (or a previous attempt) already loaded them.
+          if (!document.querySelector('link[href="/pagefind/pagefind-ui.css"]')) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = '/pagefind/pagefind-ui.css';
+            document.head.appendChild(link);
+          }
+          if (typeof (window as any).PagefindUI !== 'undefined') {
+            resolve();
+            return;
+          }
+          const existingScript = document.querySelector('script[src="/pagefind/pagefind-ui.js"]') as HTMLScriptElement | null;
+          if (existingScript) {
+            existingScript.addEventListener('load', () => resolve(), { once: true });
+            existingScript.addEventListener('error', () => reject(new Error('pagefind-ui.js error')), { once: true });
+            return;
+          }
+          const script = document.createElement('script');
+          script.src = '/pagefind/pagefind-ui.js';
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error('Pagefind UI not available (likely dev mode — `public/pagefind/` is build-time only)'));
+          document.head.appendChild(script);
+        }).then(() => {
+          if (typeof (window as any).PagefindUI === 'undefined') {
+            throw new Error('PagefindUI not defined after script load');
+          }
+          if (!resultsContainer) return;
+          pagefindUI = new (window as any).PagefindUI({
+            element: '#header-search-results',
+            showSubResults: true,
+            resetStyles: false,
+          });
+        });
+      }
+
+      function positionDropdown() {
+        if (!resultsContainer || !searchInput) return;
+        const rect = searchInput.getBoundingClientRect();
+        resultsContainer.style.top = `${rect.bottom + 8}px`;
+        resultsContainer.style.left = `${rect.left}px`;
+        // Floor at 320px so the dropdown is usable on narrow inputs;
+        // cap via CSS max-width to prevent overflow on ultra-wide.
+        resultsContainer.style.width = `${Math.max(rect.width, 320)}px`;
+      }
+
+      function showDropdown() {
+        if (!resultsContainer) return;
+        positionDropdown();
+        resultsContainer.hidden = false;
+        resultsContainer.setAttribute('aria-hidden', 'false');
+      }
+
+      function hideDropdown() {
+        if (!resultsContainer) return;
+        resultsContainer.hidden = true;
+        resultsContainer.setAttribute('aria-hidden', 'true');
+      }
+
+      function handleSearchInput() {
+        if (!searchInput || !resultsContainer) return;
+        const value = searchInput.value.trim();
+        if (inputDebounceTimer) clearTimeout(inputDebounceTimer);
+        if (!value) {
+          hideDropdown();
+          return;
+        }
+        // 300ms debounce per decisions/ai-features-v1.md Phase 3 §3
+        // (SearchModal uses the same value; same UX expectation here).
+        inputDebounceTimer = setTimeout(() => {
+          ensurePagefindLoaded().then(() => {
+            if (pagefindUI) {
+              pagefindUI.triggerSearch(value);
+              showDropdown();
+            }
+          }).catch((err) => {
+            // Dev-mode or missing-build artifact — log quietly, don't
+            // alarm. The form's action=/search/ fallback still works
+            // for the user (Enter submits to the standalone page).
+            console.warn('[header search]', err.message);
+          });
+        }, 300);
+      }
+
+      searchInput.addEventListener('input', handleSearchInput);
+
+      // Refocus: if the user clicks back into the input with text
+      // already there, show the dropdown (in case it was dismissed).
+      searchInput.addEventListener('focus', () => {
+        if (searchInput.value.trim()) {
+          showDropdown();
+          ensurePagefindLoaded().catch(() => {});
+        }
+      });
+
+      // Click outside the form/dropdown closes the dropdown. Clicks
+      // INSIDE the dropdown (e.g., on a result link) bubble up so
+      // navigation works; this handler just hides the dropdown after
+      // — which doesn't matter since the page navigates away anyway.
+      document.addEventListener('click', (e) => {
+        if (!resultsContainer || resultsContainer.hidden) return;
+        const target = e.target as Node;
+        if (resultsContainer.contains(target) || (searchForm && searchForm.contains(target))) return;
+        hideDropdown();
+      });
+
+      // Reposition on resize so the dropdown tracks the input. Resize
+      // events also fire on virtual-keyboard show on mobile.
+      window.addEventListener('resize', () => {
+        if (resultsContainer && !resultsContainer.hidden) positionDropdown();
+      });
+
+      // Close dropdown when the search field is closed via icon-click
+      // or Escape. The existing closeSearchField() runs but doesn't
+      // know about the dropdown; observe data-open changes to hook in.
+      if (searchField) {
+        const observer = new MutationObserver(() => {
+          if (searchField.getAttribute('data-open') === 'false') {
+            hideDropdown();
+          }
+        });
+        observer.observe(searchField, { attributes: true, attributeFilter: ['data-open'] });
+      }
     }
   }
 </script>
@@ -2975,6 +3149,63 @@ const navLinks = [
       right: calc((100% - var(--main-max-width)) / 2 + 1rem);
     }
   }
+  /* Pagefind UI live-results dropdown (Phase 3 §1 of
+     decisions/ai-features-v1.md). Lazy-mounted via the script above.
+     position: fixed so it can escape any scrolling container and
+     overlap page content below the header; inline top/left/width are
+     set by JS from the input's getBoundingClientRect() so the
+     dropdown tracks the input across all viewport tiers without a
+     per-tier media-query ladder.
+
+     z-index 99 sits BELOW the site-header (sticky, z-index 100) so
+     the header bar visually overlaps the dropdown's top edge if the
+     dropdown is positioned to start just below the input — clean
+     visual containment. Above page content (z-index auto) so the
+     dropdown overlays main's children.
+
+     The cyan-glow border + multi-layer box-shadow mirrors the h2
+     drawer / sub-nav drawer vocabulary so the dropdown reads as
+     part of the same energy-HUD language. */
+  .header-search-results {
+    position: fixed;
+    z-index: 99;
+    max-height: 60vh;
+    max-width: 36rem;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.95);
+    border: 1px solid var(--color-electric-cyan-glow);
+    border-radius: var(--radius);
+    box-shadow:
+      0 0 8px 1px var(--color-electric-cyan-glow),
+      0 0 24px 4px rgba(102, 232, 255, 0.4),
+      0 4px 12px 2px rgba(0, 0, 0, 0.6);
+    padding: var(--space-sm);
+    /* Pagefind UI CSS-variable overrides — scoped to the dropdown so
+       they don't leak to the /search/ page's PagefindUI instance.
+       Same token mapping as global.css's :root overrides on /search/,
+       just narrowed in scope. */
+    --pagefind-ui-scale: 0.85;
+    --pagefind-ui-primary: var(--color-electric-cyan-glow);
+    --pagefind-ui-text: var(--color-fg);
+    --pagefind-ui-background: transparent;
+    --pagefind-ui-border: var(--color-electric-cyan-deep);
+    --pagefind-ui-tag: var(--color-muted);
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: var(--radius);
+    --pagefind-ui-font: var(--font-body);
+  }
+  .header-search-results[hidden] {
+    display: none !important;
+  }
+  /* Hide PagefindUI's built-in input — the header search bar IS the
+     input. Same pattern as the /search/ page's :global override on
+     `.pagefind-ui__form`. Scoped here via descendant selector so it
+     only hides the dropdown's PagefindUI form, not the /search/
+     page's. */
+  .header-search-results :global(.pagefind-ui__form) {
+    display: none;
+  }
+
   /* Sibling combinator: form is a sibling of the field, so target it
      via ~. Used to fade the form in only after the field has finished
      expanding (200ms delay + 300ms expansion = 500ms from click).
