@@ -278,6 +278,26 @@
     fog-opacity 2.13s linear 1370ms forwards,
     fog-blur 2.13s ease-out 1370ms forwards,
     fog-radius 2.13s linear 1370ms forwards;
+  /* Explicit "end-state" values matching each animation's final keyframe.
+     Without these, the declared cascade value of opacity is 0 (from the
+     base .steam-fog rule) during is-active — SAME as the is-closing
+     target — so when the class flips from is-active to is-closing, the
+     declared opacity doesn't change (0 → 0). Browsers fire transitions
+     reliably on declared-value changes but inconsistently on pure
+     animation-removal events (the previous animation was driving opacity
+     to 0.8 at runtime; that's an "animated" value, not a "declared"
+     one). Setting explicit declared values here makes the cascade
+     change between is-active (opacity 0.8) and is-closing (opacity 0),
+     which fires the transition reliably across browsers.
+     Sean iter 14 fix — staging review showed the fog snapped to invisible
+     instead of fading. Other properties (transform/filter/border-radius)
+     happened to have different declared values between is-active and
+     is-closing already, so they would've transitioned — but with opacity
+     snapping to 0, the rest were invisible anyway. */
+  opacity: 0.8;
+  transform: translate(-50%, -50%) scale(1);
+  filter: url(#steam-fog-filter) blur(2px);
+  border-radius: 0%;
 }
 
 /* Scale: smooth linear growth from puff-converged size (0.1) to full
