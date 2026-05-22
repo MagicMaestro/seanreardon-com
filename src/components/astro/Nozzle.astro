@@ -70,15 +70,27 @@ import nozzleImg from '~/assets/images/nozzle-detailed.png';
        sizing the correct choice (one of the documented exceptions to the
        prefer-percentages rule). */
     top: 0;
-    /* Anchor just to the RIGHT of the scroll-indicator's track so the
-       nozzle's base touches the scrollbar's right edge (scrollbar is 6px
-       wide; +3px offset puts nozzle's left at the scrollbar's centerline).
-       After the 90deg rotation on .site-nozzle-img below, the image's
-       "base" sits on the visual LEFT of the rotated box (= touching the
-       scrollbar) and the opening points RIGHT toward the viewport center.
-       Reads as a fixture mounted on the side of the scrollbar pipe with
-       its nozzle firing inward. */
-    left: 3px;
+    /* `left` mirrors the .scroll-indicator EXACTLY (same property value
+       per-tier as the scrollbar) — Sean direction 2026-05-22 iter 4. The
+       earlier `calc(3% + 3px)` / `calc((100% - --main-max-width)/2 + 3px)`
+       values were intended to put the nozzle's left edge at the
+       scrollbar's centerline (scrollbar centerline = scrollbar.left + 3px),
+       but CSS transition interpolation between calc() expressions of
+       different structures (e.g. `3px` → `calc(3% + 3px)`) doesn't
+       interpolate identically to the scrollbar's simpler `0` → `3%`
+       across the same 300ms — visible "nozzle ahead of scrollbar"
+       desync at breakpoint crossings.
+       Fix: the nozzle's `left` now matches the scrollbar's `left` exactly
+       at every tier, and the +3px offset to the scrollbar's centerline
+       is applied via `margin-left: 3px` (a constant offset, never
+       transitions). Both elements interpolate the SAME `left` formula at
+       the SAME 300ms ease-out, guaranteeing identical motion. */
+    left: 0;
+    /* Constant 3px shift puts the nozzle's left edge at the scrollbar's
+       centerline (scrollbar is 6px wide at left:0; +3px = center). After
+       the image's 90deg rotation, the rotated nozzle's base sits at the
+       scrollbar centerline and the opening extends right. */
+    margin-left: 3px;
     /* No translateX — the +3px on `left` already positions the nozzle's
        left edge at the scrollbar's centerline. translateY is driven by
        --nozzle-y from BaseLayout's scroll tick. */
@@ -171,22 +183,19 @@ import nozzleImg from '~/assets/images/nozzle-detailed.png';
     border-radius: 50%;
   }
 
-  /* Tier-responsive left position — mirrors the .scroll-indicator's
-     responsive ladder in global.css so the nozzle stays anchored to the
-     scrollbar's centerline (= scrollbar.left + 3px, where 6px is the
-     scrollbar's width) across all viewport widths. The +3px offset puts
-     the nozzle's left edge AT the scrollbar's vertical centerline, so
-     after the image rotation the nozzle's base sits AT the scrollbar
-     (behind it via z-index 30 < scroll-indicator's 40) and the opening
-     extends to the right. */
+  /* Tier-responsive left position — matches the .scroll-indicator's
+     responsive ladder in global.css EXACTLY at every tier. The +3px
+     offset to the scrollbar's centerline is on `margin-left` (above),
+     not folded into `left`, so the `left` property animates identically
+     to the scrollbar at the 896 and 1520 breakpoint crossings. */
   @media (min-width: 896px) {
     .site-nozzle {
-      left: calc(3% + 3px);
+      left: 3%;
     }
   }
   @media (min-width: 1520px) {
     .site-nozzle {
-      left: calc((100% - var(--main-max-width)) / 2 + 3px);
+      left: calc((100% - var(--main-max-width)) / 2);
     }
   }
 
