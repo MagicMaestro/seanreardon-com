@@ -1,150 +1,270 @@
 /* ============================================================================
-   SteamTransition — steam animation that fires when the nozzle activates
+   SteamTransition — multi-stage steam animation styles
    ============================================================================
-   Phase 3 §2 of decisions/ai-features-v1.md + decisions/002 §4. Runs after
-   the nozzle's slide-to-mid-viewport completes (~250ms post-click). The
-   visual: a warm-tinted radial cloud whose center stays anchored at the
-   nozzle's tip, and whose radius grows from a small puff (visibly emerging
-   from the nozzle) to a viewport-spanning fog, then dissipates.
+   Per the JSX in SteamTransition.tsx, the animation has three visible stages:
 
-   Architecture (iter 2 — Sean direction 2026-05-22 after SPR-0040 review):
-   the original transform: scale approach scaled a viewport-sized div with
-   gradient layers, which technically pivoted at the nozzle's tip but read
-   visually as "a puff appearing at center" — the user didn't perceive the
-   steam as originating from the nozzle. New approach: a single radial-
-   gradient whose CENTER is fixed at the nozzle's tip Y (set inline via
-   --nozzle-tip-y by the React component) and whose RADIUS animates via
-   the --steam-radius custom property. The cloud's bright core stays
-   anchored at the nozzle throughout the animation; only the cloud's
-   extent grows. Visceral "emerging from the nozzle" feel.
+     Stage 2 — Drift puffs (250ms-2250ms, 2s):
+       Three .steam-puff elements emerge from the nozzle's tip (positioned
+       via --nozzle-tip-x / --nozzle-tip-y CSS vars set by JS) and drift
+       toward viewport center (via --drift-x / --drift-y vars). Each puff
+       has slightly staggered start time and slightly different size, so
+       they read as discrete puffs from the nozzle source.
 
-   @property declaration makes --steam-radius interpolate as a <length>
-   (without it, custom properties are treated as opaque strings and snap
-   between keyframe values instead of animating smoothly). Supported in
-   Chrome 85+, Firefox 128+, Safari 16.4+ — fine for the target audience.
-   Browsers that don't support it degrade to keyframe-snapping which is
-   less smooth but still functionally visible.
+     Stage 3 — Rolling fog (2250ms-5250ms, 3s):
+       The .steam-fog element starts as a small ~40px puff at viewport
+       center (where the drift puffs converge) and grows via transform:
+       scale to fill the viewport (scale 1 = 100vw × 100vh). The fog has
+       a multi-layer gradient background that gives natural light/dark
+       variation; an SVG turbulence + displacement filter warps these
+       layers into organic, rolling shapes. The filter's baseFrequency
+       animates via SMIL so the fog appears to roll continuously.
 
-   Z-index 200 sits above page chrome (header 100, footer 50) but below
-   the nozzle's active-state z-index 250 (set in Nozzle.astro) so the
-   user can see the steam emerging from the visible nozzle, not from
-   behind a fog. The future SearchModal at z-index 300 paints above all
-   of this — visible through the dissipating cloud. */
+   Total visible animation: 2.25s drift+converge → 3s grow = 5.25s from
+   click to fully-grown fog. The feature (modal) fades in over the next
+   1s (task #4 — not in this commit; the fog stays at full size during
+   the placeholder time).
 
-@property --steam-radius {
-  syntax: '<length>';
-  inherits: false;
-  initial-value: 0px;
-}
+   prefers-reduced-motion: each stage simplifies to a brief opacity fade
+   with no scale/drift motion. Modal still mounts after. */
 
 .steam-transition {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 200;
-  opacity: 0;
-  /* Single radial gradient with bright core anchored at the NOZZLE TIP'S
-     ACTUAL POSITION — not at viewport center. Per Sean direction
-     2026-05-22 iter 7 (decision 1): the nozzle stays at the scrollbar
-     after its 3px recess; the steam should emerge FROM that position,
-     not from viewport center. Both --nozzle-tip-x AND --nozzle-tip-y
-     are set inline by the React component from the nozzle's bounding
-     rect at activation time, so the gradient's bright core is anchored
-     to the visible bronze tip near the scrollbar's right edge. As the
-     radius grows, the cloud expands outward FROM the tip — visceral
-     "steam emerging from the nozzle on the left, spreading to fill
-     the viewport" rather than "fog appearing at center."
+}
 
-     Visual consequence: the cloud is now HEAVILY RIGHT-BIASED. On a
-     typical viewport, the cloud's center is near x=42px (just past
-     the scrollbar) and grows radially. The leftward extent is clipped
-     by the viewport edge; the rightward extent reaches across most of
-     the viewport. Reads as the steam jetting INTO the viewport from
-     the left-edge source. */
+/* Hidden SVG container for the filter definitions. The filter is
+   referenced by URL fragment (`filter: url(#steam-fog-filter)`) from
+   .steam-fog below. */
+.steam-svg-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* ============================================================================
+   Stage 2 — Drift puffs
+   ============================================================================
+   Three small radial-gradient circles. Spawn at the nozzle's tip,
+   drift to viewport center over 2s, dissipate near the end. */
+
+.steam-puff {
+  position: absolute;
+  /* Initial position: nozzle tip. The translate(-50%, -50%) in transform
+     centers the puff on (left, top) coordinates. */
+  left: var(--nozzle-tip-x, 50%);
+  top: var(--nozzle-tip-y, 50%);
+  border-radius: 50%;
   background: radial-gradient(
-    circle var(--steam-radius, 0px) at var(--nozzle-tip-x, 50%) var(--nozzle-tip-y, 50%),
-    rgba(225, 200, 175, 0.8) 0%,
-    rgba(225, 200, 175, 0.6) 20%,
-    rgba(225, 200, 175, 0.35) 50%,
-    rgba(225, 200, 175, 0.12) 75%,
+    circle at center,
+    rgba(225, 200, 175, 0.75) 0%,
+    rgba(225, 200, 175, 0.45) 40%,
+    rgba(225, 200, 175, 0.15) 70%,
     transparent 100%
   );
-  /* Soft-edged steam-haze feel. 6px blur — less than the original 8px
-     so the bright core reads more distinctly at small radii during the
-     emerge phase. */
   filter: blur(6px);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.4);
+  will-change: transform, opacity;
 }
 
-/* Active state — triggered when the React component sets `is-active` based
-   on the nozzle's data-state="active" attribute. The animation has a 250ms
-   delay so the nozzle's slide completes BEFORE the steam emits (matches
-   the decisions/002 §4 spec: "slide... THEN begins the steam animation").
+/* Size variation per puff for organic feel */
+.steam-puff--1 { width: 60px; height: 60px; }
+.steam-puff--2 { width: 45px; height: 45px; }
+.steam-puff--3 { width: 50px; height: 50px; }
 
-   Total duration 400ms (within the 300-400ms spec). Five keyframes give
-   a clear narrative: emerge → grow → fill → dissipate. */
-.steam-transition.is-active {
-  animation: steam-emit 400ms ease-out 250ms forwards;
+/* Drift animations — each puff has its own delay so they emerge
+   sequentially from the nozzle (staggered 100ms apart). 2-second
+   duration per the spec ("about 2 seconds for this portion of the
+   effect"). */
+.steam-transition.is-active .steam-puff--1 {
+  animation: puff-drift-1 2s ease-out 250ms forwards;
+}
+.steam-transition.is-active .steam-puff--2 {
+  animation: puff-drift-2 2s ease-out 400ms forwards;
+}
+.steam-transition.is-active .steam-puff--3 {
+  animation: puff-drift-3 2s ease-out 550ms forwards;
 }
 
-@keyframes steam-emit {
-  /* 0% (250ms post-click): nothing visible yet, gradient radius small. */
+/* Three slightly different drift paths for natural variation. The
+   convergence target (viewport center) is the same for all three; the
+   intermediate paths and final scales differ. */
+@keyframes puff-drift-1 {
   0% {
-    --steam-radius: 18px;
     opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
   }
-  /* 20% (~330ms post-click): a small concentrated puff is visible AT the
-     nozzle's tip (now anchored at the actual nozzle position near the
-     scrollbar per SPR-0044 — see CSS comment above). Radius 60px is
-     roughly the visible-tip cluster size. Held longer than the
-     previous iterations so the user PERCEIVES the small-puff-at-nozzle
-     phase before the expansion starts. */
-  20% {
-    --steam-radius: 60px;
-    opacity: 0.75;
-  }
-  /* 40% (~410ms post-click): small visible growth — the cloud doubles
-     in radius but stays clearly anchored at the tip. The user can
-     follow the expansion outward FROM the nozzle's left-edge position. */
-  40% {
-    --steam-radius: 140px;
-    opacity: 0.9;
-  }
-  /* 70% (~530ms post-click): main expansion phase. Radius 700px — the
-     cloud reaches into the middle of the viewport from the nozzle's
-     left-edge origin. (Bumped from 480px in SPR-0042 — the cloud's
-     center is now off-center on the left, so it needs more radius to
-     reach the visible area.) */
-  70% {
-    --steam-radius: 700px;
+  10% {
     opacity: 0.85;
+    transform: translate(-50%, -50%) scale(1);
   }
-  /* 100% (650ms post-click): final dissipation extent. Radius 1400px —
-     enough to reach the far side of typical viewports from the
-     nozzle's off-center left origin. Sean's earlier "leftward extent
-     too far" complaint (SPR-0041 iter) no longer applies because the
-     gradient's center is now near the viewport-LEFT edge — the
-     leftward radius is mostly clipped by the viewport boundary, so
-     even at 1400px the visible leftward extent is just the small
-     gutter between the nozzle and viewport-left. The 1400px max
-     mostly extends RIGHTWARD across the viewport, giving the steam
-     a directional "jetting from left into right" appearance. */
+  60% {
+    opacity: 0.7;
+    transform: translate(
+      calc(-50% + var(--drift-x, 0px) * 0.6),
+      calc(-50% + var(--drift-y, 0px) * 0.6)
+    ) scale(1.5);
+  }
   100% {
-    --steam-radius: 1400px;
-    opacity: 0;
+    opacity: 0.3;
+    transform: translate(
+      calc(-50% + var(--drift-x, 0px)),
+      calc(-50% + var(--drift-y, 0px))
+    ) scale(2.2);
   }
 }
 
-/* Reduced-motion: skip the expansion, just a brief opacity fade so the
-   state change is still visually announced but no decorative motion
-   plays. Modal still mounts afterward per decisions/002 §4
-   ("modal still opens"). */
-@media (prefers-reduced-motion: reduce) {
-  .steam-transition.is-active {
-    animation: steam-emit-reduced 200ms ease-out 100ms forwards;
+@keyframes puff-drift-2 {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
   }
-  @keyframes steam-emit-reduced {
-    0%   { --steam-radius: 200px; opacity: 0; }
-    50%  { --steam-radius: 200px; opacity: 0.5; }
-    100% { --steam-radius: 200px; opacity: 0; }
+  12% {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  55% {
+    opacity: 0.6;
+    transform: translate(
+      calc(-50% + var(--drift-x, 0px) * 0.55),
+      calc(-50% + var(--drift-y, 0px) * 0.55 - 12px)
+    ) scale(1.3);
+  }
+  100% {
+    opacity: 0.25;
+    transform: translate(
+      calc(-50% + var(--drift-x, 0px)),
+      calc(-50% + var(--drift-y, 0px))
+    ) scale(1.9);
+  }
+}
+
+@keyframes puff-drift-3 {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  10% {
+    opacity: 0.75;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  60% {
+    opacity: 0.65;
+    transform: translate(
+      calc(-50% + var(--drift-x, 0px) * 0.6),
+      calc(-50% + var(--drift-y, 0px) * 0.6 + 10px)
+    ) scale(1.4);
+  }
+  100% {
+    opacity: 0.3;
+    transform: translate(
+      calc(-50% + var(--drift-x, 0px)),
+      calc(-50% + var(--drift-y, 0px))
+    ) scale(2.0);
+  }
+}
+
+/* ============================================================================
+   Stage 3 — Main rolling fog
+   ============================================================================
+   Starts as a ~40px puff at viewport center (where the drift puffs
+   converge); grows over 3s to fill the viewport. The SVG turbulence
+   filter warps the multi-layer gradient into rolling fog texture. */
+
+.steam-fog {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  /* Full-size dimensions — at scale(1) the fog covers the viewport.
+     Starts at scale(0.04) ≈ 40-80px on typical viewports (= where the
+     drift puffs converge). */
+  width: 100vw;
+  height: 100vh;
+  /* Multi-layer gradients give density variation — some areas thicker,
+     others letting page content show through. Five asymmetric ellipse
+     gradients positioned across the fog give the variation a natural,
+     non-uniform feel. The base center radial provides the overall
+     density envelope. */
+  background:
+    radial-gradient(ellipse 55% 45% at 28% 35%, rgba(225, 200, 175, 0.45), transparent 75%),
+    radial-gradient(ellipse 50% 60% at 72% 30%, rgba(220, 195, 170, 0.5), transparent 75%),
+    radial-gradient(ellipse 65% 40% at 50% 70%, rgba(230, 210, 185, 0.4), transparent 75%),
+    radial-gradient(ellipse 45% 65% at 82% 62%, rgba(225, 200, 175, 0.42), transparent 75%),
+    radial-gradient(ellipse 55% 55% at 18% 78%, rgba(215, 190, 165, 0.45), transparent 75%),
+    /* Base haze — overall density envelope, denser at center, thinner at
+       edges. Combined with the asymmetric layers above, the visible
+       result has varied density across the cloud. */
+    radial-gradient(circle at center, rgba(225, 200, 175, 0.55), rgba(225, 200, 175, 0.35) 50%, rgba(225, 200, 175, 0.15) 80%, transparent 100%);
+  /* SVG filter for rolling fog texture. The feDisplacementMap warps the
+     gradient pixels by an animated turbulence noise pattern, creating
+     organic, shifting highlights and shadows. blur(2px) softens any
+     hard edges from the displacement. */
+  filter: url(#steam-fog-filter) blur(2px);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.04);
+  will-change: transform, opacity;
+}
+
+.steam-transition.is-active .steam-fog {
+  animation: fog-grow 3s ease-out 2250ms forwards;
+}
+
+@keyframes fog-grow {
+  /* Start: small fog blob at viewport center, matching the size where
+     the drift puffs have converged (~40-80px). */
+  0% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(0.04);
+  }
+  /* Quick initial bloom to peak opacity as the fog starts visibly
+     growing. */
+  15% {
+    opacity: 0.85;
+    transform: translate(-50%, -50%) scale(0.15);
+  }
+  /* Mid-growth — fog is now noticeably large, ~half the viewport
+     diagonal. Opacity holds at peak so the fog reads as dense. */
+  60% {
+    opacity: 0.85;
+    transform: translate(-50%, -50%) scale(0.7);
+  }
+  /* End: fog at full size (= viewport). Opacity slightly reduced to give
+     the modal a clean fade-through canvas in task #4. */
+  100% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* ============================================================================
+   prefers-reduced-motion fallback
+   ============================================================================
+   Simplify to brief opacity fades with no scale/drift motion. Total
+   animation collapsed to ~600ms so the modal can mount quickly. */
+@media (prefers-reduced-motion: reduce) {
+  .steam-transition.is-active .steam-puff--1,
+  .steam-transition.is-active .steam-puff--2,
+  .steam-transition.is-active .steam-puff--3 {
+    animation: puff-reduced 250ms ease-out forwards;
+  }
+  @keyframes puff-reduced {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+    50%  { opacity: 0.4; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+  }
+  .steam-transition.is-active .steam-fog {
+    animation: fog-reduced 400ms ease-out 250ms forwards;
+    /* Skip the turbulence filter — it's purely decorative rolling motion
+       which reduce-motion asks us to remove. The static gradient still
+       provides the "fog" visual. */
+    filter: blur(2px);
+  }
+  @keyframes fog-reduced {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+    50%  { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
   }
 }

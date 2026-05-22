@@ -171,13 +171,11 @@ import nozzleImg from '~/assets/images/nozzle-detailed.png';
        header. Reads as a fixture firing inward from the scrollbar pipe.
        Sean direction 2026-05-22 iter 1. */
     transform: rotate(90deg);
-    /* Brass/copper drop-shadow so the nozzle pops off the dark page bg
-       without competing visually with the cyan scroll-indicator laser
-       underneath. Matches the brass-glow vocabulary used elsewhere
-       (h2 drawers, marquee CTA). */
-    filter:
-      drop-shadow(0 0 3px rgba(196, 149, 57, 0.5))
-      drop-shadow(0 0 8px rgba(196, 149, 57, 0.25));
+    /* Brass/copper drop-shadow with a slight upward bias (1px y-offset
+       upward) so the glow reads as "steam rising from the nozzle's tip"
+       even at rest — visual continuity with the steam animation that
+       fires on click. Sean direction 2026-05-22 iter 8. */
+    filter: drop-shadow(0 -1px 3px rgba(196, 149, 57, .5)) drop-shadow(0 0 8px rgba(196, 149, 57, .25));
     /* Subtle interactive feedback on hover/focus — brightens the glow.
        Click → modal flow is task #2 (slide animation) + tasks #3-6
        (steam + modal). For now hover is a hint that the nozzle is
@@ -187,9 +185,10 @@ import nozzleImg from '~/assets/images/nozzle-detailed.png';
 
   .site-nozzle:hover .site-nozzle-img,
   .site-nozzle:focus-visible .site-nozzle-img {
-    filter:
-      drop-shadow(0 0 5px rgba(232, 185, 94, 0.85))
-      drop-shadow(0 0 14px rgba(196, 149, 57, 0.5));
+    /* Single upward-biased halo on hover/focus — brighter brass-light tone
+       so the "active rising" feel intensifies. Sean direction 2026-05-22
+       iter 8. */
+    filter: drop-shadow(0px -1px 5px rgba(232, 185, 94, .85));
   }
 
   /* Keyboard focus ring — circular to match the nozzle's organic shape,
