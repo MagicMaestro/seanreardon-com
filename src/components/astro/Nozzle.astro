@@ -111,11 +111,19 @@ import nozzleImg from '~/assets/images/nozzle-detailed.png';
       left 300ms ease-out;
   }
 
-  /* Disable the transform transition during scroll so the scroll-driven Y
-     updates don't lag behind. Re-enabled when scroll settles. The
-     data-scrolling attribute is toggled by BaseLayout's scroll tick. */
+  /* Disable the transform transition during scroll so the rAF-driven Y
+     updates don't lag behind a 250ms ease-out interpolation. The data-
+     scrolling attribute is toggled by BaseLayout's scroll tick (set on
+     scroll AND resize events; cleared 150ms after last event).
+     CRITICAL: keep the `left` transition active so breakpoint-crossing
+     resizes still slide the nozzle in lockstep with the scrollbar + main
+     (both transition `left`/`max-width` at 300ms ease-out). The earlier
+     `transition: none` blanket-disabled left too, causing the nozzle's
+     horizontal position to snap on resize while the scrollbar slid —
+     Sean direction 2026-05-22 iter 3. Now: transform has no transition
+     during scroll (rAF handles smoothness); left keeps its 300ms ease-out. */
   .site-nozzle[data-scrolling="true"] {
-    transition: none;
+    transition: left 300ms ease-out;
   }
 
   .site-nozzle-img {
