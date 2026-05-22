@@ -2959,10 +2959,11 @@ const navLinks = [
   .header-search-field[data-open="true"] {
     height: 7rem;
     /* Open transition: 200ms delay on height so the field expansion starts
-       AFTER the search icon's pulse peak. `top` has no delay — it follows
-       the header's collapse/expand immediately so the field tracks the
-       bar's slide-off-screen in lockstep (2026-05-21 follow-header-collapse
-       behavior). */
+       AFTER the search icon's pulse peak. `top` defaults to 300ms ease-out
+       (no delay) — applies on the small tier (<640) where the bar uses a
+       symmetric 300ms no-delay transform transition. At ≥640 the field's
+       `top` is overridden to mirror the bar's asymmetric two-direction
+       timing — see the ≥640 rules a few blocks below. */
     transition:
       height 300ms ease-out 200ms,
       top 300ms ease-out;
@@ -2970,6 +2971,43 @@ const navLinks = [
   @media (min-width: 640px) and (max-width: 739.98px) {
     .header-search-field[data-open="true"] {
       height: 8rem;
+    }
+  }
+
+  /* At ≥640px the bar's collapse/expand uses asymmetric timing (see the
+     .header-bar transitions): 200ms duration with 300ms delay when
+     entering visible (full state), 200ms duration with 100ms delay when
+     entering hidden (minimal state). The search field's `top` needs to
+     mirror this so the field stays in lockstep with the bar across both
+     directions. Sean direction 2026-05-21 iter 2 of SPR-0032 (the first
+     iter used 300ms no-delay, which arrived at destination before the
+     bar slid in on the expand direction).
+
+     The base [data-open="true"] override here applies to the "entering
+     full" direction (when [data-state="minimal"] is removed): top moves
+     from -bar-height back to 0 over 200ms after a 300ms delay — staying
+     in place while the bar's nav fades + bar slides down, then sliding
+     into place WITH the bar.
+
+     The [data-state="minimal"] selector below applies to the "entering
+     minimal" direction: top moves from 0 to -bar-height over 200ms after
+     a 100ms delay — matching the bar's exit timing.
+
+     Why both height and top stay in this transition list at ≥640: height
+     transitions only fire on the field opening/closing (independent of
+     state attribute changes). Keeping it here so the open animation still
+     works (the override applies whenever [data-open="true"] is set,
+     regardless of state). */
+  @media (min-width: 640px) {
+    .header-search-field[data-open="true"] {
+      transition:
+        height 300ms ease-out 200ms,
+        top 200ms ease-out 300ms;
+    }
+    .site-header[data-state="minimal"] .header-search-field[data-open="true"] {
+      transition:
+        height 300ms ease-out 200ms,
+        top 200ms ease-out 100ms;
     }
   }
 
@@ -3338,10 +3376,13 @@ const navLinks = [
     /* Top/left transitions track the input as the search field follows the
        header's collapse/expand state (2026-05-21). The dropdown's inline
        top/left/width are set by JS from the input's getBoundingClientRect();
-       when the input transitions over 300ms (form `top` change), the CSS
-       transition here animates the dropdown's inline-style change in
-       lockstep. Width is intentionally NOT transitioned because the input
-       width doesn't change with collapse/expand — only its position. */
+       when the input transitions, the CSS transition here animates the
+       dropdown's inline-style change in lockstep. Width is intentionally
+       NOT transitioned because the input width doesn't change with
+       collapse/expand — only its position.
+       Default 300ms no-delay matches the small tier's symmetric bar
+       transition; the ≥640 rule below mirrors the bar's asymmetric two-
+       direction timing. */
     transition:
       top 300ms ease-out,
       left 300ms ease-out;
@@ -3358,6 +3399,21 @@ const navLinks = [
     --pagefind-ui-border-width: 1px;
     --pagefind-ui-border-radius: var(--radius);
     --pagefind-ui-font: var(--font-body);
+  }
+  /* ≥640: dropdown's `top` mirrors the field's (and the bar's) asymmetric
+     timing so the dropdown stays in lockstep with the input during the
+     follow-header-collapse animation. */
+  @media (min-width: 640px) {
+    .site-header .header-search-results {
+      transition:
+        top 200ms ease-out 300ms,
+        left 300ms ease-out;
+    }
+    .site-header[data-state="minimal"] .header-search-results {
+      transition:
+        top 200ms ease-out 100ms,
+        left 300ms ease-out;
+    }
   }
   .header-search-results[hidden] {
     display: none !important;
@@ -3379,11 +3435,36 @@ const navLinks = [
   .header-search-field[data-open="true"] ~ .header-search-form {
     opacity: 1;
     pointer-events: auto;
+    /* `top` defaults to 300ms ease-out (no delay) — applies on the small
+       tier where the bar uses symmetric 300ms timing. At ≥640 the form's
+       `top` is overridden to mirror the bar's asymmetric two-direction
+       timing (300ms delay entering full / 100ms delay entering minimal)
+       — see the ≥640 rules below. */
     transition:
       opacity 200ms ease-out 500ms,
       top 300ms ease-out,
       left 300ms ease-out,
       right 300ms ease-out;
+  }
+
+  /* ≥640: form's `top` mirrors the field's (and the bar's) asymmetric
+     timing on the follow-header-collapse animation. Same rationale as
+     the field's ≥640 block above. */
+  @media (min-width: 640px) {
+    .header-search-field[data-open="true"] ~ .header-search-form {
+      transition:
+        opacity 200ms ease-out 500ms,
+        top 200ms ease-out 300ms,
+        left 300ms ease-out,
+        right 300ms ease-out;
+    }
+    .site-header[data-state="minimal"] .header-search-field[data-open="true"] ~ .header-search-form {
+      transition:
+        opacity 200ms ease-out 500ms,
+        top 200ms ease-out 100ms,
+        left 300ms ease-out,
+        right 300ms ease-out;
+    }
   }
   /* When field is open, also explicitly enable pointer-events on the
      input and submit (they're set to `none` by default — see the
