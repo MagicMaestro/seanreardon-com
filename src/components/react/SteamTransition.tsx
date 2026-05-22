@@ -45,15 +45,29 @@ export default function SteamTransition() {
     const observer = new MutationObserver(() => {
       const nextState = nozzle.dataset.state === 'active';
       if (nextState) {
-        /* Read the nozzle's CURRENT tip position so the radial-gradient
-           cloud (in SteamTransition.css) can be CENTERED at the tip — the
-           bright core stays anchored to the nozzle throughout the radius
-           expansion. Y is read from the nozzle's bounding rect; X is
-           fixed at viewport horizontal center (50%) since the nozzle
-           slides to mid-viewport before this fires. */
+        /* Read the nozzle's BOTH X and Y position from getBoundingClientRect
+           so the radial-gradient cloud in SteamTransition.css can be
+           CENTERED at the actual tip — the bright core stays anchored to
+           the nozzle (which only recesses 3px from its scrollbar resting
+           position per SPR-0043) throughout the radius expansion.
+
+           Updated 2026-05-22 iter 7 with decision 1: keep the recess, no
+           slide-to-mid-viewport. So the nozzle's X is NOT at viewport
+           center but at the scrollbar's gutter — read it from the rect
+           rather than assuming 50% horizontally.
+
+           tipX: approximate the bronze tip's visible position. After the
+           90deg rotation, the source PNG's wider opening (originally at
+           top) is now on the right side of the rotated image. The actual
+           bronze cluster is inset ~4px from the box's right edge (the
+           PNG has transparent padding around the brass). rect.right - 4
+           gets close enough; sub-pixel precision isn't important since
+           the steam blur softens any centering misalignment. */
         const rect = nozzle.getBoundingClientRect();
+        const tipX = rect.right - 4;
         const tipY = rect.top + rect.height / 2;
         if (overlayRef.current) {
+          overlayRef.current.style.setProperty('--nozzle-tip-x', `${tipX}px`);
           overlayRef.current.style.setProperty('--nozzle-tip-y', `${tipY}px`);
         }
       }

@@ -43,29 +43,35 @@
   pointer-events: none;
   z-index: 200;
   opacity: 0;
-  /* Single radial gradient with bright core anchored at the NOZZLE TIP,
-     not at viewport center. The nozzle in active state is centered at
-     viewport-x=50%; its rotated image's right edge (= the tip's actual
-     position) is at 50% + 1rem (≈ 0.5rem inset from the 1.25rem half-
-     width to land at the visible bronze tip, not the empty corner of
-     the box). Shifting the gradient core there RATHER than to the
-     nozzle's geometric center means the cloud's bright spot is at the
-     visible tip — visceral "emerging from the tip" feel rather than
-     "puff at the same x as the body."
-     --nozzle-tip-y is set inline by the React component from the
-     nozzle's bounding rect; --steam-radius is animated via the
-     keyframes below. Sean direction 2026-05-22 iter 6. */
+  /* Single radial gradient with bright core anchored at the NOZZLE TIP'S
+     ACTUAL POSITION — not at viewport center. Per Sean direction
+     2026-05-22 iter 7 (decision 1): the nozzle stays at the scrollbar
+     after its 3px recess; the steam should emerge FROM that position,
+     not from viewport center. Both --nozzle-tip-x AND --nozzle-tip-y
+     are set inline by the React component from the nozzle's bounding
+     rect at activation time, so the gradient's bright core is anchored
+     to the visible bronze tip near the scrollbar's right edge. As the
+     radius grows, the cloud expands outward FROM the tip — visceral
+     "steam emerging from the nozzle on the left, spreading to fill
+     the viewport" rather than "fog appearing at center."
+
+     Visual consequence: the cloud is now HEAVILY RIGHT-BIASED. On a
+     typical viewport, the cloud's center is near x=42px (just past
+     the scrollbar) and grows radially. The leftward extent is clipped
+     by the viewport edge; the rightward extent reaches across most of
+     the viewport. Reads as the steam jetting INTO the viewport from
+     the left-edge source. */
   background: radial-gradient(
-    circle var(--steam-radius, 0px) at calc(50% + 1rem) var(--nozzle-tip-y, 50%),
+    circle var(--steam-radius, 0px) at var(--nozzle-tip-x, 50%) var(--nozzle-tip-y, 50%),
     rgba(225, 200, 175, 0.8) 0%,
     rgba(225, 200, 175, 0.6) 20%,
     rgba(225, 200, 175, 0.35) 50%,
     rgba(225, 200, 175, 0.12) 75%,
     transparent 100%
   );
-  /* Soft-edged steam-haze feel. 6px blur (was 8px) — slightly less so
-     the bright core reads more distinctly at small radii during the
-     initial emerge phase. */
+  /* Soft-edged steam-haze feel. 6px blur — less than the original 8px
+     so the bright core reads more distinctly at small radii during the
+     emerge phase. */
   filter: blur(6px);
 }
 
@@ -87,39 +93,43 @@
     opacity: 0;
   }
   /* 20% (~330ms post-click): a small concentrated puff is visible AT the
-     nozzle's tip. Radius 60px is roughly the visible-tip cluster size.
-     Held longer than the previous SPR-0041 15% mark so the user
-     PERCEIVES the small-puff-at-nozzle phase before the expansion
-     starts (Sean's iter-5 complaint was that the emerge phase wasn't
-     readable — it grew too fast to register). */
+     nozzle's tip (now anchored at the actual nozzle position near the
+     scrollbar per SPR-0044 — see CSS comment above). Radius 60px is
+     roughly the visible-tip cluster size. Held longer than the
+     previous iterations so the user PERCEIVES the small-puff-at-nozzle
+     phase before the expansion starts. */
   20% {
     --steam-radius: 60px;
     opacity: 0.75;
   }
   /* 40% (~410ms post-click): small visible growth — the cloud doubles
      in radius but stays clearly anchored at the tip. The user can
-     follow the expansion outward FROM the tip rather than just seeing
-     a cloud appear at center. */
+     follow the expansion outward FROM the nozzle's left-edge position. */
   40% {
     --steam-radius: 140px;
     opacity: 0.9;
   }
-  /* 70% (~530ms post-click): main expansion phase. Radius ~480px
-     (reduced from 700px in SPR-0041) — the cloud spans the immediate
-     area around the nozzle but doesn't dominate the viewport. */
+  /* 70% (~530ms post-click): main expansion phase. Radius 700px — the
+     cloud reaches into the middle of the viewport from the nozzle's
+     left-edge origin. (Bumped from 480px in SPR-0042 — the cloud's
+     center is now off-center on the left, so it needs more radius to
+     reach the visible area.) */
   70% {
-    --steam-radius: 480px;
+    --steam-radius: 700px;
     opacity: 0.85;
   }
-  /* 100% (650ms post-click): final dissipation extent. Radius 900px
-     (reduced from 1400px — Sean's "~2/3 of the current pixel distance
-     the effect moves to the left" direction, 2026-05-22 iter 6). On
-     typical viewports (1080-1920px wide) the cloud still spans the
-     full visible area at peak but the LEFTWARD extent is limited so
-     the cloud doesn't extend dramatically past the scrollbar on the
-     left side. */
+  /* 100% (650ms post-click): final dissipation extent. Radius 1400px —
+     enough to reach the far side of typical viewports from the
+     nozzle's off-center left origin. Sean's earlier "leftward extent
+     too far" complaint (SPR-0041 iter) no longer applies because the
+     gradient's center is now near the viewport-LEFT edge — the
+     leftward radius is mostly clipped by the viewport boundary, so
+     even at 1400px the visible leftward extent is just the small
+     gutter between the nozzle and viewport-left. The 1400px max
+     mostly extends RIGHTWARD across the viewport, giving the steam
+     a directional "jetting from left into right" appearance. */
   100% {
-    --steam-radius: 900px;
+    --steam-radius: 1400px;
     opacity: 0;
   }
 }
