@@ -40,17 +40,42 @@
 import { useEffect, useRef, useState } from 'react';
 import './SteamTransition.css';
 
+/* Phase state machine (Sean iter 13):
+   - idle:    nothing visible, no animations
+   - active:  opening animations run, fog grows to fill viewport
+   - closing: fade-out transitions run for ~350ms, then back to idle
+
+   The closing phase is needed because clicking the fog (or pressing Escape,
+   or re-clicking the nozzle) needs to smoothly fade the fog out rather
+   than snap it to invisible. Without the closing phase, removing the
+   .is-active class would instantly hide the fog. The closing phase
+   applies explicit fade-out target values + CSS transitions that animate
+   from the opening's end state to the closing target. */
+type SteamPhase = 'idle' | 'active' | 'closing';
+
+const CLOSING_DURATION_MS = 350;
+
 export default function SteamTransition() {
-  const [isActive, setIsActive] = useState(false);
+  const [phase, setPhase] = useState<SteamPhase>('idle');
   const overlayRef = useRef<HTMLDivElement>(null);
+  /* Ref shadows the phase state for use inside the MutationObserver
+     callback. The observer is registered once on mount; its closure
+     captures the INITIAL phase value. Without this ref, the closure
+     would always see phase='idle'. */
+  const phaseRef = useRef<SteamPhase>('idle');
+  const closingTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
 
   useEffect(() => {
     const nozzle = document.querySelector<HTMLElement>('.site-nozzle');
     if (!nozzle) return;
 
     const observer = new MutationObserver(() => {
-      const nextState = nozzle.dataset.state === 'active';
-      if (nextState) {
+      const nextActive = nozzle.dataset.state === 'active';
+      if (nextActive) {
         /* Read the nozzle's current tip position. tipX = right edge minus
            a small inset for the actual bronze cluster (the rotated PNG
            has transparent padding); tipY = vertical center of the nozzle
@@ -67,18 +92,68 @@ export default function SteamTransition() {
           overlayRef.current.style.setProperty('--drift-x', `${driftX}px`);
           overlayRef.current.style.setProperty('--drift-y', `${driftY}px`);
         }
+        if (closingTimerRef.current !== null) {
+          window.clearTimeout(closingTimerRef.current);
+          closingTimerRef.current = null;
+        }
+        setPhase('active');
+      } else if (phaseRef.current === 'active') {
+        /* Was active, now closing. Run the fade-out transition for
+           CLOSING_DURATION_MS, then return to idle (which removes the
+           overlay's pointer-events). */
+        setPhase('closing');
+        if (closingTimerRef.current !== null) {
+          window.clearTimeout(closingTimerRef.current);
+        }
+        closingTimerRef.current = window.setTimeout(() => {
+          setPhase('idle');
+          closingTimerRef.current = null;
+        }, CLOSING_DURATION_MS);
       }
-      setIsActive(nextState);
     });
 
     observer.observe(nozzle, { attributes: true, attributeFilter: ['data-state'] });
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (closingTimerRef.current !== null) {
+        window.clearTimeout(closingTimerRef.current);
+      }
+    };
   }, []);
+
+  /* Click handler — clicking anywhere on the overlay (not on a feature
+     element) closes the fog. Sean iter 13: "clicking anywhere within the
+     fog - any places that aren't any of the feature elements that are
+     being opened - to trigger the fog closing/fading." For task #3 there
+     are no feature elements yet; when SearchModal lands in task #4, the
+     modal's own click handlers can stopPropagation() to prevent reaching
+     this handler.
+     The click simulates a nozzle close by directly setting data-state.
+     The Nozzle.astro's own MutationObserver-free flow doesn't run, so
+     we manually dispatch the synthetic scroll event the nozzle's
+     setState() would have fired — this refreshes --nozzle-y for the
+     scrollbar-resting position. */
+  const handleOverlayClick = () => {
+    const nozzle = document.querySelector<HTMLElement>('.site-nozzle');
+    if (nozzle && nozzle.dataset.state === 'active') {
+      nozzle.dataset.state = 'resting';
+      nozzle.setAttribute('aria-expanded', 'false');
+      window.dispatchEvent(new Event('scroll'));
+    }
+  };
+
+  const className =
+    phase === 'active'
+      ? 'steam-transition is-active'
+      : phase === 'closing'
+        ? 'steam-transition is-closing'
+        : 'steam-transition';
 
   return (
     <div
       ref={overlayRef}
-      className={`steam-transition${isActive ? ' is-active' : ''}`}
+      className={className}
+      onClick={handleOverlayClick}
       aria-hidden="true"
     >
       {/* SVG filter definitions — hidden via CSS (width/height 0). The
@@ -98,18 +173,17 @@ export default function SteamTransition() {
               result="noise"
             >
               {/* Palindrome values (A→B→A) ensure the loop forward and
-                  rewind play at IDENTICAL speed. Duration extended from 8s
-                  to 12s per Sean iter 10: the edge clipping still moved
-                  too fast even after the iter-9 slowdown. At 12s = 6s
-                  forward + 6s rewind, the rolling texture changes feel
-                  like a slow continuous drift rather than active churning.
+                  rewind play at IDENTICAL speed. Duration extended to
+                  22s per Sean iter 13 (was 12s in iter 10): the texture
+                  rolling at 22s = 11s forward + 11s rewind reads as a
+                  slow atmospheric drift rather than active motion.
                   calcMode="spline" + keySplines applies ease-in-out cubic-
                   bezier to each segment so the turning points (peak B and
                   return to A) feel smooth, not abrupt. */}
               <animate
                 attributeName="baseFrequency"
                 values="0.008 0.012;0.013 0.016;0.008 0.012"
-                dur="12s"
+                dur="22s"
                 repeatCount="indefinite"
                 calcMode="spline"
                 keySplines="0.42 0 0.58 1; 0.42 0 0.58 1"

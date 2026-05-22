@@ -34,6 +34,18 @@
   z-index: 200;
 }
 
+/* During the active phase the overlay captures clicks so the user can
+   click anywhere in the fog (outside any future feature elements) to
+   trigger the close. Sean iter 13: "clicking anywhere within the fog -
+   any places that aren't any of the feature elements that are being
+   opened - to trigger the fog closing/fading."
+   During the closing phase pointer-events drop back to none — the user
+   already initiated close; the fade-out is purely visual so clicks
+   during that ~350ms should pass through to the page underneath. */
+.steam-transition.is-active {
+  pointer-events: auto;
+}
+
 /* Hidden SVG container for the filter definitions. The filter is
    referenced by URL fragment (`filter: url(#steam-fog-filter)`) from
    .steam-fog below. */
@@ -307,6 +319,53 @@
 @keyframes fog-radius {
   0%, 80% { border-radius: 50%; }
   100%    { border-radius: 0%; }
+}
+
+/* ============================================================================
+   Stage 4 — Closing / fade-out
+   ============================================================================
+   Sean iter 13: "when we close this again, let quickly fade it out
+   quickly, but not abruptly." When the user clicks the nozzle, presses
+   Escape, or clicks the fog overlay itself, the React component sets
+   the phase to "closing" and adds the .is-closing class. The opening
+   animations stop (their selectors no longer match) and the .is-closing
+   rules below apply NEW target values via CSS TRANSITIONS — the fog and
+   puffs interpolate from wherever they were at click-time to the closing
+   target over CLOSING_DURATION_MS (350ms, defined in the TSX).
+
+   Why transitions (not animations): closing needs to interpolate from
+   the CURRENT visible state (which depends on when in the opening
+   sequence the user closes) to a known end state. Keyframe animations
+   always run from 0% — they'd snap the visible state to whatever 0%
+   says, then animate. Transitions seamlessly pick up the current value
+   and animate to the new target. Exactly what we want for a clean
+   "fade out from wherever you are" behavior.
+
+   Closing targets:
+     Fog: opacity 0, slight scale grow (1.05) to feel like dissipation
+          outward, blur ramps up to 8px (steam dispersing). Border-radius
+          stays at 0% (rectangular — matches the final opening state if
+          user closes after full expansion; rectangular doesn't matter
+          much during fade-out anyway since opacity is going to 0).
+     Puffs: opacity 0. No transform target — let the puffs hold whatever
+            transform they had. Puffs at end of opening are already
+            opacity 0, so closing mid-opening is the only case where
+            this matters; the fade-out is just the opacity decay. */
+
+.steam-transition.is-closing .steam-fog {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(1.05);
+  filter: url(#steam-fog-filter) blur(8px);
+  border-radius: 0%;
+  transition:
+    opacity 350ms ease-out,
+    transform 350ms ease-out,
+    filter 350ms ease-out;
+}
+
+.steam-transition.is-closing .steam-puff {
+  opacity: 0;
+  transition: opacity 350ms ease-out;
 }
 
 /* ============================================================================
