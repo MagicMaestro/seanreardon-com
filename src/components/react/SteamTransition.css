@@ -84,24 +84,39 @@
    delays so puffs emerge sequentially from the nozzle.
 
    Trajectory (Sean iter 9): two-phase path
-     - Phase 1 (0-15% time): emerge from nozzle, then travel HORIZONTALLY
+     - Phase 1 (0-8% time): emerge from nozzle, then travel HORIZONTALLY
        1.5rem to the right (x-axis only, no y-component yet)
-     - Phase 2 (15-100% time): curve toward viewport center, with the
+     - Phase 2 (8-100% time): curve toward viewport center, with the
        puff's midpoint offset vertically by --curve-amp (gives the
        "curve up/down" arc) before settling at viewport center
 
-   End state: puffs fade fully to opacity 0 at the 100% keyframe (was
-   0.3 in previous iter) so they cleanly cross-fade with the fog
-   starting at delay 2050ms (just before puffs end at 2250ms). The
-   200ms overlap gives smooth visual handoff to the fog. */
+   Timing (Sean iter 11): `linear` instead of `ease-out`. CSS animations
+   apply the timing function between EACH pair of keyframes, not just
+   once across the whole animation — so ease-out caused the puff to
+   decelerate at the end of every segment (3%, 8%, 54%) and re-accelerate
+   at the start of the next, creating the "stall and pick up speed"
+   pattern Sean observed. linear removes the within-segment dip: the
+   puff travels at constant speed within each segment.
+
+   Keyframe re-spacing iter 11: horizontal-phase-end moved from 15% to
+   8%. Previously the horizontal phase took 15% of duration (300ms) for
+   ~5% of total trajectory distance — visibly slower than the curve
+   phase. The 8% time / ~5% distance ratio matches the curve-phase
+   ratio more closely (~14rem/s in both phases on typical viewports),
+   so the velocity stays roughly constant across the phase boundary.
+
+   End state: puffs fade fully to opacity 0 at the 100% keyframe so
+   they cleanly cross-fade with the fog starting at delay 2050ms (just
+   before puffs end at 2250ms). The 200ms overlap gives smooth visual
+   handoff to the fog. */
 .steam-transition.is-active .steam-puff--1 {
-  animation: puff-drift 2s ease-out 250ms forwards;
+  animation: puff-drift 2s linear 250ms forwards;
 }
 .steam-transition.is-active .steam-puff--2 {
-  animation: puff-drift 2s ease-out 400ms forwards;
+  animation: puff-drift 2s linear 400ms forwards;
 }
 .steam-transition.is-active .steam-puff--3 {
-  animation: puff-drift 2s ease-out 550ms forwards;
+  animation: puff-drift 2s linear 550ms forwards;
 }
 
 @keyframes puff-drift {
@@ -110,32 +125,37 @@
     opacity: 0;
     transform: translate(-50%, -50%) scale(0.4);
   }
-  /* 5% (~100ms in): emerged at nozzle, fully visible */
-  5% {
+  /* 3% (~60ms in): emerged at nozzle, fully visible. Quick scale-up so
+     the puff materializes; this phase is essentially the appearance ramp,
+     with very little translation. (Re-spaced from 5% in iter 11.) */
+  3% {
     opacity: 0.85;
     transform: translate(-50%, -50%) scale(1);
   }
-  /* 15% (~300ms in): end of Phase 1 — puff has traveled 1.5rem
+  /* 8% (~160ms in): end of Phase 1 — puff has traveled 1.5rem
      horizontally to the right of the nozzle's tip. NO y-component yet
      (translate-y stays at -50%, the centering offset). Per Sean iter 9:
      "I'd prefer to see them come straight out of the nozzle moving only
      along the x-axis (not y) and after moving one or two rems to the
      right of the nozzle tip, they start to curve up or down towards
-     the center." */
-  15% {
+     the center." (Re-spaced from 15% in iter 11 so the velocity matches
+     the curve phase.) */
+  8% {
     opacity: 0.85;
     transform: translate(calc(-50% + 1.5rem), -50%) scale(1);
   }
-  /* 55% (~1.1s in): midpoint of Phase 2 (curve). X is at ~53% of the
-     way from end-of-horizontal-phase to viewport center; Y is at ~53%
-     of total drift-y, OFFSET by --curve-amp to create the up/down arc.
-     The negative --curve-amp on puff 2 means y is shifted UP from the
-     straight-line midpoint; positive --curve-amp on puff 3 shifts DOWN. */
-  55% {
+  /* 54% (~1.08s in): midpoint of Phase 2 (curve). X is at 50% of the
+     remaining distance from end-of-horizontal to viewport center; Y is
+     at 50% of total drift-y, OFFSET by --curve-amp to create the
+     up/down arc. The negative --curve-amp on puff 2 shifts Y UP from
+     the straight-line midpoint; positive --curve-amp on puff 3 shifts
+     DOWN. (Re-spaced from 55%; multiplier dropped from 0.53 to 0.5 for
+     a true midpoint.) */
+  54% {
     opacity: 0.7;
     transform: translate(
-      calc(-50% + 1.5rem + (var(--drift-x, 0px) - 1.5rem) * 0.53),
-      calc(-50% + var(--drift-y, 0px) * 0.53 + var(--curve-amp, 0px))
+      calc(-50% + 1.5rem + (var(--drift-x, 0px) - 1.5rem) * 0.5),
+      calc(-50% + var(--drift-y, 0px) * 0.5 + var(--curve-amp, 0px))
     ) scale(1.5);
   }
   /* 100% (2s in): arrived at viewport center, faded to invisible to
@@ -202,88 +222,79 @@
    starting 200ms earlier means a 200ms overlap window where both are
    simultaneously visible. Puffs fade to opacity 0 over their last
    keyframes; fog fades IN from opacity 0 over its first keyframes. The
-   overlap removes the visible "jump" from puffs to fog. */
+   overlap removes the visible "jump" from puffs to fog.
+
+   ARCHITECTURE (Sean iter 11): the fog uses FOUR PARALLEL animations
+   instead of one. Each animates a single property with its own minimal
+   keyframe set + timing function. Previously a single `fog-grow`
+   keyframe set animated transform, opacity, filter, AND border-radius
+   together at 7 stops — but CSS applies the animation-timing-function
+   to EACH segment, so ease-out caused the fog to decelerate at every
+   keyframe boundary (7%, 15%, 40%, 70%, 80%), creating the "stall and
+   pick up speed" pattern Sean observed.
+
+   Splitting into separate animations lets each property have the
+   keyframes it actually needs AND avoids accidental timing-function
+   restarts at unrelated keyframe stops. Net result: smooth, monotonic
+   motion in each axis.
+
+   Per-property timing rationale:
+     fog-scale:   linear (constant growth rate; the fog grows at a
+                  uniform speed)
+     fog-opacity: linear (fade-in 0→0.85 in 15% of duration, then hold)
+     fog-blur:    ease-out (heavy blur reduces fast initially when fog
+                  is small and most needs softening; settles slowly to
+                  the 2px final value as fog reaches full size)
+     fog-radius:  linear (stays at 50% from 0-80%, then linearly morphs
+                  to 0% over the final 20% — the quick-morph Sean spec'd
+                  in iter 10 keeps the same shape) */
 .steam-transition.is-active .steam-fog {
-  animation: fog-grow 3.2s ease-out 2050ms forwards;
+  animation:
+    fog-scale 3.2s linear 2050ms forwards,
+    fog-opacity 3.2s linear 2050ms forwards,
+    fog-blur 3.2s ease-out 2050ms forwards,
+    fog-radius 3.2s linear 2050ms forwards;
 }
 
-@keyframes fog-grow {
-  /* 0% (2050ms post-click): invisible, at the size the converged drift
-     puffs are. Starts at scale 0.1 (was 0.04 in previous iter) so the
-     visual handoff from puffs (which are at ~100-150px after their
-     scale-up) matches the fog's initial size (~10vw × 10vh ≈ 150-200px
-     on typical viewports). Filter blur 22px to soften the small-scale
-     edges — the SVG turbulence's coordinate space doesn't change with
-     transform: scale, so at small scale the displacement can leave
-     sharp rectangular artifacts; heavy blur masks this until the fog
-     grows enough that the texture reads as fog naturally.
-     border-radius 50% throughout 0-80% keeps the small-and-mid-scale
-     fog rounded — Sean iter 9 made it circular for the cross-fade
-     handoff; Sean iter 10 wants it to STAY circular until the last 20%
-     of expansion, then morph to rectangular (= 0% radius) by 100%. */
-  0% {
-    opacity: 0;
-    filter: url(#steam-fog-filter) blur(22px);
-    transform: translate(-50%, -50%) scale(0.1);
-    border-radius: 50%;
-  }
-  /* 7% (~225ms in = 2275ms post-click): fading in during the cross-fade
-     overlap with the still-visible puffs. Blur still heavy. */
-  7% {
-    opacity: 0.4;
-    filter: url(#steam-fog-filter) blur(18px);
-    transform: translate(-50%, -50%) scale(0.16);
-    border-radius: 50%;
-  }
-  /* 15% (~480ms in = 2530ms post-click): fog at peak opacity. The puffs
-     have fully ended (their 100% was at 2250ms). Blur reducing as scale
-     increases — the fog now reads as a definite cloud, not a sharp puff. */
-  15% {
-    opacity: 0.8;
-    filter: url(#steam-fog-filter) blur(12px);
-    transform: translate(-50%, -50%) scale(0.3);
-    border-radius: 50%;
-  }
-  /* 40% (~1.28s in = 3330ms post-click): mid-growth. Blur transitioning
-     toward the full-scale 2px. */
-  40% {
-    opacity: 0.85;
-    filter: url(#steam-fog-filter) blur(6px);
-    transform: translate(-50%, -50%) scale(0.55);
-    border-radius: 50%;
-  }
-  /* 70% (~2.24s in = 4290ms post-click): nearly grown. Blur close to
-     the normal 2px; the rolling-fog texture from feTurbulence is now
-     the dominant visual character. Still circular here. */
-  70% {
-    opacity: 0.85;
-    filter: url(#steam-fog-filter) blur(3px);
-    transform: translate(-50%, -50%) scale(0.85);
-    border-radius: 50%;
-  }
-  /* 80% (~2.56s in = 4610ms post-click): LAST CIRCULAR KEYFRAME. The
-     final 20% of expansion (80% → 100% = ~640ms) morphs the fog from
-     circular to rectangular per Sean iter 10. Sean's earlier feedback
-     liked the rectangular full-extent feel ("looked better earlier
-     when it was rectangular"); this lets us keep the smooth circular
-     puff-to-fog handoff (iter 9 fix) AND end at the rectangular look
-     he prefers. */
-  80% {
-    opacity: 0.85;
-    filter: url(#steam-fog-filter) blur(2.5px);
-    transform: translate(-50%, -50%) scale(0.92);
-    border-radius: 50%;
-  }
-  /* 100% (3.2s in = 5250ms post-click): fully grown, normal blur,
-     RECTANGULAR (border-radius: 0). The 80%→100% interpolation of
-     border-radius creates the "quick morph in shape" Sean spec'd —
-     ~640ms from circular to rectangular. */
-  100% {
-    opacity: 0.8;
-    filter: url(#steam-fog-filter) blur(2px);
-    transform: translate(-50%, -50%) scale(1);
-    border-radius: 0%;
-  }
+/* Scale: smooth linear growth from puff-converged size (0.1) to full
+   viewport (1). Two keyframes only — linear interpolation across the
+   entire 3.2s duration. No mid-animation rate changes. */
+@keyframes fog-scale {
+  from { transform: translate(-50%, -50%) scale(0.1); }
+  to   { transform: translate(-50%, -50%) scale(1); }
+}
+
+/* Opacity: fade in from 0 to 0.85 over the first 15% of duration
+   (~480ms = 2050ms→2530ms post-click — overlaps with the puffs' final
+   fade-out), then hold at peak. Slight tapering to 0.8 at the end so
+   the fog reads as slightly dissipating, leaving canvas for the
+   future modal mount. */
+@keyframes fog-opacity {
+  0%   { opacity: 0; }
+  15%  { opacity: 0.85; }
+  100% { opacity: 0.8; }
+}
+
+/* Blur: heavy 22px at small scale (softens the small-scale rectangular
+   artifacts from the SVG turbulence's coord space) reduces to 2px at
+   full scale (normal blur for the rolling-fog visual). ease-out makes
+   the bulk of the reduction happen early (matches the user's
+   expectation that the fog "settles into focus" as it grows). */
+@keyframes fog-blur {
+  from { filter: url(#steam-fog-filter) blur(22px); }
+  to   { filter: url(#steam-fog-filter) blur(2px); }
+}
+
+/* Border-radius: stays at 50% (circular) through the first 80% of
+   duration — preserves the smooth circular puff-to-fog handoff from
+   iter 9. Then morphs to 0% (rectangular) over the final 20% (~640ms).
+   The 0% and 80% keyframes share a value, so border-radius is held
+   constant for 0-80% and only animates 80-100%. Matches Sean iter 10
+   spec: "morph in shape to rectangular the final 20% of the time it's
+   expanding." */
+@keyframes fog-radius {
+  0%, 80% { border-radius: 50%; }
+  100%    { border-radius: 0%; }
 }
 
 /* ============================================================================
