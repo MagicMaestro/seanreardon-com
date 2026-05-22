@@ -39,6 +39,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import './SteamTransition.css';
+import SearchModal from './SearchModal';
 
 /* Phase state machine (Sean iter 13):
    - idle:    nothing visible, no animations
@@ -222,6 +223,17 @@ export default function SteamTransition() {
           to fill the viewport. The SVG turbulence filter warps the
           multi-layer gradient into rolling fog texture. */}
       <div className="steam-fog" />
+
+      {/* SearchModal — receives the phase prop so it can time its
+          fade-in (after the fog finishes growing) and fade-out (during
+          the fog's closing transition). The modal lives INSIDE the
+          SteamTransition overlay so:
+          (a) it inherits the overlay's high z-index automatically
+          (b) clicks OUTSIDE the modal (on the surrounding fog) bubble
+              up to the overlay's onClick handler and trigger close
+          (c) clicks INSIDE the modal content stopPropagation() to
+              avoid bubbling up — handled inside SearchModal itself */}
+      <SearchModal phase={phase} />
     </div>
   );
 }
