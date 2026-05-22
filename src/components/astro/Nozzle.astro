@@ -91,10 +91,15 @@ import nozzleImg from '~/assets/images/nozzle-detailed.png';
        the image's 90deg rotation, the rotated nozzle's base sits at the
        scrollbar centerline and the opening extends right. */
     margin-left: 3px;
-    /* No translateX — the +3px on `left` already positions the nozzle's
-       left edge at the scrollbar's centerline. translateY is driven by
-       --nozzle-y from BaseLayout's scroll tick. */
-    transform: translateY(var(--nozzle-y, 80vh));
+    /* transform composes the slide-to-mid X (from --nozzle-x, default 0)
+       and the scroll-coupled Y (from --nozzle-y, set by BaseLayout's
+       scroll tick). Resting state keeps --nozzle-x at 0 so the nozzle
+       sits at its tier-anchored `left` position. The active state below
+       overrides --nozzle-x with a per-tier translate value that slides
+       the nozzle's center to viewport-x=50%. translateY tracks scroll
+       in both states (with active pausing the JS update via the
+       data-state check in BaseLayout's updateNozzleY). */
+    transform: translate(var(--nozzle-x, 0), var(--nozzle-y, 80vh));
     width: 2.5rem;
     /* Explicit height so the rotation in .site-nozzle-img rotates within
        a fixed-size box rather than altering the bounding-box geometry.
@@ -199,6 +204,49 @@ import nozzleImg from '~/assets/images/nozzle-detailed.png';
     }
   }
 
+  /* Active state — nozzle slides horizontally from its tier-resting
+     position to the viewport's horizontal center. Per decisions/002 §4:
+     "the nozzle slides horizontally to the halfway point of the viewport
+     (mid-screen), then begins the steam animation. Slide duration: short
+     (~200-250ms), eased." The transition: transform 250ms ease-out (on
+     .site-nozzle above) carries the animation.
+
+     Math: the nozzle's CENTER in resting state is at
+       (left + margin-left + width/2)
+     from viewport-left. The target center is at 50% (= 50vw, since
+     position:fixed → containing block IS the viewport). The translate-X
+     amount to slide there is:
+       50% - (left + 3px + 1.25rem)
+     Each tier collapses differently depending on whether `left` is a
+     percentage, pixel, or calc value.
+
+     Y is intentionally untouched ("slides horizontally" per the spec) —
+     the nozzle stays at its current scroll-coupled Y when activated.
+     BaseLayout's updateNozzleY pauses scroll-tracking when data-state
+     is not 'resting', so the Y stays frozen during the active state. */
+  .site-nozzle[data-state="active"] {
+    /* <896, left:0 → translate-X = 50% - 3px - 1.25rem */
+    --nozzle-x: calc(50% - 3px - 1.25rem);
+  }
+  @media (min-width: 896px) {
+    .site-nozzle[data-state="active"] {
+      /* ≥896, left:3% → translate-X = 50% - 3% - 3px - 1.25rem = 47% - ... */
+      --nozzle-x: calc(47% - 3px - 1.25rem);
+    }
+  }
+  @media (min-width: 1520px) {
+    .site-nozzle[data-state="active"] {
+      /* ≥1520, left:calc((100% - --main-max-width) / 2) →
+         translate-X = 50% - that - 3px - 1.25rem
+         = 50% - 50% + --main-max-width/2 - 3px - 1.25rem
+         = --main-max-width / 2 - 3px - 1.25rem
+         (the gutter halves cancel — at this tier the resting-to-center
+         distance is exactly half the main-content max-width minus the
+         constants). */
+      --nozzle-x: calc(var(--main-max-width) / 2 - 3px - 1.25rem);
+    }
+  }
+
   /* Hide on print — nozzle is interactive chrome, not document content. */
   @media print {
     .site-nozzle {
@@ -211,3 +259,60 @@ import nozzleImg from '~/assets/images/nozzle-detailed.png';
      steam animation (task #3) WILL respect reduced-motion per
      decisions/002 §4 (simplify to quick fade). */
 </style>
+
+<script>
+  /* Nozzle interaction — click toggles state between 'resting' and 'active'.
+     Active state slides the nozzle to mid-viewport via the CSS rules above.
+     The future steam animation + modal mount (tasks #3-6) will key off the
+     same 'active' state.
+
+     This script intentionally has zero modal-mounting logic. It only manages
+     state. Subsequent tasks add:
+       - SteamTransition.tsx React island (task #3) — listens for state
+         change and runs the steam animation.
+       - SearchModal.tsx React island (task #4) — mounts through steam.
+
+     Decoupling lets us ship + verify each piece in isolation: this commit
+     lands click-to-slide-to-mid-and-back with no modal, so Sean can verify
+     the slide geometry on staging before more behavior is layered on. */
+  (function () {
+    const nozzle = document.querySelector<HTMLButtonElement>('.site-nozzle');
+    if (!nozzle) return;
+
+    function setState(state: 'resting' | 'active') {
+      if (!nozzle) return;
+      nozzle.dataset.state = state;
+      nozzle.setAttribute('aria-expanded', state === 'active' ? 'true' : 'false');
+      if (state === 'resting') {
+        /* When sliding back to resting, the BaseLayout scroll tick resumes
+           updating --nozzle-y (it had paused via the `data-state !==
+           'resting'` check). The nozzle's Y may be stale (scroll position
+           changed during active state); dispatch a synthetic scroll event
+           so BaseLayout's listener recomputes --nozzle-y for the current
+           scroll position. The transition (250ms ease-out on transform)
+           animates the Y update in lockstep with the X slide-back. */
+        window.dispatchEvent(new Event('scroll'));
+      }
+    }
+
+    /* Click toggles between resting and active. The aria-haspopup="dialog"
+       attribute is left on the button at all times — it announces "this
+       opens a dialog" to assistive tech, which is true regardless of
+       current state. */
+    nozzle.addEventListener('click', () => {
+      const next = nozzle.dataset.state === 'active' ? 'resting' : 'active';
+      setState(next);
+    });
+
+    /* Escape closes (returns to resting) when active. Outside-click handling
+       is intentionally NOT here — the search modal (task #4) is what owns
+       the click-outside-to-close semantics. For now, with no modal, the
+       nozzle's slide-out lives at the viewport center and the user dismisses
+       via Escape or clicking the nozzle itself. */
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && nozzle.dataset.state === 'active') {
+        setState('resting');
+      }
+    });
+  })();
+</script>
