@@ -68,6 +68,26 @@ RewriteRule ^disney/?.*$ - [G,L]
 # Angular site's domain once that's known):
 # RewriteRule ^invisiblelight/?(.*)$ https://<future-photography-domain>/$1 [R=301,L]
 
+# Pagefind WebAssembly files (Sean discovered 2026-05-22 iter 9 — production
+# /search/ wasn't returning results). Pagefind names its wasm files with the
+# `.pagefind` extension (wasm.en.pagefind, wasm.unknown.pagefind) which
+# Apache doesn't auto-detect as application/wasm. With `X-Content-Type-
+# Options: nosniff` set globally (via Cloudflare or other), browsers
+# strictly enforce the declared Content-Type — without an explicit
+# application/wasm header, WebAssembly.instantiateStreaming refuses to
+# compile and Pagefind's search engine never initializes. The result was
+# the /search page rendering its placeholder but no actual results,
+# AND the live-as-you-type dropdown in the header silently failing.
+# ForceType on these specific files (rather than AddType on the `.pagefind`
+# extension, which would also apply to non-wasm `.pagefind` data files in
+# `/pagefind/index/` and `/pagefind/fragment/`) gives the wasm files the
+# right Content-Type without affecting the data files.
+<IfModule mod_mime.c>
+    <FilesMatch "^wasm\..+\.pagefind$">
+        ForceType application/wasm
+    </FilesMatch>
+</IfModule>
+
 # Cache headers — same as staging
 <IfModule mod_expires.c>
     ExpiresActive On

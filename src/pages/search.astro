@@ -1,5 +1,9 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
+/* `import.meta.env.DEV` is true under `npm run dev`, false in `astro build`
+   output (both staging and production). Used below to suppress the "search
+   index doesn't exist yet, run `npm run build`" hint in deployed builds. */
+const isDev = import.meta.env.DEV;
 ---
 <BaseLayout
   title="Search"
@@ -37,11 +41,17 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
     });
   </script>
 
-  <p class="dev-note">
-    <em>Note: search index is generated at build time via Pagefind. In <code>npm run dev</code>
-    the index doesn't exist yet, so this page won't return results until you run
-    <code>npm run build</code> + <code>npm run preview</code>, or after a deploy.</em>
-  </p>
+  {/* Dev-only hint. The Pagefind index is only generated at `astro build`
+      time (via the `pagefind --site dist` step), so under `npm run dev`
+      this page would render but never return results. Hide in deployed
+      builds — Sean caught this leaking to production in iter 9 (2026-05-22). */}
+  {isDev && (
+    <p class="dev-note">
+      <em>Note: search index is generated at build time via Pagefind. In <code>npm run dev</code>
+      the index doesn't exist yet, so this page won't return results until you run
+      <code>npm run build</code> + <code>npm run preview</code>, or after a deploy.</em>
+    </p>
+  )}
 </BaseLayout>
 
 <style>

@@ -21,6 +21,20 @@ RewriteEngine On
 RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+# Pagefind WebAssembly files (Sean discovered 2026-05-22 iter 9 — see
+# htaccess.production for the full diagnostic). Pagefind names its wasm
+# files with the `.pagefind` extension, which Apache doesn't auto-detect
+# as application/wasm. Without the correct Content-Type, browsers refuse
+# to compile the WebAssembly module (nosniff is enforced), Pagefind's
+# search engine fails to initialize, and search returns no results.
+# Mirroring this on staging so the search dropdown + /search page work
+# identically across both environments.
+<IfModule mod_mime.c>
+    <FilesMatch "^wasm\..+\.pagefind$">
+        ForceType application/wasm
+    </FilesMatch>
+</IfModule>
+
 # Cache static assets for 1 year (immutable hashed filenames from Astro/Vite)
 <IfModule mod_expires.c>
     ExpiresActive On
