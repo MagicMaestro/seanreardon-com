@@ -35,10 +35,23 @@
 }
 
 /* Modal box — centered, generous max-width for readable lines, dark
-   backdrop with cyan-glow border. */
+   backdrop with cyan-glow border.
+   Sizing uses % rather than vh/vw per the standing rule
+   (memory/feedback-css-prefer-percentages.md, locked 2026-05-10). The
+   .search-modal parent is position: absolute inset: 0 inside the
+   position: fixed inset: 0 .steam-transition — so .search-modal's
+   size IS the viewport, and % cascades to a viewport-relative result
+   without the vh/vw side effects (mobile UI-bar cutoff, scrollbar
+   overflow, edge misalignment).
+   min-height 50% (Sean iter 2): the modal feels substantial even when
+   empty/no-results. Combined with max-height 80%, the modal:
+     - Auto-sizes to content height when content fits in [50%, 80%]
+     - Stays at min 50% even with sparse content (empty state)
+     - Caps at 80% with internal scroll when results overflow */
 .search-modal-content {
-  width: min(680px, 90vw);
-  max-height: 80vh;
+  width: min(680px, 90%);
+  min-height: 50%;
+  max-height: 80%;
   background: rgba(10, 8, 5, 0.92);
   border: 1px solid var(--color-electric-cyan-glow);
   border-radius: var(--radius);
