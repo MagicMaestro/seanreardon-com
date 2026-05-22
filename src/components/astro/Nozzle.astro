@@ -1,0 +1,172 @@
+---
+/* ============================================================================
+   Nozzle — site-wide AI search affordance (Phase 3 §2 of ai-features-v1)
+   ============================================================================
+   Persistent fixture on the lower-left edge of the viewport, visually riding
+   the scroll indicator's track. Future interactions (per
+   decisions/002-homepage-marquee-and-nozzle-affordance.md §4):
+     - Click → slide horizontally to mid-viewport (task #2)
+     - Steam emits from tip and grows to fill viewport (task #3 —
+       SteamTransition.tsx React island)
+     - Search modal materializes through the steam (task #4 —
+       SearchModal.tsx React island)
+     - After modal closes → nozzle slides back to resting position
+     - Affordance scope at v1: triggers AI semantic search modal
+     - Affordance scope at v1.1: triggers unified search+chat surface
+
+   This file covers ONLY the resting/visual state — the button + image + scroll
+   coupling. Interactions are added in follow-up commits.
+
+   Position rationale: lower-left above the scrollbar gives the nozzle a
+   "fixture mounted on the side of the machine" quality per the steampunk
+   vocabulary. Vertical motion correlated with scroll position reads as
+   "worldful object riding the laser" rather than floating UI chrome.
+
+   Asset: nozzle-detailed.png (bronze + verdigris variant from the 2026-05-06
+   visual-direction calibration — matches the redesign's warm-bronze palette).
+   97 × 104 px source, displayed at 2.5rem. The ambient steam-puff idle
+   (per the same calibration) is a future polish item, not in this v1 pass.
+
+   Accessibility: <button> with aria-label "Open AI search" and aria-haspopup
+   "dialog". Keyboard focus visible via focus-visible outline. No global
+   keyboard shortcut (Cmd/Ctrl+K explicitly retired per decisions/ai-features-v1
+   amended decision 10 — the nozzle is the deliberate visible surface).
+*/
+import { Image } from 'astro:assets';
+import nozzleImg from '~/assets/images/nozzle-detailed.png';
+---
+<button
+  class="site-nozzle"
+  type="button"
+  aria-label="Open AI search"
+  aria-haspopup="dialog"
+  aria-expanded="false"
+  data-state="resting"
+>
+  <Image src={nozzleImg} alt="" class="site-nozzle-img" loading="eager" />
+</button>
+
+<style>
+  /* Fixed left-edge fixture. The nozzle visually "rides" the scroll indicator
+     on the left — its vertical position is set by JS in BaseLayout's existing
+     scroll rAF tick, mirroring the scrollbar thumb's progress. Reads as a
+     worldful object mounted on the scrollbar laser, not floating UI chrome.
+
+     Stacking: z-index 45 sits BETWEEN the scroll indicator (40) and the
+     header (100). The nozzle paints OVER the scroll indicator track and
+     thumb where they overlap (nozzle visually IS on the laser), but the
+     header still occludes the nozzle when scrolled near the top so the
+     sticky bar wins the z-axis there. */
+  .site-nozzle {
+    position: fixed;
+    /* Anchor at top:0; vertical position is driven entirely by transform
+       (set via CSS var --nozzle-y from the BaseLayout scroll-tick JS).
+       Default before JS runs: parks near the bottom (`80vh` fallback) so
+       the nozzle is visible even with no script. The fallback uses vh
+       intentionally — the nozzle's "out-of-flow fixed fixture" role makes
+       viewport-anchored sizing the correct choice (one of the documented
+       exceptions to the prefer-percentages rule). */
+    top: 0;
+    /* Anchor horizontally per the scroll-indicator's responsive ladder so
+       the nozzle's center aligns with the scrollbar track center
+       (translate(-50%) on the X axis below centers the 2.5rem nozzle on
+       the scrollbar's left edge + half-thumb-width). */
+    left: 0;
+    /* translate(-50%) X centers the nozzle horizontally on left:0. The Y
+       half is driven by --nozzle-y, which BaseLayout's scroll tick sets to
+       the same scrollProgress-derived value as the scrollbar thumb. The
+       fallback positions the nozzle 80vh down on first paint before JS
+       runs. */
+    transform: translate(-50%, var(--nozzle-y, 80vh));
+    width: 2.5rem;
+    height: auto;
+    /* Reset button styling — nozzle reads as the image, not a chrome
+       button. */
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    z-index: 45;
+    /* Slide transitions: transform animates per scroll (no transition needed
+       for the rAF-driven Y updates — they're 60fps smooth on their own) but
+       the future click → slide-to-mid-viewport interaction (task #2) needs a
+       250ms eased horizontal slide. Adding a transform transition with a
+       SHORT duration so scroll-driven Y updates don't feel laggy AND the
+       click slide animates smoothly. The 250ms target is per
+       decisions/002 §4 ("Slide duration: short ~200-250ms, eased"). */
+    transition: transform 250ms ease-out;
+    /* During fast scrolling rAF updates the Y many times — disable the
+       transition for scroll-driven Y changes by toggling a data-attribute
+       (handled in BaseLayout's scroll tick). At rest the transition is on
+       for the click interaction; during scroll the transition is off so
+       Y tracks the cursor without lag. */
+  }
+
+  /* Disable the transform transition during scroll so the scroll-driven Y
+     updates don't lag behind. Re-enabled when scroll settles. The
+     data-scrolling attribute is toggled by BaseLayout's scroll tick. */
+  .site-nozzle[data-scrolling="true"] {
+    transition: none;
+  }
+
+  .site-nozzle-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    /* Brass/copper drop-shadow so the nozzle pops off the dark page bg
+       without competing visually with the cyan scroll-indicator laser
+       underneath. Matches the brass-glow vocabulary used elsewhere
+       (h2 drawers, marquee CTA). */
+    filter:
+      drop-shadow(0 0 3px rgba(196, 149, 57, 0.5))
+      drop-shadow(0 0 8px rgba(196, 149, 57, 0.25));
+    /* Subtle interactive feedback on hover/focus — brightens the glow.
+       Click → modal flow is task #2 (slide animation) + tasks #3-6
+       (steam + modal). For now hover is a hint that the nozzle is
+       interactive. */
+    transition: filter 200ms ease-out;
+  }
+
+  .site-nozzle:hover .site-nozzle-img,
+  .site-nozzle:focus-visible .site-nozzle-img {
+    filter:
+      drop-shadow(0 0 5px rgba(232, 185, 94, 0.85))
+      drop-shadow(0 0 14px rgba(196, 149, 57, 0.5));
+  }
+
+  /* Keyboard focus ring — circular to match the nozzle's organic shape,
+     cyan to match the brand laser color (cyan is reserved for brand-mark
+     moments per the palette-split rule; the nozzle is a brand-mark
+     fixture). */
+  .site-nozzle:focus-visible {
+    outline: 2px solid var(--color-electric-cyan);
+    outline-offset: 4px;
+    border-radius: 50%;
+  }
+
+  /* Tier-responsive left position — mirrors the .scroll-indicator's
+     responsive ladder in global.css so the nozzle stays centered on the
+     scrollbar track across all viewport widths. */
+  @media (min-width: 896px) {
+    .site-nozzle {
+      left: 3%;
+    }
+  }
+  @media (min-width: 1520px) {
+    .site-nozzle {
+      left: calc((100% - var(--main-max-width)) / 2);
+    }
+  }
+
+  /* Hide on print — nozzle is interactive chrome, not document content. */
+  @media print {
+    .site-nozzle {
+      display: none;
+    }
+  }
+
+  /* prefers-reduced-motion: keep the click-slide transition (functional
+     state change, not decorative motion) but document the intent. The
+     steam animation (task #3) WILL respect reduced-motion per
+     decisions/002 §4 (simplify to quick fade). */
+</style>

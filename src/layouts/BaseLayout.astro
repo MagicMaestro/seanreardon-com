@@ -2,6 +2,7 @@
 import Header from '~/components/astro/Header.astro';
 import Footer from '~/components/astro/Footer.astro';
 import ConsentBanner from '~/components/astro/ConsentBanner.astro';
+import Nozzle from '~/components/astro/Nozzle.astro';
 import screenEdgeRope from '~/assets/images/screen-edge-rope.png';
 import '~/styles/global.css';
 
@@ -115,10 +116,19 @@ const mainPagefindAttrs = searchable ? {} : { 'data-pagefind-ignore': '' };
       <div class="scroll-indicator-thumb"></div>
     </div>
 
+    {/* Nozzle — site-wide AI search affordance (Phase 3 §2 of
+        decisions/ai-features-v1.md). Persistent fixture on the lower-left
+        edge, riding the scroll indicator's track. Click-to-mid-viewport slide
+        + steam animation + search modal mount land in follow-up commits.
+        Sits OUTSIDE main-wrapper as a fixed-position sibling so its
+        positioning is purely viewport-relative. */}
+    <Nozzle />
+
     <script>
       const indicator = document.querySelector('.scroll-indicator') as HTMLElement | null;
       const thumb = document.querySelector('.scroll-indicator-thumb') as HTMLElement | null;
       const rope = document.querySelector('.screen-edge-rope') as HTMLElement | null;
+      const nozzle = document.querySelector<HTMLElement>('.site-nozzle');
 
       // Scroll indicator is visible on every page at every viewport size —
       // Sean direction 2026-05-18 (revised from prior behavior that hid the
@@ -143,8 +153,11 @@ const mainPagefindAttrs = searchable ? {} : { 'data-pagefind-ignore': '' };
         const canScroll = checkScrollable();
         if (!canScroll) {
           // Content fits — park the thumb at the top (no scroll progress
-          // to display, but the track itself is still visible).
+          // to display, but the track itself is still visible). Nozzle
+          // parks at viewport bottom in this case so it stays a visible
+          // fixture on short pages rather than sliding to the top.
           thumb.style.transform = 'translateY(0)';
+          updateNozzleY(0.95);
           return;
         }
 
@@ -155,6 +168,63 @@ const mainPagefindAttrs = searchable ? {} : { 'data-pagefind-ignore': '' };
         const maxThumbTop = Math.max(0, trackHeight - thumbHeight);
 
         thumb.style.transform = `translateY(${scrollProgress * maxThumbTop}px)`;
+        updateNozzleY(scrollProgress);
+      }
+
+      /* Nozzle vertical position — visually rides the scrollbar track per
+         decisions/002 §4. The nozzle "appears to ride along the scrollbar"
+         (vertical position correlates with scroll progress) without being
+         literally bound to the thumb element. Single rAF tick updates both
+         the thumb and the nozzle so they stay perfectly in sync.
+
+         Mapping: scrollProgress ∈ [0, 1] maps to a Y range in pixels from
+         viewport top. The nozzle sits BELOW the thumb's center so it reads
+         as a fixture mounted just under whatever portion of the scrollbar
+         is currently active. At scrollProgress=0 (top of page) the nozzle
+         is ~15% from viewport top; at 1 (bottom of page) it's ~95% from
+         viewport top, parked just above the viewport bottom.
+
+         Why a separate function and not just translateY on the nozzle: the
+         nozzle's transform also carries the X centering (translate(-50%, ...))
+         so the function preserves the X half while updating Y. Also lets
+         the slide-to-mid-viewport interaction (task #2) compose with this
+         without fighting the scroll-driven Y. */
+      function updateNozzleY(scrollProgress: number) {
+        if (!nozzle) return;
+        // The nozzle's data-state="resting" → tracks scroll. data-state
+        // values from future interactions (e.g., "active", "transitioning")
+        // will pause the scroll-tracking so the nozzle stays where the
+        // interaction put it. For task #1, only the resting state exists.
+        if (nozzle.dataset.state !== 'resting') return;
+
+        const vh = window.innerHeight;
+        // Y range: top edge at 15% of viewport (when scrolled to top) →
+        // 95% of viewport (when scrolled to bottom). The 15-95% range
+        // leaves space at top for the header to occlude (z-index above
+        // nozzle) and at bottom for the nozzle to sit just above viewport
+        // bottom rather than flush with it.
+        const minY = vh * 0.15;
+        const maxY = vh * 0.95;
+        const y = minY + scrollProgress * (maxY - minY);
+        // translate(-50%, Y) preserves X centering on the scrollbar track
+        // (CSS rule on .site-nozzle sets translate(-50%, var(--nozzle-y))).
+        nozzle.style.setProperty('--nozzle-y', `${y}px`);
+      }
+
+      /* Mark the nozzle as "scrolling" during active scroll so its CSS
+         transition pauses — without this, the 250ms ease-out on transform
+         (added for the future click-slide animation in task #2) would lag
+         the scroll-driven Y updates by ~250ms. Re-enable transition 150ms
+         after the last scroll event so the click-slide animation works
+         immediately when the user clicks. */
+      let scrollSettleTimer: ReturnType<typeof setTimeout> | null = null;
+      function markScrolling() {
+        if (!nozzle) return;
+        nozzle.dataset.scrolling = 'true';
+        if (scrollSettleTimer) clearTimeout(scrollSettleTimer);
+        scrollSettleTimer = setTimeout(() => {
+          if (nozzle) nozzle.dataset.scrolling = 'false';
+        }, 150);
       }
 
       /* Screen-edge rope — the element itself is position: fixed and stays
@@ -171,11 +241,12 @@ const mainPagefindAttrs = searchable ? {} : { 'data-pagefind-ignore': '' };
         rope.style.backgroundPositionY = `${-window.scrollY}px`;
       }
 
-      // Throttled via requestAnimationFrame — same rAF tick updates both
-      // the scroll indicator and the rope's background-position, so all
-      // scroll-driven changes share one frame.
+      // Throttled via requestAnimationFrame — same rAF tick updates the
+      // scroll indicator, the rope's background-position, and the nozzle's
+      // vertical position so all scroll-driven changes share one frame.
       let ticking = false;
       function onScrollOrResize() {
+        markScrolling();
         if (!ticking) {
           requestAnimationFrame(() => {
             updateIndicator();
