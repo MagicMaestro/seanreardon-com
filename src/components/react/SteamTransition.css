@@ -109,14 +109,19 @@
    they cleanly cross-fade with the fog starting at delay 2050ms (just
    before puffs end at 2250ms). The 200ms overlap gives smooth visual
    handoff to the fog. */
+/* Durations + delays scaled to 2/3 of the iter-11 values per Sean iter 12:
+   "speed it up and cut the total runtime of the animation opening by a
+   third of what it currently is." Puff duration 2s → 1.33s; delays
+   250/400/550ms → 170/270/370ms. Internal keyframe percentages unchanged
+   (they scale automatically with the duration). */
 .steam-transition.is-active .steam-puff--1 {
-  animation: puff-drift 2s linear 250ms forwards;
+  animation: puff-drift 1.33s linear 170ms forwards;
 }
 .steam-transition.is-active .steam-puff--2 {
-  animation: puff-drift 2s linear 400ms forwards;
+  animation: puff-drift 1.33s linear 270ms forwards;
 }
 .steam-transition.is-active .steam-puff--3 {
-  animation: puff-drift 2s linear 550ms forwards;
+  animation: puff-drift 1.33s linear 370ms forwards;
 }
 
 @keyframes puff-drift {
@@ -248,12 +253,19 @@
      fog-radius:  linear (stays at 50% from 0-80%, then linearly morphs
                   to 0% over the final 20% — the quick-morph Sean spec'd
                   in iter 10 keeps the same shape) */
+/* Durations + delay scaled to 2/3 of the iter-11 values per Sean iter 12:
+   "speed it up and cut the total runtime of the animation opening by a
+   third of what it currently is." Fog duration 3.2s → 2.13s; delay
+   2050ms → 1370ms. Internal keyframe percentages (15%, 80%) unchanged
+   (they scale automatically with the new duration). Cross-fade window
+   with puffs preserved proportionally — puffs end at 170+1330=1500ms,
+   fog starts at 1370ms = 130ms overlap (was 200ms, same ~6% of total). */
 .steam-transition.is-active .steam-fog {
   animation:
-    fog-scale 3.2s linear 2050ms forwards,
-    fog-opacity 3.2s linear 2050ms forwards,
-    fog-blur 3.2s ease-out 2050ms forwards,
-    fog-radius 3.2s linear 2050ms forwards;
+    fog-scale 2.13s linear 1370ms forwards,
+    fog-opacity 2.13s linear 1370ms forwards,
+    fog-blur 2.13s ease-out 1370ms forwards,
+    fog-radius 2.13s linear 1370ms forwards;
 }
 
 /* Scale: smooth linear growth from puff-converged size (0.1) to full

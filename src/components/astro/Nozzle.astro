@@ -126,19 +126,22 @@ import nozzleImg from '~/assets/images/nozzle-detailed.png';
     cursor: pointer;
     z-index: 30;
     /* Slide transitions:
-       - `transform` (250ms ease-out): the future click → slide-to-mid-
-         viewport interaction (task #2) needs a 250ms eased horizontal slide.
-         Scroll-driven Y updates would lag at 250ms ease-out so the JS toggles
-         data-scrolling="true" during active scroll to disable the transition
-         temporarily — re-enabled 150ms after scroll settles.
+       - `transform` (170ms ease-out): the click → recess animation. Was
+         250ms in iter 6-10; cut to 170ms in iter 12 (Sean: "cut the total
+         runtime of the animation opening by a third") so the recess scales
+         in lockstep with the steam animation that follows. The 67% scale
+         factor (= 2/3) applies to all opening-animation durations across
+         Nozzle.astro and SteamTransition.css.
+         Scroll-driven Y updates would lag at 170ms ease-out so the JS
+         toggles data-scrolling="true" during active scroll to disable the
+         transition temporarily — re-enabled 150ms after scroll settles.
        - `left` (300ms ease-out): matches the responsive-ladder transition
          timing on .scroll-indicator + main (both use `300ms ease-out` for
          their left/max-width changes at the 896 and 1520 breakpoints).
-         Without this, the nozzle's left snapped to its new value while the
-         scrollbar + main slid in over 300ms — visually decoupled. Sean
-         direction 2026-05-22 iter 2. */
+         NOT scaled — this is breakpoint-crossing chrome, not part of the
+         click-to-open animation. */
     transition:
-      transform 250ms ease-out,
+      transform 170ms ease-out,
       left 300ms ease-out;
   }
 
