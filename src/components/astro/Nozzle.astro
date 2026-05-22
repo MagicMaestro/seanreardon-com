@@ -218,56 +218,53 @@ import nozzleImg from '~/assets/images/nozzle-detailed.png';
     }
   }
 
-  /* Active state — nozzle slides horizontally from its tier-resting
-     position to the viewport's horizontal center. Per decisions/002 §4:
-     "the nozzle slides horizontally to the halfway point of the viewport
-     (mid-screen), then begins the steam animation. Slide duration: short
-     (~200-250ms), eased." The transition: transform 250ms ease-out (on
-     .site-nozzle above) carries the animation.
+  /* Active state — nozzle recesses slightly LEFT into the scrollbar as
+     click feedback. This is a DEVIATION from the original spec
+     (decisions/002 §4) which called for "the nozzle slides horizontally
+     to the halfway point of the viewport (mid-screen)". The deviation
+     arose from a CSS bug discovered in SPR-0043 that Sean ended up
+     preferring:
 
-     Math: the nozzle's CENTER in resting state is at
-       (left + margin-left + width/2)
-     from viewport-left. The target center is at 50% (= 50vw, since
-     position:fixed → containing block IS the viewport). The translate-X
-     amount to slide there is:
-       50% - (left + 3px + 1.25rem)
-     Each tier collapses differently depending on whether `left` is a
-     percentage, pixel, or calc value.
+     SPR-0039 through SPR-0042 used `calc(50% - 5px - 1.25rem)` etc. in
+     this translate-X, intending "translate by 50% of viewport minus
+     constants." BUT `%` in `transform: translate()` resolves against
+     the ELEMENT'S OWN SIZE, not the containing block (CSS Transforms
+     spec). So 50% of the 2.5rem-wide nozzle = 20px, and the calc
+     resolved to 20px - 5px - 20px = -5px — a tiny leftward translation
+     instead of a hundreds-of-pixels rightward slide to viewport center.
 
-     Y is intentionally untouched ("slides horizontally" per the spec) —
-     the nozzle stays at its current scroll-coupled Y when activated.
-     BaseLayout's updateNozzleY pauses scroll-tracking when data-state
-     is not 'resting', so the Y stays frozen during the active state. */
+     Sean's iter-4-through-6 reactions ("recesses into the scrollbar...
+     I like this effect") were all describing the buggy behavior. When
+     I tried to interpret them as steam-related, they didn't fit; Sean's
+     latest clarification ("when you click the nozzle, it moves a few
+     pixels to the left, but that shows a couple of pixels of the left
+     edge of the nozzle on the left side of the scrollbar") confirms
+     the leftward recess IS what's happening AND is what Sean wants.
+
+     Iter-7 tuning per Sean's "stop 2 or 3 pixels sooner than the
+     position it currently hits": current recess was -5px (on <896 and
+     ≥896 tiers, where %-as-element-width resolved that way) or +725px
+     rightward (≥1520, where the calc happened to resolve as pixels and
+     genuinely went to viewport center — a different bug, in the other
+     direction). Both replaced with a uniform -3px to give the same
+     short-recess feedback on every viewport.
+
+     No tier-specific media queries needed since the recess depth is now
+     a constant. If the original slide-to-mid-viewport spec is still
+     desired, the fix is to use `vw` instead of `%`:
+       <896:  calc(50vw - 5px - 1.25rem)
+       ≥896:  calc(47vw - 5px - 1.25rem)
+       ≥1520: calc(var(--main-max-width) / 2 - 5px - 1.25rem) (this one
+              didn't need vw because the gutter halves cancel out to a
+              fixed-pixel constant). Documented here so the slide-to-
+              center can be reinstated if Sean wants it later — the
+              steam + future modal would need their geometry adjusted
+              to match (currently the steam gradient is centered at
+              calc(50% + 1rem) which assumes the nozzle is at viewport
+              center; if the nozzle stays at the scrollbar, the steam's
+              center should be at the nozzle's actual position). */
   .site-nozzle[data-state="active"] {
-    /* <896, left:0 + margin-left:5px → translate-X = 50% - 5px - 1.25rem.
-       The z-index bump (SPR-0041 added z-index: 250) is REMOVED here —
-       Sean direction 2026-05-22 iter 6: "the nozzle is riding above the
-       scrollbar now, not behind it." The bump applied at click time, when
-       the nozzle is still AT the scrollbar (slide hasn't started), so for
-       the slide duration it sat in front of the scrollbar — wrong layer
-       order. With z-index reverted to the base z 30, the scrollbar (z 40)
-       always occludes the nozzle when they overlap, including during the
-       early phase of the click-to-active slide. The steam (z 200) will
-       cover the nozzle once at center — the "steam emerges from the
-       nozzle" feel now comes from the gradient's bright core position
-       rather than from a visible nozzle behind the steam. */
-    --nozzle-x: calc(50% - 5px - 1.25rem);
-  }
-  @media (min-width: 896px) {
-    .site-nozzle[data-state="active"] {
-      /* ≥896, left:3% + margin-left:5px → translate-X = 47% - 5px - 1.25rem */
-      --nozzle-x: calc(47% - 5px - 1.25rem);
-    }
-  }
-  @media (min-width: 1520px) {
-    .site-nozzle[data-state="active"] {
-      /* ≥1520, left:calc((100% - --main-max-width) / 2) + margin-left:5px
-         → translate-X = 50% - left - 5px - 1.25rem
-         = --main-max-width/2 - 5px - 1.25rem
-         (the gutter halves cancel; only the constant changes vs previous
-         iterations). */
-      --nozzle-x: calc(var(--main-max-width) / 2 - 5px - 1.25rem);
-    }
+    --nozzle-x: -3px;
   }
 
   /* Hide on print — nozzle is interactive chrome, not document content. */
