@@ -97,17 +97,32 @@ export default function SteamTransition() {
               seed="7"
               result="noise"
             >
+              {/* Palindrome values (A→B→A) ensure the loop forward and
+                  rewind play at IDENTICAL speed — Sean iter 9: the previous
+                  A→B→C→A sequence had uneven value distances that made the
+                  rewind feel like a fast catch-up to the start. With a true
+                  palindrome the animation is genuinely symmetric: forward 4s,
+                  rewind 4s, same speed each direction.
+                  calcMode="spline" + keySplines applies ease-in-out cubic-
+                  bezier to each segment so the turning points (peak B and
+                  return to A) feel smooth, not abrupt. */}
               <animate
                 attributeName="baseFrequency"
-                values="0.008 0.012;0.014 0.018;0.010 0.014;0.008 0.012"
-                dur="5s"
+                values="0.008 0.012;0.013 0.016;0.008 0.012"
+                dur="8s"
                 repeatCount="indefinite"
+                calcMode="spline"
+                keySplines="0.42 0 0.58 1; 0.42 0 0.58 1"
               />
             </feTurbulence>
+            {/* Displacement scale reduced from 80 to 53 (≈ 2/3) per Sean
+                iter 9: the edge-clipping patterns were too pronounced.
+                The fog still has clear rolling texture but the warping is
+                more restrained, reads as drifting rather than churning. */}
             <feDisplacementMap
               in="SourceGraphic"
               in2="noise"
-              scale="80"
+              scale="53"
               xChannelSelector="R"
               yChannelSelector="G"
             />

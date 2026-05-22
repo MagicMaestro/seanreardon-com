@@ -70,100 +70,82 @@
   will-change: transform, opacity;
 }
 
-/* Size variation per puff for organic feel */
-.steam-puff--1 { width: 60px; height: 60px; }
-.steam-puff--2 { width: 45px; height: 45px; }
-.steam-puff--3 { width: 50px; height: 50px; }
+/* Size + curve variation per puff for organic feel. --curve-amp shifts
+   the puff's midpoint Y up (negative) or down (positive) to create the
+   "curve up" / "curve down" trajectory variation Sean spec'd in iter 9.
+   Puff 1 is the dominant/central path (no curve); puff 2 curves up,
+   puff 3 curves down. */
+.steam-puff--1 { width: 60px; height: 60px; --curve-amp: 0px; }
+.steam-puff--2 { width: 45px; height: 45px; --curve-amp: -50px; }
+.steam-puff--3 { width: 50px; height: 50px; --curve-amp: 45px; }
 
-/* Drift animations — each puff has its own delay so they emerge
-   sequentially from the nozzle (staggered 100ms apart). 2-second
-   duration per the spec ("about 2 seconds for this portion of the
-   effect"). */
+/* Drift animations — all three puffs share the same puff-drift keyframe
+   set (parameterized by --curve-amp). 2-second duration; staggered start
+   delays so puffs emerge sequentially from the nozzle.
+
+   Trajectory (Sean iter 9): two-phase path
+     - Phase 1 (0-15% time): emerge from nozzle, then travel HORIZONTALLY
+       1.5rem to the right (x-axis only, no y-component yet)
+     - Phase 2 (15-100% time): curve toward viewport center, with the
+       puff's midpoint offset vertically by --curve-amp (gives the
+       "curve up/down" arc) before settling at viewport center
+
+   End state: puffs fade fully to opacity 0 at the 100% keyframe (was
+   0.3 in previous iter) so they cleanly cross-fade with the fog
+   starting at delay 2050ms (just before puffs end at 2250ms). The
+   200ms overlap gives smooth visual handoff to the fog. */
 .steam-transition.is-active .steam-puff--1 {
-  animation: puff-drift-1 2s ease-out 250ms forwards;
+  animation: puff-drift 2s ease-out 250ms forwards;
 }
 .steam-transition.is-active .steam-puff--2 {
-  animation: puff-drift-2 2s ease-out 400ms forwards;
+  animation: puff-drift 2s ease-out 400ms forwards;
 }
 .steam-transition.is-active .steam-puff--3 {
-  animation: puff-drift-3 2s ease-out 550ms forwards;
+  animation: puff-drift 2s ease-out 550ms forwards;
 }
 
-/* Three slightly different drift paths for natural variation. The
-   convergence target (viewport center) is the same for all three; the
-   intermediate paths and final scales differ. */
-@keyframes puff-drift-1 {
+@keyframes puff-drift {
+  /* 0%: invisible, small, at nozzle */
   0% {
     opacity: 0;
     transform: translate(-50%, -50%) scale(0.4);
   }
-  10% {
+  /* 5% (~100ms in): emerged at nozzle, fully visible */
+  5% {
     opacity: 0.85;
     transform: translate(-50%, -50%) scale(1);
   }
-  60% {
+  /* 15% (~300ms in): end of Phase 1 — puff has traveled 1.5rem
+     horizontally to the right of the nozzle's tip. NO y-component yet
+     (translate-y stays at -50%, the centering offset). Per Sean iter 9:
+     "I'd prefer to see them come straight out of the nozzle moving only
+     along the x-axis (not y) and after moving one or two rems to the
+     right of the nozzle tip, they start to curve up or down towards
+     the center." */
+  15% {
+    opacity: 0.85;
+    transform: translate(calc(-50% + 1.5rem), -50%) scale(1);
+  }
+  /* 55% (~1.1s in): midpoint of Phase 2 (curve). X is at ~53% of the
+     way from end-of-horizontal-phase to viewport center; Y is at ~53%
+     of total drift-y, OFFSET by --curve-amp to create the up/down arc.
+     The negative --curve-amp on puff 2 means y is shifted UP from the
+     straight-line midpoint; positive --curve-amp on puff 3 shifts DOWN. */
+  55% {
     opacity: 0.7;
     transform: translate(
-      calc(-50% + var(--drift-x, 0px) * 0.6),
-      calc(-50% + var(--drift-y, 0px) * 0.6)
+      calc(-50% + 1.5rem + (var(--drift-x, 0px) - 1.5rem) * 0.53),
+      calc(-50% + var(--drift-y, 0px) * 0.53 + var(--curve-amp, 0px))
     ) scale(1.5);
   }
+  /* 100% (2s in): arrived at viewport center, faded to invisible to
+     cross-fade with the fog. */
   100% {
-    opacity: 0.3;
-    transform: translate(
-      calc(-50% + var(--drift-x, 0px)),
-      calc(-50% + var(--drift-y, 0px))
-    ) scale(2.2);
-  }
-}
-
-@keyframes puff-drift-2 {
-  0% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.3);
-  }
-  12% {
-    opacity: 0.7;
-    transform: translate(-50%, -50%) scale(0.9);
-  }
-  55% {
-    opacity: 0.6;
-    transform: translate(
-      calc(-50% + var(--drift-x, 0px) * 0.55),
-      calc(-50% + var(--drift-y, 0px) * 0.55 - 12px)
-    ) scale(1.3);
-  }
-  100% {
-    opacity: 0.25;
     transform: translate(
       calc(-50% + var(--drift-x, 0px)),
       calc(-50% + var(--drift-y, 0px))
-    ) scale(1.9);
-  }
-}
-
-@keyframes puff-drift-3 {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.4);
-  }
-  10% {
-    opacity: 0.75;
-    transform: translate(-50%, -50%) scale(0.95);
-  }
-  60% {
-    opacity: 0.65;
-    transform: translate(
-      calc(-50% + var(--drift-x, 0px) * 0.6),
-      calc(-50% + var(--drift-y, 0px) * 0.6 + 10px)
-    ) scale(1.4);
-  }
-  100% {
-    opacity: 0.3;
-    transform: translate(
-      calc(-50% + var(--drift-x, 0px)),
-      calc(-50% + var(--drift-y, 0px))
-    ) scale(2.0);
+    ) scale(2);
   }
 }
 
@@ -198,43 +180,82 @@
        edges. Combined with the asymmetric layers above, the visible
        result has varied density across the cloud. */
     radial-gradient(circle at center, rgba(225, 200, 175, 0.55), rgba(225, 200, 175, 0.35) 50%, rgba(225, 200, 175, 0.15) 80%, transparent 100%);
-  /* SVG filter for rolling fog texture. The feDisplacementMap warps the
-     gradient pixels by an animated turbulence noise pattern, creating
-     organic, shifting highlights and shadows. blur(2px) softens any
-     hard edges from the displacement. */
+  /* SVG filter for rolling fog texture. blur(2px) is the FULL-SCALE
+     blur; the keyframes below animate blur to be MUCH HEAVIER at small
+     scale (Sean iter 9: "at small scale while the fog is starting to
+     grow and expand, it looks like a rough-cut box and not expanding
+     fog"). At scale 0.1 with heavy blur, the edges feel soft and fog-
+     like; as fog scales up to viewport, blur reduces to 2px (normal). */
   filter: url(#steam-fog-filter) blur(2px);
   opacity: 0;
-  transform: translate(-50%, -50%) scale(0.04);
-  will-change: transform, opacity;
+  transform: translate(-50%, -50%) scale(0.1);
+  /* Border-radius keeps the small-scale fog shape rounded rather than a
+     visible rectangular bounding box. At scale 1 the radius is half the
+     viewport — element becomes an ellipse fitted to the viewport with
+     the gradient still controlling visible alpha. */
+  border-radius: 50%;
+  will-change: transform, opacity, filter;
 }
 
+/* Fog delay reduced from 2250ms to 2050ms — Sean iter 9 cross-fade
+   smoothing. The puffs end at 2250ms (delay 250ms + 2s duration); fog
+   starting 200ms earlier means a 200ms overlap window where both are
+   simultaneously visible. Puffs fade to opacity 0 over their last
+   keyframes; fog fades IN from opacity 0 over its first keyframes. The
+   overlap removes the visible "jump" from puffs to fog. */
 .steam-transition.is-active .steam-fog {
-  animation: fog-grow 3s ease-out 2250ms forwards;
+  animation: fog-grow 3.2s ease-out 2050ms forwards;
 }
 
 @keyframes fog-grow {
-  /* Start: small fog blob at viewport center, matching the size where
-     the drift puffs have converged (~40-80px). */
+  /* 0% (2050ms post-click): invisible, at the size the converged drift
+     puffs are. Starts at scale 0.1 (was 0.04 in previous iter) so the
+     visual handoff from puffs (which are at ~100-150px after their
+     scale-up) matches the fog's initial size (~10vw × 10vh ≈ 150-200px
+     on typical viewports). Filter blur 22px to soften the small-scale
+     edges — the SVG turbulence's coordinate space doesn't change with
+     transform: scale, so at small scale the displacement can leave
+     sharp rectangular artifacts; heavy blur masks this until the fog
+     grows enough that the texture reads as fog naturally. */
   0% {
-    opacity: 0.6;
-    transform: translate(-50%, -50%) scale(0.04);
+    opacity: 0;
+    filter: url(#steam-fog-filter) blur(22px);
+    transform: translate(-50%, -50%) scale(0.1);
   }
-  /* Quick initial bloom to peak opacity as the fog starts visibly
-     growing. */
+  /* 7% (~225ms in = 2275ms post-click): fading in during the cross-fade
+     overlap with the still-visible puffs. Blur still heavy. */
+  7% {
+    opacity: 0.4;
+    filter: url(#steam-fog-filter) blur(18px);
+    transform: translate(-50%, -50%) scale(0.16);
+  }
+  /* 15% (~480ms in = 2530ms post-click): fog at peak opacity. The puffs
+     have fully ended (their 100% was at 2250ms). Blur reducing as scale
+     increases — the fog now reads as a definite cloud, not a sharp puff. */
   15% {
-    opacity: 0.85;
-    transform: translate(-50%, -50%) scale(0.15);
+    opacity: 0.8;
+    filter: url(#steam-fog-filter) blur(12px);
+    transform: translate(-50%, -50%) scale(0.3);
   }
-  /* Mid-growth — fog is now noticeably large, ~half the viewport
-     diagonal. Opacity holds at peak so the fog reads as dense. */
-  60% {
+  /* 40% (~1.28s in = 3330ms post-click): mid-growth. Blur transitioning
+     toward the full-scale 2px. */
+  40% {
     opacity: 0.85;
-    transform: translate(-50%, -50%) scale(0.7);
+    filter: url(#steam-fog-filter) blur(6px);
+    transform: translate(-50%, -50%) scale(0.55);
   }
-  /* End: fog at full size (= viewport). Opacity slightly reduced to give
-     the modal a clean fade-through canvas in task #4. */
+  /* 70% (~2.24s in = 4290ms post-click): nearly grown. Blur close to
+     the normal 2px; the rolling-fog texture from feTurbulence is now
+     the dominant visual character. */
+  70% {
+    opacity: 0.85;
+    filter: url(#steam-fog-filter) blur(3px);
+    transform: translate(-50%, -50%) scale(0.85);
+  }
+  /* 100% (3.2s in = 5250ms post-click): fully grown, normal blur. */
   100% {
     opacity: 0.8;
+    filter: url(#steam-fog-filter) blur(2px);
     transform: translate(-50%, -50%) scale(1);
   }
 }
