@@ -216,11 +216,16 @@
      edges — the SVG turbulence's coordinate space doesn't change with
      transform: scale, so at small scale the displacement can leave
      sharp rectangular artifacts; heavy blur masks this until the fog
-     grows enough that the texture reads as fog naturally. */
+     grows enough that the texture reads as fog naturally.
+     border-radius 50% throughout 0-80% keeps the small-and-mid-scale
+     fog rounded — Sean iter 9 made it circular for the cross-fade
+     handoff; Sean iter 10 wants it to STAY circular until the last 20%
+     of expansion, then morph to rectangular (= 0% radius) by 100%. */
   0% {
     opacity: 0;
     filter: url(#steam-fog-filter) blur(22px);
     transform: translate(-50%, -50%) scale(0.1);
+    border-radius: 50%;
   }
   /* 7% (~225ms in = 2275ms post-click): fading in during the cross-fade
      overlap with the still-visible puffs. Blur still heavy. */
@@ -228,6 +233,7 @@
     opacity: 0.4;
     filter: url(#steam-fog-filter) blur(18px);
     transform: translate(-50%, -50%) scale(0.16);
+    border-radius: 50%;
   }
   /* 15% (~480ms in = 2530ms post-click): fog at peak opacity. The puffs
      have fully ended (their 100% was at 2250ms). Blur reducing as scale
@@ -236,6 +242,7 @@
     opacity: 0.8;
     filter: url(#steam-fog-filter) blur(12px);
     transform: translate(-50%, -50%) scale(0.3);
+    border-radius: 50%;
   }
   /* 40% (~1.28s in = 3330ms post-click): mid-growth. Blur transitioning
      toward the full-scale 2px. */
@@ -243,20 +250,39 @@
     opacity: 0.85;
     filter: url(#steam-fog-filter) blur(6px);
     transform: translate(-50%, -50%) scale(0.55);
+    border-radius: 50%;
   }
   /* 70% (~2.24s in = 4290ms post-click): nearly grown. Blur close to
      the normal 2px; the rolling-fog texture from feTurbulence is now
-     the dominant visual character. */
+     the dominant visual character. Still circular here. */
   70% {
     opacity: 0.85;
     filter: url(#steam-fog-filter) blur(3px);
     transform: translate(-50%, -50%) scale(0.85);
+    border-radius: 50%;
   }
-  /* 100% (3.2s in = 5250ms post-click): fully grown, normal blur. */
+  /* 80% (~2.56s in = 4610ms post-click): LAST CIRCULAR KEYFRAME. The
+     final 20% of expansion (80% → 100% = ~640ms) morphs the fog from
+     circular to rectangular per Sean iter 10. Sean's earlier feedback
+     liked the rectangular full-extent feel ("looked better earlier
+     when it was rectangular"); this lets us keep the smooth circular
+     puff-to-fog handoff (iter 9 fix) AND end at the rectangular look
+     he prefers. */
+  80% {
+    opacity: 0.85;
+    filter: url(#steam-fog-filter) blur(2.5px);
+    transform: translate(-50%, -50%) scale(0.92);
+    border-radius: 50%;
+  }
+  /* 100% (3.2s in = 5250ms post-click): fully grown, normal blur,
+     RECTANGULAR (border-radius: 0). The 80%→100% interpolation of
+     border-radius creates the "quick morph in shape" Sean spec'd —
+     ~640ms from circular to rectangular. */
   100% {
     opacity: 0.8;
     filter: url(#steam-fog-filter) blur(2px);
     transform: translate(-50%, -50%) scale(1);
+    border-radius: 0%;
   }
 }
 

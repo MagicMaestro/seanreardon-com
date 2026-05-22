@@ -98,18 +98,18 @@ export default function SteamTransition() {
               result="noise"
             >
               {/* Palindrome values (A→B→A) ensure the loop forward and
-                  rewind play at IDENTICAL speed — Sean iter 9: the previous
-                  A→B→C→A sequence had uneven value distances that made the
-                  rewind feel like a fast catch-up to the start. With a true
-                  palindrome the animation is genuinely symmetric: forward 4s,
-                  rewind 4s, same speed each direction.
+                  rewind play at IDENTICAL speed. Duration extended from 8s
+                  to 12s per Sean iter 10: the edge clipping still moved
+                  too fast even after the iter-9 slowdown. At 12s = 6s
+                  forward + 6s rewind, the rolling texture changes feel
+                  like a slow continuous drift rather than active churning.
                   calcMode="spline" + keySplines applies ease-in-out cubic-
                   bezier to each segment so the turning points (peak B and
                   return to A) feel smooth, not abrupt. */}
               <animate
                 attributeName="baseFrequency"
                 values="0.008 0.012;0.013 0.016;0.008 0.012"
-                dur="8s"
+                dur="12s"
                 repeatCount="indefinite"
                 calcMode="spline"
                 keySplines="0.42 0 0.58 1; 0.42 0 0.58 1"
