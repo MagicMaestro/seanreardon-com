@@ -53,7 +53,12 @@ import './SteamTransition.css';
    from the opening's end state to the closing target. */
 type SteamPhase = 'idle' | 'active' | 'closing';
 
-const CLOSING_DURATION_MS = 350;
+/* 1200ms close-fade duration (Sean iter 14, was 350ms). The longer fade
+   reads as the fog naturally dissipating rather than being snapped off.
+   The CSS transition durations in SteamTransition.css must stay in sync
+   with this value — they're hardcoded as `1200ms` rather than referencing
+   this constant because CSS doesn't easily consume JS values. */
+const CLOSING_DURATION_MS = 1200;
 
 export default function SteamTransition() {
   const [phase, setPhase] = useState<SteamPhase>('idle');

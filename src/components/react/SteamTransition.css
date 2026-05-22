@@ -357,15 +357,19 @@
   transform: translate(-50%, -50%) scale(1.05);
   filter: url(#steam-fog-filter) blur(8px);
   border-radius: 0%;
+  /* 1200ms fade per Sean iter 14 (was 350ms — too quick to read as a
+     natural dissipation). Must stay in sync with CLOSING_DURATION_MS
+     in SteamTransition.tsx, which holds the .is-closing class on the
+     element for this long before returning to idle. */
   transition:
-    opacity 350ms ease-out,
-    transform 350ms ease-out,
-    filter 350ms ease-out;
+    opacity 1200ms ease-out,
+    transform 1200ms ease-out,
+    filter 1200ms ease-out;
 }
 
 .steam-transition.is-closing .steam-puff {
   opacity: 0;
-  transition: opacity 350ms ease-out;
+  transition: opacity 1200ms ease-out;
 }
 
 /* ============================================================================
