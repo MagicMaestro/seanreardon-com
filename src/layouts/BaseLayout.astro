@@ -3,6 +3,7 @@ import Header from '~/components/astro/Header.astro';
 import Footer from '~/components/astro/Footer.astro';
 import ConsentBanner from '~/components/astro/ConsentBanner.astro';
 import Nozzle from '~/components/astro/Nozzle.astro';
+import SteamTransition from '~/components/react/SteamTransition';
 import screenEdgeRope from '~/assets/images/screen-edge-rope.png';
 import '~/styles/global.css';
 
@@ -118,11 +119,21 @@ const mainPagefindAttrs = searchable ? {} : { 'data-pagefind-ignore': '' };
 
     {/* Nozzle — site-wide AI search affordance (Phase 3 §2 of
         decisions/ai-features-v1.md). Persistent fixture on the lower-left
-        edge, riding the scroll indicator's track. Click-to-mid-viewport slide
-        + steam animation + search modal mount land in follow-up commits.
-        Sits OUTSIDE main-wrapper as a fixed-position sibling so its
-        positioning is purely viewport-relative. */}
+        edge, riding the scroll indicator's track. The nozzle's click-slide
+        is wired in Nozzle.astro itself; the steam animation that follows
+        the slide is the SteamTransition React island below. */}
     <Nozzle />
+
+    {/* SteamTransition — React island, mounted on every page so it's
+        immediately responsive when the user clicks the nozzle. Listens for
+        the nozzle's data-state attribute via MutationObserver; when state
+        flips to 'active', the steam-emit CSS animation fires (with a 250ms
+        delay so the nozzle's slide completes first). client:load ensures
+        the island is hydrated by the time any user interaction is likely —
+        client:idle could miss fast clicks before browser idle. The future
+        SearchModal (task #4) will wrap this component and take over the
+        DOM-state listening; for task #3 it stands alone. */}
+    <SteamTransition client:load />
 
     <script>
       const indicator = document.querySelector('.scroll-indicator') as HTMLElement | null;

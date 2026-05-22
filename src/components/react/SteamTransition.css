@@ -1,0 +1,106 @@
+/* ============================================================================
+   SteamTransition — steam animation that fires when the nozzle activates
+   ============================================================================
+   Phase 3 §2 of decisions/ai-features-v1.md + decisions/002 §4. Runs after
+   the nozzle's slide-to-mid-viewport animation completes (~250ms after
+   click), emits a warm-tinted steam cloud that grows from the nozzle's tip
+   position outward to fill the viewport, then dissipates over 300-400ms.
+   The SearchModal (task #4) will materialize THROUGH the steam during its
+   dissipate phase — modal opacity ramps up while steam fades.
+
+   Layered radial-gradient backgrounds give the cloud a non-uniform, billowy
+   appearance — uses the warm off-white palette already established by the
+   marquee wisps (rgba(225, 200, 175, X)). The transform-origin is set
+   inline by the React component to the nozzle's tip Y at activation time
+   so the cloud appears to grow FROM the nozzle, not from viewport center.
+
+   Z-index 200 sits above all page chrome (header at 100, footer at 50) so
+   the steam fully obscures the page during peak density. The future
+   SearchModal at z-index 250 paints above the steam — visible through the
+   dissipating cloud.
+
+   prefers-reduced-motion: reduce → simplified `steam-emit-reduced` keyframe
+   that's a quick fade with no scale, total 200ms. Modal still mounts after
+   per decisions/002 §4 ("simplify to quick fade/opacity transition; modal
+   still opens"). */
+
+.steam-transition {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 200;
+  opacity: 0;
+  /* Default transform-origin is overridden inline by the React component
+     to the nozzle's tip position at activation time. The fallback (50% 50%
+     = viewport center) is for the unlikely case where the nozzle's tip
+     can't be read — animation degrades to "growing from viewport center"
+     which is still recognizable as a transition. */
+  transform-origin: 50% 50%;
+  transform: scale(0);
+  /* Multi-layer radial gradients — warm off-white tinted toward the
+     copper/verdigris bronze palette of the nozzle. Four asymmetric
+     ellipses give the cloud non-uniform density that reads as billowy
+     rather than as a single uniform halo. The colors match the marquee
+     wisp palette (rgba(225, 200, 175, X)) so the AI-features-family
+     visual vocabulary stays consistent across both surfaces. */
+  background:
+    radial-gradient(ellipse 50% 40% at 30% 50%, rgba(225, 200, 175, 0.4), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 70% 40%, rgba(230, 210, 185, 0.45), transparent 70%),
+    radial-gradient(ellipse 70% 60% at 50% 60%, rgba(220, 195, 170, 0.5), transparent 70%),
+    radial-gradient(circle at 50% 50%, rgba(225, 200, 175, 0.6), rgba(225, 200, 175, 0.3) 40%, transparent 70%);
+  /* Subtle blur for soft edges — reads as steam haze, not hard-edged
+     gradients. drop-shadow filter is preferred over backdrop-filter
+     because the latter has spotty Firefox support and we want the
+     animation to render the same across browsers. */
+  filter: blur(8px);
+}
+
+/* Active state — triggered when the React component sets `is-active` based
+   on the nozzle's data-state="active" attribute. The animation has a 250ms
+   delay so the nozzle's slide completes BEFORE the steam emits (matches
+   the decisions/002 §4 spec: "slide... THEN begins the steam animation"). */
+.steam-transition.is-active {
+  animation: steam-emit 400ms ease-out 250ms forwards;
+}
+
+/* Keyframe stages:
+   - 0%   (250ms after click):  invisible, tiny scale — pre-emit
+   - 15%  (~310ms):             quick puff appears at the tip
+   - 50%  (~450ms):             cloud at full viewport coverage, peak opacity
+   - 100% (650ms):              dissipated, cloud expanded past viewport edges
+   The dissipate-while-expanding profile keeps cloud edges visible at the
+   periphery as the center starts clearing — gives the SearchModal a
+   visible-through-fog mounting context as it fades in. */
+@keyframes steam-emit {
+  0% {
+    opacity: 0;
+    transform: scale(0.05);
+  }
+  15% {
+    opacity: 0.7;
+    transform: scale(0.2);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+/* Reduced-motion: skip the scale animation, just a brief opacity fade. The
+   200ms total (vs 400ms) plus the absent scale removes ~all motion the
+   reduce-motion preference is asking us to remove. The modal still mounts
+   afterward (per decisions/002 §4 — "modal still opens"). */
+@media (prefers-reduced-motion: reduce) {
+  .steam-transition.is-active {
+    animation: steam-emit-reduced 200ms ease-out 100ms forwards;
+  }
+  @keyframes steam-emit-reduced {
+    0%   { opacity: 0; transform: scale(1); }
+    50%  { opacity: 0.5; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1); }
+  }
+}
