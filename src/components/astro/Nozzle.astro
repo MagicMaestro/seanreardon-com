@@ -86,11 +86,18 @@ import nozzleImg from '~/assets/images/nozzle-detailed.png';
        transitions). Both elements interpolate the SAME `left` formula at
        the SAME 300ms ease-out, guaranteeing identical motion. */
     left: 0;
-    /* Constant 3px shift puts the nozzle's left edge at the scrollbar's
-       centerline (scrollbar is 6px wide at left:0; +3px = center). After
-       the image's 90deg rotation, the rotated nozzle's base sits at the
-       scrollbar centerline and the opening extends right. */
-    margin-left: 3px;
+    /* Constant 7px shift positions the nozzle so its visible left edge
+       (including the drop-shadow halo) sits AT the scrollbar's right edge
+       rather than past the scrollbar's left edge. The earlier 3px put the
+       nozzle's box-left at the scrollbar's centerline — but the rotated
+       image fills the full button width AND the 8px drop-shadow extends
+       past, so the visible left edge ended up ~6px past the scrollbar's
+       LEFT edge into the gutter. Sean direction 2026-05-22 iter 5: "the
+       left edge is sticking out a couple of pixels beyond the left edge
+       of the scrollbar" — moving from 3px to 7px pulls the visible
+       content INWARD by 4px while preserving the recessed-into-the-
+       scrollbar visual effect Sean wanted to keep. */
+    margin-left: 7px;
     /* transform composes the slide-to-mid X (from --nozzle-x, default 0)
        and the scroll-coupled Y (from --nozzle-y, set by BaseLayout's
        scroll tick). Resting state keeps --nozzle-x at 0 so the nozzle
@@ -225,25 +232,32 @@ import nozzleImg from '~/assets/images/nozzle-detailed.png';
      BaseLayout's updateNozzleY pauses scroll-tracking when data-state
      is not 'resting', so the Y stays frozen during the active state. */
   .site-nozzle[data-state="active"] {
-    /* <896, left:0 → translate-X = 50% - 3px - 1.25rem */
-    --nozzle-x: calc(50% - 3px - 1.25rem);
+    /* <896, left:0 + margin-left:7px → translate-X = 50% - 7px - 1.25rem */
+    --nozzle-x: calc(50% - 7px - 1.25rem);
+    /* Bump z-index above the steam (z 200) so the nozzle stays visible
+       during the steam animation — Sean direction 2026-05-22 iter 5: "the
+       steam... should feel like it originated from the nozzle." Without
+       this bump, the steam covered the nozzle as soon as it emitted, and
+       the user lost the visual anchor between the source and the puff.
+       At rest (z 30) the scrollbar (z 40) still paints in front. The
+       z-index change is instant — by the time the slide back to rest
+       completes, the nozzle is already back behind the scrollbar. */
+    z-index: 250;
   }
   @media (min-width: 896px) {
     .site-nozzle[data-state="active"] {
-      /* ≥896, left:3% → translate-X = 50% - 3% - 3px - 1.25rem = 47% - ... */
-      --nozzle-x: calc(47% - 3px - 1.25rem);
+      /* ≥896, left:3% + margin-left:7px → translate-X = 47% - 7px - 1.25rem */
+      --nozzle-x: calc(47% - 7px - 1.25rem);
     }
   }
   @media (min-width: 1520px) {
     .site-nozzle[data-state="active"] {
-      /* ≥1520, left:calc((100% - --main-max-width) / 2) →
-         translate-X = 50% - that - 3px - 1.25rem
-         = 50% - 50% + --main-max-width/2 - 3px - 1.25rem
-         = --main-max-width / 2 - 3px - 1.25rem
-         (the gutter halves cancel — at this tier the resting-to-center
-         distance is exactly half the main-content max-width minus the
-         constants). */
-      --nozzle-x: calc(var(--main-max-width) / 2 - 3px - 1.25rem);
+      /* ≥1520, left:calc((100% - --main-max-width) / 2) + margin-left:7px
+         → translate-X = 50% - left - 7px - 1.25rem
+         = --main-max-width/2 - 7px - 1.25rem
+         (the gutter halves still cancel — only the +3px → +7px swap
+         changes vs the previous SPR-0039 calc). */
+      --nozzle-x: calc(var(--main-max-width) / 2 - 7px - 1.25rem);
     }
   }
 

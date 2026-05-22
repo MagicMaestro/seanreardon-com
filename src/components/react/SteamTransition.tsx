@@ -45,17 +45,16 @@ export default function SteamTransition() {
     const observer = new MutationObserver(() => {
       const nextState = nozzle.dataset.state === 'active';
       if (nextState) {
-        /* Read the nozzle's CURRENT tip position so the steam can scale
-           outward FROM the tip rather than from the overlay's center. The
-           nozzle is in active state (mid-viewport horizontally, scroll-
-           coupled Y), so its tip Y is its bounding-rect center Y. */
+        /* Read the nozzle's CURRENT tip position so the radial-gradient
+           cloud (in SteamTransition.css) can be CENTERED at the tip — the
+           bright core stays anchored to the nozzle throughout the radius
+           expansion. Y is read from the nozzle's bounding rect; X is
+           fixed at viewport horizontal center (50%) since the nozzle
+           slides to mid-viewport before this fires. */
         const rect = nozzle.getBoundingClientRect();
         const tipY = rect.top + rect.height / 2;
         if (overlayRef.current) {
-          /* The tip's X is at the viewport horizontal center (the nozzle
-             slid there before this fires); inline transform-origin uses
-             50% for X and the measured tipY for Y. */
-          overlayRef.current.style.transformOrigin = `50% ${tipY}px`;
+          overlayRef.current.style.setProperty('--nozzle-tip-y', `${tipY}px`);
         }
       }
       setIsActive(nextState);

@@ -2,27 +2,40 @@
    SteamTransition — steam animation that fires when the nozzle activates
    ============================================================================
    Phase 3 §2 of decisions/ai-features-v1.md + decisions/002 §4. Runs after
-   the nozzle's slide-to-mid-viewport animation completes (~250ms after
-   click), emits a warm-tinted steam cloud that grows from the nozzle's tip
-   position outward to fill the viewport, then dissipates over 300-400ms.
-   The SearchModal (task #4) will materialize THROUGH the steam during its
-   dissipate phase — modal opacity ramps up while steam fades.
+   the nozzle's slide-to-mid-viewport completes (~250ms post-click). The
+   visual: a warm-tinted radial cloud whose center stays anchored at the
+   nozzle's tip, and whose radius grows from a small puff (visibly emerging
+   from the nozzle) to a viewport-spanning fog, then dissipates.
 
-   Layered radial-gradient backgrounds give the cloud a non-uniform, billowy
-   appearance — uses the warm off-white palette already established by the
-   marquee wisps (rgba(225, 200, 175, X)). The transform-origin is set
-   inline by the React component to the nozzle's tip Y at activation time
-   so the cloud appears to grow FROM the nozzle, not from viewport center.
+   Architecture (iter 2 — Sean direction 2026-05-22 after SPR-0040 review):
+   the original transform: scale approach scaled a viewport-sized div with
+   gradient layers, which technically pivoted at the nozzle's tip but read
+   visually as "a puff appearing at center" — the user didn't perceive the
+   steam as originating from the nozzle. New approach: a single radial-
+   gradient whose CENTER is fixed at the nozzle's tip Y (set inline via
+   --nozzle-tip-y by the React component) and whose RADIUS animates via
+   the --steam-radius custom property. The cloud's bright core stays
+   anchored at the nozzle throughout the animation; only the cloud's
+   extent grows. Visceral "emerging from the nozzle" feel.
 
-   Z-index 200 sits above all page chrome (header at 100, footer at 50) so
-   the steam fully obscures the page during peak density. The future
-   SearchModal at z-index 250 paints above the steam — visible through the
-   dissipating cloud.
+   @property declaration makes --steam-radius interpolate as a <length>
+   (without it, custom properties are treated as opaque strings and snap
+   between keyframe values instead of animating smoothly). Supported in
+   Chrome 85+, Firefox 128+, Safari 16.4+ — fine for the target audience.
+   Browsers that don't support it degrade to keyframe-snapping which is
+   less smooth but still functionally visible.
 
-   prefers-reduced-motion: reduce → simplified `steam-emit-reduced` keyframe
-   that's a quick fade with no scale, total 200ms. Modal still mounts after
-   per decisions/002 §4 ("simplify to quick fade/opacity transition; modal
-   still opens"). */
+   Z-index 200 sits above page chrome (header 100, footer 50) but below
+   the nozzle's active-state z-index 250 (set in Nozzle.astro) so the
+   user can see the steam emerging from the visible nozzle, not from
+   behind a fog. The future SearchModal at z-index 300 paints above all
+   of this — visible through the dissipating cloud. */
+
+@property --steam-radius {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
 
 .steam-transition {
   position: fixed;
@@ -30,77 +43,85 @@
   pointer-events: none;
   z-index: 200;
   opacity: 0;
-  /* Default transform-origin is overridden inline by the React component
-     to the nozzle's tip position at activation time. The fallback (50% 50%
-     = viewport center) is for the unlikely case where the nozzle's tip
-     can't be read — animation degrades to "growing from viewport center"
-     which is still recognizable as a transition. */
-  transform-origin: 50% 50%;
-  transform: scale(0);
-  /* Multi-layer radial gradients — warm off-white tinted toward the
-     copper/verdigris bronze palette of the nozzle. Four asymmetric
-     ellipses give the cloud non-uniform density that reads as billowy
-     rather than as a single uniform halo. The colors match the marquee
-     wisp palette (rgba(225, 200, 175, X)) so the AI-features-family
-     visual vocabulary stays consistent across both surfaces. */
-  background:
-    radial-gradient(ellipse 50% 40% at 30% 50%, rgba(225, 200, 175, 0.4), transparent 70%),
-    radial-gradient(ellipse 60% 50% at 70% 40%, rgba(230, 210, 185, 0.45), transparent 70%),
-    radial-gradient(ellipse 70% 60% at 50% 60%, rgba(220, 195, 170, 0.5), transparent 70%),
-    radial-gradient(circle at 50% 50%, rgba(225, 200, 175, 0.6), rgba(225, 200, 175, 0.3) 40%, transparent 70%);
-  /* Subtle blur for soft edges — reads as steam haze, not hard-edged
-     gradients. drop-shadow filter is preferred over backdrop-filter
-     because the latter has spotty Firefox support and we want the
-     animation to render the same across browsers. */
+  /* Single radial gradient centered at the nozzle's tip. --nozzle-tip-y
+     is set inline by the React component at activation time (read from
+     the nozzle's bounding rect). --steam-radius is animated via the
+     keyframes below. The bright core (rgba 0.7 at 0%) stays at the
+     center throughout; the gradient extends to --steam-radius pixels
+     before fully fading. */
+  background: radial-gradient(
+    circle var(--steam-radius, 0px) at 50% var(--nozzle-tip-y, 50%),
+    rgba(225, 200, 175, 0.75) 0%,
+    rgba(225, 200, 175, 0.55) 25%,
+    rgba(225, 200, 175, 0.3) 55%,
+    rgba(225, 200, 175, 0.1) 80%,
+    transparent 100%
+  );
+  /* Soft-edged steam-haze feel — without blur the gradient stops read
+     as a hard-edged circle. blur(8px) gives the cloud organic boundaries. */
   filter: blur(8px);
 }
 
 /* Active state — triggered when the React component sets `is-active` based
    on the nozzle's data-state="active" attribute. The animation has a 250ms
    delay so the nozzle's slide completes BEFORE the steam emits (matches
-   the decisions/002 §4 spec: "slide... THEN begins the steam animation"). */
+   the decisions/002 §4 spec: "slide... THEN begins the steam animation").
+
+   Total duration 400ms (within the 300-400ms spec). Five keyframes give
+   a clear narrative: emerge → grow → fill → dissipate. */
 .steam-transition.is-active {
   animation: steam-emit 400ms ease-out 250ms forwards;
 }
 
-/* Keyframe stages:
-   - 0%   (250ms after click):  invisible, tiny scale — pre-emit
-   - 15%  (~310ms):             quick puff appears at the tip
-   - 50%  (~450ms):             cloud at full viewport coverage, peak opacity
-   - 100% (650ms):              dissipated, cloud expanded past viewport edges
-   The dissipate-while-expanding profile keeps cloud edges visible at the
-   periphery as the center starts clearing — gives the SearchModal a
-   visible-through-fog mounting context as it fades in. */
 @keyframes steam-emit {
+  /* 0% (250ms post-click): nothing visible yet, gradient radius small. */
   0% {
+    --steam-radius: 20px;
     opacity: 0;
-    transform: scale(0.05);
   }
+  /* 15% (~310ms post-click): small concentrated puff visible AT the
+     nozzle's tip — the user perceives steam emerging from the source.
+     Radius is roughly the size of the nozzle itself (40px display width). */
   15% {
+    --steam-radius: 80px;
     opacity: 0.7;
-    transform: scale(0.2);
   }
-  50% {
-    opacity: 0.85;
-    transform: scale(1.0);
+  /* 40% (~410ms post-click): the cloud has grown noticeably outward but
+     remains visibly concentrated near the nozzle. The expansion is
+     visible as ongoing motion, not a sudden fill. */
+  40% {
+    --steam-radius: 280px;
+    opacity: 0.9;
   }
+  /* 70% (~530ms post-click): cloud spans most of viewport, peak coverage.
+     The bright core is still at the nozzle's tip; the cloud is widest
+     here. Modal mount (task #4) will time-align with this frame so the
+     modal becomes visible through the cloud's still-clearing core. */
+  70% {
+    --steam-radius: 700px;
+    opacity: 0.8;
+  }
+  /* 100% (650ms post-click): cloud has expanded past the viewport edges
+     AND faded to transparent. Steam is gone; the next state belongs to
+     the modal (task #4) or, if the nozzle was clicked-to-close, to the
+     resting state. */
   100% {
+    --steam-radius: 1400px;
     opacity: 0;
-    transform: scale(1.6);
   }
 }
 
-/* Reduced-motion: skip the scale animation, just a brief opacity fade. The
-   200ms total (vs 400ms) plus the absent scale removes ~all motion the
-   reduce-motion preference is asking us to remove. The modal still mounts
-   afterward (per decisions/002 §4 — "modal still opens"). */
+/* Reduced-motion: skip the expansion, just a brief opacity fade so the
+   state change is still visually announced but no decorative motion
+   plays. Modal still mounts afterward per decisions/002 §4
+   ("modal still opens"). */
 @media (prefers-reduced-motion: reduce) {
   .steam-transition.is-active {
     animation: steam-emit-reduced 200ms ease-out 100ms forwards;
   }
   @keyframes steam-emit-reduced {
-    0%   { opacity: 0; transform: scale(1); }
-    50%  { opacity: 0.5; transform: scale(1); }
-    100% { opacity: 0; transform: scale(1); }
+    0%   { --steam-radius: 200px; opacity: 0; }
+    50%  { --steam-radius: 200px; opacity: 0.5; }
+    100% { --steam-radius: 200px; opacity: 0; }
   }
 }
