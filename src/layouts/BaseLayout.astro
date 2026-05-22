@@ -154,10 +154,11 @@ const mainPagefindAttrs = searchable ? {} : { 'data-pagefind-ignore': '' };
         if (!canScroll) {
           // Content fits — park the thumb at the top (no scroll progress
           // to display, but the track itself is still visible). Nozzle
-          // parks at viewport bottom in this case so it stays a visible
-          // fixture on short pages rather than sliding to the top.
+          // parks near viewport bottom (but well clear of the footer per
+          // updateNozzleY's max-Y cap) so it stays a visible fixture on
+          // short pages rather than sliding to the top.
           thumb.style.transform = 'translateY(0)';
-          updateNozzleY(0.95);
+          updateNozzleY(1.0);
           return;
         }
 
@@ -199,12 +200,15 @@ const mainPagefindAttrs = searchable ? {} : { 'data-pagefind-ignore': '' };
 
         const vh = window.innerHeight;
         // Y range: top edge at 15% of viewport (when scrolled to top) →
-        // 95% of viewport (when scrolled to bottom). The 15-95% range
+        // 80% of viewport (when scrolled to bottom). The 15-80% range
         // leaves space at top for the header to occlude (z-index above
-        // nozzle) and at bottom for the nozzle to sit just above viewport
-        // bottom rather than flush with it.
+        // nozzle) and AT LEAST 20% at bottom to clear the footer — Sean
+        // direction 2026-05-22 iter 1 (was 15-95%, the nozzle was dipping
+        // into the footer panel at scroll-end). Empirical: footer is ~8-15%
+        // of viewport height across tiers; 20% bottom clearance keeps the
+        // nozzle visible above the footer's top edge at every breakpoint.
         const minY = vh * 0.15;
-        const maxY = vh * 0.95;
+        const maxY = vh * 0.80;
         const y = minY + scrollProgress * (maxY - minY);
         // translate(-50%, Y) preserves X centering on the scrollbar track
         // (CSS rule on .site-nozzle sets translate(-50%, var(--nozzle-y))).

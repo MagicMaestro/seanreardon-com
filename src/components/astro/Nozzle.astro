@@ -52,54 +52,54 @@ import nozzleImg from '~/assets/images/nozzle-detailed.png';
      scroll rAF tick, mirroring the scrollbar thumb's progress. Reads as a
      worldful object mounted on the scrollbar laser, not floating UI chrome.
 
-     Stacking: z-index 45 sits BETWEEN the scroll indicator (40) and the
-     header (100). The nozzle paints OVER the scroll indicator track and
-     thumb where they overlap (nozzle visually IS on the laser), but the
-     header still occludes the nozzle when scrolled near the top so the
-     sticky bar wins the z-axis there. */
+     Stacking: z-index 30 sits BELOW the scroll indicator (40), the footer
+     (50), and the header (100). The scroll indicator's cyan laser paints
+     IN FRONT of the nozzle's base — reads as "nozzle mounted behind the
+     laser fixture" rather than "nozzle floating in front of the
+     scrollbar". The footer also paints in front, which is belt-and-
+     suspenders to the Y-range cap below (the nozzle's vertical range
+     stops well above where the footer sits anyway — see updateNozzleY()
+     in BaseLayout). Sean direction 2026-05-22 iter 1. */
   .site-nozzle {
     position: fixed;
     /* Anchor at top:0; vertical position is driven entirely by transform
        (set via CSS var --nozzle-y from the BaseLayout scroll-tick JS).
-       Default before JS runs: parks near the bottom (`80vh` fallback) so
-       the nozzle is visible even with no script. The fallback uses vh
-       intentionally — the nozzle's "out-of-flow fixed fixture" role makes
-       viewport-anchored sizing the correct choice (one of the documented
-       exceptions to the prefer-percentages rule). */
+       Default before JS runs: parks 80vh down so the nozzle is visible
+       even with no script. The fallback uses vh intentionally — the
+       nozzle's "out-of-flow fixed fixture" role makes viewport-anchored
+       sizing the correct choice (one of the documented exceptions to the
+       prefer-percentages rule). */
     top: 0;
-    /* Anchor horizontally per the scroll-indicator's responsive ladder so
-       the nozzle's center aligns with the scrollbar track center
-       (translate(-50%) on the X axis below centers the 2.5rem nozzle on
-       the scrollbar's left edge + half-thumb-width). */
-    left: 0;
-    /* translate(-50%) X centers the nozzle horizontally on left:0. The Y
-       half is driven by --nozzle-y, which BaseLayout's scroll tick sets to
-       the same scrollProgress-derived value as the scrollbar thumb. The
-       fallback positions the nozzle 80vh down on first paint before JS
-       runs. */
-    transform: translate(-50%, var(--nozzle-y, 80vh));
+    /* Anchor just to the RIGHT of the scroll-indicator's track so the
+       nozzle's base touches the scrollbar's right edge (scrollbar is 6px
+       wide; +3px offset puts nozzle's left at the scrollbar's centerline).
+       After the 90deg rotation on .site-nozzle-img below, the image's
+       "base" sits on the visual LEFT of the rotated box (= touching the
+       scrollbar) and the opening points RIGHT toward the viewport center.
+       Reads as a fixture mounted on the side of the scrollbar pipe with
+       its nozzle firing inward. */
+    left: 3px;
+    /* No translateX — the +3px on `left` already positions the nozzle's
+       left edge at the scrollbar's centerline. translateY is driven by
+       --nozzle-y from BaseLayout's scroll tick. */
+    transform: translateY(var(--nozzle-y, 80vh));
     width: 2.5rem;
-    height: auto;
-    /* Reset button styling — nozzle reads as the image, not a chrome
-       button. */
+    /* Explicit height so the rotation in .site-nozzle-img rotates within
+       a fixed-size box rather than altering the bounding-box geometry.
+       Square 2.5rem × 2.5rem holds the nozzle PNG (97×104, near-square)
+       regardless of orientation. */
+    height: 2.5rem;
     padding: 0;
     border: 0;
     background: transparent;
     cursor: pointer;
-    z-index: 45;
-    /* Slide transitions: transform animates per scroll (no transition needed
-       for the rAF-driven Y updates — they're 60fps smooth on their own) but
-       the future click → slide-to-mid-viewport interaction (task #2) needs a
-       250ms eased horizontal slide. Adding a transform transition with a
-       SHORT duration so scroll-driven Y updates don't feel laggy AND the
-       click slide animates smoothly. The 250ms target is per
-       decisions/002 §4 ("Slide duration: short ~200-250ms, eased"). */
+    z-index: 30;
+    /* Slide transitions: the future click → slide-to-mid-viewport
+       interaction (task #2) needs a 250ms eased horizontal slide. Scroll-
+       driven Y updates would lag at 250ms ease-out so the JS toggles
+       data-scrolling="true" during active scroll to disable the transition
+       temporarily — re-enabled 150ms after scroll settles. */
     transition: transform 250ms ease-out;
-    /* During fast scrolling rAF updates the Y many times — disable the
-       transition for scroll-driven Y changes by toggling a data-attribute
-       (handled in BaseLayout's scroll tick). At rest the transition is on
-       for the click interaction; during scroll the transition is off so
-       Y tracks the cursor without lag. */
   }
 
   /* Disable the transform transition during scroll so the scroll-driven Y
@@ -111,8 +111,18 @@ import nozzleImg from '~/assets/images/nozzle-detailed.png';
 
   .site-nozzle-img {
     display: block;
+    /* Width + height 100% with object-fit:contain fits the PNG (97×104)
+       inside the 2.5rem square button preserving aspect ratio. After the
+       90deg rotation below, the visual content still fits in the same
+       square box (the rotation pivots around the box's center). */
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: contain;
+    /* Rotate 90° clockwise so the nozzle's opening (top of the source
+       PNG) faces RIGHT toward the viewport center, not UP toward the
+       header. Reads as a fixture firing inward from the scrollbar pipe.
+       Sean direction 2026-05-22 iter 1. */
+    transform: rotate(90deg);
     /* Brass/copper drop-shadow so the nozzle pops off the dark page bg
        without competing visually with the cyan scroll-indicator laser
        underneath. Matches the brass-glow vocabulary used elsewhere
@@ -145,16 +155,21 @@ import nozzleImg from '~/assets/images/nozzle-detailed.png';
   }
 
   /* Tier-responsive left position — mirrors the .scroll-indicator's
-     responsive ladder in global.css so the nozzle stays centered on the
-     scrollbar track across all viewport widths. */
+     responsive ladder in global.css so the nozzle stays anchored to the
+     scrollbar's centerline (= scrollbar.left + 3px, where 6px is the
+     scrollbar's width) across all viewport widths. The +3px offset puts
+     the nozzle's left edge AT the scrollbar's vertical centerline, so
+     after the image rotation the nozzle's base sits AT the scrollbar
+     (behind it via z-index 30 < scroll-indicator's 40) and the opening
+     extends to the right. */
   @media (min-width: 896px) {
     .site-nozzle {
-      left: 3%;
+      left: calc(3% + 3px);
     }
   }
   @media (min-width: 1520px) {
     .site-nozzle {
-      left: calc((100% - var(--main-max-width)) / 2);
+      left: calc((100% - var(--main-max-width)) / 2 + 3px);
     }
   }
 
