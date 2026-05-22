@@ -94,12 +94,21 @@ import nozzleImg from '~/assets/images/nozzle-detailed.png';
     background: transparent;
     cursor: pointer;
     z-index: 30;
-    /* Slide transitions: the future click → slide-to-mid-viewport
-       interaction (task #2) needs a 250ms eased horizontal slide. Scroll-
-       driven Y updates would lag at 250ms ease-out so the JS toggles
-       data-scrolling="true" during active scroll to disable the transition
-       temporarily — re-enabled 150ms after scroll settles. */
-    transition: transform 250ms ease-out;
+    /* Slide transitions:
+       - `transform` (250ms ease-out): the future click → slide-to-mid-
+         viewport interaction (task #2) needs a 250ms eased horizontal slide.
+         Scroll-driven Y updates would lag at 250ms ease-out so the JS toggles
+         data-scrolling="true" during active scroll to disable the transition
+         temporarily — re-enabled 150ms after scroll settles.
+       - `left` (300ms ease-out): matches the responsive-ladder transition
+         timing on .scroll-indicator + main (both use `300ms ease-out` for
+         their left/max-width changes at the 896 and 1520 breakpoints).
+         Without this, the nozzle's left snapped to its new value while the
+         scrollbar + main slid in over 300ms — visually decoupled. Sean
+         direction 2026-05-22 iter 2. */
+    transition:
+      transform 250ms ease-out,
+      left 300ms ease-out;
   }
 
   /* Disable the transform transition during scroll so the scroll-driven Y
