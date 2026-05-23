@@ -281,6 +281,30 @@ function isSearchRoute(path: string): boolean {
   return path === '/api/search' || path === '/api/search/' || path === '/';
 }
 
+/**
+ * Accept GET at `/health`, `/api/search/health`, or `/api/search/health/`.
+ * Same defensive prefix-stripped + prefix-kept handling as `isSearchRoute`
+ * — on this deploy Passenger keeps the `/api/search/` base_uri prefix
+ * intact, so a request to `https://seanreardon.com/api/search/health`
+ * arrives at the Node app as path=`/api/search/health`. The bare `/health`
+ * variant stays accepted for local dev (`curl http://localhost:3001/health`)
+ * and for any future deploy config where Passenger does strip the prefix.
+ *
+ * Brief 009's hand-back claimed `/api/search/health` returned `{"status":"ok"}`,
+ * but the original route only matched the prefix-stripped `/health` — the
+ * prefix-kept variant 404'd, which surfaced during brief 011's diagnosis
+ * (smoke test of the freshly-revived production app). Brief 010's smoke
+ * test #4 also expects this endpoint to work. Adding both variants closes
+ * the docs-vs-code drift without forcing a smoke-test rewrite.
+ */
+function isHealthRoute(path: string): boolean {
+  return (
+    path === '/health' ||
+    path === '/api/search/health' ||
+    path === '/api/search/health/'
+  );
+}
+
 const server = createServer(async (req, res) => {
   // CORS preflight — dev convenience; harmless in production.
   if (req.method === 'OPTIONS') {
@@ -296,7 +320,8 @@ const server = createServer(async (req, res) => {
 
   // Health check — useful for the deploy smoke test and the optimizer's
   // weekly digest (per the brief 001 hand-back pattern, if extended).
-  if (req.method === 'GET' && path === '/health') {
+  // See isHealthRoute above for which path variants are accepted.
+  if (req.method === 'GET' && isHealthRoute(path)) {
     send(res, 200, { status: 'ok' });
     return;
   }
