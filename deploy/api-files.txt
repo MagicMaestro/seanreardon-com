@@ -5,3 +5,4 @@ package-lock.json
 api-server/
 src/lib/search/
 public/search-index.json
+node_modules/

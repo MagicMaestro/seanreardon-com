@@ -8,18 +8,43 @@ name: Deploy AI search API
 # the same push when relevant — they're independent concerns (apps/portfolio-search/
 # vs public_html/).
 #
+# DEPLOY STRATEGY — pre-build-and-rsync (brief 012's Option 1, shipped SPR-0061):
+# The runner does a full `npm ci`, builds the search index, prunes devDeps in
+# place, then rsyncs the ENTIRE app dir INCLUDING node_modules/ to the server.
+# Server-side `npm ci` is NOT run.
+#
+# This sidesteps the unsolved npm-ci-killed-at-~12s mystery from brief 011 —
+# the SIGKILL fires server-side under the GHA SSH session for reasons the
+# optimizer ruled out (no OOM, no LVE, no ulimit, no cgroup, no quota, etc.).
+# Brief 011's `/var/log/secure` analysis pointed at an SSH2_DISCONNECT_BY_-
+# APPLICATION from the runner side; mechanism unknown. Rather than fight an
+# unreproducible intermittent kill, the deploy moves the install to the runner
+# (which has ample RAM and no jailshell), and ships the resolved node_modules
+# as deploy state.
+#
 # Server-side prerequisites (one-time, established by optimizer-handoff brief 009):
-#   - Node 22.22.2 installed at /opt/cpanel/ea-nodejs22/bin/node
+#   - Node 22.22.2+ installed at /opt/cpanel/ea-nodejs22/bin/node
 #   - `portfolio-search` app registered via UAPI; vhost includes in place
 #   - PassengerMaxInstancesPerApp 1 enforced server-wide (single worker)
 #   - .env file at /home/sreardon/apps/portfolio-search/.env (env vars; cPanel's
 #     UAPI envvar delivery doesn't reach OSS-Passenger Node children)
 #   - logs/, tmp/, public/ directories exist
 #
-# After this workflow's rsync overwrites the placeholder app.js with the real
-# entrypoint and Passenger restarts (via touch tmp/restart.txt), the cold-start
-# downloads the MiniLM model (~80 MB) on first request; expect ~3–5s first-
-# response latency, then ~50 ms warm.
+# Glibc compatibility (per optimizer brief 012 Task 2 hand-back, 2026-05-23):
+#   - Server: AlmaLinux 8.10, glibc 2.28, x86_64
+#   - Runtime native deps and their highest GLIBC requirement:
+#       @img/sharp-linux-x64        2.17
+#       onnxruntime-node (linux64)  2.14
+#       @rollup/rollup-linux-x64-gnu 2.4
+#   - All ship prebuilts via the manylinux2014 baseline — none compile from
+#     source at install time. The runner's glibc therefore doesn't affect
+#     what gets shipped; runner pin is for stability (avoiding `ubuntu-latest`
+#     image rotation), not compatibility.
+#
+# After this workflow's rsync replaces the app dir contents and Passenger
+# restarts (via touch tmp/restart.txt), the cold-start downloads the MiniLM
+# model (~80 MB) on first request; expect ~3–5s first-response latency, then
+# ~50 ms warm.
 
 on:
   push:
@@ -48,17 +73,23 @@ env:
   # The PRODUCTION app runs Node 22 via cPanel's ea-nodejs22 — this var only
   # affects GitHub Actions' own JS-action runtime, not our app's runtime.
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  # Absolute path to the cPanel ea-nodejs22 bin dir on the production server
-  # (per optimizer-handoff 009; verified Node 22.22.2 / npm 10.9.7 at this path).
-  # cPanel's jailshell PATH does NOT include this dir, so any remote npm/node/npx
-  # invocation over SSH must use the absolute path. Apache+Passenger find Node via
-  # `PassengerNodejs` in applications.json — that's a separate code path that
-  # doesn't help our SSH sessions.
-  REMOTE_NODE_BIN: /opt/cpanel/ea-nodejs22/bin
+
+  # NOTE: REMOTE_NODE_BIN (/opt/cpanel/ea-nodejs22/bin) was used by the old
+  # server-side `npm ci --omit=dev` step. SPR-0061 dropped that step, so the
+  # var is no longer referenced. If a future SSH-driven server-side install
+  # step is ever added, use `bash -lc 'export PATH=/opt/cpanel/ea-nodejs22/bin:
+  # $PATH; ...'` per the brief 012 Task 1 hand-back's PATH-gotcha note —
+  # `bash -c` will succeed for top-level npm but fail with exit 127 the moment
+  # any package has an install lifecycle script that shells out to `node`.
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    # Pinned to ubuntu-22.04 (glibc 2.35) per brief 012 Task 2's recommendation.
+    # Server is glibc 2.28; the relevant native prebuilts target glibc 2.17
+    # (manylinux2014), so the runner's glibc baseline isn't load-bearing — but
+    # avoid `ubuntu-latest` because GitHub rotates the default image without
+    # notice, and we want stable, reproducible deploys.
+    runs-on: ubuntu-22.04
     timeout-minutes: 15
 
     steps:
@@ -72,8 +103,10 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies (CI build env)
-        # Full install so we can run the indexer locally before rsync.
-        # The server gets its own --omit=dev install in a later step.
+        # Full install (incl. devDeps) so we can run the indexer next, which
+        # needs build-time tools (tsx, typescript). The "Prune dev dependencies"
+        # step below drops devDeps in-place before the rsync, so what ships
+        # to the server is the production-only subset.
         run: npm ci
 
       - name: Rebuild search index
@@ -82,6 +115,18 @@ jobs:
         # reused — fast. Output: public/search-index.json — included in the
         # rsync manifest below.
         run: npm run build:search-index
+
+      - name: Prune dev dependencies
+        # `npm prune --omit=dev` walks node_modules and removes packages that
+        # are in devDependencies in package.json (typescript, wrangler, @types/*,
+        # @cloudflare/workers-types, etc.). The result matches what
+        # `npm ci --omit=dev` would have produced — but in-place, without
+        # re-downloading from the registry.
+        #
+        # SPR-0061 (brief 012's Option 1 pivot): the resulting node_modules
+        # is what we ship to the server via rsync. Server no longer runs its
+        # own install.
+        run: npm prune --omit=dev
 
       - name: Configure SSH
         # Uses ssh.seanreardon.com (DNS-only origin record) per the
@@ -94,14 +139,23 @@ jobs:
           ssh-keyscan -p 7822 -H ssh.seanreardon.com >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Rsync to portfolio-search app slot
-        # Selective sync via deploy/api-files.txt manifest. Notably absent from
-        # the manifest (server-managed, never touched by the deploy):
+        # Selective sync via deploy/api-files.txt manifest. SPR-0061 added
+        # `node_modules/` to the manifest — the runner-built, devDeps-pruned
+        # node_modules ships directly to the server, replacing the old server-
+        # side `npm ci --omit=dev` step entirely.
+        #
+        # Notably absent from the manifest (server-managed, never touched by the deploy):
         #   - .env (env vars, established by optimizer brief 009)
         #   - logs/ (app writes its query log here)
         #   - tmp/ (Passenger restart sentinel lives here)
-        #   - node_modules/ (built on server in the next step)
         # No --delete: cruft is tolerated; intentional state on the server
         # (the three dirs above + .env) is never at risk.
+        #
+        # The node_modules transfer is ~945 MB on cold deploy (per brief 011's
+        # measurement). Rsync's incremental delta-transfer + compression means
+        # subsequent deploys typically transfer only changed packages (a few
+        # MB). Cold-deploy time impact: ~1-2 min slower than the prior strategy,
+        # but with zero residual SIGKILL risk.
         run: |
           rsync -avz \
             --files-from=deploy/api-files.txt \
@@ -110,35 +164,6 @@ jobs:
             --exclude='Thumbs.db' \
             -e "ssh -i ~/.ssh/deploy_key -p 7822" \
             ./ sreardon@ssh.seanreardon.com:/home/sreardon/apps/portfolio-search/
-
-      - name: Install production deps on server
-        # --omit=dev skips wrangler, typescript, @types/*, @cloudflare/workers-types.
-        # Keeps the runtime set (tsx, @huggingface/transformers, etc.). The static-site
-        # deps (astro, react, pagefind, fonts) are also installed; small disk
-        # waste, but co-locating package.json across surfaces is the simpler
-        # mental model. Can be optimized later via a separate api package.json
-        # if disk pressure ever appears.
-        #
-        # The remote SSH command does TWO things to work around jailshell's minimal PATH:
-        #   1. `export PATH=${REMOTE_NODE_BIN}:$PATH` prepends the cPanel ea-nodejs22 bin
-        #      dir to PATH so that npm's CHILD lifecycle scripts (sharp's install hook
-        #      runs `sh -c "node install/check.js || npm run build"`) can resolve
-        #      `node` and `npm`. SPR-0012 fixed the top-level npm call via absolute path
-        #      but didn't help children — sharp's install ran into `sh: node: command
-        #      not found` (sharp arrived via @huggingface/transformers in SPR-0011;
-        #      the old @xenova used pure-JS onnxruntime-web with no native install hook).
-        #   2. We STILL call npm by absolute path (`${REMOTE_NODE_BIN}/npm`) — belt and
-        #      suspenders. PATH-resolution would suffice given the export above, but
-        #      the absolute-path call site documents intent and survives any future
-        #      PATH reordering.
-        #
-        # Quoting: `${REMOTE_NODE_BIN}` (no escape) expands on the GHA RUNNER. `\$PATH`
-        # (escaped) survives runner expansion and is evaluated by the REMOTE shell
-        # against the remote environment. Without the escape, the runner would
-        # substitute its own PATH and bake runner-local paths into the SSH payload.
-        run: |
-          ssh -i ~/.ssh/deploy_key -p 7822 sreardon@ssh.seanreardon.com \
-            "export PATH=${REMOTE_NODE_BIN}:\$PATH && cd /home/sreardon/apps/portfolio-search && ${REMOTE_NODE_BIN}/npm ci --omit=dev"
 
       - name: Restart Passenger worker
         # touch tmp/restart.txt is Passenger's documented restart sentinel.
