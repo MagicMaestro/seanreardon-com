@@ -35,7 +35,14 @@
 }
 
 /* Modal box — centered, generous max-width for readable lines, dark
-   backdrop with cyan-glow border.
+   backdrop with PURPLE-glow border matching the mobile nav drawer
+   vocabulary (Sean direction 2026-05-22 iter 4 of SPR-0053). Border
+   thickness + box-shadow stack are copied wholesale from the
+   `.nav-drawer` rules in Header.astro so the two surfaces read as the
+   same "energy HUD" family — purple is the site's secondary energy
+   color, distinct from the cyan used on the scroll-channel laser and
+   the h2-drawer reveals.
+
    Sizing uses % rather than vh/vw per the standing rule
    (memory/feedback-css-prefer-percentages.md, locked 2026-05-10). The
    .search-modal parent is position: absolute inset: 0 inside the
@@ -52,15 +59,31 @@
   width: min(680px, 90%);
   min-height: 50%;
   max-height: 80%;
-  background: rgba(10, 8, 5, 0.92);
-  border: 1px solid var(--color-electric-cyan-glow);
+  /* Layered background: dark base with a soft purple radial-gradient
+     wash matching the nav-drawer treatment. The wash is subtle enough
+     not to compete with the wordmark or results, but strong enough
+     that the modal reads as filled WITH purple energy rather than just
+     bordered by it. Opacity on the wash dialed lower than the nav-
+     drawer's (0.92 → 0.45) because the modal surface is much larger;
+     a full-intensity wash would overpower the result-list contents. */
+  background-color: rgba(10, 8, 5, 0.92);
+  background-image: radial-gradient(ellipse at center, rgba(157, 63, 227, 0.45), transparent 70%);
+  border: 2px solid var(--color-electric-purple-glow);
   border-radius: var(--radius);
-  /* Multi-layer box-shadow halo matching the h2-drawer + sub-nav drawer
-     vocabulary — tight bright ring + wide atmospheric bloom. */
+  /* Multi-layer purple-glow box-shadow halo — outer stack spills into
+     the surrounding fog; inset stack spills inward from the border so
+     the modal reads as built from purple energy. Mirrors the .nav-drawer
+     stack in Header.astro (just with larger outer-radius values because
+     the modal is larger than the drawer). */
   box-shadow:
-    0 0 8px 1px var(--color-electric-cyan-glow),
-    0 0 24px 4px rgba(102, 232, 255, 0.45),
-    0 0 60px 12px rgba(102, 232, 255, 0.2),
+    /* Outer glow stack */
+    0 0 8px 1px var(--color-electric-purple-glow),
+    0 0 32px 6px rgba(157, 63, 227, 0.55),
+    0 0 60px 12px rgba(157, 63, 227, 0.3),
+    /* Inner glow stack */
+    inset 0 0 8px 1px var(--color-electric-purple-glow),
+    inset 0 0 24px 4px rgba(157, 63, 227, 0.4),
+    /* Depth anchor under everything */
     0 4px 16px 4px rgba(0, 0, 0, 0.6);
   padding: var(--space-md);
   display: flex;
@@ -82,20 +105,25 @@
   line-height: 1.4;
   background: rgba(20, 17, 14, 0.7);
   color: var(--color-fg);
-  border: 1px solid var(--color-electric-cyan-deep);
+  /* Border thickness on the input stays at 1px (per Sean direction
+     2026-05-22 iter 4 — "the border thickness for the modal itself,
+     not the search input" — only the modal border bumps to 2px). The
+     color shifts to the purple-deep tone to match the modal glow
+     family. */
+  border: 1px solid var(--color-electric-purple-deep);
   border-radius: var(--radius);
   padding: 0.75rem 1rem;
-  /* Subtle cyan glow on the input border to match the modal box */
-  box-shadow: inset 0 0 0 1px rgba(102, 232, 255, 0.1);
+  /* Subtle purple glow on the input border to match the modal box */
+  box-shadow: inset 0 0 0 1px rgba(157, 63, 227, 0.15);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .search-modal-input:focus {
   outline: none;
-  border-color: var(--color-electric-cyan);
+  border-color: var(--color-electric-purple-glow);
   box-shadow:
-    inset 0 0 0 1px rgba(102, 232, 255, 0.25),
-    0 0 8px 1px rgba(102, 232, 255, 0.35);
+    inset 0 0 0 1px rgba(244, 160, 255, 0.3),
+    0 0 8px 1px rgba(157, 63, 227, 0.45);
 }
 
 .search-modal-input::placeholder {
@@ -111,15 +139,24 @@
 }
 
 /* Results container — scrolls if results overflow the modal's max-height
-   constraint. */
+   constraint.
+   padding-inline 10px gives the result cards room for their proton-beam
+   wave (amplitude 5px + 4px drop-shadow ≈ 9px outward extension) without
+   clipping at the scroll container's edge. overflow-y: auto promotes
+   overflow-x to auto per CSS spec — without the inset padding, the wave
+   would visually amputate at the cards' left + right edges every time
+   a card activates. */
 .search-modal-results {
   flex: 1;
   overflow-y: auto;
+  padding-inline: 10px;
   /* Hide native scrollbar; the modal's small surface doesn't need it
-     visually, and the cyan-bordered modal-content has its own visual
-     containment. */
+     visually, and the purple-bordered modal-content has its own visual
+     containment. Scrollbar color shifted from cyan-deep to purple-deep
+     (Sean direction 2026-05-22 iter 4) to stay in the purple-glow
+     vocabulary the rest of the modal now uses. */
   scrollbar-width: thin;
-  scrollbar-color: var(--color-electric-cyan-deep) transparent;
+  scrollbar-color: var(--color-electric-purple-deep) transparent;
 }
 
 /* Message states (loading, error, no-results) — single paragraph at the
@@ -132,7 +169,7 @@
 }
 
 .search-modal-message a {
-  color: var(--color-electric-cyan-glow);
+  color: var(--color-electric-purple-glow);
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }
@@ -180,24 +217,128 @@
   /* No bullet, just the link inside acts as the entire item */
 }
 
+/* ============================================================================
+   LaserCard treatment for result + suggested links
+   ============================================================================
+   Sean direction 2026-05-22 iter 4 of SPR-0053: apply the same proton-beam
+   laser effect used on the homepage Recent grid + projects-list cards
+   (LaserCard.astro) to result links in the modal. Modal lives inside a React
+   island — Astro components don't render natively in React — so the relevant
+   CSS + JS is replicated here. The CSS rules mirror .laser-card almost
+   exactly; the JS lives in SearchModal.tsx where it can attach via
+   useEffect.
+
+   Differences from .laser-card:
+     - Rest-state background is a touch lighter than .laser-card's so the
+       cards read at all inside the purple-washed modal (the wash would
+       otherwise camouflage rgba(0,0,0,0.3))
+     - Result links are tighter (no kind label, no time, less padding) —
+       the modal's vertical real estate is constrained
+     - Brass beam ::before is unchanged; weave SVGs unchanged; hover/focus/
+       .is-active state moves to a 3px electric-yellow beam identical to
+       LaserCard's
+
+   Active-focus fill gradient (Sean direction): keep the brass-flecked dark
+   gradient that emerges on hover/.is-active — same color + opacity as the
+   .laser-card hover background. */
 .search-modal-result-link {
+  position: relative;
+  isolation: isolate;
   display: block;
   padding: 0.625rem 0.75rem;
+  /* Lighter rest background than LaserCard's rgba(0,0,0,0.3) because the
+     modal's purple wash is brighter than a plain page bg; the card needs
+     enough contrast against the wash to read as a distinct card surface. */
+  background: rgba(0, 0, 0, 0.45);
   border-radius: var(--radius);
   text-decoration: none;
   color: inherit;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid transparent;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  transition: background var(--transition-fast);
 }
 
+/* Main brass beam at rest — pseudo-element so z-index can layer weave
+   SVGs above + below it. Lifted from LaserCard.astro's `.laser-card::before`. */
+.search-modal-result-link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(196, 149, 57, 0.55);
+  pointer-events: none;
+  z-index: 1;
+  box-shadow:
+    0 0 6px 0 rgba(196, 149, 57, 0.18),
+    inset 0 0 10px 1px rgba(196, 149, 57, 0.08);
+  transition:
+    border 150ms ease-out,
+    box-shadow 150ms ease-out;
+}
+
+/* Hover / focus-visible / scroll-active states. `.is-active` parallels
+   LaserCard's pattern — for touch-primary devices where there's no hover,
+   the inline JS toggles .is-active on the single card whose center is
+   closest to viewport center (within the modal scroll area). */
 .search-modal-result-link:hover,
-.search-modal-result-link:focus-visible {
-  background: rgba(102, 232, 255, 0.08);
-  border-color: rgba(102, 232, 255, 0.4);
+.search-modal-result-link:focus-visible,
+.search-modal-result-link.is-active {
+  /* Active-state fill (Sean direction iter 4): "Keep the current fill
+     gradient to what we have within the active-focus Suggested card —
+     same color and opacity." Bumps brightness slightly over rest so
+     the card reads as illuminated when active. */
+  background: rgba(0, 0, 0, 0.55);
   outline: none;
 }
 
+.search-modal-result-link:hover::before,
+.search-modal-result-link:focus-visible::before,
+.search-modal-result-link.is-active::before {
+  /* 3px electric-yellow channel matching LaserCard's hover treatment.
+     Color #F5E53D — the site's "energized brass" beam color. */
+  border: 3px solid #F5E53D;
+  box-shadow:
+    inset 0 0 0 1px var(--color-brass-oxidized),
+    0 0 0 1px var(--color-brass-oxidized),
+    0 0 14px 3px rgba(245, 229, 61, 0.55),
+    inset 0 0 16px 2px rgba(245, 229, 61, 0.22);
+}
+
+/* Cyan + plasma sine-wave SVG layers — same role as LaserCard's
+   `.weave-svg`. Position absolute, overflow visible so wave peaks
+   extend past the card box. */
+.search-modal-result-link .weave-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+.search-modal-result-link .weave-cyan { z-index: -1; }
+.search-modal-result-link .weave-plasma { z-index: 2; }
+
+.search-modal-result-link .weave-cyan .weave-path {
+  fill: none;
+  stroke: var(--color-electric-cyan-glow);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 4px rgba(102, 232, 255, 0.5));
+}
+.search-modal-result-link .weave-plasma .weave-path {
+  fill: none;
+  stroke: var(--color-plasma);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 4px rgba(255, 90, 26, 0.6));
+}
+
+.search-modal-result-link:hover .weave-svg,
+.search-modal-result-link:focus-visible .weave-svg,
+.search-modal-result-link.is-active .weave-svg {
+  opacity: 1;
+}
+
+/* Card content — title / snippet / path. position:relative + z-index:3
+   so they paint above the brass beam's inner glow halo. */
 .search-modal-result-title {
   margin: 0 0 0.25rem 0;
   font-family: var(--font-subhead);
@@ -205,6 +346,19 @@
   font-weight: 700;
   color: var(--color-brass);
   line-height: 1.3;
+  position: relative;
+  z-index: 3;
+  transition: text-shadow 200ms ease-out;
+}
+
+/* Title glow on active states — matches LaserCard's title-on-hover
+   treatment (color stays brass, brass-toned glow fades in). */
+.search-modal-result-link:hover .search-modal-result-title,
+.search-modal-result-link:focus-visible .search-modal-result-title,
+.search-modal-result-link.is-active .search-modal-result-title {
+  text-shadow:
+    0 0 6px rgba(232, 185, 94, 0.8),
+    0 0 18px rgba(196, 149, 57, 0.5);
 }
 
 .search-modal-result-snippet {
@@ -212,6 +366,8 @@
   font-size: 0.875rem;
   line-height: 1.45;
   color: var(--color-fg);
+  position: relative;
+  z-index: 3;
   /* Limit to 3 lines max — keeps result list readable */
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -226,6 +382,8 @@
   font-size: 0.75rem;
   color: var(--color-fg-muted);
   letter-spacing: 0.02em;
+  position: relative;
+  z-index: 3;
 }
 
 /* prefers-reduced-motion: skip the opacity transition. Modal appears

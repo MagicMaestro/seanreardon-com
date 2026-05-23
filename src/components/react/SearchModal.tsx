@@ -86,6 +86,71 @@ const LOADING_THRESHOLD_MS = 200;
    used elsewhere (Pagefind dropdown debounce, decisions doc §3 spec). */
 const INPUT_DEBOUNCE_MS = 300;
 
+/* ============================================================================
+   LaserCard wave-animation helpers (replicated from LaserCard.astro)
+   ============================================================================
+   The Suggested + result cards in the modal use the same proton-beam laser
+   treatment as the homepage Recent grid + projects-list cards. That treatment
+   lives in `src/components/astro/LaserCard.astro` as an Astro component with
+   a scoped <script>, so we can't reuse it directly inside this React island —
+   the relevant logic is ported here (CSS rules in SearchModal.css, JS below).
+
+   Sean direction 2026-05-22 iter 4 of SPR-0053: "When hovering over a
+   'Suggested' card - or when it's within a certain scroll range/focus like
+   we have for mobile screens, the proton beam laser effect should occur
+   around the card (this is the same effect used on the recent cards on the
+   front page, and the project cards on the client projects page)."
+
+   The wave is two antiphase sine paths traced around the card perimeter,
+   with amplitude windowed to zero at corners. On hover/focus/.is-active,
+   the SVGs fade in and phase animates via requestAnimationFrame at
+   ~4s/cycle — peaks travel around the card. */
+
+const WAVE_AMPLITUDE = 5;
+const WAVE_WAVES_PER_EDGE = 4;
+const WAVE_PHASE_SPEED = Math.PI / 2; // 4 seconds per full sine cycle
+
+function generateWavePath(
+  width: number,
+  height: number,
+  amplitude: number,
+  wavesPerEdge: number,
+  phase: number,
+): string {
+  const samplesPerEdge = 60;
+  const pts: [number, number][] = [];
+
+  function addEdge(
+    startX: number, startY: number,
+    dirX: number, dirY: number,
+    perpX: number, perpY: number,
+    edgeLength: number,
+  ): void {
+    for (let i = 0; i <= samplesPerEdge; i++) {
+      const t = i / samplesPerEdge;
+      const win = Math.sin(t * Math.PI);
+      const wave = amplitude * win * Math.sin(t * wavesPerEdge * 2 * Math.PI + phase);
+      const x = startX + t * edgeLength * dirX + wave * perpX;
+      const y = startY + t * edgeLength * dirY + wave * perpY;
+      pts.push([x, y]);
+    }
+  }
+
+  // Four edges clockwise; outward perpendicular at each edge points away
+  // from card center.
+  addEdge(0, 0, 1, 0, 0, -1, width);            // top
+  addEdge(width, 0, 0, 1, 1, 0, height);        // right
+  addEdge(width, height, -1, 0, 0, 1, width);   // bottom
+  addEdge(0, height, 0, -1, -1, 0, height);     // left
+
+  let d = `M ${pts[0][0].toFixed(2)} ${pts[0][1].toFixed(2)}`;
+  for (let j = 1; j < pts.length; j++) {
+    d += ` L ${pts[j][0].toFixed(2)} ${pts[j][1].toFixed(2)}`;
+  }
+  d += ' Z';
+  return d;
+}
+
 export default function SearchModal({ phase, curatedPicks = [] }: Props) {
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -97,6 +162,11 @@ export default function SearchModal({ phase, curatedPicks = [] }: Props) {
      Reset to false when phase changes away from 'active' (close path). */
   const [isVisible, setIsVisible] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  /* Ref for the scrollable results container — passed to the laser-wave
+     effect so its IntersectionObserver (touch-primary single-active-card
+     logic) scopes to scroll positions inside the modal rather than the
+     viewport. */
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   /* Phase → isVisible bridge. When phase becomes 'active', wait for the
      fog to grow, then show the modal. When phase changes away, hide
@@ -192,6 +262,211 @@ export default function SearchModal({ phase, curatedPicks = [] }: Props) {
     };
   }, [debouncedQuery]);
 
+  /* ============================================================================
+     Laser-wave animation effect (mirrors LaserCard.astro's inline <script>)
+     ============================================================================
+     Re-runs whenever the visible card set changes (curatedPicks shown vs
+     search results vs no-results state). Walks every `.search-modal-result-link`
+     currently in the DOM and wires up:
+       - mouseenter / focusin → start rAF wave animation
+       - mouseleave / focusout → stop rAF, render phase=0
+       - touch-primary devices: scroll-driven single-active-card via shared
+         recompute keyed off scroll inside the results container
+
+     prefers-reduced-motion: paths render once at phase=0 (static); no rAF.
+     Effect returns a cleanup function that removes all listeners + cancels
+     any in-flight rAF when the card set changes or the modal unmounts. */
+  useEffect(() => {
+    if (!isVisible) return;
+    const container = resultsRef.current;
+    if (!container) return;
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const touchPrimary = window.matchMedia('(pointer: coarse)').matches;
+    const cards = Array.from(
+      container.querySelectorAll<HTMLAnchorElement>('.search-modal-result-link'),
+    );
+    if (cards.length === 0) return;
+
+    /* Per-card state: rAF id, start timestamp, the cyan + plasma path
+       SVG elements (cached so renderPath doesn't re-query). */
+    interface CardState {
+      el: HTMLAnchorElement;
+      cyanPath: SVGPathElement | null;
+      plasmaPath: SVGPathElement | null;
+      rafId: number | null;
+      startTime: number | null;
+      start: () => void;
+      stop: () => void;
+      onMouseEnter: () => void;
+      onFocusIn: () => void;
+      onMouseLeave: () => void;
+      onFocusOut: () => void;
+    }
+
+    const states: CardState[] = cards.map((el) => {
+      const cyanPath = el.querySelector<SVGPathElement>('.weave-cyan .weave-path');
+      const plasmaPath = el.querySelector<SVGPathElement>('.weave-plasma .weave-path');
+
+      const renderPath = (phase: number) => {
+        const rect = el.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          if (cyanPath) {
+            cyanPath.setAttribute(
+              'd',
+              generateWavePath(rect.width, rect.height, WAVE_AMPLITUDE, WAVE_WAVES_PER_EDGE, phase),
+            );
+          }
+          if (plasmaPath) {
+            plasmaPath.setAttribute(
+              'd',
+              generateWavePath(
+                rect.width,
+                rect.height,
+                WAVE_AMPLITUDE,
+                WAVE_WAVES_PER_EDGE,
+                phase + Math.PI,
+              ),
+            );
+          }
+        }
+      };
+
+      const state: CardState = {
+        el,
+        cyanPath,
+        plasmaPath,
+        rafId: null,
+        startTime: null,
+        start: () => {},
+        stop: () => {},
+        onMouseEnter: () => {},
+        onFocusIn: () => {},
+        onMouseLeave: () => {},
+        onFocusOut: () => {},
+      };
+
+      const renderFrame = (timestamp: number) => {
+        if (state.startTime === null) state.startTime = timestamp;
+        const elapsed = (timestamp - state.startTime) / 1000;
+        const phase = elapsed * WAVE_PHASE_SPEED;
+        renderPath(phase);
+        state.rafId = requestAnimationFrame(renderFrame);
+      };
+
+      state.start = () => {
+        if (reducedMotion) return;
+        if (state.rafId !== null) return;
+        state.startTime = null;
+        state.rafId = requestAnimationFrame(renderFrame);
+      };
+      state.stop = () => {
+        if (state.rafId !== null) {
+          cancelAnimationFrame(state.rafId);
+          state.rafId = null;
+        }
+        renderPath(0);
+      };
+      state.onMouseEnter = state.start;
+      state.onFocusIn = state.start;
+      state.onMouseLeave = state.stop;
+      state.onFocusOut = state.stop;
+
+      /* Initial static render so the wave geometry is in place before
+         the first interaction (avoids a flicker when the path SVG
+         attribute goes from empty to populated on first hover). */
+      renderPath(0);
+
+      el.addEventListener('mouseenter', state.onMouseEnter);
+      el.addEventListener('focusin', state.onFocusIn);
+      el.addEventListener('mouseleave', state.onMouseLeave);
+      el.addEventListener('focusout', state.onFocusOut);
+
+      return state;
+    });
+
+    /* Touch-primary devices: pick the single card whose center is closest
+       to the viewport center, recomputed on scroll/resize. Mirrors
+       LaserCard.astro's recomputeActiveCard pattern. Scopes scroll
+       listener to the modal's results container — the modal is in a
+       fixed overlay and the body scroll is locked while the modal is
+       open. The window scroll is also listened to as a fallback for the
+       case where the results don't overflow (no internal scroll). */
+    let activeCard: HTMLAnchorElement | null = null;
+    let rafScheduled = false;
+
+    const recomputeActiveCard = () => {
+      if (!touchPrimary) return;
+      const viewportHeight = window.innerHeight;
+      const viewportCenter = viewportHeight / 2;
+      const activationRadius = viewportHeight * 0.35;
+
+      let best: CardState | null = null;
+      let bestDistance = Infinity;
+      for (const s of states) {
+        const rect = s.el.getBoundingClientRect();
+        const cardCenter = (rect.top + rect.bottom) / 2;
+        const distance = Math.abs(cardCenter - viewportCenter);
+        if (distance > activationRadius) continue;
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          best = s;
+        }
+      }
+
+      const next = best?.el ?? null;
+      if (next === activeCard) return;
+
+      if (activeCard) {
+        activeCard.classList.remove('is-active');
+        const prev = states.find((s) => s.el === activeCard);
+        prev?.stop();
+      }
+      activeCard = next;
+      if (next && best) {
+        next.classList.add('is-active');
+        best.start();
+      }
+    };
+
+    const scheduleRecompute = () => {
+      if (rafScheduled) return;
+      rafScheduled = true;
+      requestAnimationFrame(() => {
+        rafScheduled = false;
+        recomputeActiveCard();
+      });
+    };
+
+    if (touchPrimary) {
+      container.addEventListener('scroll', scheduleRecompute, { passive: true });
+      window.addEventListener('scroll', scheduleRecompute, { passive: true });
+      window.addEventListener('resize', scheduleRecompute, { passive: true });
+      recomputeActiveCard();
+    }
+
+    return () => {
+      for (const s of states) {
+        s.el.removeEventListener('mouseenter', s.onMouseEnter);
+        s.el.removeEventListener('focusin', s.onFocusIn);
+        s.el.removeEventListener('mouseleave', s.onMouseLeave);
+        s.el.removeEventListener('focusout', s.onFocusOut);
+        if (s.rafId !== null) cancelAnimationFrame(s.rafId);
+      }
+      if (touchPrimary) {
+        container.removeEventListener('scroll', scheduleRecompute);
+        window.removeEventListener('scroll', scheduleRecompute);
+        window.removeEventListener('resize', scheduleRecompute);
+      }
+      if (activeCard) activeCard.classList.remove('is-active');
+    };
+    /* Dependencies: re-run when the rendered card set changes. `results`
+       drives the search-results state; `curatedPicks` drives the empty
+       state (technically stable per-mount via props, but listed for
+       correctness). `isVisible` re-runs the effect once the modal fades
+       in (querySelectorAll happens against the freshly-rendered DOM). */
+  }, [isVisible, results, curatedPicks]);
+
   /* Don't render anything when idle — saves DOM nodes and ensures
      pointer-events doesn't accidentally intercept clicks. */
   if (phase === 'idle') return null;
@@ -245,7 +520,7 @@ export default function SearchModal({ phase, curatedPicks = [] }: Props) {
           />
         </form>
 
-        <div className="search-modal-results" aria-live="polite">
+        <div className="search-modal-results" aria-live="polite" ref={resultsRef}>
           {/* State 1: error (network or server-side) */}
           {error && (
             <p className="search-modal-message">
@@ -277,6 +552,15 @@ export default function SearchModal({ phase, curatedPicks = [] }: Props) {
                     {curatedPicks.map((pick) => (
                       <li key={pick.id} className="search-modal-result-item">
                         <a href={pick.url} className="search-modal-result-link">
+                          {/* Cyan + plasma weave SVGs — sine paths around
+                              the card perimeter, populated by the laser-
+                              wave effect above (mirrors LaserCard.astro). */}
+                          <svg className="weave-svg weave-cyan" aria-hidden="true">
+                            <path className="weave-path" />
+                          </svg>
+                          <svg className="weave-svg weave-plasma" aria-hidden="true">
+                            <path className="weave-path" />
+                          </svg>
                           <h3 className="search-modal-result-title">{pick.title}</h3>
                           <p className="search-modal-result-snippet">{pick.snippet}</p>
                           <span className="search-modal-result-path">{formatPath(pick.url)}</span>
@@ -305,6 +589,14 @@ export default function SearchModal({ phase, curatedPicks = [] }: Props) {
               {results.map((r) => (
                 <li key={r.id} className="search-modal-result-item">
                   <a href={r.url} className="search-modal-result-link">
+                    {/* Cyan + plasma weave SVGs — see curated-picks
+                        markup above for the same pattern. */}
+                    <svg className="weave-svg weave-cyan" aria-hidden="true">
+                      <path className="weave-path" />
+                    </svg>
+                    <svg className="weave-svg weave-plasma" aria-hidden="true">
+                      <path className="weave-path" />
+                    </svg>
                     <h3 className="search-modal-result-title">{r.title}</h3>
                     <p className="search-modal-result-snippet">{r.snippet}</p>
                     <span className="search-modal-result-path">{formatPath(r.url)}</span>
