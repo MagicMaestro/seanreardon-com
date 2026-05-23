@@ -37,7 +37,7 @@
    background under the filter provides the highlight/shadow variation; the
    turbulence warps these into organic, asymmetric shapes. */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react';
 import './SteamTransition.css';
 import SearchModal from './SearchModal';
 
@@ -150,16 +150,52 @@ export default function SteamTransition({ curatedPicks = [] }: Props) {
   /* Click handler — clicking anywhere on the overlay (not on a feature
      element) closes the fog. Sean iter 13: "clicking anywhere within the
      fog - any places that aren't any of the feature elements that are
-     being opened - to trigger the fog closing/fading." For task #3 there
-     are no feature elements yet; when SearchModal lands in task #4, the
-     modal's own click handlers can stopPropagation() to prevent reaching
-     this handler.
+     being opened - to trigger the fog closing/fading." The SearchModal
+     mounted inside this overlay has its own `.search-modal-content`
+     onClick={stopPropagation} that catches the common case (mousedown +
+     mouseup both inside the modal box).
      The click simulates a nozzle close by directly setting data-state.
      The Nozzle.astro's own MutationObserver-free flow doesn't run, so
      we manually dispatch the synthetic scroll event the nozzle's
      setState() would have fired — this refreshes --nozzle-y for the
-     scrollbar-resting position. */
+     scrollbar-resting position.
+
+     Drag-from-inside-to-outside edge case (Sean iter 8, 2026-05-23):
+     when a user mousedowns inside the SearchModal's input to start a
+     text selection, drags the cursor outside the modal's edges, and
+     mouseups outside, the browser fires a synthetic `click` event on
+     the COMMON ANCESTOR of mousedown-target and mouseup-target — which
+     is this overlay div. .search-modal-content's stopPropagation never
+     fires because the click event never passes through .search-modal-
+     content. Without intervention, this looks to the close handler
+     like an "outside click" and the modal closes mid-selection — the
+     user loses their text selection AND the modal they were trying to
+     interact with.
+
+     Fix: track the mousedown origin in mousedownInsideContentRef. If
+     the most recent mousedown was inside .search-modal-content, the
+     click that follows is treated as continuation of an in-modal
+     gesture (drag, selection, etc.) and the close is suppressed. The
+     ref is updated on every mousedown so legitimate "clicked outside"
+     gestures (mousedown OUTSIDE → mouseup OUTSIDE) still close the
+     modal as expected. */
+  const mousedownInsideContentRef = useRef(false);
+
+  const handleOverlayMouseDown = (e: ReactMouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    mousedownInsideContentRef.current = !!target.closest('.search-modal-content');
+  };
+
   const handleOverlayClick = () => {
+    if (mousedownInsideContentRef.current) {
+      /* Click is the tail of a drag-from-inside gesture. Suppress close
+         + reset the flag so the next interaction starts fresh (defensive
+         — the mousedown handler will set it again anyway, but a stale
+         true could bite if a click ever fires without a preceding
+         mousedown, e.g., a synthetic keyboard-triggered click). */
+      mousedownInsideContentRef.current = false;
+      return;
+    }
     const nozzle = document.querySelector<HTMLElement>('.site-nozzle');
     if (nozzle && nozzle.dataset.state === 'active') {
       nozzle.dataset.state = 'resting';
@@ -179,6 +215,7 @@ export default function SteamTransition({ curatedPicks = [] }: Props) {
     <div
       ref={overlayRef}
       className={className}
+      onMouseDown={handleOverlayMouseDown}
       onClick={handleOverlayClick}
       aria-hidden="true"
     >

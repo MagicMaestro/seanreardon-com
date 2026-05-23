@@ -92,6 +92,30 @@ const LOADING_THRESHOLD_MS = 200;
    used elsewhere (Pagefind dropdown debounce, decisions doc §3 spec). */
 const INPUT_DEBOUNCE_MS = 300;
 
+/** Minimum cosine-similarity score for a result to be shown to the user.
+ *  Filters out the noise floor when the query is semantically unrelated to
+ *  any corpus entry — e.g., "Are you a god?" returns scores all clustered
+ *  in the ~0.05-0.15 range against the redesign-era writing corpus, which
+ *  the api-server's topN=10 returns regardless of relevance because the
+ *  corpus is small (8-10 entries; topN returns ALL of them when query is
+ *  noise).
+ *
+ *  0.25 is a deliberate middle ground: below, noise leaks in; above, loose-
+ *  but-real matches get dropped. The right value is corpus-dependent and
+ *  will need re-tuning as the corpus grows. For MiniLM-L6-v2 (the model
+ *  this site uses): 1.0 = identical, ~0.7+ = strongly related, ~0.4-0.7
+ *  related, ~0.25-0.4 loosely related, < ~0.2 typically noise.
+ *
+ *  WHERE this filter lives: client-side for v1, despite server-side being
+ *  the conceptually-correct home (single source of truth for "what counts
+ *  as a result"). The api-server change would require running deploy-api.yml,
+ *  which currently has an unresolved SSH-killed-at-12s risk (brief 011 §
+ *  "The npm ci 'Killed at 12s' mystery"). Once the deploy pipeline is
+ *  reliable again, move this constant + the .filter call below into
+ *  api-server/index.ts and drop it here. The bandwidth savings are minimal
+ *  (small corpus, small response bodies) but the logic-locality is cleaner. */
+const RESULT_SCORE_THRESHOLD = 0.25;
+
 /* ============================================================================
    LaserCard wave-animation helpers (replicated from LaserCard.astro)
    ============================================================================
@@ -323,7 +347,16 @@ export default function SearchModal({ phase, curatedPicks = [] }: Props) {
       })
       .then((data) => {
         if (cancelled) return;
-        setResults(data.results);
+        /* Filter out below-threshold matches BEFORE setting results so the
+           rest of the UI state machine sees a clean "have-results vs no-
+           results" signal. An absurd query like "Are you a god?" leaves
+           data.results full of corpus noise (~0.05-0.15 cosine each); the
+           filter empties that array, the no-results message renders, and
+           the user gets honest "I don't have content for this" feedback
+           rather than 7 unrelated suggestions. See RESULT_SCORE_THRESHOLD
+           comment above for the rationale + future move to server-side. */
+        const filtered = data.results.filter((r) => r.score >= RESULT_SCORE_THRESHOLD);
+        setResults(filtered);
         setLoading(false);
         setError(null);
       })
