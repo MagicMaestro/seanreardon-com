@@ -107,23 +107,43 @@
   color: var(--color-fg);
   /* Border thickness on the input stays at 1px (per Sean direction
      2026-05-22 iter 4 — "the border thickness for the modal itself,
-     not the search input" — only the modal border bumps to 2px). The
-     color shifts to the purple-deep tone to match the modal glow
-     family. */
-  border: 1px solid var(--color-electric-purple-deep);
+     not the search input" — only the modal border bumps to 2px).
+     Color: electric-purple-glow at rest too (Sean direction iter 5,
+     2026-05-22) — was previously the focus-only color. Constant
+     brightness reads as the input's "always energized" edge rather
+     than a state that activates only on focus. */
+  border: 1px solid var(--color-electric-purple-glow);
   border-radius: var(--radius);
   padding: 0.75rem 1rem;
-  /* Subtle purple glow on the input border to match the modal box */
-  box-shadow: inset 0 0 0 1px rgba(157, 63, 227, 0.15);
+  /* Rest-state glow: subtle inset purple wash. Echo of the modal's
+     own inset stack but at much lower intensity so the input doesn't
+     compete with the modal halo when no focus is on it. */
+  box-shadow: inset 0 0 0 1px rgba(244, 160, 255, 0.18);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
+/* Focus state: border color UNCHANGED (rest already uses purple-glow per
+   Sean direction iter 5). What changes on focus is a scaled-down version
+   of the modal's box-shadow stack — tight bright ring + atmospheric
+   bloom + inset wash — so the input visually "lights up" against the
+   already-glowing modal. Outer-radius values smaller than the modal's
+   because the input is smaller and we don't want its halo to read as
+   competing with the modal's halo. Layers mirror the modal stack:
+     - 8px tight ring (matches modal's 8px tight ring)
+     - 18px medium bloom (modal's was 32px)
+     - 36px wide bloom (modal's was 60px)
+     - 8px inset tight ring (matches modal)
+     - 14px inset wash (modal's was 24px) */
 .search-modal-input:focus {
   outline: none;
-  border-color: var(--color-electric-purple-glow);
   box-shadow:
-    inset 0 0 0 1px rgba(244, 160, 255, 0.3),
-    0 0 8px 1px rgba(157, 63, 227, 0.45);
+    /* Outer glow stack */
+    0 0 8px 1px var(--color-electric-purple-glow),
+    0 0 18px 3px rgba(157, 63, 227, 0.55),
+    0 0 36px 6px rgba(157, 63, 227, 0.3),
+    /* Inner glow stack */
+    inset 0 0 8px 1px var(--color-electric-purple-glow),
+    inset 0 0 14px 2px rgba(157, 63, 227, 0.4);
 }
 
 .search-modal-input::placeholder {
