@@ -29,7 +29,13 @@
    the api-server needs to be running separately (`npm run api:dev`); the
    modal will show a request error if the server isn't reachable. */
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type ReactNode,
+} from 'react';
 import './SearchModal.css';
 
 /** Matches SearchResult in src/lib/search/types.ts. Duplicated here to
@@ -218,12 +224,28 @@ export default function SearchModal({ phase, curatedPicks = [] }: Props) {
      after phase becomes 'active' (giving the fog time to grow first).
      Reset to false when phase changes away from 'active' (close path). */
   const [isVisible, setIsVisible] = useState(false);
+  /* Keyboard-navigation state (task #5, SPR-0053 iter 7). `activeIndex` is
+     the "virtual focus" position inside the navigable item list (curated
+     picks OR search results, whichever is currently rendered). null = no
+     virtual focus, the input is the only active element.
+
+     Combobox-with-listbox pattern (per W3C ARIA APG): real DOM focus stays
+     on the input the whole time; arrow keys move aria-activedescendant
+     instead of moving focus. The user can keep typing without losing their
+     spot in the result list, screen readers announce the active option,
+     and Enter follows the active option's link. */
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   /* Ref for the scrollable results container — passed to the laser-wave
      effect so its IntersectionObserver (touch-primary single-active-card
      logic) scopes to scroll positions inside the modal rather than the
      viewport. */
   const resultsRef = useRef<HTMLDivElement>(null);
+  /* Tracks the previously-active index so the activeIndex change effect can
+     dispatch focusout on the old card before focusin on the new card. Held
+     in a ref (not state) because we only need it for diff-tracking, not for
+     rendering. */
+  const prevActiveIndexRef = useRef<number | null>(null);
 
   /* Phase → isVisible bridge. When phase becomes 'active', wait for the
      fog to grow, then show the modal. When phase changes away, hide
@@ -250,6 +272,9 @@ export default function SearchModal({ phase, curatedPicks = [] }: Props) {
         setDebouncedQuery('');
         setResults(null);
         setError(null);
+        /* Keyboard nav: virtual focus snaps back to "no selection" on
+           close so the next open starts with focus on the input only. */
+        setActiveIndex(null);
       }
     }
   }, [phase]);
@@ -524,9 +549,127 @@ export default function SearchModal({ phase, curatedPicks = [] }: Props) {
        in (querySelectorAll happens against the freshly-rendered DOM). */
   }, [isVisible, results, curatedPicks]);
 
+  /* Reset virtual focus when the item set changes — e.g., when search
+     results land for a new query, or when the user clears the query and
+     the empty state's curated picks come back. Without this, an
+     activeIndex pointing at "row 3" stays valid through a results swap
+     where the new list has only 1 row → out-of-bounds virtual focus. */
+  useEffect(() => {
+    setActiveIndex(null);
+  }, [results, curatedPicks]);
+
+  /* Active-index change effect: when virtual focus moves via the arrow
+     keys, (a) dispatch focusin on the newly-active card so the existing
+     laser-wave effect starts its rAF animation (the wave effect listens
+     for focusin/mouseenter), (b) dispatch focusout on the previously-
+     active card so its animation stops, and (c) scroll the new active
+     card into view inside the results scroll container.
+
+     We don't move REAL DOM focus to the cards — the combobox pattern
+     keeps focus on the input throughout. Dispatching synthetic focus
+     events is what wires the visual + animation effect without changing
+     document.activeElement. */
+  useEffect(() => {
+    if (!resultsRef.current) return;
+    const cards = resultsRef.current.querySelectorAll<HTMLAnchorElement>(
+      '.search-modal-result-link',
+    );
+
+    const prev = prevActiveIndexRef.current;
+    if (prev !== null && cards[prev]) {
+      cards[prev].dispatchEvent(new Event('focusout', { bubbles: false }));
+    }
+    if (activeIndex !== null && cards[activeIndex]) {
+      cards[activeIndex].dispatchEvent(new Event('focusin', { bubbles: false }));
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      cards[activeIndex].scrollIntoView({
+        block: 'nearest',
+        behavior: reducedMotion ? 'auto' : 'smooth',
+      });
+    }
+    prevActiveIndexRef.current = activeIndex;
+  }, [activeIndex]);
+
   /* Don't render anything when idle — saves DOM nodes and ensures
      pointer-events doesn't accidentally intercept clicks. */
   if (phase === 'idle') return null;
+
+  /* Derive the single list of items currently navigable via arrow keys.
+     Mirrors the JSX state machine below: when results === null the empty
+     state is rendered (curated picks); when results is a non-empty array
+     the actual search hits are rendered; otherwise (loading, error,
+     no-results, no curated picks) nothing is navigable. The keydown
+     handler reads this for bounds, and the JSX uses it to assign option
+     IDs that match what's actually rendered. */
+  const navigableItems: Array<{ id: string; url: string; title: string }> =
+    results !== null && results.length > 0
+      ? results
+      : results === null && curatedPicks.length > 0
+        ? curatedPicks
+        : [];
+
+  /* Keyboard handler for the search input. Combobox arrow-key semantics:
+     - ArrowDown: advance virtual focus one row; from null (no selection)
+       jumps to row 0. At the bottom of the list, stays put (no wrap —
+       wrap-around is more confusing than helpful for short lists).
+     - ArrowUp: retreat one row. From row 0 returns to null (input only,
+       no row selected). From null, no-op.
+     - Enter: if a row is active, follow its href via window.location.
+       (Direct .click() on the <a> would also work but window.location is
+       explicit + plays well with Astro's view transitions.) If no row is
+       active, the form's onSubmit handler already preventDefault()s so
+       Enter is a no-op there too.
+     - Tab / Shift+Tab: preventDefault to keep focus on the input. The
+       modal contains only one tabbable surface by design (per the
+       combobox pattern — options are activated via aria-activedescendant,
+       not via Tab traversal). Without this, Tab would move focus to
+       elements OUTSIDE the modal, which are visually occluded by the
+       steam fog and reachable only through the modal — terrible UX.
+     - Escape: NOT handled here. Nozzle.astro has a document-level
+       Escape listener that toggles data-state='resting' on the nozzle,
+       which SteamTransition's MutationObserver picks up and runs the
+       close cascade. Letting Escape bubble through to that handler
+       keeps the close path single-sourced. type="search" inputs have a
+       browser-default Escape-clears-text behavior which technically
+       fires before bubble — minor UX wart (Escape clears query AND
+       closes), acceptable for v1; can preventDefault here later if
+       Sean prefers single-Escape-to-close-without-clear. */
+  const handleInputKeyDown = (e: ReactKeyboardEvent<HTMLInputElement>): void => {
+    const len = navigableItems.length;
+    switch (e.key) {
+      case 'ArrowDown':
+        if (len === 0) return;
+        e.preventDefault();
+        setActiveIndex((prev) => {
+          if (prev === null) return 0;
+          return Math.min(prev + 1, len - 1);
+        });
+        break;
+      case 'ArrowUp':
+        if (len === 0) return;
+        e.preventDefault();
+        setActiveIndex((prev) => {
+          if (prev === null) return null;
+          if (prev === 0) return null;
+          return prev - 1;
+        });
+        break;
+      case 'Enter':
+        if (activeIndex !== null) {
+          e.preventDefault();
+          const item = navigableItems[activeIndex];
+          if (item) {
+            window.location.href = item.url;
+          }
+        }
+        break;
+      case 'Tab':
+        e.preventDefault();
+        break;
+      default:
+        break;
+    }
+  };
 
   /* The path indicator below each result strips the URL down to a
      trailing-component label (e.g., "/lessons-learned/post-slug/"
@@ -565,6 +708,20 @@ export default function SearchModal({ phase, curatedPicks = [] }: Props) {
           onSubmit={(e) => e.preventDefault()}
           role="search"
         >
+          {/* Combobox-with-listbox ARIA pattern (W3C ARIA APG):
+              - role="combobox" identifies the input as the controlling
+                widget for a popup listbox
+              - aria-expanded is true whenever there's a navigable list
+                rendered (curated picks or results)
+              - aria-controls points at the <ul role="listbox"> id below
+              - aria-autocomplete="list" tells screen readers the listbox
+                contents reflect autocomplete suggestions filtered by the
+                input text (semantic-search analog of literal filtering)
+              - aria-activedescendant points at the currently-virtually-
+                focused option's id, OR undefined when no option is
+                selected. Screen readers announce the active option's
+                accessible name when this changes — that's how users
+                experience the arrow-key navigation */}
           <input
             ref={inputRef}
             type="search"
@@ -572,8 +729,16 @@ export default function SearchModal({ phase, curatedPicks = [] }: Props) {
             placeholder="Ask me anything…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleInputKeyDown}
             autoComplete="off"
             aria-label="Search query"
+            role="combobox"
+            aria-expanded={navigableItems.length > 0}
+            aria-controls="search-modal-listbox"
+            aria-autocomplete="list"
+            aria-activedescendant={
+              activeIndex !== null ? `search-modal-option-${activeIndex}` : undefined
+            }
           />
         </form>
 
@@ -604,11 +769,35 @@ export default function SearchModal({ phase, curatedPicks = [] }: Props) {
             <div className="search-modal-empty">
               {curatedPicks.length > 0 ? (
                 <>
-                  <p className="search-modal-empty-label">Suggested</p>
-                  <ul className="search-modal-result-list">
-                    {curatedPicks.map((pick) => (
-                      <li key={pick.id} className="search-modal-result-item">
-                        <a href={pick.url} className="search-modal-result-link">
+                  <p className="search-modal-empty-label" id="search-modal-empty-label">
+                    Suggested
+                  </p>
+                  {/* Listbox shared id "search-modal-listbox" matches the
+                      input's aria-controls. Both the empty-state list and
+                      the results list use the same id because only one is
+                      rendered at a time (results === null gate above), so
+                      duplication isn't possible. aria-labelledby points at
+                      the "Suggested" caption so screen readers announce
+                      the list's purpose when entering it. */}
+                  <ul
+                    className="search-modal-result-list"
+                    role="listbox"
+                    id="search-modal-listbox"
+                    aria-labelledby="search-modal-empty-label"
+                  >
+                    {curatedPicks.map((pick, i) => (
+                      <li
+                        key={pick.id}
+                        className="search-modal-result-item"
+                        role="option"
+                        id={`search-modal-option-${i}`}
+                        aria-selected={activeIndex === i}
+                      >
+                        <a
+                          href={pick.url}
+                          className={`search-modal-result-link${activeIndex === i ? ' is-active' : ''}`}
+                          tabIndex={-1}
+                        >
                           {/* Cyan + plasma weave SVGs — sine paths around
                               the card perimeter, populated by the laser-
                               wave effect above (mirrors LaserCard.astro). */}
@@ -642,10 +831,25 @@ export default function SearchModal({ phase, curatedPicks = [] }: Props) {
 
           {/* State 5: results */}
           {!loading && !error && results !== null && results.length > 0 && (
-            <ul className="search-modal-result-list">
-              {results.map((r) => (
-                <li key={r.id} className="search-modal-result-item">
-                  <a href={r.url} className="search-modal-result-link">
+            <ul
+              className="search-modal-result-list"
+              role="listbox"
+              id="search-modal-listbox"
+              aria-label="Search results"
+            >
+              {results.map((r, i) => (
+                <li
+                  key={r.id}
+                  className="search-modal-result-item"
+                  role="option"
+                  id={`search-modal-option-${i}`}
+                  aria-selected={activeIndex === i}
+                >
+                  <a
+                    href={r.url}
+                    className={`search-modal-result-link${activeIndex === i ? ' is-active' : ''}`}
+                    tabIndex={-1}
+                  >
                     {/* Cyan + plasma weave SVGs — see curated-picks
                         markup above for the same pattern. */}
                     <svg className="weave-svg weave-cyan" aria-hidden="true">
