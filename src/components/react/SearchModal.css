@@ -406,6 +406,34 @@
   z-index: 3;
 }
 
+/* ============================================================================
+   Match highlighting (task #6 — SPR-0053 iter 6)
+   ============================================================================
+   <mark> spans wrapped around occurrences of the user's query tokens in
+   result titles + snippets. Color #F5E53D matches the LaserCard's hover/
+   active beam color — highlights read as "the same energized brass" already
+   in play on the activated card, rather than introducing a new accent color
+   into the modal's palette.
+
+   Browsers default <mark> to a yellow background + black text (the spec's
+   "marker pen" metaphor). Override aggressively: background transparent,
+   color override + text-shadow halo. The text-only treatment is less noisy
+   than a background pill and keeps the matched word as part of the prose
+   rather than a UI chip.
+
+   Note: highlights work inside both REST-state and active-state cards. On
+   the active card, the brass title already gets a brass text-shadow glow
+   (LaserCard pattern); the highlighted token's yellow color + yellow glow
+   sits on top of the brass title color — reads correctly as "this token
+   is the matched one" without color-clashing with the brass body. */
+.search-modal-highlight {
+  background: transparent;
+  color: #F5E53D;
+  text-shadow: 0 0 4px rgba(245, 229, 61, 0.5);
+  font-weight: inherit;
+  padding: 0;
+}
+
 /* prefers-reduced-motion: skip the opacity transition. Modal appears
    instantly when is-visible toggles. */
 @media (prefers-reduced-motion: reduce) {

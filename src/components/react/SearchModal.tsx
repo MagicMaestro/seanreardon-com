@@ -29,7 +29,7 @@
    the api-server needs to be running separately (`npm run api:dev`); the
    modal will show a request error if the server isn't reachable. */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import './SearchModal.css';
 
 /** Matches SearchResult in src/lib/search/types.ts. Duplicated here to
@@ -109,6 +109,63 @@ const INPUT_DEBOUNCE_MS = 300;
 const WAVE_AMPLITUDE = 5;
 const WAVE_WAVES_PER_EDGE = 4;
 const WAVE_PHASE_SPEED = Math.PI / 2; // 4 seconds per full sine cycle
+
+/* ============================================================================
+   Match-highlighting helper
+   ============================================================================
+   Wraps occurrences of the query's tokens in <mark className="search-modal-
+   highlight"> spans for visual emphasis in result titles + snippets. Per
+   decisions/ai-features-v1.md Phase 3 §3: "title + ~150-char snippet (with
+   match highlighting)."
+
+   Semantic search returns results by vector similarity, NOT exact-keyword
+   match — so it's expected that some results have ZERO literal token matches
+   in their snippet/title. In that case this returns the text unchanged.
+   That's correct: a semantic hit on "obsolescence" might surface for the
+   query "AI replacing jobs" without any of those words appearing in the
+   snippet, and we shouldn't fabricate highlights that aren't actually there.
+
+   Returns React.ReactNode[] (string fragments + <mark> elements) rather than
+   raw HTML so React's escaping protects against any XSS surface — the
+   snippet field IS plain-text per the chunker contract, but treating it as
+   plain-text everywhere is defense in depth.
+
+   Tokenization:
+     - Split query on whitespace
+     - Filter tokens shorter than 2 chars (skips "a", "I" as single letters
+       — common stop-word noise that would highlight half the snippet)
+     - Escape regex metacharacters so a query like "C++" or "$state" doesn't
+       blow up the RegExp
+     - Build a single alternation regex with `gi` flag; use capture group
+       so String.prototype.split() returns matched text at odd indices */
+function highlightMatches(text: string, query: string): ReactNode[] {
+  if (!query || !text) return [text];
+  const tokens = query
+    .trim()
+    .split(/\s+/)
+    .filter((t) => t.length >= 2)
+    .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  if (tokens.length === 0) return [text];
+
+  const pattern = new RegExp(`(${tokens.join('|')})`, 'gi');
+  const parts = text.split(pattern);
+
+  return parts.map((part, i) => {
+    /* String.prototype.split(regex_with_capture_group) interleaves the
+       matched text at odd indices with the surrounding text at even
+       indices. Empty strings can appear when a match is at the start/end
+       or between adjacent matches — render them as-is (renders to nothing
+       visible, doesn't break the layout). */
+    if (i % 2 === 1) {
+      return (
+        <mark key={i} className="search-modal-highlight">
+          {part}
+        </mark>
+      );
+    }
+    return part;
+  });
+}
 
 function generateWavePath(
   width: number,
@@ -597,8 +654,20 @@ export default function SearchModal({ phase, curatedPicks = [] }: Props) {
                     <svg className="weave-svg weave-plasma" aria-hidden="true">
                       <path className="weave-path" />
                     </svg>
-                    <h3 className="search-modal-result-title">{r.title}</h3>
-                    <p className="search-modal-result-snippet">{r.snippet}</p>
+                    {/* Title + snippet pass through highlightMatches with the
+                        debouncedQuery (= the query that was actually sent to
+                        the API to produce these results — see the search
+                        useEffect above). Match terms get wrapped in <mark
+                        className="search-modal-highlight"> for the electric-
+                        yellow emphasis treatment defined in SearchModal.css.
+                        Path indicator is NOT highlighted — URLs are
+                        navigational metadata, not content. */}
+                    <h3 className="search-modal-result-title">
+                      {highlightMatches(r.title, debouncedQuery)}
+                    </h3>
+                    <p className="search-modal-result-snippet">
+                      {highlightMatches(r.snippet, debouncedQuery)}
+                    </p>
                     <span className="search-modal-result-path">{formatPath(r.url)}</span>
                   </a>
                 </li>
