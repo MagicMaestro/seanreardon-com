@@ -137,7 +137,12 @@
   text-underline-offset: 0.2em;
 }
 
-/* Empty state — shown before the user types anything. */
+/* Empty state — shown before the user types anything. Three curated
+   picks (post 010 + redesign project + latest writing post) are
+   rendered as a small "Suggested" labeled list with the same visual
+   treatment as actual search results (the .search-modal-result-* rules
+   below). When curatedPicks is empty (build-time collection failure
+   fallback), shows a plain hint message instead. */
 .search-modal-empty {
   padding: var(--space-sm) 0;
 }
@@ -148,9 +153,17 @@
   font-size: 0.95rem;
 }
 
-.search-modal-empty-hint {
+/* Small mono-caps label above the curated-picks list — matches the
+   .laser-card-kind label style used on the homepage Recent grid and
+   projects-list cards. Reads as "this is a category/tag" rather than
+   content. */
+.search-modal-empty-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
   color: var(--color-fg-muted);
-  font-size: 0.875rem;
+  margin: 0 0 var(--space-xs) 0;
 }
 
 /* Result list — vertical stack of result items. */

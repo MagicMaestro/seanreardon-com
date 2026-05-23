@@ -1,4 +1,5 @@
 ---
+import { getCollection } from 'astro:content';
 import Header from '~/components/astro/Header.astro';
 import Footer from '~/components/astro/Footer.astro';
 import ConsentBanner from '~/components/astro/ConsentBanner.astro';
@@ -47,6 +48,48 @@ const fullTitle = title === 'Sean Reardon' ? title : `${title} — Sean Reardon`
    Object-spread keeps the JSX terse and lets Astro omit the attribute when
    `searchable` is true (no key to render). */
 const mainPagefindAttrs = searchable ? {} : { 'data-pagefind-ignore': '' };
+
+/* Curated picks for the SearchModal empty state, resolved at build time
+   per decisions/002-homepage-marquee-and-nozzle-affordance.md §6:
+     1. Post 010 — "Embracing AI: Obsolescence was the wrong fear" — anchors
+        the AI positioning; matches the marquee's interim content
+     2. The SeanReardon.com redesign project entry — site itself as work sample
+     3. Latest published writing post (resolved at build time, not hardcoded;
+        self-updating as new posts ship)
+   The third entry is only included if it's not the same post as #1 (would
+   be a duplicate if/when post 010 becomes the latest published post).
+   All three entries follow the same { id, title, url, snippet } shape that
+   /api/search returns, so SearchModal renders them via the same UI as
+   actual search results. */
+const writingPosts = await getCollection('writing', ({ data }) => data.status === 'published');
+const sortedWritingByDateDesc = [...writingPosts].sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+const post010 = writingPosts.find((p) => p.slug === 'obsolescence-was-the-wrong-fear');
+const latestPost = sortedWritingByDateDesc[0];
+const workProjects = await getCollection('work');
+const redesignProject = workProjects.find((p) => p.slug === 'seanreardon-com-2026-redesign');
+
+const curatedPicks = [
+  post010 && {
+    id: `curated:writing:${post010.slug}`,
+    title: post010.data.title,
+    url: `/lessons-learned/${post010.slug}/`,
+    snippet: post010.data.summary,
+  },
+  redesignProject && {
+    id: `curated:work:${redesignProject.slug}`,
+    title: redesignProject.data.title,
+    url: `/projects/${redesignProject.slug}/`,
+    snippet: redesignProject.data.sh_desc,
+  },
+  latestPost && latestPost.slug !== post010?.slug && {
+    id: `curated:writing:${latestPost.slug}`,
+    title: latestPost.data.title,
+    url: `/lessons-learned/${latestPost.slug}/`,
+    snippet: latestPost.data.summary,
+  },
+].filter(Boolean) as Array<{ id: string; title: string; url: string; snippet: string }>;
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -133,7 +176,7 @@ const mainPagefindAttrs = searchable ? {} : { 'data-pagefind-ignore': '' };
         client:idle could miss fast clicks before browser idle. The future
         SearchModal (task #4) will wrap this component and take over the
         DOM-state listening; for task #3 it stands alone. */}
-    <SteamTransition client:load />
+    <SteamTransition client:load curatedPicks={curatedPicks} />
 
     <script>
       const indicator = document.querySelector('.scroll-indicator') as HTMLElement | null;

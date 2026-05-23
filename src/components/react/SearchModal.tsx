@@ -43,12 +43,29 @@ interface SearchResult {
   score: number;
 }
 
+/** Curated picks share the visible fields with SearchResult (id, title,
+   url, snippet) so the empty state can render via the same UI, but lack
+   the `score` field — they're not from a search, they're hand-picked
+   suggestions. */
+interface CuratedPick {
+  id: string;
+  title: string;
+  url: string;
+  snippet: string;
+}
+
 interface Props {
   /** Phase state machine value from the parent SteamTransition.
      - 'idle': modal hidden, not rendered
      - 'active': fog opening; modal fades in after the 3500ms fog-grown delay
      - 'closing': fog dissipating; modal fades out in lockstep */
   phase: 'idle' | 'active' | 'closing';
+  /** Curated picks for the empty state — three suggestions shown before
+     the user types anything. Resolved at build time in BaseLayout from
+     content collections (writing + work) per decisions/002 §6: post 010
+     + redesign project + latest published post. Default empty falls
+     back to a placeholder message. */
+  curatedPicks?: CuratedPick[];
 }
 
 /** Delay from phase='active' (= click) to the modal starting its fade-in.
@@ -69,7 +86,7 @@ const LOADING_THRESHOLD_MS = 200;
    used elsewhere (Pagefind dropdown debounce, decisions doc §3 spec). */
 const INPUT_DEBOUNCE_MS = 300;
 
-export default function SearchModal({ phase }: Props) {
+export default function SearchModal({ phase, curatedPicks = [] }: Props) {
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [results, setResults] = useState<SearchResult[] | null>(null);
@@ -243,16 +260,34 @@ export default function SearchModal({ phase }: Props) {
             </p>
           )}
 
-          {/* State 3: empty state — no query yet. Curated picks land in
-              iter 2 (passed in as `curatedPicks` prop from BaseLayout). */}
+          {/* State 3: empty state — no query yet. Renders the three
+              curated picks (post 010 + redesign project + latest writing
+              post, computed at build time in BaseLayout). Reuses the
+              same .search-modal-result-* classes as actual results, with
+              a small mono-caps label so the user knows these are
+              suggestions, not search hits. If curatedPicks is empty
+              (build-time collection failure), falls back to a hint
+              message. */}
           {!loading && !error && results === null && (
             <div className="search-modal-empty">
-              <p>
-                Start typing to search across writing and reference pages.
-              </p>
-              <p className="search-modal-empty-hint">
-                <em>Curated suggestions will appear here in a follow-up iteration.</em>
-              </p>
+              {curatedPicks.length > 0 ? (
+                <>
+                  <p className="search-modal-empty-label">Suggested</p>
+                  <ul className="search-modal-result-list">
+                    {curatedPicks.map((pick) => (
+                      <li key={pick.id} className="search-modal-result-item">
+                        <a href={pick.url} className="search-modal-result-link">
+                          <h3 className="search-modal-result-title">{pick.title}</h3>
+                          <p className="search-modal-result-snippet">{pick.snippet}</p>
+                          <span className="search-modal-result-path">{formatPath(pick.url)}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <p>Start typing to search across writing and reference pages.</p>
+              )}
             </div>
           )}
 

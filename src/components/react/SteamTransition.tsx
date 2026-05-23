@@ -61,7 +61,27 @@ type SteamPhase = 'idle' | 'active' | 'closing';
    this constant because CSS doesn't easily consume JS values. */
 const CLOSING_DURATION_MS = 1200;
 
-export default function SteamTransition() {
+/* Curated picks shape matches /api/search's SearchResult so SearchModal
+   can render them via the same result-list UI. The three picks are
+   resolved at build time in BaseLayout.astro from the content
+   collections (writing + work) and passed through as a prop. */
+interface CuratedPick {
+  id: string;
+  title: string;
+  url: string;
+  snippet: string;
+}
+
+interface Props {
+  /* Curated picks for the SearchModal's empty state — see
+     decisions/002-homepage-marquee-and-nozzle-affordance.md §6.
+     Empty array is a safe fallback (e.g., build-time content
+     collection failed); SearchModal's empty state shows a fallback
+     message when picks are empty. */
+  curatedPicks?: CuratedPick[];
+}
+
+export default function SteamTransition({ curatedPicks = [] }: Props) {
   const [phase, setPhase] = useState<SteamPhase>('idle');
   const overlayRef = useRef<HTMLDivElement>(null);
   /* Ref shadows the phase state for use inside the MutationObserver
@@ -233,7 +253,7 @@ export default function SteamTransition() {
               up to the overlay's onClick handler and trigger close
           (c) clicks INSIDE the modal content stopPropagation() to
               avoid bubbling up — handled inside SearchModal itself */}
-      <SearchModal phase={phase} />
+      <SearchModal phase={phase} curatedPicks={curatedPicks} />
     </div>
   );
 }
