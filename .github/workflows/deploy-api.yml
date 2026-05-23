@@ -132,25 +132,13 @@ jobs:
         #      the absolute-path call site documents intent and survives any future
         #      PATH reordering.
         #
-        # Post-install we explicitly restore execute bits on every binary npm laid down
-        # under node_modules/. Under cPanel's jailshell + this user's umask, npm has been
-        # observed installing platform-specific binaries (notably tsx's nested
-        # @esbuild/linux-x64/bin/esbuild) WITHOUT the execute bit, even though the tar
-        # headers in the npm registry archive mark them executable. The Node app then
-        # crashes at startup when tsx tries to spawn esbuild → EACCES → Passenger
-        # reports "Web application could not be started" (optimizer brief 010 hand-back,
-        # 2026-05-23). The chmod walk is cheap (~hundreds of files) and idempotent.
-        #   - node_modules/.bin/*               — top-level binstub symlinks
-        #   - node_modules/**/bin/*             — nested platform binaries (esbuild,
-        #                                         @esbuild/<arch>/bin/esbuild, etc.)
-        #
         # Quoting: `${REMOTE_NODE_BIN}` (no escape) expands on the GHA RUNNER. `\$PATH`
         # (escaped) survives runner expansion and is evaluated by the REMOTE shell
         # against the remote environment. Without the escape, the runner would
         # substitute its own PATH and bake runner-local paths into the SSH payload.
         run: |
           ssh -i ~/.ssh/deploy_key -p 7822 sreardon@ssh.seanreardon.com \
-            "export PATH=${REMOTE_NODE_BIN}:\$PATH && cd /home/sreardon/apps/portfolio-search && ${REMOTE_NODE_BIN}/npm ci --omit=dev && chmod +x node_modules/.bin/* 2>/dev/null; find node_modules -type f -path '*/bin/*' -exec chmod +x {} +"
+            "export PATH=${REMOTE_NODE_BIN}:\$PATH && cd /home/sreardon/apps/portfolio-search && ${REMOTE_NODE_BIN}/npm ci --omit=dev"
 
       - name: Restart Passenger worker
         # touch tmp/restart.txt is Passenger's documented restart sentinel.
