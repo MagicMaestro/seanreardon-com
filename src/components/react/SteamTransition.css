@@ -279,11 +279,29 @@
    with puffs preserved proportionally — puffs end at 170+1330=1500ms,
    fog starts at 1370ms = 130ms overlap (was 200ms, same ~6% of total). */
 .steam-transition.is-active .steam-fog {
+  /* `both` (= forwards + backwards) per Sean iter on the click→fog-flash
+     bug. `forwards` alone holds the 100% keyframe values AFTER the
+     animation ends but does NOT fill during the 1370ms animation-delay.
+     During that delay, the property cascade falls through to the
+     explicit "end-state" declarations below (opacity 0.8, scale 1, blur
+     2px, border-radius 0%) — which I added in SPR-0054 to make the
+     close transition fire reliably. Side effect: those declarations
+     show the fully expanded fog for 1370ms after click (during the
+     animation-delay), until the animation finally starts and snaps to
+     its 0% keyframe (invisible). User sees: click → fully-expanded fog
+     flash → fog vanishes → puff drifts → fog grows back. Wrong.
+     The `backwards` half of `both` fills the animation's 0% keyframe
+     values DURING the animation-delay, overriding the explicit
+     declarations. Net result: during delay, fog is invisible (0%
+     keyframe values). Animation starts normally. The explicit
+     declarations below still exist for SPR-0054's close-transition
+     fix — they're the declared cascade value the class-flip compares
+     against on close. */
   animation:
-    fog-scale 2.13s linear 1370ms forwards,
-    fog-opacity 2.13s linear 1370ms forwards,
-    fog-blur 2.13s ease-out 1370ms forwards,
-    fog-radius 2.13s linear 1370ms forwards;
+    fog-scale 2.13s linear 1370ms both,
+    fog-opacity 2.13s linear 1370ms both,
+    fog-blur 2.13s ease-out 1370ms both,
+    fog-radius 2.13s linear 1370ms both;
   /* Explicit "end-state" values matching each animation's final keyframe.
      Without these, the declared cascade value of opacity is 0 (from the
      base .steam-fog rule) during is-active — SAME as the is-closing
