@@ -112,7 +112,19 @@ import nozzleImg from '~/assets/images/nozzle-detailed.png';
        overrides --nozzle-x with a per-tier translate value that slides
        the nozzle's center to viewport-x=50%. translateY tracks scroll
        in both states (with active pausing the JS update via the
-       data-state check in BaseLayout's updateNozzleY). */
+       data-state check in BaseLayout's updateNozzleY).
+
+       Why vh in the --nozzle-y fallback despite the standing rule
+       (memory/feedback-css-prefer-percentages.md): CSS transform
+       percentages resolve against the ELEMENT'S OWN size, not the
+       containing block. translate(0, 80%) would mean "translate 80%
+       of the nozzle's own height" (~24px — basically nothing), NOT
+       "translate to 80% down the viewport." The right alternative
+       would be migrating to position:fixed + top:80%, but that's a
+       coordinate-system change touching the JS-driven scroll-tracking
+       path — kept out of scope for the vh/vw audit. Fallback is
+       overwritten by BaseLayout's first scroll tick within ~1 frame,
+       so the visible window where vh matters is sub-perceptual. */
     transform: translate(var(--nozzle-x, 0), var(--nozzle-y, 80vh));
     width: 2.5rem;
     /* Explicit height so the rotation in .site-nozzle-img rotates within

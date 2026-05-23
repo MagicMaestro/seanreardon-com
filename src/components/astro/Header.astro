@@ -3362,7 +3362,12 @@ const navLinks = [
   .header-search-results {
     position: fixed;
     z-index: 99;
-    max-height: 60vh;
+    /* 60% rather than 60vh — for position:fixed elements the containing
+       block IS the initial containing block (viewport), so % max-height
+       resolves to a fraction of viewport height = equivalent to vh
+       without the mobile UI-bar cutoff side effect. Per the standing
+       rule (memory/feedback-css-prefer-percentages.md). */
+    max-height: 60%;
     max-width: 36rem;
     overflow-y: auto;
     background: rgba(0, 0, 0, 0.95);

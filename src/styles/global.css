@@ -760,6 +760,16 @@ main > :is(div, article, section) > h2:not(.full-bleed)::after {
      used only briefly before JS measures and overwrites with the actual
      computed distance.
 
+     Why vw here despite the standing percentages-over-vh/vw rule
+     (memory/feedback-css-prefer-percentages.md): the h2-laser ::before
+     pseudo-element isn't position:fixed and its h2 parent (display:
+     flow-root, not positioned) isn't viewport-sized — so a `%` here
+     would resolve against the h2's own width, which varies per page
+     and per tier and isn't proportional to viewport width. vw is the
+     correct unit for "12.5% of viewport regardless of cascade." The
+     fallback is overwritten by JS within ~1 frame so the visible
+     window where it matters is sub-perceptual.
+
      Width = distance + 0.25rem overlap into drawer interior so the
      laser visually merges into the drawer's top stroke at the corner
      without a visible seam.

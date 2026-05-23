@@ -166,7 +166,15 @@
        the scroll indicator at the 896 and 1520 breakpoint crossings.
        3px = half the scroll indicator's 6px width, so the spark CENTER
        lands over the indicator's center. */
-    --subnav-bottom-anchor-y: 33vh;
+    /* 33% rather than 33vh per the standing rule (memory/feedback-css-prefer-
+       percentages.md). .projects-subnav is position:fixed inset:0 → viewport-
+       sized; absolute-positioned descendants (.projects-subnav-spark--3,
+       .projects-subnav-laser--vertical, .projects-subnav-drawer) consume
+       this var as their `top`, where % resolves against the containing
+       block height = .projects-subnav's height = viewport height. Same
+       final value as 33vh without the vh side effects (mobile UI-bar
+       cutoff, dvh re-layout jank). */
+    --subnav-bottom-anchor-y: 33%;
     --subnav-bottom-anchor-x: 3px;
     /* Drawer dimensions. Bumped tighter 2026-05-19 after visual review —
        width 18rem → 12rem (cut horizontal empty space roughly in half)
@@ -635,8 +643,13 @@
      ============================================================================ */
   @media (min-width: 680px) and (max-width: 1039.98px) {
     .projects-subnav {
-      /* Drawer's left edge = viewport - 16.5rem (right gap) - drawer width */
-      --subnav-drawer-left: calc(100vw - 16.5rem - var(--subnav-drawer-width));
+      /* Drawer's left edge = viewport - 16.5rem (right gap) - drawer width.
+         100% rather than 100vw — consumed by .projects-subnav-drawer (position:
+         absolute child of .projects-subnav, which is fixed:inset:0), so 100%
+         resolves against .projects-subnav's width = viewport width. Same final
+         value as 100vw without the horizontal-overflow-from-scrollbar gotcha
+         per the standing rule (memory/feedback-css-prefer-percentages.md). */
+      --subnav-drawer-left: calc(100% - 16.5rem - var(--subnav-drawer-width));
     }
     .projects-subnav-drawer {
       right: auto;
@@ -663,8 +676,9 @@
      ============================================================================ */
   @media (min-width: 1040px) {
     .projects-subnav {
-      /* Drawer's left edge = horizontal center − half drawer width. */
-      --subnav-drawer-left: calc(50vw - var(--subnav-drawer-width) / 2);
+      /* Drawer's left edge = horizontal center − half drawer width.
+         50% rather than 50vw — same reasoning as the ≥680px block above. */
+      --subnav-drawer-left: calc(50% - var(--subnav-drawer-width) / 2);
     }
 
     /* The L-shape's new descending segment. Anchored at (attach-x,
