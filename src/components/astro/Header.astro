@@ -681,6 +681,50 @@ const navLinks = [
         resultsContainer.style.width = `${Math.max(rect.width, 320)}px`;
       }
 
+      /* Track the search input's position via requestAnimationFrame until
+         it stops moving for a few frames. Replaces the single-shot
+         positionDropdown() call that was getting stale-rect coordinates
+         when the header collapse/expand transition was mid-flight — the
+         MutationObserver fires the instant data-state flips, but the
+         input's CSS transition is just starting at that moment, so a
+         single getBoundingClientRect() reads the OLD position.
+         Sean direction 2026-05-23 iter: after collapse + re-expand, the
+         dropdown was landing above the search bar (stuck at the bar's
+         old screen-Y). The rAF loop re-reads the input rect every frame
+         and reapplies positionDropdown() until the rect stabilizes for
+         10 consecutive frames (~167ms at 60fps). The 300ms header
+         transition completes within that window; the loop then exits.
+         Cheap (~18 frames at 60fps for a single transition), bounded
+         (stable-frames check guarantees exit), and dropdown-hidden-aware
+         (early exit if the dropdown closes mid-track). */
+      let trackerRafId: number | null = null;
+      function trackInputPosition() {
+        if (trackerRafId !== null) cancelAnimationFrame(trackerRafId);
+        let stableFrames = 0;
+        let lastTop = Number.NaN;
+        let lastLeft = Number.NaN;
+        let lastWidth = Number.NaN;
+        const tick = () => {
+          if (!searchInput || !resultsContainer || resultsContainer.hidden) {
+            trackerRafId = null;
+            return;
+          }
+          const rect = searchInput.getBoundingClientRect();
+          if (rect.top !== lastTop || rect.left !== lastLeft || rect.width !== lastWidth) {
+            lastTop = rect.top;
+            lastLeft = rect.left;
+            lastWidth = rect.width;
+            stableFrames = 0;
+            positionDropdown();
+          } else if (++stableFrames >= 10) {
+            trackerRafId = null;
+            return;
+          }
+          trackerRafId = requestAnimationFrame(tick);
+        };
+        trackerRafId = requestAnimationFrame(tick);
+      }
+
       function showDropdown() {
         if (!resultsContainer) return;
         positionDropdown();
@@ -760,16 +804,19 @@ const navLinks = [
       }
 
       // Re-position the dropdown when the header collapses/expands (2026-
-      // 05-21). The search field follows the bar's slide off-screen via
-      // CSS rules tied to .site-header[data-state]; the dropdown is
-      // positioned absolutely from the input's getBoundingClientRect(),
-      // so it needs an explicit re-compute when the input moves.
-      // The dropdown's CSS has a 300ms top/left transition that animates
-      // the inline style change in lockstep with the form's transition.
+      // 05-21, rAF-tracked in 2026-05-23 iter). The search field follows
+      // the bar's slide off-screen via CSS rules tied to
+      // .site-header[data-state]; the dropdown is positioned absolutely
+      // from the input's getBoundingClientRect(). The MutationObserver
+      // fires the instant data-state flips, but the input's CSS
+      // transition is just starting at that moment — a single
+      // positionDropdown() call there reads the OLD rect and pins the
+      // dropdown to the OLD position. trackInputPosition() rAFs through
+      // the transition until the input stabilizes. */
       const siteHeaderEl = document.querySelector('.site-header');
       if (siteHeaderEl && resultsContainer) {
         const stateObserver = new MutationObserver(() => {
-          if (!resultsContainer.hidden) positionDropdown();
+          if (!resultsContainer.hidden) trackInputPosition();
         });
         stateObserver.observe(siteHeaderEl, { attributes: true, attributeFilter: ['data-state'] });
       }
@@ -3433,17 +3480,30 @@ const navLinks = [
     background: transparent;
   }
   .header-search-results::-webkit-scrollbar-thumb {
+    /* Mirrors .scroll-indicator-thumb (global.css line 1133) — vertical
+       fade-at-edges gradient + outer glow. Sean direction 2026-05-23 iter
+       on SPR-0064's thumb: was a horizontal deep→glow→deep gradient
+       (laser-line feel); should be an almost-white cyan with blurred
+       glow (matches the main scrollbar's almost-white pink-purple thumb).
+       The fade-at-edges gradient gives the "blurred" feel without filter:
+       blur (which is unreliable on scrollbar pseudo-elements). Stops
+       (0/30/50/70/100%) and rgba values mirror the purple thumb's
+       construction, with the warm pink-white (255, 235-245, 250-252) rotated
+       to cool cyan-white (235-245, 250-252, 255). */
     background: linear-gradient(
-      to right,
-      var(--color-electric-cyan-deep) 0%,
-      var(--color-electric-cyan) 35%,
-      var(--color-electric-cyan-glow) 50%,
-      var(--color-electric-cyan) 65%,
-      var(--color-electric-cyan-deep) 100%
+      to bottom,
+      transparent 0%,
+      rgba(235, 250, 255, 0.85) 30%,
+      rgba(245, 252, 255, 0.95) 50%,
+      rgba(235, 250, 255, 0.85) 70%,
+      transparent 100%
     );
-    /* Inset glow mirrors .scroll-indicator's pinkish inner depth, but
-       in cyan-glow tones to match the dropdown's color family. */
-    box-shadow: inset 0 0 4px rgba(102, 232, 255, 0.6);
+    /* Outer glow for additional "blur" effect — cyan-glow rgba matches
+       the .scroll-indicator-thumb's purple-glow rgba(244,160,255) at the
+       same intensities (0.7 + 0.4). */
+    box-shadow:
+      0 0 4px rgba(102, 232, 255, 0.7),
+      0 0 8px rgba(102, 232, 255, 0.4);
     border-radius: 3px;
   }
 
@@ -3534,6 +3594,31 @@ const navLinks = [
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--color-fg-muted);
+  }
+
+  /* Whole-row clickability — Sean direction 2026-05-23: a Pagefind result
+     should be clickable anywhere on the row, not just the title text.
+     Pattern: position:relative on the result row; the title-link's
+     ::before is positioned absolutely covering the row, intercepting
+     clicks anywhere and forwarding them to the link's href.
+     Nested sub-results stay independently clickable via z-index > the
+     overlay's z-index — clicks on a sub-result title hit that sub-link
+     directly (not the outer overlay), so deep-link anchors still navigate
+     to the correct fragment. The cursor:pointer affordance signals
+     clickability across the whole row. */
+  .header-search-results :global(.pagefind-ui__result) {
+    position: relative;
+    cursor: pointer;
+  }
+  .header-search-results :global(.pagefind-ui__result-title .pagefind-ui__result-link)::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .header-search-results :global(.pagefind-ui__result-nested) {
+    position: relative;
+    z-index: 2;
   }
 
   /* Sibling combinator: form is a sibling of the field, so target it
