@@ -778,10 +778,25 @@ const navLinks = [
       // INSIDE the dropdown (e.g., on a result link) bubble up so
       // navigation works; this handler just hides the dropdown after
       // — which doesn't matter since the page navigates away anyway.
+      //
+      // SPR-0078 fix (Sean reported 2026-05-24): switched from
+      // `resultsContainer.contains(e.target)` to `e.composedPath()`
+      // membership check. Pagefind UI's "Load more results" button click
+      // handler REMOVES the button + re-renders the result list. My
+      // document-click listener runs AFTER Pagefind UI's handler, so by
+      // the time `contains(target)` checks, the target button is already
+      // detached from the DOM — contains() returns false → hideDropdown()
+      // fires → dropdown closes even though the click originated INSIDE.
+      // composedPath() captures the DOM ancestors at event-fire time,
+      // before any handlers (including Pagefind UI's) mutate the DOM, so
+      // the check is reliable regardless of subsequent re-renders.
       document.addEventListener('click', (e) => {
         if (!resultsContainer || resultsContainer.hidden) return;
-        const target = e.target as Node;
-        if (resultsContainer.contains(target) || (searchForm && searchForm.contains(target))) return;
+        const path = e.composedPath();
+        const wasInside = path.some((node) =>
+          node === resultsContainer || (searchForm !== null && node === searchForm),
+        );
+        if (wasInside) return;
         hideDropdown();
       });
 
