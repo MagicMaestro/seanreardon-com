@@ -3378,38 +3378,81 @@ const navLinks = [
     max-height: 60%;
     max-width: 36rem;
     overflow-y: auto;
-    /* Layered background: dark base + subtle cyan radial wash so the
-       dropdown reads as built FROM cyan energy rather than just bordered
-       by it. Wash opacity dialed low (0.25) — much lower than the
-       ProjectsSubnav drawer's 0.92 — because this surface contains
-       text-heavy search results that need a quiet background for
-       readability. Sean direction 2026-05-23 (cyan over purple to keep
-       this surface distinct from the AI SearchModal's purple vocabulary;
-       the two search surfaces now read as related but visually distinct). */
+    /* Desaturated cyan vocabulary — Sean direction 2026-05-23 iter on
+       SPR-0062's treatment: dial the glow back to match the hero-question
+       outline (index.astro line 169) rather than the saturated electric-
+       cyan-glow used on the nav-drawer/sub-nav family. The hero quote
+       box reads as "luminous but quiet"; the dropdown should too because
+       it sits in chrome (header bar context, not a modal moment). The
+       border + box-shadow values below are lifted from .hero-question
+       verbatim, with one addition: a soft wide outer bloom + a depth
+       anchor since this surface is a floating overlay (not page-flow). */
     background-color: rgba(0, 0, 0, 0.95);
-    background-image: radial-gradient(ellipse at center, rgba(102, 232, 255, 0.25), transparent 70%);
-    /* 2px cyan-glow border — bumps from 1px to match the nav-drawer +
-       sub-nav-drawer "energy HUD" vocabulary (matches the SearchModal's
-       2px purple-glow border in the same way). */
-    border: 2px solid var(--color-electric-cyan-glow);
+    background-image: radial-gradient(ellipse at center, rgba(150, 230, 255, 0.35), transparent 70%);
+    /* 2px near-white cyan border (rgba(225, 248, 255, 0.95)) — matches
+       .hero-question exactly. Reads less "vibrating laser" than the full
+       #66E8FF, more "luminous edge." */
+    border: 2px solid rgba(225, 248, 255, 0.95);
     border-radius: var(--radius);
-    /* Multi-layer cyan-glow halo — mirrors the .nav-drawer + projects-
-       subnav-drawer stack with the same intensity (8px tight ring + 25px
-       medium bloom + 45px wide bloom outer; 8px tight ring + 20px wash
-       inner; depth anchor under everything). Outer-radius values match
-       the ProjectsSubnav drawer's exactly so the two cyan surfaces read
-       as the same "lit" family. */
+    /* Box-shadow stack mirrors .hero-question's 4-layer construction
+       (tight outer + wide outer + tight inset + wide inset) — softer
+       alphas than the SPR-0062 drawer-family stack. Added: a low-opacity
+       wide outer bloom (0 0 45px ... 0.15) for atmospheric halo since
+       this is a floating overlay; and a depth anchor (0 4px 12px ...) so
+       the dropdown reads as elevated above the page content. */
     box-shadow:
-      /* Outer glow stack */
-      0 0 8px 1px var(--color-electric-cyan-glow),
-      0 0 25px 4px rgba(102, 232, 255, 0.55),
-      0 0 45px 8px rgba(102, 232, 255, 0.3),
-      /* Inner glow stack */
-      inset 0 0 8px 1px var(--color-electric-cyan-glow),
-      inset 0 0 20px 3px rgba(102, 232, 255, 0.45),
-      /* Depth anchor under everything */
+      0 0 8px 1px rgba(180, 240, 250, 0.5),
+      0 0 20px 3px rgba(102, 232, 255, 0.28),
+      0 0 45px 8px rgba(102, 232, 255, 0.15),
+      inset 0 0 8px 1px rgba(225, 248, 255, 0.4),
+      inset 0 0 18px 3px rgba(102, 232, 255, 0.28),
       0 4px 12px 2px rgba(0, 0, 0, 0.6);
-    padding: var(--space-sm);
+    /* Tightened top padding (Sean direction): the message row + result
+       list start closer to the top edge. Sides + bottom stay at --space-sm.
+       Was uniform var(--space-sm). */
+    padding: var(--space-xs) var(--space-sm) var(--space-sm) var(--space-sm);
+    /* Firefox scrollbar fallback — gradient backgrounds aren't supported
+       on Firefox scrollbars (spec limitation), so we get a flat-color
+       thumb here. Webkit (Chrome/Edge/Safari) gets the full gradient
+       treatment via ::-webkit-scrollbar pseudo-elements below. */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-electric-cyan) transparent;
+  }
+
+  /* Custom scrollbar — mirrors the .scroll-indicator's center-bright
+     gradient construction (deep → mid → glow → mid → deep, horizontally
+     across the thumb width) but in cyan instead of purple. Sean direction
+     2026-05-23: the dropdown's scrollbar should look like the main left-
+     edge laser scrollbar, recolored to the dropdown's cyan family.
+     Webkit pseudo-elements only — Firefox uses the scrollbar-color
+     fallback declared on the container above. */
+  .header-search-results::-webkit-scrollbar {
+    width: 6px;
+  }
+  .header-search-results::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .header-search-results::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+      to right,
+      var(--color-electric-cyan-deep) 0%,
+      var(--color-electric-cyan) 35%,
+      var(--color-electric-cyan-glow) 50%,
+      var(--color-electric-cyan) 65%,
+      var(--color-electric-cyan-deep) 100%
+    );
+    /* Inset glow mirrors .scroll-indicator's pinkish inner depth, but
+       in cyan-glow tones to match the dropdown's color family. */
+    box-shadow: inset 0 0 4px rgba(102, 232, 255, 0.6);
+    border-radius: 3px;
+  }
+
+  /* Second .header-search-results rule block (kept separate from the
+     first only because my SPR-0064 edit inserted the scrollbar pseudo-
+     elements between them — the two .header-search-results rules cascade
+     into the same effective rule. Holding the original transition +
+     Pagefind UI variable overrides). */
+  .header-search-results {
     /* Top/left transitions track the input as the search field follows the
        header's collapse/expand state (2026-05-21). The dropdown's inline
        top/left/width are set by JS from the input's getBoundingClientRect();
@@ -3467,6 +3510,30 @@ const navLinks = [
   .header-search-results :global(.pagefind-ui__search-input),
   .header-search-results :global(.pagefind-ui__search-clear) {
     display: none;
+  }
+
+  /* Tighten the results "header" area — the .pagefind-ui__message line
+     ("6 results for X") sits above the result list and ships with
+     default upstream padding + margin + font-size that read too heavy
+     for the compact-dropdown context. Sean direction 2026-05-23: this
+     should feel like quiet metadata, not a section header. Also zero
+     out the form + drawer chrome since they're just containers (the
+     search-input + search-clear inside the form are already hidden
+     above, so the form is empty layout). */
+  .header-search-results :global(.pagefind-ui__form),
+  .header-search-results :global(.pagefind-ui__drawer),
+  .header-search-results :global(.pagefind-ui__results-area) {
+    padding: 0;
+    margin: 0;
+  }
+  .header-search-results :global(.pagefind-ui__message) {
+    margin: 0 0 var(--space-xs) 0;
+    padding: 0;
+    font-size: 0.8125rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-fg-muted);
   }
 
   /* Sibling combinator: form is a sibling of the field, so target it
