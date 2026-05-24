@@ -851,6 +851,28 @@ main > :is(div, article, section) > h2:not(.full-bleed).h2-laser-suppress-initia
   transition: none !important;
 }
 
+/* SPR-0081 (Sean direction 2026-05-24): on top of SPR-0080's transition
+   suppression, ALSO hide the h2 itself during the suppress window. The
+   transition-suppress alone wasn't enough — there was still a brief
+   single-frame flash where the laser rendered at its 12.5vw+1rem CSS
+   fallback width before the JS setProperty kicked in. Opacity:0 during
+   the suppress window hides BOTH the h2 text AND its ::after laser (the
+   pseudo inherits the parent's effective opacity via the parent's render
+   stack), so the flash is fully invisible.
+   When BaseLayout removes the .h2-laser-suppress-initial class (2 rAF
+   ticks after first updateDrawerH2Lasers), the h2's opacity returns to
+   its default (1) via the opacity transition declared on the base
+   selectors below — 500ms ease-out fade-in. The cascade change is the
+   trigger; no explicit JS opacity manipulation needed. */
+main > h2:not(.full-bleed).h2-laser-suppress-initial,
+main > :is(div, article, section) > h2:not(.full-bleed).h2-laser-suppress-initial {
+  opacity: 0;
+}
+main > h2:not(.full-bleed),
+main > :is(div, article, section) > h2:not(.full-bleed) {
+  transition: opacity 500ms ease-out;
+}
+
 h3 {
   font-family: var(--font-subhead);
   font-size: 1.25rem;
