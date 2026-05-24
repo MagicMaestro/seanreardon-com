@@ -797,17 +797,82 @@ const navLinks = [
          re-renders results on every query change, so we need to re-tag
          after each render. The observer's childList+subtree options catch
          both the initial render and subsequent re-renders. */
+      /* SPR-0073: BRUTE-FORCE layout application via inline styles.
+         SPR-0072's CSS-class approach didn't visibly take effect on staging
+         despite the class being added — likely a CSS specificity war with
+         Pagefind UI's Svelte-scoped styles that even !important + compound
+         selectors weren't winning. Inline styles set via JS bypass the
+         entire cascade — they ALWAYS win over external CSS unless that
+         CSS uses !important, which Pagefind UI doesn't.
+
+         applyNozzleStyles walks every .pagefind-ui__result on each
+         observed change, checks if it's a default-nozzle result, and:
+         - If nozzle: applies inline styles for layout override + image
+           rotation. Also adds `.is-nozzle-result` class so the puff CSS
+           (which uses ::after pseudo-element that CAN'T be inline-styled)
+           can still scope correctly
+         - If not nozzle: removes the class. Pagefind UI defaults apply
+           with no override
+
+         Observer options expanded vs SPR-0072:
+         - attributes: true + attributeFilter: ['src'] catches img.src
+           changes after the element is appended (Pagefind UI may set
+           src after the img is in the DOM, missing the initial childList
+           mutation's tagging window) */
       if (resultsContainer) {
-        const tagNozzleResults = () => {
+        const applyNozzleStyles = () => {
           resultsContainer.querySelectorAll<HTMLElement>('.pagefind-ui__result').forEach((result) => {
             const img = result.querySelector<HTMLImageElement>('.pagefind-ui__result-image');
             const isNozzle = !!(img && img.src.includes('nozzle-detailed'));
             result.classList.toggle('is-nozzle-result', isNozzle);
+            if (isNozzle) {
+              Object.assign(result.style, {
+                display: 'block',
+                position: 'relative',
+                paddingLeft: '56px',
+                minHeight: '50px',
+                cursor: 'pointer',
+                overflow: 'visible',
+              });
+              const thumb = result.querySelector<HTMLElement>('.pagefind-ui__result-thumb');
+              if (thumb) {
+                Object.assign(thumb.style, {
+                  position: 'absolute',
+                  /* var(--space-sm) = 1rem = 16px. Plus 2px = 18px negative
+                     offset; thumb's left edge sits 2px past the dropdown's
+                     border's inner edge. */
+                  left: 'calc(-1rem - 2px)',
+                  top: '8px',
+                  margin: '0',
+                  padding: '0',
+                  width: '44px',
+                  height: '44px',
+                  overflow: 'visible',
+                  display: 'block',
+                });
+              }
+              if (img) {
+                Object.assign(img.style, {
+                  transform: 'rotate(90deg)',
+                  width: '100%',
+                  height: '100%',
+                });
+              }
+            }
+            /* If NOT nozzle: do nothing — Pagefind UI defaults apply. We
+               also don't STRIP any inline styles we may have set previously
+               because results are typically re-created (not re-purposed)
+               on each search, so no inline-style leak across queries. */
           });
         };
-        const tagObserver = new MutationObserver(() => tagNozzleResults());
-        tagObserver.observe(resultsContainer, { childList: true, subtree: true });
-        tagNozzleResults();
+        const tagObserver = new MutationObserver(() => applyNozzleStyles());
+        tagObserver.observe(resultsContainer, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['src'],
+        });
+        applyNozzleStyles();
       }
 
       /* Click-to-puff (SPR-0066): intercept the outer-result link's click,
@@ -3711,18 +3776,18 @@ const navLinks = [
     color: var(--color-fg-muted);
   }
   .header-search-results :global(.pagefind-ui__message)::after {
-    /* Inline SVG magnifier (data URL). Same muted color as the message
-       text (var(--color-fg-muted) approximated as a near-grey #888
-       within the SVG stroke). Sized to match the message's font-size
-       (14px ≈ 0.875rem). */
-    content: '';
-    display: inline-block;
+    /* SPR-0073: swapped from inline-SVG-data-URL to unicode character.
+       The SVG approach had unencoded < and > inside the url() value,
+       which Astro's CSS compiler or downstream minifier may have
+       choked on — silently invalidating the rule (or worse, the
+       containing block). Unicode 🔍 (U+1F50D LEFT-POINTING MAGNIFYING
+       GLASS) renders across all modern OSes via the system font.
+       Color is system-emoji default (typically muted gray on most
+       platforms). */
+    content: '🔍';
     flex-shrink: 0;
-    width: 14px;
-    height: 14px;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><line x1='21' y1='21' x2='16' y2='16'/></svg>");
-    background-repeat: no-repeat;
-    background-size: contain;
+    font-size: 0.75rem;
+    opacity: 0.7;
   }
 
   /* Whole-row clickability — Sean direction 2026-05-23: a Pagefind result
