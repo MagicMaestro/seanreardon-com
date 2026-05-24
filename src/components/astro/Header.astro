@@ -785,6 +785,31 @@ const navLinks = [
         hideDropdown();
       });
 
+      /* SPR-0072: tag every nozzle-thumb result with a `.is-nozzle-result`
+         class so the CSS can scope nozzle-only styling reliably. The earlier
+         SPR-0071 attempt to use CSS :has(.pagefind-ui__result-image[src*=
+         "nozzle-detailed"]) didn't take effect — either Astro's :global()
+         compilation drops :has() inside it, or Pagefind UI's render timing
+         outraces the selector evaluation. JS class-add is what Sean originally
+         suggested; it's reliable regardless of browser/compiler quirks.
+
+         MutationObserver watches the results container — Pagefind UI
+         re-renders results on every query change, so we need to re-tag
+         after each render. The observer's childList+subtree options catch
+         both the initial render and subsequent re-renders. */
+      if (resultsContainer) {
+        const tagNozzleResults = () => {
+          resultsContainer.querySelectorAll<HTMLElement>('.pagefind-ui__result').forEach((result) => {
+            const img = result.querySelector<HTMLImageElement>('.pagefind-ui__result-image');
+            const isNozzle = !!(img && img.src.includes('nozzle-detailed'));
+            result.classList.toggle('is-nozzle-result', isNozzle);
+          });
+        };
+        const tagObserver = new MutationObserver(() => tagNozzleResults());
+        tagObserver.observe(resultsContainer, { childList: true, subtree: true });
+        tagNozzleResults();
+      }
+
       /* Click-to-puff (SPR-0066): intercept the outer-result link's click,
          run the 200ms steam-puff animation, then navigate. Mirrors the
          site's nozzle/steam motif but at result-row scale.
@@ -3632,13 +3657,22 @@ const navLinks = [
   .header-search-results :global(.pagefind-ui__search-clear) {
     display: none;
   }
-  /* SPR-0071 (Sean direction 2026-05-24): hide any other Pagefind UI form
-     chrome that isn't the drawer (search icons, decoration elements, etc.
-     that some Pagefind UI v1.x variants render between input and results).
-     The native magnifier in the screenshot was a residual element rendering
-     below the "X RESULTS FOR..." line, overlapping with it — this rule
-     clears the whole form except the drawer (which contains the results). */
-  .header-search-results :global(.pagefind-ui__form > *:not(.pagefind-ui__drawer)) {
+  /* SPR-0072: aggressive form-chrome hide. SPR-0071's `> *:not(.drawer)`
+     only caught DIRECT children of the form — the magnifier wasn't hidden
+     and Sean's screenshot showed two icons (original + my new synthetic
+     one). Cast a wider net:
+     - Hide any direct form child that isn't the drawer
+     - Hide any direct DRAWER child that isn't the results-area (in case the
+       magnifier is one level deeper)
+     - Explicitly hide commonly-named Pagefind UI search-chrome elements
+       (label, button, input variants) anywhere inside the form
+     Together these should catch the magnifier wherever Pagefind UI's current
+     version is rendering it. */
+  .header-search-results :global(.pagefind-ui__form > *:not(.pagefind-ui__drawer)),
+  .header-search-results :global(.pagefind-ui__form .pagefind-ui__drawer > *:not(.pagefind-ui__results-area)),
+  .header-search-results :global(.pagefind-ui__search-label),
+  .header-search-results :global(.pagefind-ui__suppressed),
+  .header-search-results :global(.pagefind-ui__form svg) {
     display: none !important;
   }
 
@@ -3761,15 +3795,17 @@ const navLinks = [
      - .pagefind-ui__result-image width/height fill so per-page og:images
        also fill their thumb box cleanly */
 
-  /* Nozzle-result LAYOUT: only apply when the result's image is the default
-     nozzle. Custom og:image results fall back to Pagefind UI's default flex
-     layout — unchanged. */
-  .header-search-results :global(.pagefind-ui .pagefind-ui__result:has(.pagefind-ui__result-image[src*="nozzle-detailed"])) {
+  /* Nozzle-result LAYOUT: scoped to `.is-nozzle-result` class added by the
+     MutationObserver in the script above (SPR-0072 replaced :has() with a
+     JS-driven class because the :has() approach silently didn't apply via
+     Astro's :global() compilation). Custom og:image results don't get the
+     class, fall back to Pagefind UI's default flex layout — no override. */
+  .header-search-results :global(.pagefind-ui .pagefind-ui__result.is-nozzle-result) {
     display: block !important;
     padding-left: 56px !important;
     min-height: 50px !important;
   }
-  .header-search-results :global(.pagefind-ui .pagefind-ui__result:has(.pagefind-ui__result-image[src*="nozzle-detailed"]) .pagefind-ui__result-thumb) {
+  .header-search-results :global(.pagefind-ui .pagefind-ui__result.is-nozzle-result .pagefind-ui__result-thumb) {
     position: absolute !important;
     left: calc(-1 * var(--space-sm) - 2px) !important;
     top: 8px !important;
@@ -3780,11 +3816,13 @@ const navLinks = [
     overflow: visible !important;
     display: block !important;
   }
-  /* Image fill — applies to ALL results (nozzle + custom og:image alike) so
-     the image always fills its thumb box rather than rendering at its native
-     dimensions inside an oversized container. object-fit not overridden;
-     Pagefind UI's default `cover` keeps non-square og:images cropped-to-fit. */
-  .header-search-results :global(.pagefind-ui .pagefind-ui__result-image) {
+  /* Image fill: ONLY for the nozzle thumb (44×44, square aspect — safe to
+     fill exactly). SPR-0071 applied this generically, which stretched
+     non-square custom og:images (like About Me's headshot) horizontally
+     when Pagefind UI's default thumb container wasn't square. Removing the
+     generic rule restores Pagefind UI's default image sizing for custom
+     thumbs. */
+  .header-search-results :global(.pagefind-ui .pagefind-ui__result.is-nozzle-result .pagefind-ui__result-image) {
     width: 100% !important;
     height: 100% !important;
   }
@@ -3827,7 +3865,7 @@ const navLinks = [
      have a puff ::after defined, so even if `is-puffing` got added (the JS
      handler already early-exits for non-nozzle results), no animation
      could fire. */
-  .header-search-results :global(.pagefind-ui__result:has(.pagefind-ui__result-image[src*="nozzle-detailed"]) .pagefind-ui__result-thumb)::after {
+  .header-search-results :global(.pagefind-ui__result.is-nozzle-result .pagefind-ui__result-thumb)::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -3851,7 +3889,7 @@ const navLinks = [
        paints visibly while the click navigation is pending. */
     z-index: 3;
   }
-  .header-search-results :global(.pagefind-ui__result:has(.pagefind-ui__result-image[src*="nozzle-detailed"]).is-puffing .pagefind-ui__result-thumb)::after {
+  .header-search-results :global(.pagefind-ui__result.is-nozzle-result.is-puffing .pagefind-ui__result-thumb)::after {
     /* 600ms (3x SPR-0066's 200ms) per Sean direction 2026-05-24 — the
        puff felt rushed at 200ms. 600ms gives the steam time to read as
        a deliberate puff rather than a flash. The JS setTimeout below
@@ -3878,7 +3916,7 @@ const navLinks = [
     100% { opacity: 0;    transform: translate(100px, -50%) scale(2.0); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .header-search-results :global(.pagefind-ui__result:has(.pagefind-ui__result-image[src*="nozzle-detailed"]).is-puffing .pagefind-ui__result-thumb)::after {
+    .header-search-results :global(.pagefind-ui__result.is-nozzle-result.is-puffing .pagefind-ui__result-thumb)::after {
       animation: none;
     }
   }
