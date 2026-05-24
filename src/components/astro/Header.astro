@@ -3620,12 +3620,26 @@ const navLinks = [
        list start closer to the top edge. Sides + bottom stay at --space-sm.
        Was uniform var(--space-sm). */
     padding: var(--space-xs) var(--space-sm) var(--space-sm) var(--space-sm);
-    /* Firefox scrollbar fallback — gradient backgrounds aren't supported
-       on Firefox scrollbars (spec limitation), so we get a flat-color
-       thumb here. Webkit (Chrome/Edge/Safari) gets the full gradient
-       treatment via ::-webkit-scrollbar pseudo-elements below. */
+    /* SPR-0076 (Sean dev-tools diagnosis 2026-05-24): REMOVED
+       `scrollbar-color: var(--color-electric-cyan) transparent`. Modern
+       Chrome (121+) respects the standard `scrollbar-color` property and
+       uses it INSTEAD of the `::-webkit-scrollbar-*` pseudo-elements when
+       both are present. With `transparent` as the track color, Chrome was
+       painting the track transparent — silently overriding the webkit-
+       scrollbar-track gradient rule. That's why the cyan gradient never
+       rendered despite being in the stylesheet (Sean's dev tools confirmed
+       the rule existed but visible track was solid black).
+       Solution: drop `scrollbar-color` entirely so Chrome falls back to
+       the webkit pseudo-elements (which DO support gradient backgrounds).
+       Firefox loses the cyan thumb fallback as a result — it'll show
+       default scrollbar styling. Acceptable trade-off: the dropdown is
+       on staging/production and Firefox usage is a small share. If a
+       Firefox-specific fallback is needed later, can add a flat-color
+       `scrollbar-color` only inside @supports (-moz-appearance: none) or
+       similar feature detection.
+       `scrollbar-width: thin` stays — it's compatible with webkit pseudos
+       (browser uses the pseudo-element styling, just at thin width). */
     scrollbar-width: thin;
-    scrollbar-color: var(--color-electric-cyan) transparent;
   }
 
   /* Custom scrollbar — mirrors the .scroll-indicator's center-bright
@@ -3639,20 +3653,25 @@ const navLinks = [
     width: 6px;
   }
   .header-search-results::-webkit-scrollbar-track {
-    /* SPR-0075 (Sean switched preference from option B back to option A
-       2026-05-24): horizontal cyan gradient mirroring the main
-       .scroll-indicator's deep→mid→glow→mid→deep pattern (global.css line
-       1080) but desaturated via low alpha so it reads as a "soft glowing"
-       track, not a full laser. Same structure, ~0.4 alpha on the stops. */
+    /* SPR-0076: full-opacity cyan token gradient, matching the main
+       .scroll-indicator's purple construction exactly (global.css line
+       1094) — only the color family changes. Same stops (0%/35%/50%/65%/
+       100%), same inset glow shadow at 0.6 alpha, just rotated from
+       purple-deep→purple→purple-glow tokens to cyan-deep→cyan→cyan-glow
+       tokens. Previous SPR-0075's low-alpha (0.4) rendition wouldn't have
+       shown anyway because SPR-0076's separate fix removed the conflicting
+       `scrollbar-color: transparent` that was overriding the entire
+       webkit-track rule in Chrome — but full opacity is the right call
+       for a "looks like the main scrollbar" visual. */
     background: linear-gradient(
       to right,
-      rgba(0, 133, 198, 0.40) 0%,
-      rgba(0, 221, 255, 0.40) 35%,
-      rgba(102, 232, 255, 0.50) 50%,
-      rgba(0, 221, 255, 0.40) 65%,
-      rgba(0, 133, 198, 0.40) 100%
+      var(--color-electric-cyan-deep) 0%,
+      var(--color-electric-cyan) 35%,
+      var(--color-electric-cyan-glow) 50%,
+      var(--color-electric-cyan) 65%,
+      var(--color-electric-cyan-deep) 100%
     );
-    box-shadow: inset 0 0 4px rgba(102, 232, 255, 0.4);
+    box-shadow: inset 0 0 4px rgba(102, 232, 255, 0.6);
     border-radius: 3px;
   }
   /* Hide the up/down arrows at the ends of the scrollbar (browser default
