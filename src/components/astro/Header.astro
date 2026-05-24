@@ -814,7 +814,7 @@ const navLinks = [
           result.classList.add('is-puffing');
           window.setTimeout(() => {
             window.location.href = link.href;
-          }, 200);
+          }, 600); // matches the CSS animation duration in SPR-0067
         });
       }
 
@@ -837,21 +837,37 @@ const navLinks = [
       }
 
       // Re-position the dropdown when the header collapses/expands (2026-
-      // 05-21, rAF-tracked in 2026-05-23 iter). The search field follows
-      // the bar's slide off-screen via CSS rules tied to
-      // .site-header[data-state]; the dropdown is positioned absolutely
-      // from the input's getBoundingClientRect(). The MutationObserver
-      // fires the instant data-state flips, but the input's CSS
-      // transition is just starting at that moment — a single
-      // positionDropdown() call there reads the OLD rect and pins the
-      // dropdown to the OLD position. trackInputPosition() rAFs through
-      // the transition until the input stabilizes. */
+      // 05-21, rAF-tracked in 2026-05-23 iter, hardened in SPR-0067).
+      // Two complementary triggers, both calling trackInputPosition():
+      //   1. MutationObserver on .site-header[data-state] — fires the
+      //      instant data-state flips, which is BEFORE the input's CSS
+      //      transition starts. The rAF tracker starts immediately but
+      //      may see no input movement for the first few frames (transition
+      //      delay window). Tracker keeps tick'ing for at least 10 stable
+      //      frames after the input STOPS moving — if it exits before the
+      //      transition starts, the second trigger catches it.
+      //   2. transitionrun on the input — fires when the input's CSS
+      //      transition is queued (before any delay). Catches every
+      //      transition regardless of root cause (data-state change, gear-
+      //      click manual toggle, anything that triggers the input to move).
+      //      The transition system fires transitionrun per property; the
+      //      rAF tracker's cancelAnimationFrame de-dupes the duplicate
+      //      starts so it's safe.
+      // SPR-0067 added (2) after Sean reported the dropdown "stays parked"
+      // on header re-expand — the MutationObserver fired but the rAF tracker
+      // exited before the input's delayed transition kicked in. The
+      // transitionrun trigger catches that window.
       const siteHeaderEl = document.querySelector('.site-header');
       if (siteHeaderEl && resultsContainer) {
         const stateObserver = new MutationObserver(() => {
           if (!resultsContainer.hidden) trackInputPosition();
         });
         stateObserver.observe(siteHeaderEl, { attributes: true, attributeFilter: ['data-state'] });
+      }
+      if (searchInput && resultsContainer) {
+        searchInput.addEventListener('transitionrun', () => {
+          if (!resultsContainer.hidden) trackInputPosition();
+        });
       }
     }
   }
@@ -3546,19 +3562,19 @@ const navLinks = [
      into the same effective rule. Holding the original transition +
      Pagefind UI variable overrides). */
   .header-search-results {
-    /* Top/left transitions track the input as the search field follows the
-       header's collapse/expand state (2026-05-21). The dropdown's inline
-       top/left/width are set by JS from the input's getBoundingClientRect();
-       when the input transitions, the CSS transition here animates the
-       dropdown's inline-style change in lockstep. Width is intentionally
-       NOT transitioned because the input width doesn't change with
-       collapse/expand — only its position.
-       Default 300ms no-delay matches the small tier's symmetric bar
-       transition; the ≥640 rule below mirrors the bar's asymmetric two-
-       direction timing. */
-    transition:
-      top 300ms ease-out,
-      left 300ms ease-out;
+    /* Position transitions REMOVED in SPR-0067. Previously these CSS
+       transitions animated the dropdown's top/left inline-style change in
+       lockstep with the input's CSS transition. After SPR-0065 introduced
+       the rAF-based trackInputPosition() (which updates inline style every
+       frame to match the input's mid-transition position), the CSS
+       transition was actively FIGHTING the rAF tracker: each frame's
+       inline-style update started a fresh 300ms transition, causing the
+       dropdown to perpetually lag the input.
+       The collapse-direction visible-lag and the re-expand-direction "stays
+       parked" bug Sean reported 2026-05-24 are both caused by this fight.
+       rAF is now the sole animation source — direct inline-style updates
+       per frame give frame-accurate tracking of the input. */
+    transition: none;
     /* Pagefind UI CSS-variable overrides — scoped to the dropdown so
        they don't leak to the /search/ page's PagefindUI instance.
        Same token mapping as global.css's :root overrides on /search/,
@@ -3573,21 +3589,12 @@ const navLinks = [
     --pagefind-ui-border-radius: var(--radius);
     --pagefind-ui-font: var(--font-body);
   }
-  /* ≥640: dropdown's `top` mirrors the field's (and the bar's) asymmetric
-     timing so the dropdown stays in lockstep with the input during the
-     follow-header-collapse animation. */
-  @media (min-width: 640px) {
-    .site-header .header-search-results {
-      transition:
-        top 200ms ease-out 300ms,
-        left 300ms ease-out;
-    }
-    .site-header[data-state="minimal"] .header-search-results {
-      transition:
-        top 200ms ease-out 100ms,
-        left 300ms ease-out;
-    }
-  }
+  /* ≥640 responsive transition overrides REMOVED in SPR-0067 — same
+     reasoning as the base `transition: none` above. The asymmetric 100ms
+     vs 300ms delays here were the worst offenders for the re-expand bug
+     (300ms delay outlasted the rAF tracker's runtime, so the dropdown
+     never actually started moving back). rAF tracker handles the
+     per-frame matching now; CSS transition would just re-introduce lag. */
   .header-search-results[hidden] {
     display: none !important;
   }
@@ -3673,8 +3680,15 @@ const navLinks = [
     margin-left: calc(-1 * var(--space-sm) - 2px);
     overflow: visible;
   }
-  .header-search-results :global(.pagefind-ui__result-image) {
-    transform: rotate(90deg);
+  /* Rotation needs a more specific selector + !important to override
+     Pagefind UI's own defaults — without these the rotation Sean asked
+     for in SPR-0066 wasn't applying (the nozzles were still pointing up
+     in his 2026-05-24 staging review). The compound selector raises
+     specificity to 0,3,0 (matching Pagefind UI's likely scoped-attribute
+     selector specificity); !important is belt-and-suspenders against any
+     other transform a future Pagefind release might add. */
+  .header-search-results :global(.pagefind-ui__result-thumb .pagefind-ui__result-image) {
+    transform: rotate(90deg) !important;
   }
 
   /* Steam puff on click — Sean direction 2026-05-24 (option B from
@@ -3703,7 +3717,12 @@ const navLinks = [
     z-index: 3;
   }
   .header-search-results :global(.pagefind-ui__result.is-puffing .pagefind-ui__result-thumb)::after {
-    animation: header-search-result-puff 200ms ease-out forwards;
+    /* 600ms (3x SPR-0066's 200ms) per Sean direction 2026-05-24 — the
+       puff felt rushed at 200ms. 600ms gives the steam time to read as
+       a deliberate puff rather than a flash. The JS setTimeout below
+       matches this exactly so navigation kicks in right as the puff
+       finishes fading. */
+    animation: header-search-result-puff 600ms ease-out forwards;
   }
   @keyframes header-search-result-puff {
     0%   { opacity: 0;    transform: translate(0, -50%) scale(0.4); }
