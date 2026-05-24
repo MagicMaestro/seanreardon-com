@@ -3684,20 +3684,44 @@ const navLinks = [
     z-index: 2;
   }
 
-  /* Nozzle thumbnail treatment — Sean direction 2026-05-24:
+  /* Nozzle thumbnail treatment — Sean direction 2026-05-24 (iter on
+     SPR-0066, SPR-0068):
      - Rotate the result thumbnail 90° so the nozzle points RIGHT (into
-       the result text) instead of straight up. The nozzle-detailed.webp
-       is the og:image fallback Pagefind UI picks up for pages without
-       their own og:image; pointing rightward sets up the steam-puff
-       click animation below
-     - Tuck the thumb container LEFT so its left edge sits at the
-       dropdown's content edge minus 2px — visually emerges from / tucks
-       behind the dropdown's left border. The dropdown's padding-left is
-       var(--space-sm); a negative margin of that minus 2px lands the
-       thumb's left edge ~2px past the border's inner edge */
-  .header-search-results :global(.pagefind-ui__result-thumb) {
+       the result text) instead of straight up. Restricted to images
+       matching `[src*="nozzle-detailed"]` so per-page og:images (like
+       About Me's headshot) render upright as Pagefind UI's default expects
+     - Tuck the thumb LEFT so its left edge sits ~2px past the dropdown's
+       border's inner edge ("hides behind the left border")
+     - SPR-0069 switched from negative-margin to ABSOLUTE positioning
+       because Pagefind UI's .pagefind-ui__result is `display: flex` and
+       negative margin on a flex child doesn't reliably escape the row's
+       content area. Absolute positioning bypasses the flex flow:
+         * .pagefind-ui__result gets position:relative + padding-left to
+           reserve room for the thumb
+         * .pagefind-ui__result-thumb gets position:absolute + left:-18px
+           (var(--space-sm) + 2px) to align with the dropdown's outer-
+           left edge minus 2px (= 2px past the border's inner edge)
+         * The image inside flows naturally within the thumb box */
+  .header-search-results :global(.pagefind-ui__result) {
     position: relative;
-    margin-left: calc(-1 * var(--space-sm) - 2px);
+    cursor: pointer;
+    overflow: visible;
+    /* Reserve horizontal space for the absolutely-positioned thumb +
+       a small gap between thumb and text content. Without this padding,
+       .pagefind-ui__result-inner would render directly at the result's
+       left edge (overlapping where the thumb sits). */
+    padding-left: 56px;
+    /* min-height ensures the thumb is fully visible even when the
+       result's text content is short (single-line title). */
+    min-height: 50px;
+  }
+  .header-search-results :global(.pagefind-ui__result-thumb) {
+    position: absolute !important;
+    left: calc(-1 * var(--space-sm) - 2px) !important;
+    top: 8px !important;
+    margin: 0 !important;
+    width: 44px;
+    height: 44px;
     overflow: visible;
   }
   /* Rotation restricted to the DEFAULT nozzle thumbnail only — Sean
@@ -3738,10 +3762,19 @@ const navLinks = [
     content: '';
     position: absolute;
     top: 50%;
-    right: 0;
-    width: 60%;
-    height: 60%;
-    transform: translate(0, -50%) scale(0.4);
+    /* SPR-0069 fix (Sean direction 2026-05-24): puff anchored at the
+       thumb's right edge (left:100%) — the nozzle's spout tip after the
+       90° rotation. Combined with transform-origin: left center, the
+       scale() animation grows the puff OUTWARD from the tip rather than
+       from its own box center. Previously (right:0 + scale around the
+       puff's center) the puff's visual center landed at ~70% across the
+       thumb, NOT at the spout — looked like steam coming from the body
+       of the nozzle instead of from the tip. */
+    left: 100%;
+    width: 50px;
+    height: 50px;
+    transform-origin: left center;
+    transform: translate(0, -50%) scale(0.3);
     background: radial-gradient(circle, rgba(245, 252, 255, 0.9), transparent 70%);
     opacity: 0;
     pointer-events: none;
@@ -3757,10 +3790,23 @@ const navLinks = [
        finishes fading. */
     animation: header-search-result-puff 600ms ease-out forwards;
   }
+  /* Keyframes (SPR-0069 iter on SPR-0066/0067):
+     - Initial scale 0.3 + translate(0) — tiny puff at the spout tip
+     - Mid (40%) opacity peak + scale 1.0, drifted 30px right — puff is
+       visible and drifting
+     - End: faded to 0, scaled 2.0, drifted 100px right — puff dissolves
+       roughly at the center of a typical result row's width (the result
+       has padding-left:56px + text content; for ~600-800px-wide dropdowns
+       100px drift lands well into the text area, reading as the puff
+       traveling "toward the center of the search-item's x-width")
+     transform-origin: left center (set on the ::after rule above) means
+     scale() grows from the LEFT edge of the puff box, which is anchored
+     at left:100% of the thumb = the nozzle's spout tip. So scaling
+     visually expands rightward FROM the tip, not from the puff's center. */
   @keyframes header-search-result-puff {
-    0%   { opacity: 0;    transform: translate(0, -50%) scale(0.4); }
-    40%  { opacity: 0.85; }
-    100% { opacity: 0;    transform: translate(40px, -50%) scale(1.4); }
+    0%   { opacity: 0;    transform: translate(0, -50%) scale(0.3); }
+    40%  { opacity: 0.85; transform: translate(30px, -50%) scale(1.0); }
+    100% { opacity: 0;    transform: translate(100px, -50%) scale(2.0); }
   }
   @media (prefers-reduced-motion: reduce) {
     .header-search-results :global(.pagefind-ui__result.is-puffing .pagefind-ui__result-thumb)::after {
