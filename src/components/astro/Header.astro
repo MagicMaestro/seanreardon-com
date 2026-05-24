@@ -785,6 +785,39 @@ const navLinks = [
         hideDropdown();
       });
 
+      /* Click-to-puff (SPR-0066): intercept the outer-result link's click,
+         run the 200ms steam-puff animation, then navigate. Mirrors the
+         site's nozzle/steam motif but at result-row scale.
+         Skipped for:
+         - Sub-result links (their thumbnails belong to the outer result;
+           a puff there would emerge from the wrong nozzle. Sub-clicks
+           navigate immediately to their fragment anchor)
+         - Modifier-clicks (cmd/ctrl/shift/middle-mouse) — let those open
+           in new tab via the browser's default behavior
+         - prefers-reduced-motion users — default link navigation
+         The setTimeout matches the CSS animation duration exactly. If the
+         user clicks another result mid-animation, both setTimeouts queue;
+         the latest navigation wins per browser behavior (the in-flight
+         first navigation is superseded). Rare in practice. */
+      if (resultsContainer) {
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        resultsContainer.addEventListener('click', (e) => {
+          const target = e.target as HTMLElement;
+          const link = target.closest<HTMLAnchorElement>('.pagefind-ui__result-link');
+          if (!link) return;
+          if (link.closest('.pagefind-ui__result-nested')) return;
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+          if (reducedMotion) return;
+          const result = link.closest<HTMLElement>('.pagefind-ui__result');
+          if (!result) return;
+          e.preventDefault();
+          result.classList.add('is-puffing');
+          window.setTimeout(() => {
+            window.location.href = link.href;
+          }, 200);
+        });
+      }
+
       // Reposition on resize so the dropdown tracks the input. Resize
       // events also fire on virtual-keyboard show on mobile.
       window.addEventListener('resize', () => {
@@ -3609,6 +3642,9 @@ const navLinks = [
   .header-search-results :global(.pagefind-ui__result) {
     position: relative;
     cursor: pointer;
+    /* overflow:visible is the default but explicit so future Pagefind
+       UI updates don't accidentally clip the puff animation. */
+    overflow: visible;
   }
   .header-search-results :global(.pagefind-ui__result-title .pagefind-ui__result-link)::before {
     content: '';
@@ -3619,6 +3655,65 @@ const navLinks = [
   .header-search-results :global(.pagefind-ui__result-nested) {
     position: relative;
     z-index: 2;
+  }
+
+  /* Nozzle thumbnail treatment — Sean direction 2026-05-24:
+     - Rotate the result thumbnail 90° so the nozzle points RIGHT (into
+       the result text) instead of straight up. The nozzle-detailed.webp
+       is the og:image fallback Pagefind UI picks up for pages without
+       their own og:image; pointing rightward sets up the steam-puff
+       click animation below
+     - Tuck the thumb container LEFT so its left edge sits at the
+       dropdown's content edge minus 2px — visually emerges from / tucks
+       behind the dropdown's left border. The dropdown's padding-left is
+       var(--space-sm); a negative margin of that minus 2px lands the
+       thumb's left edge ~2px past the border's inner edge */
+  .header-search-results :global(.pagefind-ui__result-thumb) {
+    position: relative;
+    margin-left: calc(-1 * var(--space-sm) - 2px);
+    overflow: visible;
+  }
+  .header-search-results :global(.pagefind-ui__result-image) {
+    transform: rotate(90deg);
+  }
+
+  /* Steam puff on click — Sean direction 2026-05-24 (option B from
+     SPR-0065's choice list): "quick steam puff at the clicked result
+     before navigating." The .is-puffing class is added by the JS click
+     handler in the script above; the keyframes drive a near-white-cyan
+     puff that emerges from the nozzle's spout (right side after rotation),
+     drifts rightward into the result text area, and fades. Runtime
+     200ms — JS schedules window.location.href after the same delay so
+     navigation kicks in right as the puff fades.
+     No nozzle motion (per Sean's "no moving the nozzle on click like we
+     do for the AI search trigger") — only the puff ::after moves. */
+  .header-search-results :global(.pagefind-ui__result-thumb)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 60%;
+    height: 60%;
+    transform: translate(0, -50%) scale(0.4);
+    background: radial-gradient(circle, rgba(245, 252, 255, 0.9), transparent 70%);
+    opacity: 0;
+    pointer-events: none;
+    /* z-index above the row's ::before overlay (z-index:1) so the puff
+       paints visibly while the click navigation is pending. */
+    z-index: 3;
+  }
+  .header-search-results :global(.pagefind-ui__result.is-puffing .pagefind-ui__result-thumb)::after {
+    animation: header-search-result-puff 200ms ease-out forwards;
+  }
+  @keyframes header-search-result-puff {
+    0%   { opacity: 0;    transform: translate(0, -50%) scale(0.4); }
+    40%  { opacity: 0.85; }
+    100% { opacity: 0;    transform: translate(40px, -50%) scale(1.4); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .header-search-results :global(.pagefind-ui__result.is-puffing .pagefind-ui__result-thumb)::after {
+      animation: none;
+    }
   }
 
   /* Sibling combinator: form is a sibling of the field, so target it
