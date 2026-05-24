@@ -3702,27 +3702,56 @@ const navLinks = [
            (var(--space-sm) + 2px) to align with the dropdown's outer-
            left edge minus 2px (= 2px past the border's inner edge)
          * The image inside flows naturally within the thumb box */
-  .header-search-results :global(.pagefind-ui__result) {
-    position: relative;
+  /* SPR-0070 iter: Pagefind UI's Svelte-scoped CSS was winning the
+     cascade against my :global() rules at equal specificity (Pagefind UI
+     loads its CSS via JS at runtime AFTER Astro's compiled styles, so
+     tie-breaking by source order favors Pagefind UI). Two fixes here:
+     - Bumped specificity by adding `.pagefind-ui` to the selector chain
+       (compound: .pagefind-ui + .pagefind-ui__result = 0,3,0 vs Pagefind
+       UI's likely 0,2,0)
+     - Force `display: block` on .pagefind-ui__result to override the
+       default `display: flex` from Pagefind UI. With flex layout, my
+       `padding-left: 56px` was applying to the flex CONTAINER but the
+       flex content area kept the inner items at the row's left edge
+       regardless. Block layout makes padding-left behave traditionally
+     - !important on EVERY layout property — defensive against any
+       future Pagefind UI rule that might add !important too */
+  .header-search-results :global(.pagefind-ui .pagefind-ui__result) {
+    display: block !important;
+    position: relative !important;
     cursor: pointer;
     overflow: visible;
     /* Reserve horizontal space for the absolutely-positioned thumb +
-       a small gap between thumb and text content. Without this padding,
-       .pagefind-ui__result-inner would render directly at the result's
-       left edge (overlapping where the thumb sits). */
-    padding-left: 56px;
+       gap between thumb and text. With display:block + padding-left,
+       .pagefind-ui__result-inner naturally flows starting at 56px from
+       the result's left edge. */
+    padding-left: 56px !important;
     /* min-height ensures the thumb is fully visible even when the
-       result's text content is short (single-line title). */
-    min-height: 50px;
+       result's text content is short. */
+    min-height: 50px !important;
   }
-  .header-search-results :global(.pagefind-ui__result-thumb) {
+  .header-search-results :global(.pagefind-ui .pagefind-ui__result-thumb) {
     position: absolute !important;
     left: calc(-1 * var(--space-sm) - 2px) !important;
     top: 8px !important;
     margin: 0 !important;
-    width: 44px;
-    height: 44px;
-    overflow: visible;
+    padding: 0 !important;
+    width: 44px !important;
+    height: 44px !important;
+    overflow: visible !important;
+    /* Ensure the image inside fills the thumb box exactly so the rotated
+       nozzle visual is anchored at the box's center (transform-origin
+       defaults to 50% 50%; the rotation pivots there). */
+    display: block !important;
+  }
+  .header-search-results :global(.pagefind-ui .pagefind-ui__result-image) {
+    /* Fill the thumb's 44×44 container exactly. Pagefind UI defaults
+       to object-fit: cover for these images; we don't override that so
+       per-page og:images (like About Me's headshot) stay cropped-to-fit
+       rather than letterboxed. The square nozzle-detailed.webp doesn't
+       care because aspect ratio = 1:1. */
+    width: 100% !important;
+    height: 100% !important;
   }
   /* Rotation restricted to the DEFAULT nozzle thumbnail only — Sean
      reported 2026-05-24 that SPR-0067's unscoped rule rotated the About
