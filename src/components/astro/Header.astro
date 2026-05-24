@@ -3537,7 +3537,12 @@ const navLinks = [
     width: 6px;
   }
   .header-search-results::-webkit-scrollbar-track {
-    background: transparent;
+    /* SPR-0071 (Sean direction 2026-05-24): soft glowing desaturated cyan
+       tint, close in color to the dropdown's near-white border (rgba(225,
+       248, 255, 0.95)) but at much lower alpha so the track reads as a
+       quiet glow rather than a solid color. */
+    background: rgba(225, 248, 255, 0.10);
+    border-radius: 3px;
   }
   /* Hide the up/down arrows at the ends of the scrollbar (browser default
      in webkit). Sean direction 2026-05-24: "ditch the scrollbar arrows
@@ -3549,22 +3554,18 @@ const navLinks = [
     display: none;
   }
   .header-search-results::-webkit-scrollbar-thumb {
-    /* Mirrors .scroll-indicator-thumb (global.css line 1133) — vertical
-       fade-at-edges gradient + outer glow. Sean direction 2026-05-23 iter
-       on SPR-0064's thumb: was a horizontal deep→glow→deep gradient
-       (laser-line feel); should be an almost-white cyan with blurred
-       glow (matches the main scrollbar's almost-white pink-purple thumb).
-       The fade-at-edges gradient gives the "blurred" feel without filter:
-       blur (which is unreliable on scrollbar pseudo-elements). Stops
-       (0/30/50/70/100%) and rgba values mirror the purple thumb's
-       construction, with the warm pink-white (255, 235-245, 250-252) rotated
-       to cool cyan-white (235-245, 250-252, 255). */
+    /* SPR-0071: brighter, more solid almost-white center than the previous
+       iter (SPR-0067's 0.85/0.95 alphas read as muted cyan against the
+       dark dropdown; the soft cyan track now visible behind also needed
+       more contrast). Bumped the center color to pure white at alpha
+       1.0 with cyan-hint edges. Mirrors the .scroll-indicator-thumb's
+       fade-at-edges gradient construction but with brighter inner stops. */
     background: linear-gradient(
       to bottom,
       transparent 0%,
-      rgba(235, 250, 255, 0.85) 30%,
-      rgba(245, 252, 255, 0.95) 50%,
-      rgba(235, 250, 255, 0.85) 70%,
+      rgba(245, 252, 255, 0.95) 30%,
+      rgba(255, 255, 255, 1.0) 50%,
+      rgba(245, 252, 255, 0.95) 70%,
       transparent 100%
     );
     /* Outer glow for additional "blur" effect — cyan-glow rgba matches
@@ -3631,6 +3632,15 @@ const navLinks = [
   .header-search-results :global(.pagefind-ui__search-clear) {
     display: none;
   }
+  /* SPR-0071 (Sean direction 2026-05-24): hide any other Pagefind UI form
+     chrome that isn't the drawer (search icons, decoration elements, etc.
+     that some Pagefind UI v1.x variants render between input and results).
+     The native magnifier in the screenshot was a residual element rendering
+     below the "X RESULTS FOR..." line, overlapping with it — this rule
+     clears the whole form except the drawer (which contains the results). */
+  .header-search-results :global(.pagefind-ui__form > *:not(.pagefind-ui__drawer)) {
+    display: none !important;
+  }
 
   /* Tighten the results "header" area — the .pagefind-ui__message line
      ("6 results for X") sits above the result list and ships with
@@ -3647,13 +3657,38 @@ const navLinks = [
     margin: 0;
   }
   .header-search-results :global(.pagefind-ui__message) {
-    margin: 0 0 var(--space-xs) 0;
+    /* SPR-0071 iter (Sean direction 2026-05-24): flex row with the count
+       text on the left and a synthetic magnifier icon on the right. The
+       original Pagefind UI magnifier is hidden by the
+       `.pagefind-ui__form > *:not(.pagefind-ui__drawer)` rule above; this
+       ::after below replaces it on the message row itself, keeping the
+       icon visible but placed at the line's right edge. Extra bottom
+       margin (was --space-xs, now --space-sm) gives breathing room
+       between the header line and the first result. */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 var(--space-sm) 0;
     padding: 0;
     font-size: 0.8125rem;
     font-family: var(--font-mono);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--color-fg-muted);
+  }
+  .header-search-results :global(.pagefind-ui__message)::after {
+    /* Inline SVG magnifier (data URL). Same muted color as the message
+       text (var(--color-fg-muted) approximated as a near-grey #888
+       within the SVG stroke). Sized to match the message's font-size
+       (14px ≈ 0.875rem). */
+    content: '';
+    display: inline-block;
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><line x1='21' y1='21' x2='16' y2='16'/></svg>");
+    background-repeat: no-repeat;
+    background-size: contain;
   }
 
   /* Whole-row clickability — Sean direction 2026-05-23: a Pagefind result
@@ -3702,35 +3737,39 @@ const navLinks = [
            (var(--space-sm) + 2px) to align with the dropdown's outer-
            left edge minus 2px (= 2px past the border's inner edge)
          * The image inside flows naturally within the thumb box */
-  /* SPR-0070 iter: Pagefind UI's Svelte-scoped CSS was winning the
-     cascade against my :global() rules at equal specificity (Pagefind UI
-     loads its CSS via JS at runtime AFTER Astro's compiled styles, so
-     tie-breaking by source order favors Pagefind UI). Two fixes here:
-     - Bumped specificity by adding `.pagefind-ui` to the selector chain
-       (compound: .pagefind-ui + .pagefind-ui__result = 0,3,0 vs Pagefind
-       UI's likely 0,2,0)
-     - Force `display: block` on .pagefind-ui__result to override the
-       default `display: flex` from Pagefind UI. With flex layout, my
-       `padding-left: 56px` was applying to the flex CONTAINER but the
-       flex content area kept the inner items at the row's left edge
-       regardless. Block layout makes padding-left behave traditionally
-     - !important on EVERY layout property — defensive against any
-       future Pagefind UI rule that might add !important too */
-  .header-search-results :global(.pagefind-ui .pagefind-ui__result) {
+  /* SPR-0071 (Sean direction 2026-05-24): scope ALL nozzle-specific layout
+     overrides to results with the DEFAULT nozzle thumbnail only — pages with
+     custom og:images (like About Me's headshot) should render with Pagefind
+     UI's defaults, no override. Detection via CSS :has() — the result has
+     an image whose src contains "nozzle-detailed" (the default fallback's
+     filename prefix; Astro hashes the rest but the prefix is stable).
+     Equivalent to adding a class via JS but doesn't require a MutationObserver
+     to re-apply it across Pagefind UI's result re-renders. :has() is supported
+     in all current browsers (Chrome 105+, Safari 15.4+, Firefox 121+).
+
+     What gets scoped to nozzle-only:
+     - display: block override of Pagefind UI's flex
+     - padding-left to reserve thumb space
+     - min-height for visible thumb on short results
+     - absolute-positioning of the thumb (tucked at left border)
+     - puff ::after pseudo-element + its animation
+
+     What stays generic (applies to ALL results):
+     - position:relative + cursor:pointer + overflow:visible (needed for the
+       whole-row clickability ::before overlay from SPR-0065 regardless of
+       thumb type)
+     - .pagefind-ui__result-image width/height fill so per-page og:images
+       also fill their thumb box cleanly */
+
+  /* Nozzle-result LAYOUT: only apply when the result's image is the default
+     nozzle. Custom og:image results fall back to Pagefind UI's default flex
+     layout — unchanged. */
+  .header-search-results :global(.pagefind-ui .pagefind-ui__result:has(.pagefind-ui__result-image[src*="nozzle-detailed"])) {
     display: block !important;
-    position: relative !important;
-    cursor: pointer;
-    overflow: visible;
-    /* Reserve horizontal space for the absolutely-positioned thumb +
-       gap between thumb and text. With display:block + padding-left,
-       .pagefind-ui__result-inner naturally flows starting at 56px from
-       the result's left edge. */
     padding-left: 56px !important;
-    /* min-height ensures the thumb is fully visible even when the
-       result's text content is short. */
     min-height: 50px !important;
   }
-  .header-search-results :global(.pagefind-ui .pagefind-ui__result-thumb) {
+  .header-search-results :global(.pagefind-ui .pagefind-ui__result:has(.pagefind-ui__result-image[src*="nozzle-detailed"]) .pagefind-ui__result-thumb) {
     position: absolute !important;
     left: calc(-1 * var(--space-sm) - 2px) !important;
     top: 8px !important;
@@ -3739,17 +3778,13 @@ const navLinks = [
     width: 44px !important;
     height: 44px !important;
     overflow: visible !important;
-    /* Ensure the image inside fills the thumb box exactly so the rotated
-       nozzle visual is anchored at the box's center (transform-origin
-       defaults to 50% 50%; the rotation pivots there). */
     display: block !important;
   }
+  /* Image fill — applies to ALL results (nozzle + custom og:image alike) so
+     the image always fills its thumb box rather than rendering at its native
+     dimensions inside an oversized container. object-fit not overridden;
+     Pagefind UI's default `cover` keeps non-square og:images cropped-to-fit. */
   .header-search-results :global(.pagefind-ui .pagefind-ui__result-image) {
-    /* Fill the thumb's 44×44 container exactly. Pagefind UI defaults
-       to object-fit: cover for these images; we don't override that so
-       per-page og:images (like About Me's headshot) stay cropped-to-fit
-       rather than letterboxed. The square nozzle-detailed.webp doesn't
-       care because aspect ratio = 1:1. */
     width: 100% !important;
     height: 100% !important;
   }
@@ -3787,7 +3822,12 @@ const navLinks = [
      navigation kicks in right as the puff fades.
      No nozzle motion (per Sean's "no moving the nozzle on click like we
      do for the AI search trigger") — only the puff ::after moves. */
-  .header-search-results :global(.pagefind-ui__result-thumb)::after {
+  /* SPR-0071 scope: puff ::after only on nozzle-result thumbs, matching
+     the nozzle-only layout overrides above. Custom og:image results never
+     have a puff ::after defined, so even if `is-puffing` got added (the JS
+     handler already early-exits for non-nozzle results), no animation
+     could fire. */
+  .header-search-results :global(.pagefind-ui__result:has(.pagefind-ui__result-image[src*="nozzle-detailed"]) .pagefind-ui__result-thumb)::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -3811,7 +3851,7 @@ const navLinks = [
        paints visibly while the click navigation is pending. */
     z-index: 3;
   }
-  .header-search-results :global(.pagefind-ui__result.is-puffing .pagefind-ui__result-thumb)::after {
+  .header-search-results :global(.pagefind-ui__result:has(.pagefind-ui__result-image[src*="nozzle-detailed"]).is-puffing .pagefind-ui__result-thumb)::after {
     /* 600ms (3x SPR-0066's 200ms) per Sean direction 2026-05-24 — the
        puff felt rushed at 200ms. 600ms gives the steam time to read as
        a deliberate puff rather than a flash. The JS setTimeout below
@@ -3838,7 +3878,7 @@ const navLinks = [
     100% { opacity: 0;    transform: translate(100px, -50%) scale(2.0); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .header-search-results :global(.pagefind-ui__result.is-puffing .pagefind-ui__result-thumb)::after {
+    .header-search-results :global(.pagefind-ui__result:has(.pagefind-ui__result-image[src*="nozzle-detailed"]).is-puffing .pagefind-ui__result-thumb)::after {
       animation: none;
     }
   }
