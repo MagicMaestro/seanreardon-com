@@ -3620,26 +3620,26 @@ const navLinks = [
        list start closer to the top edge. Sides + bottom stay at --space-sm.
        Was uniform var(--space-sm). */
     padding: var(--space-xs) var(--space-sm) var(--space-sm) var(--space-sm);
-    /* SPR-0076 (Sean dev-tools diagnosis 2026-05-24): REMOVED
-       `scrollbar-color: var(--color-electric-cyan) transparent`. Modern
-       Chrome (121+) respects the standard `scrollbar-color` property and
-       uses it INSTEAD of the `::-webkit-scrollbar-*` pseudo-elements when
-       both are present. With `transparent` as the track color, Chrome was
-       painting the track transparent — silently overriding the webkit-
-       scrollbar-track gradient rule. That's why the cyan gradient never
-       rendered despite being in the stylesheet (Sean's dev tools confirmed
-       the rule existed but visible track was solid black).
-       Solution: drop `scrollbar-color` entirely so Chrome falls back to
-       the webkit pseudo-elements (which DO support gradient backgrounds).
-       Firefox loses the cyan thumb fallback as a result — it'll show
-       default scrollbar styling. Acceptable trade-off: the dropdown is
-       on staging/production and Firefox usage is a small share. If a
-       Firefox-specific fallback is needed later, can add a flat-color
-       `scrollbar-color` only inside @supports (-moz-appearance: none) or
-       similar feature detection.
-       `scrollbar-width: thin` stays — it's compatible with webkit pseudos
-       (browser uses the pseudo-element styling, just at thin width). */
-    scrollbar-width: thin;
+    /* SPR-0077 (Sean dev-tools diagnosis 2026-05-24): REMOVED
+       `scrollbar-width: thin` too. SPR-0076 already removed `scrollbar-
+       color`, which I thought would unblock the webkit-scrollbar pseudo-
+       elements to fully render. But Sean's screenshot showed the scrollbar
+       reverting to the CLASSIC browser-default style — width was custom
+       (6px from my ::-webkit-scrollbar rule) but the gradient background
+       on ::-webkit-scrollbar-track wasn't painting.
+       Root cause: Chrome 121+ treats `scrollbar-width: thin` as a directive
+       to switch into a SIMPLIFIED scrollbar paint path that doesn't support
+       gradient backgrounds on webkit pseudo-elements — only solid colors.
+       Width customization still works (because that's a structural property);
+       background gradients silently get dropped.
+       Solution: remove `scrollbar-width: thin` too. Chrome falls back to its
+       default scrollbar width sizing (~12-14px on most platforms), AND fully
+       renders the webkit pseudo-element styling — including gradients on
+       ::-webkit-scrollbar-track. The `width: 6px` in my `::-webkit-
+       scrollbar` rule remains in effect for the structural sizing.
+       Combined effect of SPR-0076 (no scrollbar-color) + SPR-0077 (no
+       scrollbar-width): Chrome treats this fully as a custom-webkit-styled
+       scrollbar, allowing full visual control including gradient track. */
   }
 
   /* Custom scrollbar — mirrors the .scroll-indicator's center-bright
