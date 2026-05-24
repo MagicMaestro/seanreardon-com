@@ -3455,12 +3455,17 @@ const navLinks = [
   .header-search-results[hidden] {
     display: none !important;
   }
-  /* Hide PagefindUI's built-in input — the header search bar IS the
-     input. Same pattern as the /search/ page's :global override on
-     `.pagefind-ui__form`. Scoped here via descendant selector so it
-     only hides the dropdown's PagefindUI form, not the /search/
-     page's. */
-  .header-search-results :global(.pagefind-ui__form) {
+  /* Hide PagefindUI's built-in input + clear button — the header search
+     bar IS the input. We must NOT hide `.pagefind-ui__form` itself
+     because PagefindUI v1.x nests the entire .pagefind-ui__drawer
+     (containing .pagefind-ui__results-area + the actual result list)
+     INSIDE the form (per upstream's Svelte component tree). Hiding the
+     form hides all rendered results. SPR-0063 fix (Sean reported 2026-
+     05-23 via dev-tools DOM inspection — the results were rendered but
+     ancestor .pagefind-ui__form had display: none, making them invisible).
+     Same pattern applied to /search/'s :global rule. */
+  .header-search-results :global(.pagefind-ui__search-input),
+  .header-search-results :global(.pagefind-ui__search-clear) {
     display: none;
   }
 

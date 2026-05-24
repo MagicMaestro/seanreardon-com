@@ -83,11 +83,16 @@ const isDev = import.meta.env.DEV;
     --pagefind-ui-image-box-ratio: 3 / 2;
     --pagefind-ui-font: var(--font-body);
   }
-  /* Hide Pagefind UI's built-in search input — the header search bar is
-     the primary entry point. Users refining their query on the results
-     page use the header search (which persists with the query value per
-     the on-load restoration in Header.astro). */
-  :global(.pagefind-ui__form) {
+  /* Hide Pagefind UI's built-in search input + clear button — the header
+     search bar is the primary entry point. Users refining their query on
+     the results page use the header search (which persists with the
+     query value per the on-load restoration in Header.astro). We must
+     NOT hide .pagefind-ui__form itself: PagefindUI v1.x nests the
+     entire .pagefind-ui__drawer (containing .pagefind-ui__results-area)
+     INSIDE the form. Hiding the form would hide all rendered results.
+     Same SPR-0063 fix applied to .header-search-results in Header.astro. */
+  :global(.pagefind-ui__search-input),
+  :global(.pagefind-ui__search-clear) {
     display: none;
   }
 </style>
