@@ -810,6 +810,17 @@ const navLinks = [
           if (reducedMotion) return;
           const result = link.closest<HTMLElement>('.pagefind-ui__result');
           if (!result) return;
+          /* Skip the puff for results whose thumbnail is NOT the default
+             nozzle (i.e., the page has its own og:image — like About Me's
+             headshot). The puff is a property of the nozzle motif; firing
+             it on a non-nozzle thumb (a face, a screenshot, etc.) reads
+             as a non-sequitur. Sean direction 2026-05-24: "Only this
+             default image should be rotated and perform the animation."
+             Detection: same nozzle-detailed prefix the CSS rotation rule
+             uses. If no thumbnail or it's a custom og:image, navigate
+             immediately. */
+          const img = result.querySelector<HTMLImageElement>('.pagefind-ui__result-image');
+          if (!img || !img.src.includes('nozzle-detailed')) return;
           e.preventDefault();
           result.classList.add('is-puffing');
           window.setTimeout(() => {
@@ -3528,6 +3539,15 @@ const navLinks = [
   .header-search-results::-webkit-scrollbar-track {
     background: transparent;
   }
+  /* Hide the up/down arrows at the ends of the scrollbar (browser default
+     in webkit). Sean direction 2026-05-24: "ditch the scrollbar arrows
+     and extend the scrollbar to cover their missing space." `display:
+     none` removes both the arrow visuals AND their occupied height; the
+     track + thumb gradient then extend to fill the full vertical extent
+     of the scrollbar without the dead-space chrome at top/bottom. */
+  .header-search-results::-webkit-scrollbar-button {
+    display: none;
+  }
   .header-search-results::-webkit-scrollbar-thumb {
     /* Mirrors .scroll-indicator-thumb (global.css line 1133) — vertical
        fade-at-edges gradient + outer glow. Sean direction 2026-05-23 iter
@@ -3680,15 +3700,28 @@ const navLinks = [
     margin-left: calc(-1 * var(--space-sm) - 2px);
     overflow: visible;
   }
-  /* Rotation needs a more specific selector + !important to override
-     Pagefind UI's own defaults — without these the rotation Sean asked
-     for in SPR-0066 wasn't applying (the nozzles were still pointing up
-     in his 2026-05-24 staging review). The compound selector raises
-     specificity to 0,3,0 (matching Pagefind UI's likely scoped-attribute
-     selector specificity); !important is belt-and-suspenders against any
-     other transform a future Pagefind release might add. */
-  .header-search-results :global(.pagefind-ui__result-thumb .pagefind-ui__result-image) {
+  /* Rotation restricted to the DEFAULT nozzle thumbnail only — Sean
+     reported 2026-05-24 that SPR-0067's unscoped rule rotated the About
+     Me result's headshot too (his face was sideways in the dropdown).
+     The default nozzle's filename always starts with `nozzle-detailed`
+     (Astro hashes the rest, but the prefix is stable). [src*=...]
+     attribute selector targets only matching images; pages with their
+     own og:image (like About Me's headshot) render upright as Pagefind
+     UI's default expects. */
+  .header-search-results :global(.pagefind-ui__result-thumb .pagefind-ui__result-image[src*="nozzle-detailed"]) {
     transform: rotate(90deg) !important;
+  }
+
+  /* Reset Pagefind UI's default <ol> chrome — browsers ship `<ol>` with
+     padding-inline-start: 40px (room for list-style markers). That's the
+     source of the ~2rem gap Sean reported 2026-05-24 between the nozzle's
+     left edge and the dropdown's left border. List markers aren't visible
+     anyway (we don't want numeric "1. 2. 3." prefixes on search results),
+     so list-style: none + padding: 0 is the right reset. */
+  .header-search-results :global(.pagefind-ui__results) {
+    list-style: none;
+    padding: 0;
+    margin: 0;
   }
 
   /* Steam puff on click — Sean direction 2026-05-24 (option B from
