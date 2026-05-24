@@ -327,7 +327,9 @@ const curatedPicks = [
          skip — updateIndicator handles its own null check. */
       if (nozzle) {
         nozzle.classList.add('is-initial-slide');
-        window.setTimeout(() => nozzle.classList.remove('is-initial-slide'), 550);
+        /* 1600ms = 1530ms transition + 70ms safety margin. SPR-0080 bumped
+           from 550ms to match the SPR-0080 transition increase. */
+        window.setTimeout(() => nozzle.classList.remove('is-initial-slide'), 1600);
       }
       // Initial + after resources finish loading (in case content height changes)
       updateIndicator();
@@ -369,7 +371,23 @@ const curatedPicks = [
         }
       }
 
+      /* SPR-0080 (Sean direction 2026-05-24): suppress the h2-laser page-
+         load animation. The CSS fallback 12.5vw+1rem renders first; then
+         the JS setProperty above kicks the value to the measured distance;
+         the 300ms transition between those two values produces a visible
+         "laser slides in from viewport edge" animation that Sean doesn't
+         want. Add the `.h2-laser-suppress-initial` class to each h2
+         BEFORE the first updateDrawerH2Lasers call, then remove it after
+         a couple of rAF ticks so the next render cycle has the no-
+         transition state locked in. Resize-triggered calls don't add the
+         class, so breakpoint-crossing transitions still animate. */
+      drawerH2s.forEach((h2) => h2.classList.add('h2-laser-suppress-initial'));
       updateDrawerH2Lasers();
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          drawerH2s.forEach((h2) => h2.classList.remove('h2-laser-suppress-initial'));
+        });
+      });
       window.addEventListener('resize', updateDrawerH2Lasers);
       window.addEventListener('load', updateDrawerH2Lasers);
     </script>

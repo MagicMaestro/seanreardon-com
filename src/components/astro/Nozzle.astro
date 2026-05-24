@@ -187,7 +187,12 @@ import nozzleImg from '~/assets/images/nozzle-detailed.png';
      it wins on ties. data-scrolling shouldn't be true at page-load anyway
      (no scroll yet), so no real conflict. */
   .site-nozzle.is-initial-slide {
-    transition: transform 510ms ease-out, left 300ms ease-out;
+    /* SPR-0080 (Sean direction 2026-05-24): tripled again from SPR-0079's
+       510ms to 1530ms. Sean still found 510ms too fast for the entry
+       animation — wanted ~1.5s for the deliberate page-load slide. The
+       BaseLayout setTimeout that removes this class also bumps to 1600ms
+       (was 550ms) so the class persists through the full transition. */
+    transition: transform 1530ms ease-out, left 300ms ease-out;
   }
 
   .site-nozzle-img {

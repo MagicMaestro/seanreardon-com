@@ -781,6 +781,12 @@ main > :is(div, article, section) > h2:not(.full-bleed)::after {
      consistency. */
   left: calc(-1 * var(--h2-laser-distance, 12.5vw + 1rem));
   width: calc(var(--h2-laser-distance, 12.5vw + 1rem) + 0.25rem);
+  /* SPR-0080: transition kept for resize-triggered changes (breakpoint
+     crossings should still slide the laser in lockstep with the
+     scrollbar/main). The .h2-laser-suppress-initial class added by
+     BaseLayout's script for the first updateDrawerH2Lasers call disables
+     this transition during the page-load measurement so the initial
+     fallback→JS-value change doesn't animate. */
   transition: left 300ms ease-out, width 300ms ease-out;
   /* 0.3rem thickness matches the sub-nav vertical laser's
      `--subnav-laser-thickness`. The center-bright gradient runs ACROSS
@@ -826,6 +832,24 @@ main > :is(div, article, section) > h2:not(.full-bleed)::after {
    which handles all viewport widths AND float-narrowed h2 positions
    uniformly. The pure-CSS calc was unable to handle floats (h2 with
    `display: flow-root` shifts when next to a float). */
+
+/* SPR-0080 (Sean direction 2026-05-24): suppress the page-load h2-laser
+   transition. The CSS fallback (12.5vw + 1rem) puts the laser wider than
+   most JS-measured values on first paint, then the JS setProperty kicks
+   in and the 300ms transition animates the laser "shrinking" with the
+   right edge anchored. Sean wants NO animation on page load — the laser
+   should just appear at its final position. BaseLayout's script adds the
+   `.h2-laser-suppress-initial` class to each h2 BEFORE the first
+   updateDrawerH2Lasers call, then removes it after the value is set, so
+   the initial fallback→JS-value change doesn't animate. Subsequent
+   resize-triggered changes still get the 300ms ease-out (no class added
+   for those calls).
+   Specificity: 0,2,2 (main > h2:not(.full-bleed).h2-laser-suppress-initial
+   ::after) vs the base rule's 0,1,2 — wins reliably. */
+main > h2:not(.full-bleed).h2-laser-suppress-initial::after,
+main > :is(div, article, section) > h2:not(.full-bleed).h2-laser-suppress-initial::after {
+  transition: none !important;
+}
 
 h3 {
   font-family: var(--font-subhead);
