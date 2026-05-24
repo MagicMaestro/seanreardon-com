@@ -842,7 +842,9 @@ const navLinks = [
                      offset; thumb's left edge sits 2px past the dropdown's
                      border's inner edge. */
                   left: 'calc(-1rem - 2px)',
-                  top: '8px',
+                  /* SPR-0074 (Sean direction 2026-05-24): vertically center
+                     the nozzle in the result row using calc(50% - 2rem). */
+                  top: 'calc(50% - 2rem)',
                   margin: '0',
                   padding: '0',
                   width: '44px',
@@ -852,7 +854,17 @@ const navLinks = [
                 });
               }
               if (img) {
+                /* SPR-0074: force the image to fill the thumb container
+                   exactly via position:absolute + inset:0. Per Sean's
+                   dev-tools inspection, the thumb was positioning correctly
+                   but the img inside was staying at its Pagefind-UI-default
+                   position (relative to a different containing block,
+                   apparently). Absolute positioning + inset:0 anchors the
+                   img to the thumb's four edges directly — no ambiguity
+                   about which ancestor it follows. */
                 Object.assign(img.style, {
+                  position: 'absolute',
+                  inset: '0',
                   transform: 'rotate(90deg)',
                   width: '100%',
                   height: '100%',
@@ -3627,11 +3639,11 @@ const navLinks = [
     width: 6px;
   }
   .header-search-results::-webkit-scrollbar-track {
-    /* SPR-0071 (Sean direction 2026-05-24): soft glowing desaturated cyan
-       tint, close in color to the dropdown's near-white border (rgba(225,
-       248, 255, 0.95)) but at much lower alpha so the track reads as a
-       quiet glow rather than a solid color. */
-    background: rgba(225, 248, 255, 0.10);
+    /* SPR-0074 iter on SPR-0071: track alpha was 0.10 — too subtle to read
+       as a "soft glowing cyan" against the dark dropdown bg. Bumped to
+       0.30 — visibly present but still well below the dropdown's border
+       alpha (0.95) so it doesn't compete. */
+    background: rgba(225, 248, 255, 0.30);
     border-radius: 3px;
   }
   /* Hide the up/down arrows at the ends of the scrollbar (browser default
@@ -3644,26 +3656,25 @@ const navLinks = [
     display: none;
   }
   .header-search-results::-webkit-scrollbar-thumb {
-    /* SPR-0071: brighter, more solid almost-white center than the previous
-       iter (SPR-0067's 0.85/0.95 alphas read as muted cyan against the
-       dark dropdown; the soft cyan track now visible behind also needed
-       more contrast). Bumped the center color to pure white at alpha
-       1.0 with cyan-hint edges. Mirrors the .scroll-indicator-thumb's
-       fade-at-edges gradient construction but with brighter inner stops. */
+    /* SPR-0074 iter (Sean still perceives the thumb as "saturated cyan"
+       despite SPR-0071's white-cyan gradient): aggressive shift toward
+       pure white throughout. Gradient transitions: tightened the fade-
+       at-edges window so the white core dominates more of the visible
+       thumb height. Edges fade only in the first 15% / last 85%, instead
+       of 30%/70%. Center is solid white at alpha 1.0. */
     background: linear-gradient(
       to bottom,
       transparent 0%,
-      rgba(245, 252, 255, 0.95) 30%,
+      rgba(255, 255, 255, 1.0) 15%,
       rgba(255, 255, 255, 1.0) 50%,
-      rgba(245, 252, 255, 0.95) 70%,
+      rgba(255, 255, 255, 1.0) 85%,
       transparent 100%
     );
-    /* Outer glow for additional "blur" effect — cyan-glow rgba matches
-       the .scroll-indicator-thumb's purple-glow rgba(244,160,255) at the
-       same intensities (0.7 + 0.4). */
-    box-shadow:
-      0 0 4px rgba(102, 232, 255, 0.7),
-      0 0 8px rgba(102, 232, 255, 0.4);
+    /* SPR-0074: reduced cyan halo so the white thumb stands out instead
+       of being washed in cyan. Single softer shadow at lower opacity.
+       The track behind (now at 0.30 alpha cyan) provides the contextual
+       cyan glow; the thumb itself reads as white-with-soft-halo. */
+    box-shadow: 0 0 4px rgba(180, 240, 250, 0.35);
     border-radius: 3px;
   }
 
@@ -3756,17 +3767,11 @@ const navLinks = [
     margin: 0;
   }
   .header-search-results :global(.pagefind-ui__message) {
-    /* SPR-0071 iter (Sean direction 2026-05-24): flex row with the count
-       text on the left and a synthetic magnifier icon on the right. The
-       original Pagefind UI magnifier is hidden by the
-       `.pagefind-ui__form > *:not(.pagefind-ui__drawer)` rule above; this
-       ::after below replaces it on the message row itself, keeping the
-       icon visible but placed at the line's right edge. Extra bottom
-       margin (was --space-xs, now --space-sm) gives breathing room
-       between the header line and the first result. */
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    /* SPR-0074 simplified: dropped the flex layout. The magnifier icon is
+       now Pagefind UI's own .pagefind-ui__form::before, repositioned via
+       the rule below — not a synthetic ::after on the message anymore.
+       The message returns to a normal block paragraph with bottom margin
+       for breathing room between the header and the first result. */
     margin: 0 0 var(--space-sm) 0;
     padding: 0;
     font-size: 0.8125rem;
@@ -3775,19 +3780,24 @@ const navLinks = [
     letter-spacing: 0.06em;
     color: var(--color-fg-muted);
   }
-  .header-search-results :global(.pagefind-ui__message)::after {
-    /* SPR-0073: swapped from inline-SVG-data-URL to unicode character.
-       The SVG approach had unencoded < and > inside the url() value,
-       which Astro's CSS compiler or downstream minifier may have
-       choked on — silently invalidating the rule (or worse, the
-       containing block). Unicode 🔍 (U+1F50D LEFT-POINTING MAGNIFYING
-       GLASS) renders across all modern OSes via the system font.
-       Color is system-emoji default (typically muted gray on most
-       platforms). */
-    content: '🔍';
-    flex-shrink: 0;
-    font-size: 0.75rem;
-    opacity: 0.7;
+  /* SPR-0074 (Sean direction 2026-05-24): the original magnifier is
+     Pagefind UI's `.pagefind-ui__form::before` pseudo-element. SPR-0073's
+     synthetic ::after on the message was creating a DUPLICATE in the
+     right position while the original kept rendering in its default place.
+     Fix: keep Pagefind UI's ::before visible (don't hide it, don't restyle
+     its appearance) but absolutely-position it at the form's top-right
+     corner. The form's top-right ≈ message row's top-right because the
+     hidden input + clear button take no space (display:none), so the
+     drawer (and message row inside it) starts at the form's top. */
+  .header-search-results :global(.pagefind-ui__form) {
+    position: relative !important;
+  }
+  .header-search-results :global(.pagefind-ui__form)::before {
+    position: absolute !important;
+    top: 6px !important;
+    right: 0 !important;
+    /* Don't touch content/background-image/width/height — Pagefind UI's
+       defaults render the magnifier visual. We're ONLY repositioning. */
   }
 
   /* Whole-row clickability — Sean direction 2026-05-23: a Pagefind result
