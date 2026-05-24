@@ -855,7 +855,12 @@ main > :is(div, article, section) > h2:not(.full-bleed)::after {
 main > h2:not(.full-bleed),
 main > :is(div, article, section) > h2:not(.full-bleed) {
   opacity: 0;
-  transition: opacity 500ms ease-out;
+  /* SPR-0083 (Sean direction 2026-05-24): 250ms delay before the 500ms
+     fade-in starts. Total: class-add → 250ms wait → 500ms fade → fully
+     visible at 750ms after the JS reveal. The delay gives the page chrome
+     (header, scrollbar, nozzle) a beat to settle before the h2 content
+     fades in — feels less rushed. */
+  transition: opacity 500ms ease-out 250ms;
 }
 main > h2:not(.full-bleed).is-laser-ready,
 main > :is(div, article, section) > h2:not(.full-bleed).is-laser-ready {
