@@ -3639,11 +3639,20 @@ const navLinks = [
     width: 6px;
   }
   .header-search-results::-webkit-scrollbar-track {
-    /* SPR-0074 iter on SPR-0071: track alpha was 0.10 — too subtle to read
-       as a "soft glowing cyan" against the dark dropdown bg. Bumped to
-       0.30 — visibly present but still well below the dropdown's border
-       alpha (0.95) so it doesn't compete. */
-    background: rgba(225, 248, 255, 0.30);
+    /* SPR-0075 (Sean switched preference from option B back to option A
+       2026-05-24): horizontal cyan gradient mirroring the main
+       .scroll-indicator's deep→mid→glow→mid→deep pattern (global.css line
+       1080) but desaturated via low alpha so it reads as a "soft glowing"
+       track, not a full laser. Same structure, ~0.4 alpha on the stops. */
+    background: linear-gradient(
+      to right,
+      rgba(0, 133, 198, 0.40) 0%,
+      rgba(0, 221, 255, 0.40) 35%,
+      rgba(102, 232, 255, 0.50) 50%,
+      rgba(0, 221, 255, 0.40) 65%,
+      rgba(0, 133, 198, 0.40) 100%
+    );
+    box-shadow: inset 0 0 4px rgba(102, 232, 255, 0.4);
     border-radius: 3px;
   }
   /* Hide the up/down arrows at the ends of the scrollbar (browser default
@@ -3795,6 +3804,15 @@ const navLinks = [
   .header-search-results :global(.pagefind-ui__form)::before {
     position: absolute !important;
     top: 6px !important;
+    /* SPR-0075 fix per Sean's dev-tools screenshot: Pagefind UI's default
+       `.pagefind-ui__form::before` rule sets `left: calc(20px * var(--pagefind-
+       ui-scale))` WITHOUT !important — but with absolute positioning + a
+       fixed width, when both `left` AND `right` are set, LTR layout uses
+       `left` and ignores `right`. My SPR-0074's `right: 0` was being silently
+       ignored. Explicitly setting `left: auto !important` releases the
+       conflict so `right: 0` takes effect, pinning the magnifier to the
+       form's RIGHT edge. */
+    left: auto !important;
     right: 0 !important;
     /* Don't touch content/background-image/width/height — Pagefind UI's
        defaults render the magnifier visual. We're ONLY repositioning. */
@@ -3883,7 +3901,12 @@ const navLinks = [
   .header-search-results :global(.pagefind-ui .pagefind-ui__result.is-nozzle-result .pagefind-ui__result-thumb) {
     position: absolute !important;
     left: calc(-1 * var(--space-sm) - 2px) !important;
-    top: 8px !important;
+    /* SPR-0075 per Sean's exact spec: top: calc(50% - 2rem) !important.
+       Vertically centers the nozzle in the result row. JS also sets this
+       as an inline style; the CSS rule here is belt-and-suspenders so the
+       value is applied even if the inline style somehow gets stripped or
+       isn't applied yet. */
+    top: calc(50% - 2rem) !important;
     margin: 0 !important;
     padding: 0 !important;
     width: 44px !important;
