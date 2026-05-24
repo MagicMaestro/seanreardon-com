@@ -172,6 +172,24 @@ import nozzleImg from '~/assets/images/nozzle-detailed.png';
     transition: left 300ms ease-out;
   }
 
+  /* SPR-0079 (Sean direction 2026-05-24): on page load, the nozzle starts
+     at the 80vh fallback (CSS default for --nozzle-y, see line 128) and
+     animates to its scroll-tracked resting position when the first
+     updateNozzleY() fires. The standard 170ms transform transition made
+     that initial slide feel FAST — Sean wants ~2.5–3x slower so the page-
+     entry reads as a deliberate "nozzle slides into place" rather than a
+     snap. BaseLayout's script adds this class right before the first
+     updateIndicator()/updateNozzleY() call and removes it 550ms later
+     (after the 510ms transition completes), so SUBSEQUENT scroll-driven Y
+     updates AND the click-recess animation continue to use the standard
+     170ms transition. The is-initial-slide compound class has specificity
+     0,2,0 — same as data-scrolling, but it sits later in source order so
+     it wins on ties. data-scrolling shouldn't be true at page-load anyway
+     (no scroll yet), so no real conflict. */
+  .site-nozzle.is-initial-slide {
+    transition: transform 510ms ease-out, left 300ms ease-out;
+  }
+
   .site-nozzle-img {
     display: block;
     /* Width + height 100% with object-fit:contain fits the PNG (97×104)

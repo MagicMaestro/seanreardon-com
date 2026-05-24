@@ -317,6 +317,18 @@ const curatedPicks = [
 
       window.addEventListener('scroll', onScrollOrResize, { passive: true });
       window.addEventListener('resize', onScrollOrResize);
+      /* SPR-0079: slow the nozzle's initial slide (from 80vh fallback to
+         scroll-tracked Y) per Sean direction 2026-05-24. Add the class
+         immediately before the first updateIndicator() call so the long
+         transition is active for the resulting style change; remove it
+         550ms later so subsequent scroll-driven updates use the standard
+         170ms transform transition.
+         If the nozzle ref is null (page without the nozzle, somehow),
+         skip — updateIndicator handles its own null check. */
+      if (nozzle) {
+        nozzle.classList.add('is-initial-slide');
+        window.setTimeout(() => nozzle.classList.remove('is-initial-slide'), 550);
+      }
       // Initial + after resources finish loading (in case content height changes)
       updateIndicator();
       updateRope();
