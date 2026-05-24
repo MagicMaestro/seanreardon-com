@@ -115,6 +115,20 @@ const curatedPicks = [
         Best in zone-analytics mode (server-side, no client JS) once the domain is proxied
         through CF. Until then, the standalone JS beacon goes here. See the GDPR + CPRA-lite
         standing rule in CLAUDE.md for what other tracking would (re)introduce a banner. */}
+
+    {/* SPR-0082: noscript fallback for h2 visibility. global.css defaults
+        h2 to opacity:0; JS adds .is-laser-ready to reveal. For users with
+        JS disabled, that class never gets added — without this fallback,
+        h2s would stay invisible forever. !important to defeat the
+        opacity:0 default's same-specificity cascade. */}
+    <noscript>
+      <style>
+        main > h2:not(.full-bleed),
+        main > :is(div, article, section) > h2:not(.full-bleed) {
+          opacity: 1 !important;
+        }
+      </style>
+    </noscript>
   </head>
   <body>
     <Header />
@@ -371,22 +385,22 @@ const curatedPicks = [
         }
       }
 
-      /* SPR-0080 (Sean direction 2026-05-24): suppress the h2-laser page-
-         load animation. The CSS fallback 12.5vw+1rem renders first; then
-         the JS setProperty above kicks the value to the measured distance;
-         the 300ms transition between those two values produces a visible
-         "laser slides in from viewport edge" animation that Sean doesn't
-         want. Add the `.h2-laser-suppress-initial` class to each h2
-         BEFORE the first updateDrawerH2Lasers call, then remove it after
-         a couple of rAF ticks so the next render cycle has the no-
-         transition state locked in. Resize-triggered calls don't add the
-         class, so breakpoint-crossing transitions still animate. */
-      drawerH2s.forEach((h2) => h2.classList.add('h2-laser-suppress-initial'));
+      /* SPR-0082 (Sean direction 2026-05-24): h2 + laser fade-in on
+         page load. CSS in global.css defaults h2 to opacity:0 so the
+         CSS-fallback laser width is invisible from first paint (before
+         any JS runs — no flash possible). After the first
+         updateDrawerH2Lasers measurement, add `.is-laser-ready` to each
+         h2 to trigger the opacity:1 transition (500ms ease-out fade-in).
+         By the time opacity reaches 1, the laser's left/width are at
+         their measured values — the transition fires under the opacity:0
+         cover, invisible to the user.
+         Wrapped in a single rAF after the measurement so the browser
+         has a chance to apply the measurement values before the opacity
+         transition starts. Resize-triggered calls don't touch the class
+         (h2s stay revealed). */
       updateDrawerH2Lasers();
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          drawerH2s.forEach((h2) => h2.classList.remove('h2-laser-suppress-initial'));
-        });
+        drawerH2s.forEach((h2) => h2.classList.add('is-laser-ready'));
       });
       window.addEventListener('resize', updateDrawerH2Lasers);
       window.addEventListener('load', updateDrawerH2Lasers);

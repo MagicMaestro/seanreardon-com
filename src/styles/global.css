@@ -833,44 +833,33 @@ main > :is(div, article, section) > h2:not(.full-bleed)::after {
    uniformly. The pure-CSS calc was unable to handle floats (h2 with
    `display: flow-root` shifts when next to a float). */
 
-/* SPR-0080 (Sean direction 2026-05-24): suppress the page-load h2-laser
-   transition. The CSS fallback (12.5vw + 1rem) puts the laser wider than
-   most JS-measured values on first paint, then the JS setProperty kicks
-   in and the 300ms transition animates the laser "shrinking" with the
-   right edge anchored. Sean wants NO animation on page load — the laser
-   should just appear at its final position. BaseLayout's script adds the
-   `.h2-laser-suppress-initial` class to each h2 BEFORE the first
-   updateDrawerH2Lasers call, then removes it after the value is set, so
-   the initial fallback→JS-value change doesn't animate. Subsequent
-   resize-triggered changes still get the 300ms ease-out (no class added
-   for those calls).
-   Specificity: 0,2,2 (main > h2:not(.full-bleed).h2-laser-suppress-initial
-   ::after) vs the base rule's 0,1,2 — wins reliably. */
-main > h2:not(.full-bleed).h2-laser-suppress-initial::after,
-main > :is(div, article, section) > h2:not(.full-bleed).h2-laser-suppress-initial::after {
-  transition: none !important;
-}
-
-/* SPR-0081 (Sean direction 2026-05-24): on top of SPR-0080's transition
-   suppression, ALSO hide the h2 itself during the suppress window. The
-   transition-suppress alone wasn't enough — there was still a brief
-   single-frame flash where the laser rendered at its 12.5vw+1rem CSS
-   fallback width before the JS setProperty kicked in. Opacity:0 during
-   the suppress window hides BOTH the h2 text AND its ::after laser (the
-   pseudo inherits the parent's effective opacity via the parent's render
-   stack), so the flash is fully invisible.
-   When BaseLayout removes the .h2-laser-suppress-initial class (2 rAF
-   ticks after first updateDrawerH2Lasers), the h2's opacity returns to
-   its default (1) via the opacity transition declared on the base
-   selectors below — 500ms ease-out fade-in. The cascade change is the
-   trigger; no explicit JS opacity manipulation needed. */
-main > h2:not(.full-bleed).h2-laser-suppress-initial,
-main > :is(div, article, section) > h2:not(.full-bleed).h2-laser-suppress-initial {
-  opacity: 0;
-}
+/* SPR-0082 (Sean direction 2026-05-24): h2 + laser fade-in on page load.
+   Replaces SPR-0080's suppress-class approach (which didn't reach first
+   paint because the class was JS-added, leaving a flash window) AND
+   SPR-0081's opacity-via-suppress-class (same first-paint window issue).
+   New logic — INVERT the cascade:
+   - h2 DEFAULTS to opacity:0 (applied on first paint, before any JS runs
+     — so the laser's CSS-fallback width is invisible from the start, no
+     flash possible)
+   - h2 has a 500ms opacity transition by default
+   - JS in BaseLayout adds `.is-laser-ready` to each h2 AFTER the first
+     updateDrawerH2Lasers measurement; that class triggers opacity:1, the
+     transition fires, h2 + laser fade in together over 500ms
+   - The laser's left/width transition (300ms ease-out, declared at the
+     ::after rule earlier in this file) still fires when the JS setProperty
+     changes the value, but it's invisible because opacity is 0 during
+     that window — no visible animation, no flash, no slide. By the time
+     opacity reaches 1, left/width are at their measured values
+   - Noscript fallback at the bottom of this block reveals h2s for users
+     with JS disabled (otherwise h2s would stay at opacity:0 forever) */
 main > h2:not(.full-bleed),
 main > :is(div, article, section) > h2:not(.full-bleed) {
+  opacity: 0;
   transition: opacity 500ms ease-out;
+}
+main > h2:not(.full-bleed).is-laser-ready,
+main > :is(div, article, section) > h2:not(.full-bleed).is-laser-ready {
+  opacity: 1;
 }
 
 h3 {
