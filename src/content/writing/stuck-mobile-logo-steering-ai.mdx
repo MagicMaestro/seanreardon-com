@@ -1,0 +1,35 @@
+---
+title: "A stuck mobile logo, and what it taught me about steering AI"
+date: 2026-05-23
+summary: The AI agent helping with my logo refinement proposed five substrate rebuilds for a mobile-logo contrast problem. None landed. The fix was amplifying one existing effect. Here's what that pattern tells me about steering AI on creative tasks.
+tags: [ai-integration, design, retrospective, redesign]
+status: published
+---
+
+My mobile-friendly logo that I use for this site is a copper diamond with the letters "SR" carved into one segment. At desktop scale, brass letterforms on copper read well enough — different enough in hue, similar enough in value, distinct without screaming. At favicon scale — 32 pixels, 16 pixels, lurking in a browser tab — the contrast collapsed. The letters disappeared into the diamond. This problem wasn't only an issue for the favicon, but also for the mobile logo.
+
+So I wanted to give this a test and decided to work through this one with the AI agent assisting on logo refinement. Five proposals came back in sequence:
+
+- A recessed bevel underplate beneath the SR letters — a darker tone the letters would sit on
+- A dark-bronze segment substrate — recolor the diamond cell holding the SR
+- A polished-copper segment — same idea, different finish
+- A brass segment with brass-dark SR — flip the relationship
+- A cyan-illuminated copper segment — borrow the laser color from elsewhere in the mark
+
+Each one was reasonable in isolation. I built a few of them out partway. None landed. The mark either lost its material vocabulary — that "unified copper artifact" feel — or it still couldn't read at 32 pixels. Bottom line, it just wasn't working out based on the AI's suggestions.
+
+So I undid most of the additions and tried something different. The SR layer already had an Outer Glow effect on it, sitting at a default Size of around 5px. I cranked the slider until the glow filled the segment cell — somewhere near 80px on the source PSD. I added a layer mask to clip the glow to the diamond segment so it wouldn't bleed into the rest of the mark. I disabled the Inner Shadow and the Drop Shadow that had piled on during the failed iterations. That was it. The letters sat in a warm, contained pool of light against the surrounding copper. Contrast came from focal illumination — SR is the brightest, warmest spot — not from changing what the letters were sitting on.
+
+What changed structurally: one slider, one mask, two effects turned off. The diamond was the same diamond. The brass was the same brass. The channel walls, the copper, the laser, the SR text — all identical to before. The mark held its material vocabulary because I didn't restructure it.
+
+That's the part worth naming. Across five proposals, the recommendations all iterated within the same frame — *change the substrate the letters sit on*. Each individual variation was a competent answer to that framing. The framing itself never got questioned by the cascade. It got questioned by stepping outside the cascade and asking what was already on the layer that could just do more.
+
+I think this is a real bias in working with AI on creative tasks. Documentation, tutorials, Stack Overflow answers — all biased toward *adding things*. "How do I get X effect" is a more common question than "what existing effect on this layer can I push harder." The bias shows up as: every proposal adds a layer, a substrate, an effect, a new structural element. The layer count climbs iteration to iteration. That climb feels like progress because each step is a discrete action. But unfortunately, many times, it isn't progress at all. It's just the same wrong frame, painted in five colors.
+
+The heuristic I'm now working with: **count the layers in the proposed solution against where you started.** If the count keeps going up across iterations and the design still isn't landing, the framework you're iterating inside is probably the thing that needs to change. The right answer often involves the layer count going *down* — disable two effects — or staying the same with a single existing value pushed harder.
+
+But despite my learnings on this test, this isn't an anti-AI lesson. The agent diagnosed each failed approach correctly. When I described why the dark-bronze segment broke the material vocabulary, it agreed and proposed the next variant. The collaboration was working at a tactical level. What it couldn't do — what only I could do, sitting at the canvas — was step back and ask whether to *swap the substrate* was the right shape of the question in the first place.
+
+In [*Embracing AI: Obsolescence was the wrong fear*](/lessons-learned/obsolescence-was-the-wrong-fear), I wrote that the ceiling on what one designer can ship has moved — that the constraint is curiosity rather than time, but the steering still has to be conscious. This is one small piece of evidence that points to the importance of that steering. A fast collaborator can produce five variants of the wrong question before you finish your coffee. But the judgment about whether the question itself is the right one to ask has to come from somewhere else. Someone else.
+
+Someone beyond the circuits. The AI Conductor.
