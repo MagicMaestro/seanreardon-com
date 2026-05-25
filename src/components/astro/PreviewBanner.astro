@@ -1,0 +1,82 @@
+---
+/* ============================================================================
+   PreviewBanner — fixed top bar shown only on staging PR/branch previews
+   ============================================================================
+   Reads `import.meta.env.PUBLIC_PREVIEW_LABEL` at build time. The label is
+   set by deploy-staging.yml only for non-main builds (pull_request events
+   and workflow_dispatch with a non-main ref). When unset, the component
+   renders nothing — production builds and main-branch staging builds have
+   no banner.
+
+   Why it's permanent (not dismissible) per Sean direction 2026-05-25:
+   "the preview banner is the most obvious signal (aside from the URL
+   subdomain) that I'm on staging. Keep it fixed and above all other
+   elements permanently. If I need to see something behind it, I'll
+   change the element to display: none in the dev tools."
+
+   Z-index: 99999 — above the site header (z-100), the nav drawer
+   (z-200), the AI search modal (z-300), the nozzle (z-30), the scroll
+   indicator (z-40), and anything else the site renders. This is the
+   "always on top" preview marker.
+
+   Visual: high-contrast orange/yellow gradient. Deliberately NOT in the
+   site's design palette (cyan / purple / brass) — the banner should
+   read as "system chrome, not page content" so a reviewer never confuses
+   it for an intentional design element. */
+
+const previewLabel = import.meta.env.PUBLIC_PREVIEW_LABEL;
+---
+
+{previewLabel && (
+  <div class="preview-banner" role="status" aria-label="Staging preview environment">
+    <span class="preview-banner__icon" aria-hidden="true">⚠</span>
+    <span class="preview-banner__text">PREVIEW: {previewLabel}</span>
+  </div>
+)}
+
+<style>
+  .preview-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1rem;
+    background: linear-gradient(
+      to right,
+      #FF6B35 0%,
+      #FFB800 50%,
+      #FF6B35 100%
+    );
+    color: #1A1A1A;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    /* Prevent user-select so a reviewer dragging on the page text doesn't
+       accidentally select the banner. */
+    user-select: none;
+    /* Truncate long PR titles rather than wrap (banner stays single-line). */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .preview-banner__icon {
+    flex-shrink: 0;
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .preview-banner__text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>

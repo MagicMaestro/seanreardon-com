@@ -4,6 +4,7 @@ import Header from '~/components/astro/Header.astro';
 import Footer from '~/components/astro/Footer.astro';
 import ConsentBanner from '~/components/astro/ConsentBanner.astro';
 import Nozzle from '~/components/astro/Nozzle.astro';
+import PreviewBanner from '~/components/astro/PreviewBanner.astro';
 import SteamTransition from '~/components/react/SteamTransition';
 import screenEdgeRope from '~/assets/images/screen-edge-rope.png';
 import '~/styles/global.css';
@@ -131,6 +132,13 @@ const curatedPicks = [
     </noscript>
   </head>
   <body>
+    {/* SPR-0084: PreviewBanner renders ONLY when PUBLIC_PREVIEW_LABEL env
+        var is set at build time (deploy-staging.yml sets it for PR builds
+        + non-main workflow_dispatch builds; main pushes + production
+        builds never set it, so banner doesn't render). Placed first in
+        body so it's at the very top of the DOM; z-index 99999 keeps it
+        above all other site chrome. */}
+    <PreviewBanner />
     <Header />
     {/* main-wrapper is full-viewport-width; <main> inside it is bounded at
         --main-max-width and centered. On wide viewports the gutters on each

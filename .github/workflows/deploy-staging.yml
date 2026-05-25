@@ -1,9 +1,23 @@
 name: Deploy to staging
 
+# SPR-0084: now triggers on PRs in addition to main pushes, with a
+# workflow_dispatch input for switching staging to any branch on demand.
+# Staging is the preview surface for in-flight work AND the main reflection
+# of what's currently on main. When a PR is open, its branch deploys to
+# staging with the PreviewBanner showing PR # + title at the top of every
+# page. When no PR is being previewed, staging tracks main.
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch or ref to deploy to staging (default: main)'
+        required: true
+        default: 'main'
 
 concurrency:
   group: deploy-staging
@@ -23,6 +37,30 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # For PRs: checkout the merge ref (PR + base merged) so staging
+          # tests what would be on main after merge. For workflow_dispatch:
+          # checkout the user-specified branch/ref. For push to main: the
+          # default ref (main) is used.
+          ref: ${{ github.event.pull_request.head.sha || github.event.inputs.ref || github.ref }}
+
+      - name: Compute preview label
+        # Build the PUBLIC_PREVIEW_LABEL value the Build step below will
+        # bake into the static site as `import.meta.env.PUBLIC_PREVIEW_LABEL`.
+        # The label drives PreviewBanner.astro's conditional render:
+        #   - pull_request event: "PR #N: <title>"
+        #   - workflow_dispatch (non-main ref): "Branch: <ref>"
+        #   - push to main (no PR context): no label set → banner doesn't render
+        # Banner appears only on staging deploys with a non-main ref.
+        # Production deploys (deploy-production.yml) never set the var, so
+        # production never shows the banner.
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            PR_TITLE=$(echo "${{ github.event.pull_request.title }}" | sed 's/"/\\"/g')
+            echo "PUBLIC_PREVIEW_LABEL=PR #${{ github.event.pull_request.number }}: $PR_TITLE" >> $GITHUB_ENV
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.ref }}" != "main" ]; then
+            echo "PUBLIC_PREVIEW_LABEL=Branch: ${{ github.event.inputs.ref }}" >> $GITHUB_ENV
+          fi
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -41,13 +79,18 @@ jobs:
           PUBLIC_LISTMONK_HOST: ${{ vars.PUBLIC_LISTMONK_HOST || 'https://lists.seanreardon.com' }}
           PUBLIC_LISTMONK_LIST_UUID: ${{ vars.PUBLIC_LISTMONK_LIST_UUID }}
           PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
+          # SPR-0084: PreviewBanner reads this at build time. Empty/unset =>
+          # banner doesn't render. Computed in the "Compute preview label"
+          # step above.
+          PUBLIC_PREVIEW_LABEL: ${{ env.PUBLIC_PREVIEW_LABEL }}
         run: npm run build
 
       - name: Stamp build with commit + timestamp
         run: |
           cat > dist/version.txt <<EOF
           commit: ${{ github.sha }}
-          ref: ${{ github.ref_name }}
+          ref: ${{ github.event.pull_request.head.ref || github.event.inputs.ref || github.ref_name }}
+          preview_label: ${{ env.PUBLIC_PREVIEW_LABEL }}
           built_at: $(date -u +%Y-%m-%dT%H:%M:%SZ)
           actor: ${{ github.actor }}
           EOF
