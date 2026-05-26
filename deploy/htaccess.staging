@@ -1,11 +1,40 @@
 # .htaccess for staging.seanreardon.com — gets copied to dist/.htaccess by the GitHub Actions deploy workflow.
 #
 # Purpose: serve the Astro static export at the staging subdomain WITHOUT
-# being indexed by search engines or AI training bots. Staging is for
-# verification only; nothing here should appear in any search result or
-# training corpus.
+# being publicly accessible. Two-layer protection, primary + defense-in-depth:
+#
+#   1. HTTP Basic Auth (block immediately below) — PRIMARY access gate.
+#      Visitors must authenticate before reaching any content. The .htpasswd
+#      file lives OUTSIDE the document root at
+#      /home/sreardon/.htpasswds/staging.htpasswd so the deploy workflow's
+#      `rsync --delete` doesn't wipe it. Optimizer brief 013 (2026-05-26
+#      hand-back) generated the file with bcrypt-hashed credentials; Apache
+#      reads it via group ownership (file is 0640 sreardon:nobody; Apache
+#      runs as `nobody` per the cPanel prefork config). AuthName realm
+#      string must match the optimizer's verified value verbatim — changing
+#      it invalidates browsers' stored credentials and forces re-auth.
+#
+#   2. X-Robots-Tag header + staging-specific robots.txt — DEFENSE-IN-DEPTH
+#      for SEO. Even if auth ever fails open (rollback, misconfiguration,
+#      future bypass), search engines still see noindex/nofollow/noarchive/
+#      nosnippet on every response, AND the staging robots.txt (swapped in
+#      by deploy-staging.yml) Disallows all crawlers from /. Both signals
+#      survive any single failure of the other.
 
-# Block ALL crawlers from indexing
+# Primary access gate — HTTP Basic Auth.
+# .htpasswd lives outside the doc root (per optimizer brief 013 hand-back —
+# survives every `rsync --delete` deploy). Bcrypt-hashed credentials only;
+# no plaintext stored server-side. Apache reads via the file's 0640
+# sreardon:nobody ownership.
+AuthType Basic
+AuthName "Staging Preview — Sean Reardon"
+AuthUserFile /home/sreardon/.htpasswds/staging.htpasswd
+Require valid-user
+
+# Defense-in-depth: block ALL crawlers from indexing.
+# Only meaningful if Basic Auth above ever fails open — under normal
+# operation, unauthenticated requests get 401 before this header is sent.
+# Kept as a belt-and-braces layer that survives auth misconfiguration.
 <IfModule mod_headers.c>
     Header set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
 </IfModule>
