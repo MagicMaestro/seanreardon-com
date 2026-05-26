@@ -98,6 +98,14 @@ jobs:
       - name: Stage the staging .htaccess
         run: cp deploy/htaccess.staging dist/.htaccess
 
+      - name: Stage the staging robots.txt
+        # SPR-0088: swap the production robots.txt (which allows regular
+        # search engines and blocks AI training bots) for a staging-specific
+        # robots.txt that Disallows all crawlers from /. Pairs with the
+        # X-Robots-Tag header already set in htaccess.staging — defense-in-
+        # depth at /robots.txt for compliant crawlers that check it first.
+        run: cp deploy/robots.staging.txt dist/robots.txt
+
       - name: Configure SSH
         # Uses ssh.seanreardon.com (DNS-only A record pointing at the origin) rather
         # than staging.seanreardon.com (CF-proxied for Worker routes). Cloudflare

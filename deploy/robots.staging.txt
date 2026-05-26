@@ -1,0 +1,27 @@
+# robots.txt for staging.seanreardon.com
+#
+# Staging is the preview surface for in-flight PR work (SPR-0084 PR-based
+# workflow). Nothing here should be crawled, indexed, or surfaced anywhere
+# public — including drafts, in-progress features, and partial UI changes
+# that haven't merged to production yet.
+#
+# This file gets swapped in for staging deploys by the GitHub Actions
+# workflow (.github/workflows/deploy-staging.yml). Production continues to
+# serve the regular public/robots.txt, which allows search engines and
+# blocks AI training crawlers per Sean's training-data policy.
+#
+# Defense-in-depth: deploy/htaccess.staging already sets the HTTP
+# X-Robots-Tag header to "noindex, nofollow, noarchive, nosnippet" on every
+# staging response. This file is the explicit signal at /robots.txt that
+# compliant crawlers check before issuing any other request. Both signals
+# point the same direction; either alone would do the job for compliant
+# crawlers, but having both makes the intent unmistakable for one-off
+# auditors and any crawler that respects one but not the other.
+#
+# Once staging is also gated behind HTTP Basic Auth (optimizer brief 013
+# pending as of 2026-05-26), this file becomes effectively unreachable to
+# unauthenticated crawlers — but it stays in place as the static signal,
+# so the noindex stance survives any future auth misconfiguration.
+
+User-agent: *
+Disallow: /
