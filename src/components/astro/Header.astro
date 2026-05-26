@@ -3869,9 +3869,46 @@ const navLinks = [
        UI updates don't accidentally clip the puff animation. */
     overflow: visible;
   }
-  .header-search-results :global(.pagefind-ui__result-title .pagefind-ui__result-link)::before {
+  /* SPR-0087 (Sean direction 2026-05-25): the original selector
+     `.header-search-results :global(.pagefind-ui__result-title
+     .pagefind-ui__result-link)::before` scored 0,4,1 specificity
+     (1 class + 1 attr from Astro's [data-astro-cid-...] + 2 classes
+     + 1 pseudo). Pagefind UI's own bundled nested-result rule
+     `.pagefind-ui__result-nested.svelte-XXXX .pagefind-ui__result-title.svelte-XXXX
+     .pagefind-ui__result-link.svelte-XXXX::before` scores 0,6,1 — each
+     of the three class names has a `.svelte-XXXX` compound from Svelte's
+     scoping mechanism — and wins. The visible artifact is Pagefind's
+     `content: "\2937"` (the ⤷ "arrow pointing downwards then curving
+     rightwards" character) appearing left of nested-result links as a
+     "child of parent above" indicator. Secondary effect: the whole-row
+     clickability overlay below also fails on nested results because
+     Pagefind's `top:0; right:calc(100%+.1em)` overrides `inset:0` —
+     so clicks outside the literal anchor text don't navigate on those
+     rows.
+     A tie at 0,6,1 isn't enough: Pagefind's CSS lazy-loads via
+     `document.head.appendChild(link)` in the ensurePagefindLoaded()
+     function below (~line 632), so it lands AFTER Astro's bundled
+     CSS in document order — tying loses to Pagefind on source order.
+     Target therefore 0,7,1 (one above Pagefind's 0,6,1). Achieved
+     by adding three of Pagefind's natural DOM-hierarchy wrapper
+     classes to the override chain:
+       .pagefind-ui (outermost wrapper) → .pagefind-ui__results-area
+       → .pagefind-ui__result (the <li>) → .pagefind-ui__result-title
+       → .pagefind-ui__result-link
+     These are all stable Pagefind UI class names that have been in
+     the bundle since v1.0; future Pagefind UI updates that change
+     these would also need to update the .svelte-XXXX scope hash
+     so the breakage would be visible (current rule stops applying)
+     rather than silent. */
+  .header-search-results :global(.pagefind-ui .pagefind-ui__results-area .pagefind-ui__result .pagefind-ui__result-title .pagefind-ui__result-link)::before {
     content: '';
     position: absolute;
+    /* `inset: 0` expands to `top:0 right:0 bottom:0 left:0`. Crucially,
+       the `right:0` overrides Pagefind's nested-rule `right: calc(100% + .1em)`
+       (which would otherwise position the overlay to the LEFT of the link
+       as a 1-character glyph box). With this fix, the overlay is the full
+       link-row box on both top-level AND nested results, restoring whole-row
+       clickability. */
     inset: 0;
     z-index: 1;
   }
