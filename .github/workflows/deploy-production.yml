@@ -79,53 +79,41 @@ jobs:
         # seanreardon.com (CF-proxied) — Cloudflare only proxies HTTP/HTTPS,
         # so SSH on port 7822 needs the unproxied hostname. Same pattern as
         # deploy-staging.yml.
+        #
+        # SPR-0090 (cPanel decommission, Buffalo P6): deploys now authenticate
+        # as the non-cPanel `deploy` user (owns /srv) instead of the retired
+        # `sreardon` cPanel user. The DEPLOY_SSH_KEY secret is UNCHANGED — its
+        # public half was copied into `deploy`'s authorized_keys server-side,
+        # so only the user + path moved.
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -p 7822 -H ssh.seanreardon.com >> ~/.ssh/known_hosts 2>/dev/null
 
-      - name: Pre-deploy backup of public_html
-        # Snapshots ~/public_html/ to a timestamped dir under ~/backups/
-        # BEFORE the rsync overwrites public_html. Then prunes anything
-        # older than the 5 most-recent backups.
-        #
-        # Recovery flow if a deploy ships something broken:
-        #   ssh sreardon@ssh.seanreardon.com -p 7822
-        #   ls -1dt ~/backups/public_html-*/ | head -5
-        #   rsync -av --delete ~/backups/public_html-<TIMESTAMP>/ ~/public_html/
-        #   (then purge CF cache manually or re-run the workflow's CF step)
-        #
-        # Backup format: ~/backups/public_html-2026-05-20T143022Z/
-        # The `T...Z` UTC timestamp is filesystem-safe (no colons) and
-        # sorts lexicographically, so `ls -1dt` newest-first ordering
-        # matches actual chronological order.
-        run: |
-          ssh -i ~/.ssh/deploy_key -p 7822 \
-            sreardon@ssh.seanreardon.com \
-            "mkdir -p ~/backups && \
-             timestamp=\$(date -u +%Y-%m-%dT%H%M%SZ) && \
-             echo \"Backing up to ~/backups/public_html-\$timestamp/\" && \
-             rsync -a ~/public_html/ ~/backups/public_html-\$timestamp/ && \
-             echo 'Backup complete. Pruning older than 5 newest...' && \
-             ls -1dt ~/backups/public_html-*/ 2>/dev/null | tail -n +6 | xargs -r rm -rf && \
-             echo 'Remaining backups:' && \
-             ls -1dt ~/backups/public_html-*/ 2>/dev/null | head -5"
+      # SPR-0090: the former "Pre-deploy backup of public_html" step was dropped.
+      # It snapshotted ~/public_html/ before each rsync, but `deploy` now owns
+      # /srv/seanreardon.com/www and Buffalo's nightly restic already snapshots
+      # all of /srv. Recovery flows that don't depend on an in-deploy backup:
+      #   - re-run this workflow against a previous git tag (production deploys
+      #     are tag-anchored; workflow_dispatch can target any tag), or
+      #   - restore /srv/seanreardon.com/www from the latest restic snapshot
+      #     (ask the Buffalo Dimensions Optimizer Agent).
 
       - name: Rsync to production
-        # --delete wipes everything in ~/public_html/ that's not in the new
-        # dist/. This intentionally removes the old PHP site files AND the
-        # legacy /disney/ subdirectory (which is preserved separately in
-        # the planning project's archive/disney-2026-05-02/ tarball, per
-        # 2026-05-20 Sean direction). The new Astro static export becomes
-        # the entire content of public_html.
+        # --delete wipes everything in /srv/seanreardon.com/www/ that's not in
+        # the new dist/. `deploy` owns that directory outright (SPR-0090), so a
+        # full mirror is safe. The Astro static export is the entire content of
+        # the web root. (The legacy PHP site + /disney/ subdir were already
+        # removed at the cPanel→Caddy cutover; /disney/ is preserved in the
+        # planning project's archive/disney-2026-05-02/ tarball.)
         run: |
           rsync -avz --delete \
             --exclude='desktop.ini' \
             --exclude='.DS_Store' \
             --exclude='Thumbs.db' \
             -e "ssh -i ~/.ssh/deploy_key -p 7822" \
-            dist/ sreardon@ssh.seanreardon.com:/home/sreardon/public_html/
+            dist/ deploy@ssh.seanreardon.com:/srv/seanreardon.com/www/
 
       - name: Purge Cloudflare cache
         # Purges the entire seanreardon.com zone so visitors don't get

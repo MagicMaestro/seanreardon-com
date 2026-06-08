@@ -95,15 +95,24 @@ jobs:
           actor: ${{ github.actor }}
           EOF
 
-      - name: Stage the staging .htaccess
-        run: cp deploy/htaccess.staging dist/.htaccess
+      # SPR-0090 (cPanel decommission, Buffalo P6): the "Stage the staging
+      # .htaccess" step was dropped. Apache is gone; Caddy serves staging and
+      # ignores .htaccess, so `cp deploy/htaccess.staging dist/.htaccess` was
+      # inert. Staging auth is now enforced by Caddy (inline bcrypt basic_auth
+      # on staging.seanreardon.com) — a Caddyfile edit on Buffalo's side, not a
+      # shipped file. The deploy/htaccess.staging file is retained in-repo as
+      # the historical record of the prior directives. (Staging noindex still
+      # holds: robots.staging.txt below Disallows all crawlers, and basic_auth
+      # gates the whole subdomain so crawlers can't reach it regardless.)
 
       - name: Stage the staging robots.txt
         # SPR-0088: swap the production robots.txt (which allows regular
         # search engines and blocks AI training bots) for a staging-specific
-        # robots.txt that Disallows all crawlers from /. Pairs with the
-        # X-Robots-Tag header already set in htaccess.staging — defense-in-
-        # depth at /robots.txt for compliant crawlers that check it first.
+        # robots.txt that Disallows all crawlers from /. SPR-0090: this is now
+        # the shipped crawler signal (the htaccess.staging X-Robots-Tag header
+        # is no longer applied — Caddy serves staging). It's largely moot anyway
+        # since Caddy's basic_auth gates the whole subdomain; if a belt-and-
+        # suspenders noindex header is still wanted, set it Caddy-side.
         run: cp deploy/robots.staging.txt dist/robots.txt
 
       - name: Configure SSH
@@ -112,6 +121,10 @@ jobs:
         # only proxies HTTP/HTTPS — port 7822 (SSH) doesn't traverse CF's edge, so
         # ssh-keyscan against the proxied hostname times out. Both hostnames resolve
         # to the same physical server; the SSH-only record bypasses the proxy.
+        #
+        # SPR-0090: authenticate as the non-cPanel `deploy` user (owns /srv); the
+        # DEPLOY_SSH_KEY secret is unchanged (public half copied into `deploy`'s
+        # authorized_keys server-side).
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
@@ -119,13 +132,15 @@ jobs:
           ssh-keyscan -p 7822 -H ssh.seanreardon.com >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Rsync to staging
+        # SPR-0090: target is now /srv/seanreardon.com/staging/ (deploy user)
+        # instead of /home/sreardon/staging/ (retired cPanel user).
         run: |
           rsync -avz --delete \
             --exclude='desktop.ini' \
             --exclude='.DS_Store' \
             --exclude='Thumbs.db' \
             -e "ssh -i ~/.ssh/deploy_key -p 7822" \
-            dist/ sreardon@ssh.seanreardon.com:/home/sreardon/staging/
+            dist/ deploy@ssh.seanreardon.com:/srv/seanreardon.com/staging/
 
       - name: Verify deploy
         run: |
