@@ -1,36 +1,55 @@
 name: Deploy AI search API
 
-# Deploys the standalone Node.js semantic-search backend (api-server/) to the
-# cPanel Application Manager slot at /home/sreardon/apps/portfolio-search/.
+# Deploys the standalone Node.js semantic-search backend (api-server/) that
+# serves /api/search — the site's flagship live AI feature (the nozzle search
+# modal). SPR-0090 (cPanel decommission, Buffalo P6) re-homed it off cPanel.
+#
+# DEPLOY TARGET (SPR-0090): rsync the app to /srv/seanreardon.com/portfolio-search/
+# as the non-cPanel `deploy` user, then restart a long-running service. This
+# replaces the prior cPanel Application Manager / Phusion Passenger topology
+# (app at /home/sreardon/apps/portfolio-search/, restart via touch tmp/restart.txt),
+# which went away when Buffalo decommissioned cPanel and cut Apache over to Caddy.
+#
+# HOSTING (Buffalo's side, per redesign→optimizer handoff brief 014): the app
+# runs as a long-running service (systemd unit, modeled on the MEP API) started
+# with `node app.js` from the app root, bound to 127.0.0.1:3001. Caddy
+# reverse_proxies /api/* on seanreardon.com to it — so the public path stays
+# https://seanreardon.com/api/search and the static frontend's relative
+# fetch('/api/search') needs NO change. The service's env + model cache come
+# from the systemd unit (see "Server-side prerequisites" below).
 #
 # Triggers on push to main when ANY input to the runtime or the search corpus
-# changes. The static-site deploy (deploy-staging.yml) runs in parallel for
-# the same push when relevant — they're independent concerns (apps/portfolio-search/
-# vs public_html/).
+# changes. The static-site deploy (deploy-staging.yml) runs in parallel for the
+# same push when relevant — independent concerns (the service vs the web root).
 #
 # DEPLOY STRATEGY — pre-build-and-rsync (brief 012's Option 1, shipped SPR-0061):
 # The runner does a full `npm ci`, builds the search index, prunes devDeps in
 # place, then rsyncs the ENTIRE app dir INCLUDING node_modules/ to the server.
-# Server-side `npm ci` is NOT run.
+# Server-side `npm ci` is NOT run. (Originally adopted to sidestep the brief 011
+# server-side npm-ci SIGKILL under cPanel jailshell; retained off-cPanel because
+# building on the runner is simply faster and more reproducible.) rsync `-a`
+# preserves exec bits, so tsx's esbuild binary keeps its +x across the hop —
+# the brief 010/011 EACCES failure mode. Buffalo verifies esbuild is executable
+# after the first /srv deploy.
 #
-# This sidesteps the unsolved npm-ci-killed-at-~12s mystery from brief 011 —
-# the SIGKILL fires server-side under the GHA SSH session for reasons the
-# optimizer ruled out (no OOM, no LVE, no ulimit, no cgroup, no quota, etc.).
-# Brief 011's `/var/log/secure` analysis pointed at an SSH2_DISCONNECT_BY_-
-# APPLICATION from the runner side; mechanism unknown. Rather than fight an
-# unreproducible intermittent kill, the deploy moves the install to the runner
-# (which has ample RAM and no jailshell), and ships the resolved node_modules
-# as deploy state.
+# Server-side prerequisites (one-time, established by handoff brief 014):
+#   - Node 22 available to the systemd unit (Buffalo's choice of path; no longer
+#     /opt/cpanel/ea-nodejs22 since cPanel is gone)
+#   - `portfolio-search` systemd service installed (start: `node app.js` in
+#     /srv/seanreardon.com/portfolio-search/, bind 127.0.0.1:3001)
+#   - Caddy reverse_proxy route: /api/* on seanreardon.com → 127.0.0.1:3001
+#   - .env (or systemd Environment=) supplying SEARCH_INDEX_PATH, API_LOG_DIR,
+#     PORT, HOST — NO secrets (fully self-hosted MiniLM; ANTHROPIC_API_KEY only
+#     enters at v1.1 chat)
+#   - a writable model-cache dir (HF_HOME) for the ~80 MB MiniLM download, or a
+#     one-time pre-warm run
+#   - logs/, public/ directories exist (tmp/ no longer needed — that held the
+#     Passenger restart sentinel)
+#   - `deploy` can restart the service (sudoers rule or a user-level unit) —
+#     exact command confirmed by Buffalo in the brief 014 hand-back
 #
-# Server-side prerequisites (one-time, established by optimizer-handoff brief 009):
-#   - Node 22.22.2+ installed at /opt/cpanel/ea-nodejs22/bin/node
-#   - `portfolio-search` app registered via UAPI; vhost includes in place
-#   - PassengerMaxInstancesPerApp 1 enforced server-wide (single worker)
-#   - .env file at /home/sreardon/apps/portfolio-search/.env (env vars; cPanel's
-#     UAPI envvar delivery doesn't reach OSS-Passenger Node children)
-#   - logs/, tmp/, public/ directories exist
-#
-# Glibc compatibility (per optimizer brief 012 Task 2 hand-back, 2026-05-23):
+# Glibc compatibility (per optimizer brief 012 Task 2 hand-back, 2026-05-23;
+# still current — only cPanel was removed, not the OS):
 #   - Server: AlmaLinux 8.10, glibc 2.28, x86_64
 #   - Runtime native deps and their highest GLIBC requirement:
 #       @img/sharp-linux-x64        2.17
@@ -41,9 +60,9 @@ name: Deploy AI search API
 #     what gets shipped; runner pin is for stability (avoiding `ubuntu-latest`
 #     image rotation), not compatibility.
 #
-# After this workflow's rsync replaces the app dir contents and Passenger
-# restarts (via touch tmp/restart.txt), the cold-start downloads the MiniLM
-# model (~80 MB) on first request; expect ~3–5s first-response latency, then
+# After this workflow's rsync replaces the app dir contents and the service
+# restarts, the cold-start downloads the MiniLM model (~80 MB) on first request
+# unless the cache is pre-warmed; expect ~3–5s first-response latency, then
 # ~50 ms warm.
 
 on:
@@ -70,17 +89,16 @@ concurrency:
 
 env:
   # Match the staging workflow's Node 24 opt-in for actions JS runtimes.
-  # The PRODUCTION app runs Node 22 via cPanel's ea-nodejs22 — this var only
-  # affects GitHub Actions' own JS-action runtime, not our app's runtime.
+  # The PRODUCTION app runs Node 22 via Buffalo's systemd unit (SPR-0090; no
+  # longer cPanel's ea-nodejs22) — this var only affects GitHub Actions' own
+  # JS-action runtime, not our app's runtime.
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-  # NOTE: REMOTE_NODE_BIN (/opt/cpanel/ea-nodejs22/bin) was used by the old
-  # server-side `npm ci --omit=dev` step. SPR-0061 dropped that step, so the
-  # var is no longer referenced. If a future SSH-driven server-side install
-  # step is ever added, use `bash -lc 'export PATH=/opt/cpanel/ea-nodejs22/bin:
-  # $PATH; ...'` per the brief 012 Task 1 hand-back's PATH-gotcha note —
-  # `bash -c` will succeed for top-level npm but fail with exit 127 the moment
-  # any package has an install lifecycle script that shells out to `node`.
+  # NOTE (SPR-0090): this deploy ships a runner-built node_modules and does NOT
+  # run a server-side install, so no remote Node path is referenced here. If a
+  # future SSH-driven server-side step is ever added, point it at whatever node
+  # the systemd unit uses (Buffalo's choice), not the retired
+  # /opt/cpanel/ea-nodejs22 path.
 
 jobs:
   deploy:
@@ -138,24 +156,26 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -p 7822 -H ssh.seanreardon.com >> ~/.ssh/known_hosts 2>/dev/null
 
-      - name: Rsync to portfolio-search app slot
+      - name: Rsync to portfolio-search service dir
         # Selective sync via deploy/api-files.txt manifest. SPR-0061 added
         # `node_modules/` to the manifest — the runner-built, devDeps-pruned
         # node_modules ships directly to the server, replacing the old server-
         # side `npm ci --omit=dev` step entirely.
         #
+        # SPR-0090: target moved to /srv/seanreardon.com/portfolio-search/
+        # (deploy user) from the retired cPanel app slot.
+        #
         # Notably absent from the manifest (server-managed, never touched by the deploy):
-        #   - .env (env vars, established by optimizer brief 009)
+        #   - .env / systemd Environment= (env vars: SEARCH_INDEX_PATH,
+        #     API_LOG_DIR, PORT, HOST — no secrets)
         #   - logs/ (app writes its query log here)
-        #   - tmp/ (Passenger restart sentinel lives here)
-        # No --delete: cruft is tolerated; intentional state on the server
-        # (the three dirs above + .env) is never at risk.
+        # No --delete: cruft is tolerated; intentional server state (.env + logs/)
+        # is never at risk. (tmp/ is no longer relevant — it held the Passenger
+        # restart sentinel; the systemd restart below replaces that mechanism.)
         #
         # The node_modules transfer is ~945 MB on cold deploy (per brief 011's
         # measurement). Rsync's incremental delta-transfer + compression means
-        # subsequent deploys typically transfer only changed packages (a few
-        # MB). Cold-deploy time impact: ~1-2 min slower than the prior strategy,
-        # but with zero residual SIGKILL risk.
+        # subsequent deploys typically transfer only changed packages (a few MB).
         run: |
           rsync -avz \
             --files-from=deploy/api-files.txt \
@@ -163,21 +183,29 @@ jobs:
             --exclude='.DS_Store' \
             --exclude='Thumbs.db' \
             -e "ssh -i ~/.ssh/deploy_key -p 7822" \
-            ./ sreardon@ssh.seanreardon.com:/home/sreardon/apps/portfolio-search/
+            ./ deploy@ssh.seanreardon.com:/srv/seanreardon.com/portfolio-search/
 
-      - name: Restart Passenger worker
-        # touch tmp/restart.txt is Passenger's documented restart sentinel.
-        # On next request, Passenger sees the new mtime and spawns a fresh
-        # worker with the updated code. No Apache reload needed.
+      - name: Restart the portfolio-search service
+        # SPR-0090: replaces Passenger's `touch tmp/restart.txt` sentinel. The
+        # app now runs as a long-running systemd service; restart it to pick up
+        # the freshly-rsynced code + index.
+        #
+        # PROVISIONAL — confirm the exact restart command with Buffalo (handoff
+        # brief 014 hand-back). The `deploy` user needs permission to restart the
+        # unit: either a sudoers rule allowing `sudo systemctl restart
+        # portfolio-search` (assumed below) or a user-level unit restarted with
+        # `systemctl --user restart portfolio-search`. Adjust this line once the
+        # unit name + restart mechanism are finalized.
         run: |
-          ssh -i ~/.ssh/deploy_key -p 7822 sreardon@ssh.seanreardon.com \
-            "touch /home/sreardon/apps/portfolio-search/tmp/restart.txt"
+          ssh -i ~/.ssh/deploy_key -p 7822 deploy@ssh.seanreardon.com \
+            "sudo systemctl restart portfolio-search"
 
       - name: Verify deploy
-        # Give Passenger a beat to spawn the worker + load the MiniLM model.
-        # First-deploy cold-start is ~3–5s (model download to ~/.cache/transformers/);
-        # subsequent restarts after the cache is warm are ~1s. Sleep generously
-        # so the health check isn't a flake.
+        # Give the service a beat to restart + load the MiniLM model. First-deploy
+        # cold-start is ~3–5s (model download unless pre-warmed); subsequent
+        # restarts after the cache is warm are ~1s. Sleep generously so the
+        # health check isn't a flake. Hits the unchanged public path — Caddy
+        # reverse-proxies /api/* on seanreardon.com to the service (SPR-0090).
         run: |
           sleep 10
           echo "=== Health check ==="
