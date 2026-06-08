@@ -192,11 +192,16 @@ jobs:
         # the freshly-rsynced code + index.
         #
         # Confirmed in brief 014 hand-back: a scoped /etc/sudoers.d/portfolio-search
-        # lets `deploy` run only start/stop/restart/status on this one unit, so
-        # `sudo systemctl restart portfolio-search` is the correct command.
+        # lets `deploy` run only start/stop/restart/status on this one unit
+        # (NOPASSWD, for non-interactive CI), so `sudo systemctl restart
+        # portfolio-search` is the correct command.
+        #
+        # `sudo -n` (non-interactive) makes this fail fast with a clear error if
+        # the sudoers rule is ever missing/changed, instead of hanging on a
+        # password prompt in this TTY-less SSH session.
         run: |
           ssh -i ~/.ssh/deploy_key -p 7822 deploy@ssh.seanreardon.com \
-            "sudo systemctl restart portfolio-search"
+            "sudo -n systemctl restart portfolio-search"
 
       - name: Verify deploy
         # Give the service a beat to restart + load the MiniLM model. First-deploy
