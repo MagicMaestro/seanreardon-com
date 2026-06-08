@@ -12,7 +12,8 @@ name: Deploy AI search API
 #
 # HOSTING (Buffalo's side, per redesign→optimizer handoff brief 014): the app
 # runs as a long-running service (systemd unit, modeled on the MEP API) started
-# with `node app.js` from the app root, bound to 127.0.0.1:3001. Caddy
+# with `node app.js` from the app root, bound to 127.0.0.1:3002 (3001 was
+# taken by Uptime Kuma — confirmed in brief 014 hand-back). Caddy
 # reverse_proxies /api/* on seanreardon.com to it — so the public path stays
 # https://seanreardon.com/api/search and the static frontend's relative
 # fetch('/api/search') needs NO change. The service's env + model cache come
@@ -36,8 +37,8 @@ name: Deploy AI search API
 #   - Node 22 available to the systemd unit (Buffalo's choice of path; no longer
 #     /opt/cpanel/ea-nodejs22 since cPanel is gone)
 #   - `portfolio-search` systemd service installed (start: `node app.js` in
-#     /srv/seanreardon.com/portfolio-search/, bind 127.0.0.1:3001)
-#   - Caddy reverse_proxy route: /api/* on seanreardon.com → 127.0.0.1:3001
+#     /srv/seanreardon.com/portfolio-search/, bind 127.0.0.1:3002)
+#   - Caddy reverse_proxy route: /api/search* on seanreardon.com → 127.0.0.1:3002
 #   - .env (or systemd Environment=) supplying SEARCH_INDEX_PATH, API_LOG_DIR,
 #     PORT, HOST — NO secrets (fully self-hosted MiniLM; ANTHROPIC_API_KEY only
 #     enters at v1.1 chat)
@@ -190,12 +191,9 @@ jobs:
         # app now runs as a long-running systemd service; restart it to pick up
         # the freshly-rsynced code + index.
         #
-        # PROVISIONAL — confirm the exact restart command with Buffalo (handoff
-        # brief 014 hand-back). The `deploy` user needs permission to restart the
-        # unit: either a sudoers rule allowing `sudo systemctl restart
-        # portfolio-search` (assumed below) or a user-level unit restarted with
-        # `systemctl --user restart portfolio-search`. Adjust this line once the
-        # unit name + restart mechanism are finalized.
+        # Confirmed in brief 014 hand-back: a scoped /etc/sudoers.d/portfolio-search
+        # lets `deploy` run only start/stop/restart/status on this one unit, so
+        # `sudo systemctl restart portfolio-search` is the correct command.
         run: |
           ssh -i ~/.ssh/deploy_key -p 7822 deploy@ssh.seanreardon.com \
             "sudo systemctl restart portfolio-search"
