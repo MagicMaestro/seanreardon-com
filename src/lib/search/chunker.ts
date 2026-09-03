@@ -242,6 +242,15 @@ const STATIC_PAGES: Array<{ path: string; title: string; url: string; id: string
     title: 'Semantic Search',
     url: '/lab/semantic-search/',
   },
+  {
+    /* Only the page's static prose is indexed. The question bank lives in
+       public/data/ and is fetched client-side, so it never reaches the
+       chunker — which is the intent. (SPR-0092) */
+    id: 'static-page:real-estate-practice',
+    path: 'real-estate-practice.astro',
+    title: 'Real Estate Practice Exam',
+    url: '/real-estate-practice/',
+  },
 ];
 
 /**
