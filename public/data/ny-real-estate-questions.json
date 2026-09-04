@@ -8,25 +8,120 @@
     "sourceNote": "Original questions written from the New York Department of State 77-hour salesperson qualifying curriculum (effective 12/21/2022), Real Property Law Article 12-A, and 19 NYCRR Part 175. These are not actual examination items, and this material is not affiliated with or endorsed by the New York Department of State."
   },
   "topics": [
-    { "id": "law-of-agency", "label": "Law of Agency", "curriculumHours": 11, "questionsPerExam": 11 },
-    { "id": "legal-issues", "label": "Legal Issues", "curriculumHours": 10, "questionsPerExam": 9 },
-    { "id": "commercial-investment", "label": "Commercial and Investment Properties", "curriculumHours": 10, "questionsPerExam": 9 },
-    { "id": "fair-housing", "label": "Human Rights and Fair Housing", "curriculumHours": 6, "questionsPerExam": 6 },
-    { "id": "finance", "label": "Real Estate Finance", "curriculumHours": 5, "questionsPerExam": 5 },
-    { "id": "construction-environmental", "label": "Construction and Environmental Issues", "curriculumHours": 5, "questionsPerExam": 5 },
-    { "id": "condos-coops", "label": "Condominiums and Cooperatives", "curriculumHours": 4, "questionsPerExam": 4 },
-    { "id": "license-law", "label": "License Law and Regulations", "curriculumHours": 3, "questionsPerExam": 3 },
-    { "id": "contracts-leases", "label": "The Contract of Sales and Leases", "curriculumHours": 3, "questionsPerExam": 3 },
-    { "id": "land-use", "label": "Land Use Regulations", "curriculumHours": 3, "questionsPerExam": 3 },
-    { "id": "valuation", "label": "Valuation Process and Pricing Properties", "curriculumHours": 3, "questionsPerExam": 3 },
-    { "id": "taxes-assessments", "label": "Taxes and Assessments", "curriculumHours": 3, "questionsPerExam": 3 },
-    { "id": "income-tax", "label": "Income Tax Issues in Real Estate", "curriculumHours": 3, "questionsPerExam": 3 },
-    { "id": "municipal-agencies", "label": "Municipal Agencies", "curriculumHours": 2, "questionsPerExam": 2 },
-    { "id": "property-management", "label": "Property Management", "curriculumHours": 2, "questionsPerExam": 2 },
-    { "id": "math", "label": "Real Estate Mathematics", "curriculumHours": 1, "questionsPerExam": 1 },
-    { "id": "property-insurance", "label": "Property Insurance", "curriculumHours": 1, "questionsPerExam": 1 },
-    { "id": "licensee-safety", "label": "Licensee Safety", "curriculumHours": 1, "questionsPerExam": 1 },
-    { "id": "mortgage-brokerage", "label": "Mortgage Brokerage", "curriculumHours": 1, "questionsPerExam": 1 }
+    {
+      "id": "law-of-agency",
+      "label": "Law of Agency",
+      "curriculumHours": 11,
+      "questionsPerExam": 11
+    },
+    {
+      "id": "legal-issues",
+      "label": "Legal Issues",
+      "curriculumHours": 10,
+      "questionsPerExam": 9
+    },
+    {
+      "id": "commercial-investment",
+      "label": "Commercial and Investment Properties",
+      "curriculumHours": 10,
+      "questionsPerExam": 9
+    },
+    {
+      "id": "fair-housing",
+      "label": "Human Rights and Fair Housing",
+      "curriculumHours": 6,
+      "questionsPerExam": 6
+    },
+    {
+      "id": "finance",
+      "label": "Real Estate Finance",
+      "curriculumHours": 5,
+      "questionsPerExam": 5
+    },
+    {
+      "id": "construction-environmental",
+      "label": "Construction and Environmental Issues",
+      "curriculumHours": 5,
+      "questionsPerExam": 5
+    },
+    {
+      "id": "condos-coops",
+      "label": "Condominiums and Cooperatives",
+      "curriculumHours": 4,
+      "questionsPerExam": 4
+    },
+    {
+      "id": "license-law",
+      "label": "License Law and Regulations",
+      "curriculumHours": 3,
+      "questionsPerExam": 3
+    },
+    {
+      "id": "contracts-leases",
+      "label": "The Contract of Sales and Leases",
+      "curriculumHours": 3,
+      "questionsPerExam": 3
+    },
+    {
+      "id": "land-use",
+      "label": "Land Use Regulations",
+      "curriculumHours": 3,
+      "questionsPerExam": 3
+    },
+    {
+      "id": "valuation",
+      "label": "Valuation Process and Pricing Properties",
+      "curriculumHours": 3,
+      "questionsPerExam": 3
+    },
+    {
+      "id": "taxes-assessments",
+      "label": "Taxes and Assessments",
+      "curriculumHours": 3,
+      "questionsPerExam": 3
+    },
+    {
+      "id": "income-tax",
+      "label": "Income Tax Issues in Real Estate",
+      "curriculumHours": 3,
+      "questionsPerExam": 3
+    },
+    {
+      "id": "municipal-agencies",
+      "label": "Municipal Agencies",
+      "curriculumHours": 2,
+      "questionsPerExam": 2
+    },
+    {
+      "id": "property-management",
+      "label": "Property Management",
+      "curriculumHours": 2,
+      "questionsPerExam": 2
+    },
+    {
+      "id": "math",
+      "label": "Real Estate Mathematics",
+      "curriculumHours": 1,
+      "questionsPerExam": 1
+    },
+    {
+      "id": "property-insurance",
+      "label": "Property Insurance",
+      "curriculumHours": 1,
+      "questionsPerExam": 1
+    },
+    {
+      "id": "licensee-safety",
+      "label": "Licensee Safety",
+      "curriculumHours": 1,
+      "questionsPerExam": 1
+    },
+    {
+      "id": "mortgage-brokerage",
+      "label": "Mortgage Brokerage",
+      "curriculumHours": 1,
+      "questionsPerExam": 1
+    }
   ],
   "questions": [
     {
@@ -47,7 +142,12 @@
       "id": "license-law-0002",
       "topic": "license-law",
       "prompt": "A New York real estate salesperson license is issued for a term of:",
-      "choices": ["Two years", "One year", "Three years", "Four years"],
+      "choices": [
+        "Two years",
+        "One year",
+        "Three years",
+        "Four years"
+      ],
       "answer": 0,
       "explanation": "Salesperson and broker licenses run for two years and must be renewed before expiration. The renewal window opens three months before the expiration date.",
       "citation": "RPL §441-a"
@@ -56,7 +156,12 @@
       "id": "license-law-0003",
       "topic": "license-law",
       "prompt": "How many hours of continuing education must a salesperson complete for each two-year renewal?",
-      "choices": ["22.5 hours", "15 hours", "30 hours", "45 hours"],
+      "choices": [
+        "22.5 hours",
+        "15 hours",
+        "30 hours",
+        "45 hours"
+      ],
       "answer": 0,
       "explanation": "Renewal requires 22.5 hours of approved continuing education, including required minimums in fair housing, ethical business practices, implicit bias, cultural competency, recent legal matters, and law of agency.",
       "citation": "RPL §441-a(3)"
@@ -65,7 +170,12 @@
       "id": "license-law-0004",
       "topic": "license-law",
       "prompt": "Continuing education for renewal must include a minimum of how many hours on implicit bias awareness and understanding?",
-      "choices": ["2 hours", "1 hour", "3 hours", "5 hours"],
+      "choices": [
+        "2 hours",
+        "1 hour",
+        "3 hours",
+        "5 hours"
+      ],
       "answer": 0,
       "explanation": "A two-hour implicit bias component was added to the continuing education requirement by the December 2021 legislative package addressing housing discrimination. Cultural competency carries a separate two-hour minimum.",
       "citation": "RPL §441-a(3)"
@@ -158,7 +268,12 @@
       "id": "law-of-agency-0005",
       "topic": "law-of-agency",
       "prompt": "Which duty owed to a principal continues after the agency relationship ends?",
-      "choices": ["Confidentiality", "Obedience", "Loyalty", "Reasonable care"],
+      "choices": [
+        "Confidentiality",
+        "Obedience",
+        "Loyalty",
+        "Reasonable care"
+      ],
       "answer": 0,
       "explanation": "Confidentiality survives termination. A former client's confidential information, such as their motivation to sell or the lowest price they would accept, may never be disclosed without permission.",
       "citation": "DOS 77-hour curriculum § Law of Agency"
@@ -237,7 +352,12 @@
       "id": "law-of-agency-0011",
       "topic": "law-of-agency",
       "prompt": "An agency relationship arising from the conduct of the parties rather than from a written or spoken agreement is:",
-      "choices": ["Implied agency", "Express agency", "Universal agency", "Gratuitous agency"],
+      "choices": [
+        "Implied agency",
+        "Express agency",
+        "Universal agency",
+        "Gratuitous agency"
+      ],
       "answer": 0,
       "explanation": "Implied agency arises when a licensee's behavior leads a consumer to reasonably believe they are being represented. It is a common source of unintended and undisclosed dual agency.",
       "citation": "DOS 77-hour curriculum § Law of Agency"
@@ -372,7 +492,12 @@
       "id": "law-of-agency-0021",
       "topic": "law-of-agency",
       "prompt": "The fiduciary duty requiring an agent to follow the principal's lawful instructions is:",
-      "choices": ["Obedience", "Loyalty", "Accountability", "Reasonable care"],
+      "choices": [
+        "Obedience",
+        "Loyalty",
+        "Accountability",
+        "Reasonable care"
+      ],
       "answer": 0,
       "explanation": "Obedience requires following the client's lawful instructions. An instruction to conceal a known material defect or to discriminate is unlawful, and the agent must refuse it.",
       "citation": "DOS 77-hour curriculum § Law of Agency"
@@ -479,7 +604,12 @@
       "id": "legal-issues-0007",
       "topic": "legal-issues",
       "prompt": "In New York, the period of continuous, open, and hostile use required to establish an easement by prescription is:",
-      "choices": ["10 years", "5 years", "15 years", "21 years"],
+      "choices": [
+        "10 years",
+        "5 years",
+        "15 years",
+        "21 years"
+      ],
       "answer": 0,
       "explanation": "New York uses a ten-year period for both prescriptive easements and adverse possession. The use must be adverse, open and notorious, continuous, and without the owner's permission.",
       "citation": "RPAPL Article 5; DOS 77-hour curriculum § Legal Issues"
@@ -656,7 +786,12 @@
       "id": "commercial-investment-0002",
       "topic": "commercial-investment",
       "prompt": "A property produces $90,000 in net operating income and investors in that market expect a 9% capitalization rate. Indicated value is:",
-      "choices": ["$1,000,000", "$810,000", "$900,000", "$1,110,000"],
+      "choices": [
+        "$1,000,000",
+        "$810,000",
+        "$900,000",
+        "$1,110,000"
+      ],
       "answer": 0,
       "explanation": "Value equals NOI divided by the capitalization rate: $90,000 / 0.09 = $1,000,000.",
       "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
@@ -693,7 +828,12 @@
       "id": "commercial-investment-0005",
       "topic": "commercial-investment",
       "prompt": "A lease under which rent is a minimum base amount plus a share of the tenant's receipts is a:",
-      "choices": ["Percentage lease", "Graduated lease", "Ground lease", "Index lease"],
+      "choices": [
+        "Percentage lease",
+        "Graduated lease",
+        "Ground lease",
+        "Index lease"
+      ],
       "answer": 0,
       "explanation": "Percentage leases are standard in retail, particularly in shopping centers, because they let the landlord share in the upside of a successful tenant.",
       "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
@@ -744,7 +884,12 @@
       "id": "commercial-investment-0009",
       "topic": "commercial-investment",
       "prompt": "A lender requires a debt service coverage ratio of at least 1.25. A property with $100,000 of net operating income can support annual debt service of no more than:",
-      "choices": ["$80,000", "$125,000", "$75,000", "$100,000"],
+      "choices": [
+        "$80,000",
+        "$125,000",
+        "$75,000",
+        "$100,000"
+      ],
       "answer": 0,
       "explanation": "DSCR equals NOI divided by annual debt service, so the maximum payment is $100,000 / 1.25 = $80,000.",
       "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
@@ -753,7 +898,12 @@
       "id": "commercial-investment-0010",
       "topic": "commercial-investment",
       "prompt": "An investor pays $500,000 in cash for a property that generates $40,000 in before-tax cash flow. The cash-on-cash return is:",
-      "choices": ["8%", "12.5%", "4%", "10%"],
+      "choices": [
+        "8%",
+        "12.5%",
+        "4%",
+        "10%"
+      ],
       "answer": 0,
       "explanation": "Cash-on-cash return divides before-tax cash flow by the cash actually invested: $40,000 / $500,000 = 8%.",
       "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
@@ -776,7 +926,12 @@
       "id": "commercial-investment-0012",
       "topic": "commercial-investment",
       "prompt": "A real estate investment trust must distribute at least what share of its taxable income to shareholders to retain its tax status?",
-      "choices": ["90%", "50%", "75%", "100%"],
+      "choices": [
+        "90%",
+        "50%",
+        "75%",
+        "100%"
+      ],
       "answer": 0,
       "explanation": "Distributing at least 90% of taxable income lets a REIT avoid corporate-level tax on the distributed amount, which is the structure's central advantage.",
       "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
@@ -869,7 +1024,12 @@
       "id": "fair-housing-0001",
       "topic": "fair-housing",
       "prompt": "Which class is protected under the federal Fair Housing Act?",
-      "choices": ["Familial status", "Age", "Marital status", "Source of income"],
+      "choices": [
+        "Familial status",
+        "Age",
+        "Marital status",
+        "Source of income"
+      ],
       "answer": 0,
       "explanation": "The federal protected classes are race, color, religion, national origin, sex, familial status, and disability. Age, marital status, and source of income are protected under New York law but not by the federal act.",
       "citation": "42 U.S.C. §3604; Executive Law Article 15"
@@ -892,7 +1052,12 @@
       "id": "fair-housing-0003",
       "topic": "fair-housing",
       "prompt": "Inducing an owner to sell by suggesting that members of a protected class are moving into the neighborhood is:",
-      "choices": ["Blockbusting", "Steering", "Redlining", "Puffing"],
+      "choices": [
+        "Blockbusting",
+        "Steering",
+        "Redlining",
+        "Puffing"
+      ],
       "answer": 0,
       "explanation": "Blockbusting, sometimes called panic selling, is prohibited regardless of whether the licensee profits from the resulting listing.",
       "citation": "42 U.S.C. §3604(e); DOS 77-hour curriculum § Human Rights and Fair Housing"
@@ -901,7 +1066,12 @@
       "id": "fair-housing-0004",
       "topic": "fair-housing",
       "prompt": "A licensee shows a family homes only in neighborhoods where residents share the family's ethnicity. This practice is:",
-      "choices": ["Steering", "Blockbusting", "Redlining", "A permissible service if the family did not object"],
+      "choices": [
+        "Steering",
+        "Blockbusting",
+        "Redlining",
+        "A permissible service if the family did not object"
+      ],
       "answer": 0,
       "explanation": "Steering directs prospects toward or away from areas based on a protected characteristic. It is unlawful even when the licensee believes they are being helpful and the client never complains.",
       "citation": "42 U.S.C. §3604; DOS 77-hour curriculum § Human Rights and Fair Housing"
@@ -910,7 +1080,12 @@
       "id": "fair-housing-0005",
       "topic": "fair-housing",
       "prompt": "A lender declines to make loans in a defined geographic area based on the racial composition of that area. This is:",
-      "choices": ["Redlining", "Steering", "Blockbusting", "A permissible underwriting policy"],
+      "choices": [
+        "Redlining",
+        "Steering",
+        "Blockbusting",
+        "A permissible underwriting policy"
+      ],
       "answer": 0,
       "explanation": "Redlining denies credit by geography as a proxy for a protected characteristic. It is prohibited under both the Fair Housing Act and the Equal Credit Opportunity Act.",
       "citation": "42 U.S.C. §3605; DOS 77-hour curriculum § Human Rights and Fair Housing"
@@ -1045,7 +1220,12 @@
       "id": "finance-0003",
       "topic": "finance",
       "prompt": "Private mortgage insurance is generally required on a conventional loan when the loan-to-value ratio exceeds:",
-      "choices": ["80%", "90%", "75%", "95%"],
+      "choices": [
+        "80%",
+        "90%",
+        "75%",
+        "95%"
+      ],
       "answer": 0,
       "explanation": "PMI protects the lender against loss on the portion of the loan above 80% LTV. It is a lender protection, not borrower protection, despite being paid by the borrower.",
       "citation": "DOS 77-hour curriculum § Real Estate Finance"
@@ -1054,7 +1234,12 @@
       "id": "finance-0004",
       "topic": "finance",
       "prompt": "A borrower pays two points on a $300,000 loan. The cost is:",
-      "choices": ["$6,000", "$600", "$3,000", "$60,000"],
+      "choices": [
+        "$6,000",
+        "$600",
+        "$3,000",
+        "$60,000"
+      ],
       "answer": 0,
       "explanation": "One point equals 1% of the loan amount, not the purchase price. Two points on $300,000 is $6,000, typically paid at closing to reduce the interest rate.",
       "citation": "DOS 77-hour curriculum § Real Estate Finance"
@@ -1133,7 +1318,12 @@
       "id": "finance-0010",
       "topic": "finance",
       "prompt": "A homeowner owes $180,000 on a property now worth $310,000. The owner's equity is:",
-      "choices": ["$130,000", "$180,000", "$310,000", "$490,000"],
+      "choices": [
+        "$130,000",
+        "$180,000",
+        "$310,000",
+        "$490,000"
+      ],
       "answer": 0,
       "explanation": "Equity is market value less the debt secured by the property: $310,000 - $180,000 = $130,000.",
       "citation": "DOS 77-hour curriculum § Real Estate Finance"
@@ -1170,7 +1360,12 @@
       "id": "construction-environmental-0003",
       "topic": "construction-environmental",
       "prompt": "Federal law requires disclosure of known lead-based paint hazards in residential dwellings built before:",
-      "choices": ["1978", "1985", "1970", "1992"],
+      "choices": [
+        "1978",
+        "1985",
+        "1970",
+        "1992"
+      ],
       "answer": 0,
       "explanation": "Residential lead paint was banned in 1978. Sellers and landlords of earlier housing must disclose known hazards, provide the EPA pamphlet, and give purchasers a ten-day opportunity to inspect.",
       "citation": "42 U.S.C. §4852d; 24 CFR Part 35"
@@ -1445,7 +1640,12 @@
       "id": "contracts-leases-0005",
       "topic": "contracts-leases",
       "prompt": "A tenant transfers the entire remaining term of the lease to another party, retaining no reversionary interest. This is:",
-      "choices": ["An assignment", "A sublease", "A novation", "A surrender"],
+      "choices": [
+        "An assignment",
+        "A sublease",
+        "A novation",
+        "A surrender"
+      ],
       "answer": 0,
       "explanation": "An assignment transfers the whole remaining term. A sublease transfers less than the full remaining term, leaving the original tenant with a reversion and continuing liability to the landlord.",
       "citation": "DOS 77-hour curriculum § The Contract of Sales and Leases (Leases)"
@@ -1538,7 +1738,12 @@
       "id": "land-use-0006",
       "topic": "land-use",
       "prompt": "Rezoning a single small parcel in a way that benefits its owner and conflicts with the surrounding comprehensive plan is called:",
-      "choices": ["Spot zoning", "Downzoning", "Cluster zoning", "Inclusionary zoning"],
+      "choices": [
+        "Spot zoning",
+        "Downzoning",
+        "Cluster zoning",
+        "Inclusionary zoning"
+      ],
       "answer": 0,
       "explanation": "Spot zoning is vulnerable to legal challenge because it serves a private interest rather than the general welfare the comprehensive plan is meant to advance.",
       "citation": "DOS 77-hour curriculum § Land Use Regulations"
@@ -1645,7 +1850,12 @@
       "id": "taxes-assessments-0002",
       "topic": "taxes-assessments",
       "prompt": "A property is assessed at $200,000 and the tax rate is $24 per $1,000 of assessed value. The annual tax is:",
-      "choices": ["$4,800", "$480", "$48,000", "$8,400"],
+      "choices": [
+        "$4,800",
+        "$480",
+        "$48,000",
+        "$8,400"
+      ],
       "answer": 0,
       "explanation": "Divide the assessment by 1,000 and multiply by the rate: ($200,000 / 1,000) x $24 = $4,800.",
       "citation": "DOS 77-hour curriculum § Taxes and Assessments"
@@ -1710,7 +1920,12 @@
       "id": "income-tax-0001",
       "topic": "income-tax",
       "prompt": "A married couple filing jointly who owned and occupied their home as a principal residence for two of the last five years may exclude gain of up to:",
-      "choices": ["$500,000", "$250,000", "$1,000,000", "$125,000"],
+      "choices": [
+        "$500,000",
+        "$250,000",
+        "$1,000,000",
+        "$125,000"
+      ],
       "answer": 0,
       "explanation": "The exclusion is $250,000 for a single filer and $500,000 for a married couple filing jointly, and it may generally be used once every two years.",
       "citation": "26 U.S.C. §121"
@@ -1733,7 +1948,12 @@
       "id": "income-tax-0003",
       "topic": "income-tax",
       "prompt": "Residential rental property placed in service today is depreciated over:",
-      "choices": ["27.5 years", "39 years", "15 years", "40 years"],
+      "choices": [
+        "27.5 years",
+        "39 years",
+        "15 years",
+        "40 years"
+      ],
       "answer": 0,
       "explanation": "Residential rental uses a 27.5-year recovery period and nonresidential real property uses 39 years. Land is never depreciable.",
       "citation": "26 U.S.C. §168"
@@ -1756,7 +1976,12 @@
       "id": "income-tax-0005",
       "topic": "income-tax",
       "prompt": "In a Section 1031 exchange, cash or other non-like-kind property received by the exchanger is called:",
-      "choices": ["Boot", "Basis", "Equity", "Consideration"],
+      "choices": [
+        "Boot",
+        "Basis",
+        "Equity",
+        "Consideration"
+      ],
       "answer": 0,
       "explanation": "Boot is taxable to the extent of realized gain. Receiving it does not disqualify the exchange; it simply makes part of the gain currently recognizable.",
       "citation": "26 U.S.C. §1031"
@@ -1849,7 +2074,12 @@
       "id": "property-management-0002",
       "topic": "property-management",
       "prompt": "A New York landlord who charges prospective tenants an application or screening fee is limited to:",
-      "choices": ["$20", "$50", "$100", "One month's rent"],
+      "choices": [
+        "$20",
+        "$50",
+        "$100",
+        "One month's rent"
+      ],
       "answer": 0,
       "explanation": "The Housing Stability and Tenant Protection Act of 2019 capped application fees at $20, covering the cost of a background and credit check, and required that the report be provided to the applicant.",
       "citation": "General Obligations Law §238-a"
@@ -1886,7 +2116,12 @@
       "id": "math-0001",
       "topic": "math",
       "prompt": "A home sells for $425,000 at a 5% commission, split evenly between the listing and selling brokerages. The listing salesperson's split with their broker is 60/40 in the salesperson's favor. The salesperson receives:",
-      "choices": ["$6,375", "$10,625", "$8,500", "$4,250"],
+      "choices": [
+        "$6,375",
+        "$10,625",
+        "$8,500",
+        "$4,250"
+      ],
       "answer": 0,
       "explanation": "Total commission is $425,000 x 0.05 = $21,250. The listing brokerage receives half, or $10,625. The salesperson's 60% share is $6,375.",
       "citation": "DOS 77-hour curriculum § Real Estate Mathematics"
@@ -1895,7 +2130,12 @@
       "id": "math-0002",
       "topic": "math",
       "prompt": "A rectangular parcel measures 435.6 feet by 200 feet. Its area is:",
-      "choices": ["2 acres", "1 acre", "4 acres", "One-half acre"],
+      "choices": [
+        "2 acres",
+        "1 acre",
+        "4 acres",
+        "One-half acre"
+      ],
       "answer": 0,
       "explanation": "435.6 x 200 = 87,120 square feet. Dividing by the 43,560 square feet in an acre gives exactly 2 acres.",
       "citation": "DOS 77-hour curriculum § Real Estate Mathematics"
@@ -1904,7 +2144,12 @@
       "id": "property-insurance-0001",
       "topic": "property-insurance",
       "prompt": "A building worth $500,000 is insured for $300,000 under a policy with an 80% coinsurance clause. A covered loss of $100,000 occurs. The insurer will pay approximately:",
-      "choices": ["$75,000", "$100,000", "$60,000", "$80,000"],
+      "choices": [
+        "$75,000",
+        "$100,000",
+        "$60,000",
+        "$80,000"
+      ],
       "answer": 0,
       "explanation": "The required coverage is 80% of $500,000, or $400,000. The recovery is the ratio of carried to required coverage times the loss: ($300,000 / $400,000) x $100,000 = $75,000.",
       "citation": "DOS 77-hour curriculum § Property Insurance"
@@ -1978,6 +2223,1126 @@
       "answer": 0,
       "explanation": "Mortgage brokerage sits outside the Department of State's real estate licensing authority. A real estate license does not authorize mortgage brokerage activity.",
       "citation": "NY Banking Law Article 12-D"
+    },
+    {
+      "id": "law-of-agency-0023",
+      "topic": "law-of-agency",
+      "prompt": "Under an exclusive right to sell listing, the seller finds a buyer without any help from the broker. The seller:",
+      "choices": [
+        "Still owes the broker the agreed commission",
+        "Owes nothing, because the broker was not the procuring cause",
+        "Owes half the agreed commission",
+        "May cancel the listing without further obligation"
+      ],
+      "answer": 0,
+      "explanation": "An exclusive right to sell entitles the broker to a commission on any sale during the listing term, regardless of who produces the buyer. That is what distinguishes it from an exclusive agency listing.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0024",
+      "topic": "law-of-agency",
+      "prompt": "Under an exclusive agency listing, a seller who sells the property personally without any broker's involvement:",
+      "choices": [
+        "Owes no commission",
+        "Owes the full commission to the listing broker",
+        "Owes a reduced commission set by the local board",
+        "Must first obtain the listing broker's written release"
+      ],
+      "answer": 0,
+      "explanation": "An exclusive agency listing reserves the owner's right to sell without a commission. Only one broker is authorized, but the owner competes with that broker.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0025",
+      "topic": "law-of-agency",
+      "prompt": "An open listing is best described as an agreement under which:",
+      "choices": [
+        "The owner may engage multiple brokers and owes a commission only to the one who produces the buyer",
+        "One broker has the sole right to market the property for a fixed term",
+        "The broker keeps any amount received above a price set by the owner",
+        "The commission is fixed by the local multiple listing service"
+      ],
+      "answer": 0,
+      "explanation": "Open listings are non-exclusive. Because only the procuring broker is paid, brokers generally invest little marketing effort in them.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0026",
+      "topic": "law-of-agency",
+      "prompt": "A listing under which the broker keeps everything received above a price the seller specifies is:",
+      "choices": [
+        "A net listing, which creates a direct conflict with the broker's fiduciary duty",
+        "An open listing, which is the most common arrangement in New York",
+        "A percentage listing, permitted when disclosed in writing",
+        "An exclusive agency listing with a variable rate"
+      ],
+      "answer": 0,
+      "explanation": "A net listing gives the broker an incentive to keep the seller's price low and to conceal higher offers, which is irreconcilable with the duties of loyalty and disclosure.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0027",
+      "topic": "law-of-agency",
+      "prompt": "A broker has generally earned the commission when the broker produces a buyer who is:",
+      "choices": [
+        "Ready, willing, and able to purchase on the seller's stated terms",
+        "Pre-approved for a mortgage by any lender",
+        "Willing to make any written offer on the property",
+        "Introduced to the property before any other broker's client"
+      ],
+      "answer": 0,
+      "explanation": "The classic formulation is a ready, willing and able buyer meeting the seller's terms. A seller who then refuses to close may still owe the commission, though most listing forms make payment contingent on closing.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0028",
+      "topic": "law-of-agency",
+      "prompt": "In a commission dispute between two brokers, procuring cause asks which broker:",
+      "choices": [
+        "Set in motion the unbroken chain of events that resulted in the sale",
+        "Held the listing agreement with the seller",
+        "First advertised the property publicly",
+        "Submitted the accepted offer to the seller"
+      ],
+      "answer": 0,
+      "explanation": "Procuring cause looks at the whole course of events rather than a single act. Merely opening a door or being first to show is not decisive if another broker actually caused the sale.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0029",
+      "topic": "law-of-agency",
+      "prompt": "A broker who deposits a buyer's earnest money into the brokerage's general operating account has engaged in:",
+      "choices": [
+        "Commingling, which is a violation regardless of whether any money is lost",
+        "A permissible practice, provided the funds are transferred before closing",
+        "Conversion, but only if the broker later spends the money",
+        "A permissible practice, provided the buyer consents in writing"
+      ],
+      "answer": 0,
+      "explanation": "Escrow money must be held in a separate account. Commingling is a violation on its own; actually spending the money is conversion, a further and more serious offense.",
+      "citation": "19 NYCRR §175.1"
+    },
+    {
+      "id": "law-of-agency-0030",
+      "topic": "law-of-agency",
+      "prompt": "A New York broker must retain records of each transaction for a period of:",
+      "choices": [
+        "3 years",
+        "1 year",
+        "5 years",
+        "7 years"
+      ],
+      "answer": 0,
+      "explanation": "The three-year retention requirement covers listings, agency disclosure forms, closing statements, and related documents, and the records must be produced on the Department's request.",
+      "citation": "19 NYCRR §175.23"
+    },
+    {
+      "id": "law-of-agency-0031",
+      "topic": "law-of-agency",
+      "prompt": "A broker's obligation to supervise the activities of associated salespersons means the broker:",
+      "choices": [
+        "May be disciplined for a salesperson's violations the broker failed to supervise against",
+        "Is liable only for violations the broker personally directed",
+        "Must review every advertisement after it has been published",
+        "Must accompany salespersons to all closings"
+      ],
+      "answer": 0,
+      "explanation": "Supervision is an affirmative duty. A broker who does not exercise it can face discipline for conduct they never knew about.",
+      "citation": "19 NYCRR §175.21"
+    },
+    {
+      "id": "law-of-agency-0032",
+      "topic": "law-of-agency",
+      "prompt": "A salesperson who is not paid an agreed commission by their broker may:",
+      "choices": [
+        "Sue the broker, but has no claim against the seller",
+        "Sue the seller directly for the unpaid amount",
+        "File a lien against the property that was sold",
+        "Collect the amount directly from the buyer at closing"
+      ],
+      "answer": 0,
+      "explanation": "The salesperson's contractual relationship is with the sponsoring broker alone. Only a licensed broker may bring an action for a commission against a principal.",
+      "citation": "RPL §442-a; RPL §442-d"
+    },
+    {
+      "id": "law-of-agency-0033",
+      "topic": "law-of-agency",
+      "prompt": "An unlicensed assistant working for a brokerage may lawfully:",
+      "choices": [
+        "Schedule appointments and place advertisements the broker has approved",
+        "Answer a caller's questions about a listing's condition and terms",
+        "Host an open house and collect visitor information",
+        "Explain the agency disclosure form to a prospective buyer"
+      ],
+      "answer": 0,
+      "explanation": "Unlicensed staff may perform clerical and administrative work. Anything requiring judgment about a property, or that solicits or negotiates, requires a license.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0034",
+      "topic": "law-of-agency",
+      "prompt": "Two competing brokerages agree to charge sellers the same commission rate. This is:",
+      "choices": [
+        "Price fixing, a per se violation of federal antitrust law",
+        "Lawful, provided the rate is disclosed to sellers in writing",
+        "Lawful, because commission rates are set by local custom",
+        "A violation only if the brokerages together hold a majority of listings"
+      ],
+      "answer": 0,
+      "explanation": "Commission rates are always negotiable between a broker and their own client. Agreements among competitors to set them are illegal without regard to market share or intent.",
+      "citation": "Sherman Antitrust Act; DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0035",
+      "topic": "law-of-agency",
+      "prompt": "Two brokerages agree that one will work only the north side of town and the other only the south. This is:",
+      "choices": [
+        "Market allocation, which is prohibited under antitrust law",
+        "A permissible efficiency arrangement if disclosed to clients",
+        "Lawful, because brokers may choose where to do business",
+        "A group boycott, actionable only by the excluded competitor"
+      ],
+      "answer": 0,
+      "explanation": "Allocating territories or customer types among competitors restrains trade. A broker may unilaterally decide where to work; agreeing with a competitor to divide the market is the violation.",
+      "citation": "Sherman Antitrust Act; DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0036",
+      "topic": "law-of-agency",
+      "prompt": "A licensee knows the basement floods every spring but says nothing, and the buyer cannot see any evidence during a walkthrough. This is:",
+      "choices": [
+        "Failure to disclose a known latent defect",
+        "Permissible, because the buyer had the right to order an inspection",
+        "Puffing, since flooding severity is a matter of opinion",
+        "Permissible, because the duty runs only to the licensee's own client"
+      ],
+      "answer": 0,
+      "explanation": "Latent defects are those not discoverable by reasonable inspection. Known material defects must be disclosed to buyers even when the buyer is a customer rather than a client.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0037",
+      "topic": "law-of-agency",
+      "prompt": "Under New York law, a seller or licensee has no liability for failing to disclose that a homicide occurred in the house because:",
+      "choices": [
+        "Real Property Law §443-a provides that no cause of action arises from that non-disclosure",
+        "The federal Fair Housing Act preempts any such disclosure requirement",
+        "Such events are considered latent defects that only an inspector may report",
+        "The buyer is presumed to have researched the property's history"
+      ],
+      "answer": 0,
+      "explanation": "New York addresses stigmatized property by statute. The protection also covers a death on the property and prior occupancy by a person with HIV or AIDS.",
+      "citation": "RPL §443-a"
+    },
+    {
+      "id": "law-of-agency-0038",
+      "topic": "law-of-agency",
+      "prompt": "A buyer asks a licensee whether any registered sex offenders live nearby. The licensee should:",
+      "choices": [
+        "Direct the buyer to the state's public sex offender registry",
+        "Research the registry and report the findings to the buyer",
+        "Decline to respond, because the question implicates fair housing law",
+        "Ask the seller to disclose the information in writing"
+      ],
+      "answer": 0,
+      "explanation": "Referring the buyer to the public registry lets them get current information directly, and avoids the licensee becoming responsible for the accuracy of what they report.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0039",
+      "topic": "law-of-agency",
+      "prompt": "A licensee receives a second offer while a first offer is pending seller review. The licensee must:",
+      "choices": [
+        "Present the second offer to the seller promptly",
+        "Hold the second offer until the seller responds to the first",
+        "Present it only if it exceeds the first offer",
+        "Return it to the submitting agent as untimely"
+      ],
+      "answer": 0,
+      "explanation": "All offers must be presented promptly until closing unless the seller has instructed otherwise in writing. Screening offers substitutes the licensee's judgment for the client's.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0040",
+      "topic": "law-of-agency",
+      "prompt": "The distinction between a client and a customer is that a client:",
+      "choices": [
+        "Is owed full fiduciary duties, while a customer is owed honesty and fair dealing",
+        "Has signed a purchase contract, while a customer has not",
+        "Pays the commission, while a customer does not",
+        "Is represented by a broker, while a customer is represented by an attorney"
+      ],
+      "answer": 0,
+      "explanation": "The client is the principal in the agency relationship. Customers are third parties the licensee deals with honestly but does not represent.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0041",
+      "topic": "law-of-agency",
+      "prompt": "An agent whose authority is limited to a single transaction, such as selling one listed property, holds:",
+      "choices": [
+        "A special agency",
+        "A general agency",
+        "A universal agency",
+        "An agency coupled with an interest"
+      ],
+      "answer": 0,
+      "explanation": "A listing agreement creates a special agency. Property management, involving a continuing series of acts, creates a general agency.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0042",
+      "topic": "law-of-agency",
+      "prompt": "A principal who accepts the benefit of an unauthorized act performed by their agent has effectively:",
+      "choices": [
+        "Ratified the act, giving it the same effect as if it had been authorized",
+        "Terminated the agency by operation of law",
+        "Created an agency coupled with an interest",
+        "Waived all fiduciary duties for the remainder of the transaction"
+      ],
+      "answer": 0,
+      "explanation": "Ratification is retroactive approval. It is one of the ways an agency relationship, or an individual act within one, can be created after the fact.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0043",
+      "topic": "law-of-agency",
+      "prompt": "A licensee associated with one broker wishes to move to another brokerage. The licensee must:",
+      "choices": [
+        "Have the change of association filed with the Department of State before working for the new broker",
+        "Wait ninety days from the date of termination before affiliating",
+        "Surrender the license and apply for a new one",
+        "Obtain written consent from the prior broker's clients"
+      ],
+      "answer": 0,
+      "explanation": "A license is only active while associated with a sponsoring broker. The termination and the new association must both be recorded with the Department.",
+      "citation": "RPL §441-b; DOS 77-hour curriculum § License Law and Regulations"
+    },
+    {
+      "id": "law-of-agency-0044",
+      "topic": "law-of-agency",
+      "prompt": "An associate broker is best described as a person who:",
+      "choices": [
+        "Holds a broker's license but works under the supervision of another broker",
+        "Holds a salesperson's license and supervises other salespersons",
+        "Is licensed only to manage property, not to sell it",
+        "Has passed the broker exam but has not yet been licensed"
+      ],
+      "answer": 0,
+      "explanation": "An associate broker has met the full broker qualifications but chooses to operate under a supervising broker rather than run their own office.",
+      "citation": "RPL §440(2); DOS 77-hour curriculum § License Law and Regulations"
+    },
+    {
+      "id": "law-of-agency-0045",
+      "topic": "law-of-agency",
+      "prompt": "The consequence of undisclosed dual agency in New York can include:",
+      "choices": [
+        "Loss of the commission and disciplinary action against the license",
+        "A fine payable to the buyer, but no effect on the license",
+        "Automatic voiding of the deed after closing",
+        "Nothing, provided both parties were treated fairly"
+      ],
+      "answer": 0,
+      "explanation": "Courts have denied commissions to brokers who represented both sides without informed consent, and the Department of State treats it as grounds for suspension or revocation.",
+      "citation": "RPL §443; RPL §441-c"
+    },
+    {
+      "id": "law-of-agency-0046",
+      "topic": "law-of-agency",
+      "prompt": "An exclusive listing agreement in New York should contain:",
+      "choices": [
+        "A definite termination date rather than an automatic renewal provision",
+        "A commission rate set by the local board of realtors",
+        "A clause waiving the seller's right to reject offers",
+        "The names of every cooperating broker who may show the property"
+      ],
+      "answer": 0,
+      "explanation": "Open-ended listings and automatic renewals trap sellers in agreements they may not realize are still running. A definite end date is the expected practice.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0047",
+      "topic": "law-of-agency",
+      "prompt": "A multiple listing service is best described as:",
+      "choices": [
+        "A cooperative arrangement among brokers to share listings and offers of compensation",
+        "A government registry of all properties for sale in a county",
+        "A licensing category regulated by the Department of State",
+        "An agency relationship between the seller and every member broker"
+      ],
+      "answer": 0,
+      "explanation": "The MLS is a private cooperative among member brokers. Membership does not itself create an agency relationship between a member and another member's client.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0048",
+      "topic": "law-of-agency",
+      "prompt": "An agency coupled with an interest differs from an ordinary agency because it:",
+      "choices": [
+        "Cannot be revoked unilaterally by the principal, since the agent holds a stake in the property",
+        "Terminates automatically upon the death of the agent",
+        "Requires no written agreement of any kind",
+        "May be created only between family members"
+      ],
+      "answer": 0,
+      "explanation": "Where the agent has an actual financial interest in the subject property, revocation would destroy that interest, so the usual right of the principal to revoke at will does not apply.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0049",
+      "topic": "law-of-agency",
+      "prompt": "A seller who will be out of the country grants another person written authority to sign closing documents. That instrument is:",
+      "choices": [
+        "A power of attorney, and the person acting under it is an attorney-in-fact",
+        "A listing agreement with an assignment clause",
+        "An agency disclosure form with a substitution rider",
+        "A proprietary lease naming a successor"
+      ],
+      "answer": 0,
+      "explanation": "An attorney-in-fact need not be a lawyer. For a conveyance, the power of attorney must generally be acknowledged and recorded along with the deed.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0050",
+      "topic": "law-of-agency",
+      "prompt": "A licensee states that a property is connected to municipal sewer when it is actually on a septic system. The licensee believed the statement was true. This is:",
+      "choices": [
+        "A negligent misrepresentation, actionable even without intent to deceive",
+        "Puffing, because utility connections vary by neighborhood",
+        "Fraud, because the statement was objectively false",
+        "Not actionable, because the buyer could have verified it"
+      ],
+      "answer": 0,
+      "explanation": "Intent separates fraud from negligent misrepresentation, but both can create liability. A licensee is expected to verify material facts rather than repeat assumptions.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0051",
+      "topic": "law-of-agency",
+      "prompt": "Errors and omissions insurance for a real estate licensee covers:",
+      "choices": [
+        "Claims arising from negligent acts in the course of professional services",
+        "Intentional fraud committed by the licensee",
+        "Fines imposed by the Department of State",
+        "Physical damage occurring at a property during a showing"
+      ],
+      "answer": 0,
+      "explanation": "E and O policies respond to professional negligence. Deliberate wrongdoing is excluded, which is a common source of surprise for licensees who assume the policy covers everything.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0052",
+      "topic": "law-of-agency",
+      "prompt": "An exclusive right to represent buyer agreement obligates the buyer to:",
+      "choices": [
+        "Work through that broker for the purchase of any property during the term",
+        "Purchase a property within the stated term or forfeit a deposit",
+        "Pay the broker directly regardless of what the seller offers",
+        "Disclose the agreement to every listing agent before viewing a property"
+      ],
+      "answer": 0,
+      "explanation": "The agreement makes the broker the buyer's exclusive representative for the term. Compensation may still come from the listing side, from the buyer, or from a combination.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0053",
+      "topic": "law-of-agency",
+      "prompt": "The source of a buyer's agent's compensation:",
+      "choices": [
+        "Does not by itself determine whom the agent represents",
+        "Always determines whom the agent represents",
+        "Must always be the buyer, to avoid dual agency",
+        "Must always be the listing broker, under New York law"
+      ],
+      "answer": 0,
+      "explanation": "Representation follows the agency agreement, not the money. A buyer's agent paid out of the listing side still owes fiduciary duties to the buyer.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0054",
+      "topic": "law-of-agency",
+      "prompt": "A licensee refers a client to a mortgage lender and receives a fee for the referral. In a federally related residential loan, this is:",
+      "choices": [
+        "Prohibited as an unearned kickback",
+        "Permitted if the client is told the amount at closing",
+        "Permitted if the fee is under $500",
+        "Permitted if the lender discloses it on the closing statement"
+      ],
+      "answer": 0,
+      "explanation": "RESPA bars fees for the mere referral of settlement service business. Payment must be for services actually performed, and disclosure does not cure an otherwise unearned fee.",
+      "citation": "12 U.S.C. §2607"
+    },
+    {
+      "id": "law-of-agency-0055",
+      "topic": "law-of-agency",
+      "prompt": "A sales team operating within a brokerage advertises under its own name. The advertisement must also:",
+      "choices": [
+        "Include the name of the brokerage the team operates under",
+        "State the team's total sales volume for the prior year",
+        "Identify each licensed member of the team",
+        "Be filed with the Department of State before publication"
+      ],
+      "answer": 0,
+      "explanation": "A team is not a separate licensed entity. Advertising must make clear which licensed brokerage stands behind it so consumers know who they are actually dealing with.",
+      "citation": "19 NYCRR §175.25"
+    },
+    {
+      "id": "law-of-agency-0056",
+      "topic": "law-of-agency",
+      "prompt": "An apartment information vendor in New York is a person who:",
+      "choices": [
+        "Sells prospective tenants lists of available apartments for a fee",
+        "Manages residential rental buildings on behalf of owners",
+        "Negotiates commercial leases for corporate tenants",
+        "Inspects apartments for code compliance before occupancy"
+      ],
+      "answer": 0,
+      "explanation": "This is a distinct New York licensed category with its own contract and refund requirements, created because selling apartment lists invited abuse.",
+      "citation": "RPL Article 12-A; DOS 77-hour curriculum § License Law and Regulations"
+    },
+    {
+      "id": "law-of-agency-0057",
+      "topic": "law-of-agency",
+      "prompt": "A licensee's duty of confidentiality regarding a former client's financial situation:",
+      "choices": [
+        "Continues indefinitely after the transaction closes",
+        "Ends when the transaction closes",
+        "Ends one year after the agency terminates",
+        "Ends when the client engages a different brokerage"
+      ],
+      "answer": 0,
+      "explanation": "Confidentiality is the duty that outlives the relationship. A licensee who later represents a different party must not use or reveal what a former client told them in confidence.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0058",
+      "topic": "law-of-agency",
+      "prompt": "A licensee lists a property, then arranges for a relative to buy it below market without telling the seller of the relationship. This is:",
+      "choices": [
+        "Self-dealing, a breach of the duty of loyalty",
+        "Permissible, since the seller accepted the price",
+        "A permissible transaction requiring only post-closing disclosure",
+        "Dual agency, curable by written consent after closing"
+      ],
+      "answer": 0,
+      "explanation": "Loyalty requires the agent to put the client's interests ahead of their own and those of people close to them. The relationship must be disclosed before the seller decides.",
+      "citation": "19 NYCRR §175.7; DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0059",
+      "topic": "law-of-agency",
+      "prompt": "In a designated sales agent arrangement, the broker who makes the designations:",
+      "choices": [
+        "Remains a dual agent and may not advocate for either party",
+        "Becomes the seller's agent only",
+        "Withdraws from the transaction entirely",
+        "May advise both designated agents on negotiating strategy"
+      ],
+      "answer": 0,
+      "explanation": "Designation splits advocacy between two individual licensees, but the brokerage itself is still on both sides. The designating broker stays neutral.",
+      "citation": "RPL §443(4)"
+    },
+    {
+      "id": "law-of-agency-0060",
+      "topic": "law-of-agency",
+      "prompt": "A tie-in arrangement, in which a builder sells a lot on the condition that the buyer use the builder's construction company, is:",
+      "choices": [
+        "An antitrust concern because it conditions one product on the purchase of another",
+        "Permissible whenever both prices are disclosed",
+        "Permissible because the builder owns both businesses",
+        "A form of dual agency requiring written consent"
+      ],
+      "answer": 0,
+      "explanation": "Tying uses market power over one product to force the sale of a second. It is a recurring issue where sellers control both the land and a related service.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0061",
+      "topic": "law-of-agency",
+      "prompt": "A listing agreement may be terminated before its expiration date by:",
+      "choices": [
+        "Mutual agreement of the seller and the broker",
+        "The broker's unilateral decision to stop advertising",
+        "The seller's oral statement to a cooperating agent",
+        "The expiration of the buyer's mortgage commitment"
+      ],
+      "answer": 0,
+      "explanation": "Beyond mutual agreement, listings end by performance, expiration, or operation of law such as the death of a party or destruction of the property. Simply losing interest does not end the contract.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0062",
+      "topic": "law-of-agency",
+      "prompt": "A licensee prepares an opinion of value for a lender deciding whether to grant a mortgage. In that context the licensee:",
+      "choices": [
+        "Should decline, because a lending decision generally requires a licensed or certified appraiser",
+        "May proceed, because a comparative market analysis is equivalent to an appraisal",
+        "May proceed if the opinion is labeled a broker price opinion",
+        "May proceed if the licensee has five years of experience"
+      ],
+      "answer": 0,
+      "explanation": "A comparative market analysis or broker price opinion supports pricing and marketing decisions. Valuation for a lending decision falls under appraisal regulation.",
+      "citation": "DOS 77-hour curriculum § Valuation Process and Pricing Properties"
+    },
+    {
+      "id": "law-of-agency-0063",
+      "topic": "law-of-agency",
+      "prompt": "The scope of an agent's authority matters because a principal is bound by:",
+      "choices": [
+        "Acts within the authority the principal actually or apparently granted",
+        "Every act the agent performs while the agency is in effect",
+        "Only acts the principal approved in writing beforehand",
+        "Only acts the agent performed in the principal's presence"
+      ],
+      "answer": 0,
+      "explanation": "Apparent authority is what makes this practical: if the principal's conduct leads a third party to reasonably believe the agent is authorized, the principal can be bound.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0064",
+      "topic": "law-of-agency",
+      "prompt": "A seller instructs the listing agent not to show the home to families with children. The agent should:",
+      "choices": [
+        "Refuse the instruction and explain that following it would violate fair housing law",
+        "Follow the instruction, since obedience is a fiduciary duty",
+        "Follow the instruction but document it in the file",
+        "Withdraw from the listing without explanation"
+      ],
+      "answer": 0,
+      "explanation": "Obedience extends only to lawful instructions. Familial status is protected, and an agent who complies shares liability with the seller.",
+      "citation": "42 U.S.C. §3604; DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0065",
+      "topic": "law-of-agency",
+      "prompt": "A brokerage that represents only buyers and never takes listings is practicing:",
+      "choices": [
+        "Single agency, which avoids in-house dual agency entirely",
+        "Dual agency, because it deals with sellers in every transaction",
+        "Subagency, because it works through listing brokers",
+        "Designated agency, because each buyer gets one licensee"
+      ],
+      "answer": 0,
+      "explanation": "Single agency means representing only one side of the transaction as a matter of business model, which removes the in-house conflict before it can arise.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0066",
+      "topic": "law-of-agency",
+      "prompt": "A seller's agent receives a full-price offer and a slightly lower offer with far stronger financing. The agent should:",
+      "choices": [
+        "Present both and advise the seller on the relative strengths of each",
+        "Present only the full-price offer, since it meets the listing terms",
+        "Recommend the full-price offer without discussing the other",
+        "Ask both buyers to submit revised offers before presenting either"
+      ],
+      "answer": 0,
+      "explanation": "Price is one term among several. The duties of disclosure and reasonable care require the agent to help the client evaluate financing strength, contingencies, and timing.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "legal-issues-0019",
+      "topic": "legal-issues",
+      "prompt": "The bundle of rights associated with real property ownership includes the rights of:",
+      "choices": [
+        "Possession, use, enjoyment, exclusion, and disposition",
+        "Possession, taxation, escheat, and eminent domain",
+        "Use, occupancy, insurance, and financing",
+        "Disposition, zoning, assessment, and condemnation"
+      ],
+      "answer": 0,
+      "explanation": "Taxation, escheat, eminent domain, and police power are the four government powers that limit ownership, not rights the owner holds.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Estates and Interests)"
+    },
+    {
+      "id": "legal-issues-0020",
+      "topic": "legal-issues",
+      "prompt": "Whether an item has become a fixture is determined chiefly by:",
+      "choices": [
+        "The method of attachment, adaptation to the property, and the parties' intention",
+        "The original purchase price of the item",
+        "Whether the item can be removed without any tools",
+        "Whether the item was installed by a licensed contractor"
+      ],
+      "answer": 0,
+      "explanation": "Intention is usually the controlling factor, with attachment and adaptation serving as evidence of it. Disputes are best avoided by naming the item in the contract.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Estates and Interests)"
+    },
+    {
+      "id": "legal-issues-0021",
+      "topic": "legal-issues",
+      "prompt": "A commercial tenant installs display shelving and a walk-in cooler for their business. At the end of the lease these are generally:",
+      "choices": [
+        "Trade fixtures the tenant may remove, repairing any damage caused",
+        "Permanent fixtures that become the landlord's property",
+        "Personal property the landlord may sell to recover unpaid rent",
+        "Improvements the landlord must reimburse the tenant for"
+      ],
+      "answer": 0,
+      "explanation": "Trade fixtures are an exception to the usual fixture rule. Items left behind after the lease ends generally become the landlord's by accession.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Estates and Interests)"
+    },
+    {
+      "id": "legal-issues-0022",
+      "topic": "legal-issues",
+      "prompt": "Growing crops planted by a tenant farmer, which the tenant may return to harvest after the tenancy ends, are:",
+      "choices": [
+        "Emblements, treated as the tenant's personal property",
+        "Fixtures belonging to the landowner",
+        "Part of the real property conveyed with the land",
+        "Trade fixtures requiring removal before the lease expires"
+      ],
+      "answer": 0,
+      "explanation": "The doctrine protects a tenant's investment of labor in annual crops. Naturally occurring vegetation, by contrast, passes with the land.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Estates and Interests)"
+    },
+    {
+      "id": "legal-issues-0023",
+      "topic": "legal-issues",
+      "prompt": "An owner whose land borders a large navigable lake holds:",
+      "choices": [
+        "Littoral rights",
+        "Riparian rights",
+        "Prior appropriation rights",
+        "Percolating water rights"
+      ],
+      "answer": 0,
+      "explanation": "Littoral rights attach to land bordering a lake, sea, or ocean. Riparian rights attach to land along a flowing watercourse such as a river or stream.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Estates and Interests)"
+    },
+    {
+      "id": "legal-issues-0024",
+      "topic": "legal-issues",
+      "prompt": "A neighbor's garage was built two feet over the boundary line onto the adjoining lot. This is:",
+      "choices": [
+        "An encroachment, which a survey would reveal and which can cloud title",
+        "An easement by prescription, effective immediately upon construction",
+        "A license, revocable by the affected owner at any time",
+        "A party wall, jointly owned by both property owners"
+      ],
+      "answer": 0,
+      "explanation": "Encroachments can make title unmarketable and, if left unchallenged long enough, ripen into a prescriptive easement or an adverse possession claim.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Liens and Easements)"
+    },
+    {
+      "id": "legal-issues-0025",
+      "topic": "legal-issues",
+      "prompt": "A landowner gives a neighbor spoken permission to cross the property to reach a fishing spot. This permission is:",
+      "choices": [
+        "A license, revocable at will and not an interest in land",
+        "An easement appurtenant that runs with the land",
+        "An easement in gross benefiting the neighbor personally",
+        "An irrevocable easement by necessity"
+      ],
+      "answer": 0,
+      "explanation": "A license is personal permission, not a property interest. Because it is revocable, it does not create the kind of continuous adverse use that would support a prescriptive claim.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Liens and Easements)"
+    },
+    {
+      "id": "legal-issues-0026",
+      "topic": "legal-issues",
+      "prompt": "A utility company's right to run power lines across many private parcels is:",
+      "choices": [
+        "An easement in gross, which benefits an entity rather than an adjoining parcel",
+        "An easement appurtenant, benefiting each parcel it crosses",
+        "A license terminable when the property is sold",
+        "An encroachment subject to removal on demand"
+      ],
+      "answer": 0,
+      "explanation": "There is no dominant tenement. Commercial easements in gross are assignable and survive the sale of the burdened land.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Liens and Easements)"
+    },
+    {
+      "id": "legal-issues-0027",
+      "topic": "legal-issues",
+      "prompt": "An owner subdivides a parcel, leaving one lot with no access to a public road. The landlocked owner is most likely entitled to:",
+      "choices": [
+        "An easement by necessity",
+        "An easement by prescription after ten years",
+        "A license from the municipality",
+        "Compensation through inverse condemnation"
+      ],
+      "answer": 0,
+      "explanation": "Easements by necessity arise when a conveyance leaves a parcel without access, on the reasoning that access was implicitly intended. No period of use is required.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Liens and Easements)"
+    },
+    {
+      "id": "legal-issues-0028",
+      "topic": "legal-issues",
+      "prompt": "The owner of the dominant tenement purchases the servient tenement. The easement between them:",
+      "choices": [
+        "Terminates by merger, because one owner now holds both parcels",
+        "Continues, and revives automatically if the parcels are later separated",
+        "Converts into an easement in gross",
+        "Must be released by a recorded instrument to end"
+      ],
+      "answer": 0,
+      "explanation": "An owner cannot hold an easement over their own land. If the parcels are later split, a new easement must be created; the old one does not spring back.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Liens and Easements)"
+    },
+    {
+      "id": "legal-issues-0029",
+      "topic": "legal-issues",
+      "prompt": "A wall standing on the boundary line and shared by two adjoining buildings is:",
+      "choices": [
+        "A party wall, with each owner holding rights and maintenance obligations",
+        "An encroachment that the newer building's owner must remove",
+        "The sole property of whichever owner built it",
+        "Common area owned by the municipality"
+      ],
+      "answer": 0,
+      "explanation": "Party wall arrangements are typically governed by a recorded agreement covering repair costs and the consequences of one building being demolished.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Liens and Easements)"
+    },
+    {
+      "id": "legal-issues-0030",
+      "topic": "legal-issues",
+      "prompt": "A notice of pendency, commonly called a lis pendens, is filed to:",
+      "choices": [
+        "Warn prospective purchasers that litigation affecting title to the property is pending",
+        "Secure payment for labor and materials furnished to the property",
+        "Record the transfer of title from grantor to grantee",
+        "Establish the priority of a purchase money mortgage"
+      ],
+      "answer": 0,
+      "explanation": "Anyone acquiring an interest after the notice is filed takes subject to the outcome of the lawsuit, which makes the property effectively unsaleable while it is in place.",
+      "citation": "CPLR Article 65; DOS 77-hour curriculum § Legal Issues"
+    },
+    {
+      "id": "legal-issues-0031",
+      "topic": "legal-issues",
+      "prompt": "A mortgage lien is best classified as:",
+      "choices": [
+        "Voluntary and specific",
+        "Involuntary and specific",
+        "Voluntary and general",
+        "Involuntary and general"
+      ],
+      "answer": 0,
+      "explanation": "The owner consents to it, which makes it voluntary, and it attaches to one identified property, which makes it specific. A judgment lien is the involuntary, general counterpart.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Liens and Easements)"
+    },
+    {
+      "id": "legal-issues-0032",
+      "topic": "legal-issues",
+      "prompt": "A legal description that traces boundaries using directions, distances, and monuments from a fixed starting point is:",
+      "choices": [
+        "A metes and bounds description",
+        "A lot and block description",
+        "A rectangular survey description",
+        "A street address description"
+      ],
+      "answer": 0,
+      "explanation": "Metes and bounds must return to the point of beginning to enclose the parcel. It is the older method and is common in the original thirteen states, including New York.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Deeds)"
+    },
+    {
+      "id": "legal-issues-0033",
+      "topic": "legal-issues",
+      "prompt": "A description reading \"Lot 14, Block 3, of the Meadowbrook Subdivision as filed in the county clerk's office\" is:",
+      "choices": [
+        "A lot and block description, referring to a recorded subdivision plat",
+        "A metes and bounds description using recorded monuments",
+        "An informal description that is insufficient to convey title",
+        "A rectangular survey description based on principal meridians"
+      ],
+      "answer": 0,
+      "explanation": "Also called the recorded plat method, this incorporates the filed map by reference, which is why the map itself must be recorded for the description to work.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Deeds)"
+    },
+    {
+      "id": "legal-issues-0034",
+      "topic": "legal-issues",
+      "prompt": "The clause in a deed that defines the extent of the ownership interest being conveyed, often beginning \"to have and to hold,\" is the:",
+      "choices": [
+        "Habendum clause",
+        "Granting clause",
+        "Defeasance clause",
+        "Acceleration clause"
+      ],
+      "answer": 0,
+      "explanation": "The granting clause names the parties and states the intent to convey; the habendum clause that follows describes and limits the estate being granted.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Deeds)"
+    },
+    {
+      "id": "legal-issues-0035",
+      "topic": "legal-issues",
+      "prompt": "A deed must be acknowledged before a notary primarily so that it can be:",
+      "choices": [
+        "Recorded in the public land records",
+        "Considered valid between the grantor and grantee",
+        "Used to transfer possession of the property",
+        "Accepted by the grantee's title insurer as a survey substitute"
+      ],
+      "answer": 0,
+      "explanation": "Acknowledgment is a recording requirement, not a validity requirement. An unacknowledged deed can still pass title between the parties; it simply cannot go on the record.",
+      "citation": "RPL §291; DOS 77-hour curriculum § Legal Issues (Deeds)"
+    },
+    {
+      "id": "legal-issues-0036",
+      "topic": "legal-issues",
+      "prompt": "Recording a deed in the county clerk's office gives:",
+      "choices": [
+        "Constructive notice to the world of the grantee's interest",
+        "Actual notice only to parties who search the records",
+        "A guarantee from the county that title is marketable",
+        "Priority over all previously recorded liens"
+      ],
+      "answer": 0,
+      "explanation": "Constructive notice means everyone is charged with knowledge of what the record contains, whether or not they actually looked. Actual notice is what a person genuinely knows.",
+      "citation": "RPL §291"
+    },
+    {
+      "id": "legal-issues-0037",
+      "topic": "legal-issues",
+      "prompt": "Marketable title is best described as title that:",
+      "choices": [
+        "A reasonable, well-informed buyer would accept without fear of litigation",
+        "Is guaranteed by the county recording office",
+        "Carries no mortgage or other voluntary lien",
+        "Has been held by the same family for at least ten years"
+      ],
+      "answer": 0,
+      "explanation": "Marketable does not mean perfect. It means free of defects serious enough that a prudent buyer, properly advised, would refuse the property or face a lawsuit over it.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Title Closing and Costs)"
+    },
+    {
+      "id": "legal-issues-0038",
+      "topic": "legal-issues",
+      "prompt": "An old unreleased mortgage still appearing in the record, though the debt was long ago paid, is:",
+      "choices": [
+        "A cloud on title, typically cleared by obtaining a satisfaction or a quitclaim deed",
+        "A latent defect that title insurance cannot cover",
+        "An encumbrance that automatically expires after ten years",
+        "A lien with priority over the current owner's mortgage"
+      ],
+      "answer": 0,
+      "explanation": "Clouds are apparent defects that a title search turns up. A quiet title action is the remedy when the party who could release it cannot be found.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Title Closing and Costs)"
+    },
+    {
+      "id": "legal-issues-0039",
+      "topic": "legal-issues",
+      "prompt": "The chain of title is:",
+      "choices": [
+        "The successive record of conveyances from the earliest owner to the present one",
+        "The list of liens currently encumbering the property",
+        "The sequence of mortgages recorded against the property",
+        "The insurer's schedule of exceptions to coverage"
+      ],
+      "answer": 0,
+      "explanation": "A gap in the chain, where one conveyance is missing, is a defect that must be resolved before title can be insured or called marketable.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Title Closing and Costs)"
+    },
+    {
+      "id": "legal-issues-0040",
+      "topic": "legal-issues",
+      "prompt": "In a deed containing full covenants, the covenant of seisin is the grantor's promise that:",
+      "choices": [
+        "The grantor owns the property and has the right to convey it",
+        "The grantee will not be disturbed in possession by a superior claim",
+        "The grantor will obtain any further documents needed to perfect title",
+        "The property is free of all encumbrances"
+      ],
+      "answer": 0,
+      "explanation": "Quiet enjoyment covers undisturbed possession, further assurance covers additional documents, and against encumbrances covers liens. Seisin is the promise of ownership itself.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Deeds)"
+    },
+    {
+      "id": "legal-issues-0041",
+      "topic": "legal-issues",
+      "prompt": "A deed executed by a court-appointed official to convey property sold in a foreclosure is:",
+      "choices": [
+        "A referee's deed, which carries no warranties of title",
+        "A full covenant and warranty deed",
+        "A bargain and sale deed with covenant against grantor's acts",
+        "A quitclaim deed executed by the former owner"
+      ],
+      "answer": 0,
+      "explanation": "Officials conveying property they never personally owned give no warranties. Executor's deeds in estate sales work the same way.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Deeds)"
+    },
+    {
+      "id": "legal-issues-0042",
+      "topic": "legal-issues",
+      "prompt": "A person dies owning real property in New York with no will and no locatable heirs. The property:",
+      "choices": [
+        "Escheats to the state",
+        "Passes to the county in which it is located as a tax lien",
+        "Is sold at public auction with proceeds to the school district",
+        "Vests in the adjoining property owners in equal shares"
+      ],
+      "answer": 0,
+      "explanation": "Escheat is one of the four government powers over property. It prevents land from being left permanently ownerless.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Estates and Interests)"
+    },
+    {
+      "id": "legal-issues-0043",
+      "topic": "legal-issues",
+      "prompt": "A person who dies leaving a valid will is said to have died:",
+      "choices": [
+        "Testate, with property passing to the devisees named in the will",
+        "Intestate, with property passing under the statute of descent",
+        "In escheat, with property passing to the state",
+        "Seised, with property passing to the surviving joint tenants"
+      ],
+      "answer": 0,
+      "explanation": "Dying testate means the will controls, subject to probate. Dying intestate means the statute decides who inherits.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Estates and Interests)"
+    },
+    {
+      "id": "legal-issues-0044",
+      "topic": "legal-issues",
+      "prompt": "Two people hold title as joint tenants with right of survivorship. One conveys their interest to a third party. The result is that:",
+      "choices": [
+        "The joint tenancy is severed and the new owner holds as a tenant in common",
+        "The conveyance is void, because joint tenants cannot convey separately",
+        "The remaining joint tenant automatically acquires the whole property",
+        "The new owner becomes a joint tenant with the remaining original owner"
+      ],
+      "answer": 0,
+      "explanation": "A conveyance breaks the unities that joint tenancy requires. The buyer cannot inherit the survivorship right, which existed only between the original parties.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Estates and Interests)"
+    },
+    {
+      "id": "legal-issues-0045",
+      "topic": "legal-issues",
+      "prompt": "To establish title by adverse possession in New York, the possession must be:",
+      "choices": [
+        "Hostile, actual, open and notorious, exclusive, and continuous for ten years",
+        "Permissive, continuous, and documented for ten years",
+        "Hostile and continuous for five years with payment of taxes",
+        "Open and continuous for twenty-one years"
+      ],
+      "answer": 0,
+      "explanation": "Hostile means without the owner's permission. Permission defeats the claim entirely, which is why owners of land crossed by neighbors often grant a written license.",
+      "citation": "RPAPL Article 5"
+    },
+    {
+      "id": "legal-issues-0046",
+      "topic": "legal-issues",
+      "prompt": "A government action that so restricts the use of private land that it destroys the property's value may give rise to a claim of:",
+      "choices": [
+        "Inverse condemnation, seeking compensation for a regulatory taking",
+        "Adverse possession against the municipality",
+        "Escheat, returning the land to the state",
+        "Novation of the underlying deed"
+      ],
+      "answer": 0,
+      "explanation": "In ordinary condemnation the government initiates proceedings and pays. In inverse condemnation the owner sues, arguing that regulation amounted to a taking without compensation.",
+      "citation": "DOS 77-hour curriculum § Land Use Regulations"
+    },
+    {
+      "id": "legal-issues-0047",
+      "topic": "legal-issues",
+      "prompt": "In a New York residential closing, the buyer's attorney typically:",
+      "choices": [
+        "Reviews the title report and clears objections before the closing date",
+        "Issues the title insurance policy on behalf of the underwriter",
+        "Performs the appraisal required by the lender",
+        "Files the certificate of occupancy with the building department"
+      ],
+      "answer": 0,
+      "explanation": "New York closings are attorney-driven. Reviewing the title report and resolving exceptions is central to the buyer's attorney's role.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Title Closing and Costs)"
+    },
+    {
+      "id": "legal-issues-0048",
+      "topic": "legal-issues",
+      "prompt": "Under federal rules, a borrower must receive the Closing Disclosure for a covered residential mortgage at least:",
+      "choices": [
+        "3 business days before consummation",
+        "1 business day before consummation",
+        "7 business days before consummation",
+        "10 business days before consummation"
+      ],
+      "answer": 0,
+      "explanation": "The three-day window exists so borrowers can compare the final figures to the Loan Estimate. Certain changes, such as an increased APR, restart the clock.",
+      "citation": "12 CFR Part 1026 (TRID)"
+    },
+    {
+      "id": "legal-issues-0049",
+      "topic": "legal-issues",
+      "prompt": "Items on a closing statement shown as a credit to the buyer include:",
+      "choices": [
+        "The earnest money deposit already paid",
+        "The purchase price of the property",
+        "The buyer's share of prepaid taxes",
+        "The title insurance premium the buyer owes"
+      ],
+      "answer": 0,
+      "explanation": "The deposit is money the buyer has already delivered, so it reduces what remains due at closing. The purchase price and buyer-owed costs are debits.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Title Closing and Costs)"
+    },
+    {
+      "id": "legal-issues-0050",
+      "topic": "legal-issues",
+      "prompt": "A title insurance commitment's schedule of exceptions lists:",
+      "choices": [
+        "Matters the policy will not cover, such as recorded easements and restrictions",
+        "The prior owners in the chain of title",
+        "The liens the seller must pay off before closing",
+        "The endorsements the lender has requested"
+      ],
+      "answer": 0,
+      "explanation": "Exceptions carve items out of coverage. Reviewing them is how a buyer learns what easements, covenants, and survey matters they are taking the property subject to.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Title Closing and Costs)"
+    },
+    {
+      "id": "legal-issues-0051",
+      "topic": "legal-issues",
+      "prompt": "The New York form filed with the county clerk to report a real property transfer for assessment and sales-data purposes is:",
+      "choices": [
+        "The RP-5217 Real Property Transfer Report",
+        "The TP-584 Combined Real Estate Transfer Tax Return",
+        "The DOS-1736 Agency Disclosure Form",
+        "The RPAPL Notice of Pendency"
+      ],
+      "answer": 0,
+      "explanation": "The RP-5217 feeds assessment and sales data; the TP-584 is the separate transfer tax return. Both are typically filed at the same time as the deed.",
+      "citation": "NY Real Property Tax Law §333"
+    },
+    {
+      "id": "legal-issues-0052",
+      "topic": "legal-issues",
+      "prompt": "A survey is ordered before closing chiefly to reveal:",
+      "choices": [
+        "Boundary lines, encroachments, and the location of improvements",
+        "Recorded liens against the property",
+        "The condition of the roof and mechanical systems",
+        "Whether the seller holds marketable title"
+      ],
+      "answer": 0,
+      "explanation": "A survey shows physical facts on the ground that no records search can produce. Title policies commonly except survey matters unless a current survey is provided.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Title Closing and Costs)"
+    },
+    {
+      "id": "legal-issues-0053",
+      "topic": "legal-issues",
+      "prompt": "New York's homestead exemption operates to:",
+      "choices": [
+        "Protect a portion of a primary residence's value from certain creditors",
+        "Reduce the assessed value of the property for school tax purposes",
+        "Exempt the first sale of a residence from transfer tax",
+        "Prevent a spouse from conveying the residence without consent"
+      ],
+      "answer": 0,
+      "explanation": "The exemption is a creditor protection with a dollar amount that varies by county. STAR is the separate program that reduces school taxes.",
+      "citation": "CPLR §5206"
+    },
+    {
+      "id": "legal-issues-0054",
+      "topic": "legal-issues",
+      "prompt": "A fee simple estate that automatically ends if a stated condition occurs, such as land conveyed \"so long as it is used as a library,\" is:",
+      "choices": [
+        "A fee simple determinable, leaving the grantor a possibility of reverter",
+        "A fee simple absolute, since the condition is unenforceable",
+        "A life estate measured by the use of the property",
+        "A leasehold estate for an indefinite term"
+      ],
+      "answer": 0,
+      "explanation": "The estate ends by itself when the condition fails, and the grantor's future interest is a possibility of reverter. Wording like \"but if\" instead creates a right of re-entry that must be exercised.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Estates and Interests)"
     }
   ]
 }
