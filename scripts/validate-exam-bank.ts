@@ -28,6 +28,25 @@ const BANK_PATH = join(REPO_ROOT, 'public/data/ny-real-estate-questions.json');
 const CURRICULUM_TOTAL_HOURS = 77;
 
 /**
+ * How long a legal-accuracy review stays good for.
+ *
+ * This bank states current New York law, and law moves. The canonical example
+ * is already baked into the bank: the $500 seller-credit opt-out under the
+ * Property Condition Disclosure Act was eliminated effective 2024-03-20, and a
+ * great deal of published prep content — including the DOS curriculum outline
+ * the bank is written from — is still wrong about it. Nothing about a stale
+ * question looks broken, which is exactly why it needs a clock rather than
+ * good intentions.
+ *
+ * A warning at one year, escalating to a build failure at eighteen months. The
+ * warning window is deliberately long: a stale review should not block an
+ * unrelated hotfix on day 366. The hard limit exists because a warning nobody
+ * is forced to read is a warning nobody reads.
+ */
+const REVIEW_WARN_AFTER_DAYS = 365;
+const REVIEW_FAIL_AFTER_DAYS = 545;
+
+/**
  * Choice text that only makes sense in a fixed position. `selectExam()` shuffles
  * choice order on every render, so any of these would produce a nonsense question.
  */
@@ -221,6 +240,7 @@ async function main(): Promise<void> {
   }
 
   reportAnswerLengthBias(questions);
+  checkReviewDate(meta.updated);
 
   report(questions.length);
 }
@@ -279,6 +299,52 @@ function reportAnswerLengthBias(questions: ExamQuestion[]): void {
       `pick-the-longest strategy scores ${(pct * 100).toFixed(1)}%, above the ` +
         `${STRATEGY_LIMIT * 100}% limit — the bank is guessable without knowing the material. ` +
         `Lengthen distractors or trim qualifying clauses out of correct answers.`,
+    );
+  }
+}
+
+/**
+ * Age the bank's legal-accuracy review date, and say plainly what to do about it.
+ *
+ * `meta.updated` is the single source of truth for this: the page renders the
+ * same value as its "last reviewed against current law" line, so there is no
+ * second date to drift out of sync.
+ */
+function checkReviewDate(updated: string): void {
+  const reviewed = new Date(`${updated}T00:00:00Z`);
+  if (Number.isNaN(reviewed.getTime())) {
+    error(`meta.updated is not a valid ISO date: "${updated}"`);
+    return;
+  }
+
+  const dayMs = 24 * 60 * 60 * 1000;
+  /* Compare date-to-date in UTC so the result does not flicker with the
+     machine's timezone or the hour the build happens to run. */
+  const todayUtc = new Date();
+  const today = Date.UTC(todayUtc.getUTCFullYear(), todayUtc.getUTCMonth(), todayUtc.getUTCDate());
+  const ageDays = Math.floor((today - reviewed.getTime()) / dayMs);
+
+  if (ageDays < 0) {
+    error(`meta.updated is ${-ageDays} day(s) in the future ("${updated}")`);
+    return;
+  }
+
+  const months = (ageDays / 30.44).toFixed(1);
+  console.log(`Legal review: last reviewed ${updated}, ${ageDays} days ago (~${months} months).`);
+
+  const action =
+    'Re-check the bank against current law, then bump meta.updated. Start with anything ' +
+    'touching disclosure forms, HSTPA figures, CE hour requirements, and tax thresholds.';
+
+  if (ageDays > REVIEW_FAIL_AFTER_DAYS) {
+    error(
+      `the question bank was last reviewed against current law ${ageDays} days ago, past the ` +
+        `${REVIEW_FAIL_AFTER_DAYS}-day hard limit. ${action}`,
+    );
+  } else if (ageDays > REVIEW_WARN_AFTER_DAYS) {
+    warn(
+      `the question bank was last reviewed against current law ${ageDays} days ago ` +
+        `(over ${REVIEW_WARN_AFTER_DAYS} days). The build fails at ${REVIEW_FAIL_AFTER_DAYS} days. ${action}`,
     );
   }
 }

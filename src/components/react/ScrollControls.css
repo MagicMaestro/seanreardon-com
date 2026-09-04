@@ -1,0 +1,178 @@
+/*
+  ScrollControls — draggable scroll thumb + back-to-top button.
+
+  SPR-0094. Conventions follow SearchModal.css and PracticeExam.css: plain CSS,
+  hand-namespaced classnames, % over vw/vh per the standing rule
+  (memory/feedback-css-prefer-percentages.md).
+
+  Stacking: z-index 120 puts both controls above the sticky site header (100)
+  so the thumb is never occluded mid-drag, while staying below the steam
+  transition (200) and search modal (300) — an open search overlay should cover
+  these, not compete with them.
+
+  --scroll-controls-footer is published on :root by ScrollControls.tsx and
+  carries how much of the viewport bottom the fixed footer currently covers.
+  The fallback matters: the footer measures 54px on desktop but 325px on
+  mobile, so any hardcoded guess is wrong on one of them.
+*/
+
+/* ============================================================================
+   Track — invisible rail the thumb travels. Never paints, never takes
+   pointer events; it exists to give the thumb a measurable range.
+   ============================================================================ */
+
+.scroll-controls-track {
+  position: fixed;
+  right: 1rem;
+  /* Clears the 7rem desktop header band. The thumb paints above the header
+     (z-120) so it would still be visible higher up, but starting inside that
+     band makes it read as part of the header furniture rather than as a
+     control belonging to the page. */
+  top: 9rem;
+  /* Stop short of the footer AND of the back-to-top button that sits above it,
+     so the thumb can never come to rest underneath either. */
+  bottom: calc(var(--scroll-controls-footer, 4rem) + 4.5rem);
+  width: 1.5rem;
+  z-index: 120;
+  pointer-events: none;
+}
+
+.scroll-controls-track.is-hidden {
+  display: none;
+}
+
+/* ============================================================================
+   Thumb — the white/silver circle.
+   ============================================================================ */
+
+.scroll-controls-thumb {
+  position: absolute;
+  left: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  pointer-events: auto;
+  cursor: grab;
+  /* Without this a touch drag scrolls the page instead of driving the thumb. */
+  touch-action: none;
+  /* Off-centre highlight reads as a polished bead rather than a flat dot, which
+     sits better against the site's brass and stone surfaces. */
+  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #e6eaee 40%, #b3bbc4 72%, #838d98 100%);
+  box-shadow:
+    0 2px 7px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.4) inset,
+    0 0 0 1px rgba(0, 0, 0, 0.35);
+  transition:
+    transform var(--transition-fast) ease,
+    box-shadow var(--transition-fast) ease;
+}
+
+.scroll-controls-thumb:hover {
+  transform: scale(1.12);
+}
+
+.scroll-controls-thumb:focus-visible {
+  outline: 2px solid var(--color-electric-purple-glow);
+  outline-offset: 3px;
+}
+
+.scroll-controls-thumb.is-dragging {
+  cursor: grabbing;
+  transform: scale(1.18);
+  box-shadow:
+    0 3px 12px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(255, 255, 255, 0.55) inset,
+    0 0 10px 2px rgba(244, 160, 255, 0.45);
+}
+
+/* While a drag is in flight the pointer regularly leaves the thumb; without
+   this the browser starts selecting page text under it. */
+.scroll-controls-thumb.is-dragging,
+.scroll-controls-thumb.is-dragging ~ * {
+  user-select: none;
+}
+
+/* ============================================================================
+   Back to top — appears once the visitor is more than one viewport down.
+   Shares the right: 1rem column with the track, below its bottom edge.
+   ============================================================================ */
+
+.scroll-controls-top {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(var(--scroll-controls-footer, 4rem) + 1rem);
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--color-brass-dark);
+  background: var(--color-bg-elevated);
+  color: var(--color-brass-light);
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+  /* Hidden state: fully transparent, lifted, and non-interactive, so it cannot
+     swallow clicks aimed at content underneath it. */
+  opacity: 0;
+  transform: translateY(0.5rem);
+  pointer-events: none;
+  transition:
+    opacity var(--transition-med) ease,
+    transform var(--transition-med) ease,
+    color var(--transition-fast) ease,
+    border-color var(--transition-fast) ease;
+}
+
+.scroll-controls-top.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.scroll-controls-top:hover {
+  color: var(--color-brass-light);
+  border-color: var(--color-brass-light);
+  background: rgba(196, 149, 57, 0.14);
+}
+
+.scroll-controls-top:focus-visible {
+  outline: 2px solid var(--color-electric-purple-glow);
+  outline-offset: 2px;
+}
+
+.scroll-controls-top svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+/* ============================================================================
+   Narrow viewports — tuck both controls closer to the edge so they intrude
+   less on an already narrow measure.
+   ============================================================================ */
+
+@media (max-width: 32rem) {
+  .scroll-controls-track,
+  .scroll-controls-top {
+    right: 0.5rem;
+  }
+
+  .scroll-controls-top {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-controls-thumb,
+  .scroll-controls-top {
+    transition: none;
+  }
+
+  .scroll-controls-thumb:hover,
+  .scroll-controls-thumb.is-dragging {
+    transform: none;
+  }
+}
