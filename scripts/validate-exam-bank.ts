@@ -220,7 +220,67 @@ async function main(): Promise<void> {
     error(`bank holds ${questions.length} questions but an attempt needs ${totalNeeded}`);
   }
 
+  reportAnswerLengthBias(questions);
+
   report(questions.length);
+}
+
+/**
+ * Guard against the single most common flaw in a hand-authored multiple-choice
+ * bank: the correct answer being conspicuously longer than its distractors.
+ *
+ * It happens naturally, because a correct answer tends to state the full rule
+ * with its qualifications while wrong answers stay terse. The consequence is a
+ * bank a candidate can beat without knowing the material — simply picking the
+ * longest choice every time. This bank measured 60.7% on that strategy before
+ * the SPR-0093 rebalancing pass and 32.2% after, against a 25% random baseline.
+ *
+ * Two signals are reported. The per-question ratio catches individual
+ * offenders; the whole-bank "pick the longest" score catches the aggregate
+ * drift that no single question would flag.
+ */
+function reportAnswerLengthBias(questions: ExamQuestion[]): void {
+  /** Correct answer this many times the mean distractor length is a visible tell. */
+  const RATIO_LIMIT = 1.6;
+  /** Whole-bank ceiling for the pick-the-longest strategy before it is a real weakness. */
+  const STRATEGY_LIMIT = 0.4;
+
+  const offenders: string[] = [];
+  let strategyScore = 0;
+
+  for (const q of questions) {
+    const lengths = q.choices.map((c) => c.length);
+    const meanDistractor = (lengths.slice(1).reduce((a, b) => a + b, 0)) / (lengths.length - 1);
+    if (meanDistractor > 0 && lengths[0] / meanDistractor >= RATIO_LIMIT) {
+      offenders.push(`${q.id} (${(lengths[0] / meanDistractor).toFixed(2)}x)`);
+    }
+    /* Credit ties proportionally — three choices tied for longest give a
+       guesser a one-in-three chance, not a certainty. */
+    const longest = Math.max(...lengths);
+    const tied = lengths.filter((l) => l === longest).length;
+    if (lengths[0] === longest) strategyScore += 1 / tied;
+  }
+
+  const pct = strategyScore / questions.length;
+  console.log(
+    `Answer-length bias: pick-the-longest scores ${(pct * 100).toFixed(1)}% ` +
+      `(random 25%, limit ${STRATEGY_LIMIT * 100}%).`,
+  );
+
+  if (offenders.length > 0) {
+    warn(
+      `${offenders.length} question(s) have a correct answer >= ${RATIO_LIMIT}x the mean ` +
+        `distractor length: ${offenders.slice(0, 8).join(', ')}` +
+        `${offenders.length > 8 ? ', …' : ''}`,
+    );
+  }
+  if (pct > STRATEGY_LIMIT) {
+    error(
+      `pick-the-longest strategy scores ${(pct * 100).toFixed(1)}%, above the ` +
+        `${STRATEGY_LIMIT * 100}% limit — the bank is guessable without knowing the material. ` +
+        `Lengthen distractors or trim qualifying clauses out of correct answers.`,
+    );
+  }
 }
 
 function report(questionCount: number): void {
