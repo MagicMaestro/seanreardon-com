@@ -1,0 +1,166 @@
+---
+/**
+ * /real-estate-practice — NY real estate salesperson practice exam.
+ *
+ * SPR-0092. Design spec: `decisions/real-estate-practice-exam.md`.
+ *
+ * The page shell is deliberately static prose plus one island. Everything
+ * interactive lives in `PracticeExam.tsx`; everything indexable lives in the
+ * `<article data-pagefind-body>` below. That split is intentional — the 150+
+ * question bank should not end up in the search index, and the provenance and
+ * disclaimer copy should.
+ *
+ * `client:load` rather than `client:visible`: the exam IS the page. There is
+ * nothing worth showing before it hydrates, and deferring would leave a
+ * visitor staring at a loading state they scrolled to on purpose.
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PracticeExam from '~/components/react/PracticeExam.tsx';
+
+const lastReviewed = '2026-09-03';
+---
+
+<BaseLayout
+  title="Real Estate Practice Exam"
+  description="A free practice exam for the New York State Real Estate Salesperson Examination. 75 original questions drawn from the Department of State's 77-hour qualifying curriculum, scored instantly, with explanations and statutory citations."
+  searchable={true}
+>
+  <article class="exam-page" data-pagefind-body>
+    <p class="lead">
+      A practice run at the <strong>New York State Real Estate Salesperson Examination</strong>.
+      Seventy-five questions, drawn at random and weighted to match the Department of State's
+      77-hour qualifying curriculum. Answer them in any order, submit once, and see every
+      answer explained.
+    </p>
+
+    <p class="exam-page-caveat">
+      These questions are original, written from public sources — they are not real exam items,
+      and this page is not affiliated with or endorsed by the New York Department of State.
+      Nothing is saved: leaving or reloading the page starts a fresh exam.
+    </p>
+  </article>
+
+  <section class="exam-page-mount">
+    <PracticeExam client:load />
+  </section>
+
+  <article class="exam-page" data-pagefind-body>
+    <h2 id="what-the-state-says">What the state says</h2>
+
+    <p>
+      It is worth separating what the Department of State actually publishes from what the
+      test-prep industry repeats. DOS confirms the exam is <strong>multiple choice</strong>, that
+      candidates get <strong>one and a half hours</strong>, that it is <strong>based on the
+      77-hour qualifying curriculum</strong>, and that results come back as
+      <strong>pass or fail with no numerical score</strong>. A passing result stays valid for two
+      years, and the license itself runs for two years.
+    </p>
+
+    <p>
+      The two numbers everyone quotes — <strong>75 questions</strong> and a
+      <strong>70% passing score</strong> — are not among them. Neither figure appears in any DOS
+      publication. They are near-universal on prep sites, and they are probably right, but there
+      is a plausible way the first one went wrong: the state's own application instructions still
+      reference the pre-2008 <em>75-hour</em> qualifying course, and a question count is an easy
+      thing to conflate with a course length.
+    </p>
+
+    <p>
+      This exam is built to 75 questions and grades against 53 correct, because that is the
+      convention and it makes for a useful drill. The percentage it reports is a study aid. The
+      real exam will not give you one.
+    </p>
+
+    <h2 id="where-these-come-from">Where these come from</h2>
+
+    <p>
+      New York administers this exam itself. There is no PSI or Pearson VUE contract behind it,
+      which means there is no candidate handbook and no released sample items — and every
+      "sample question" circulating online is somebody's copyrighted product or a recalled item
+      that was never anyone's to publish.
+    </p>
+
+    <p>
+      So these were written from scratch, against public sources only: the
+      <a href="https://dos.ny.gov/real-estate-salesperson-77-hour-curriculum-eff-12212022" rel="noopener">
+        77-hour curriculum
+      </a> effective 12/21/2022, Real Property Law Article 12-A, and 19 NYCRR Part 175. The
+      curriculum is the closest thing to a published specification that exists: nineteen subjects,
+      each with an hour allocation and a glossary of key terms the state wrote itself. Every
+      question here carries the statute or regulation its rule comes from, so you can check the
+      answer rather than take it on faith.
+    </p>
+
+    <p>
+      The subject mix follows the state's hour weights rather than being uniformly random. Law of
+      Agency carries eleven of the state's seventy-seven hours and contributes eleven of the
+      seventy-five questions; Real Estate Mathematics carries one hour and contributes one
+      question. That last one surprises people — math is drilled far harder by prep courses than
+      its share of the curriculum suggests.
+    </p>
+
+    <h2 id="fine-print">Fine print</h2>
+
+    <p>
+      This is study material, not legal advice, and law moves. One live example of why that
+      matters: the $500 credit that used to let a New York seller skip the Property Condition
+      Disclosure Statement <strong>was eliminated effective March 20, 2024</strong>, and seven
+      flood-disclosure questions were added to the form. A great deal of published prep content —
+      and the official curriculum outline itself, which predates the amendment — is still wrong
+      about this. Verify anything you plan to rely on against current law.
+    </p>
+
+    <p>
+      Nothing on this page is collected or stored. There is no account, no cookie, no progress
+      saved between visits, and no answer of yours leaves your browser. The question bank is a
+      static file; the grading happens on your own machine.
+    </p>
+
+    <p class="exam-page-reviewed">
+      Questions last reviewed against current law: <time datetime={lastReviewed}>{lastReviewed}</time>.
+    </p>
+  </article>
+</BaseLayout>
+
+<style is:global>
+  /* Astro wraps an island in <astro-island>, an unknown element that defaults
+     to display: inline. An inline parent is not a block container, so the
+     island root's `margin-inline: auto` centring silently does nothing.
+     Scoped to this page's mount so BaseLayout's SteamTransition island is
+     untouched. */
+  .exam-page-mount astro-island {
+    display: contents;
+  }
+</style>
+
+<style>
+  .exam-page {
+    max-width: 72ch;
+  }
+
+  .exam-page .lead {
+    font-size: 1.125rem;
+    color: var(--color-fg);
+  }
+
+  .exam-page-caveat {
+    font-size: 0.9375rem;
+    color: var(--color-fg-muted);
+    border-left: 3px solid var(--color-brass-oxidized);
+    padding-left: var(--space-sm);
+  }
+
+  .exam-page h2 {
+    margin-top: var(--space-lg);
+  }
+
+  .exam-page-reviewed {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-fg-subtle);
+  }
+
+  .exam-page-mount {
+    margin-block: var(--space-lg);
+  }
+</style>

@@ -1,0 +1,1983 @@
+{
+  "meta": {
+    "version": 1,
+    "updated": "2026-09-03",
+    "examQuestionCount": 75,
+    "passingCorrect": 53,
+    "timeLimitMinutes": 90,
+    "sourceNote": "Original questions written from the New York Department of State 77-hour salesperson qualifying curriculum (effective 12/21/2022), Real Property Law Article 12-A, and 19 NYCRR Part 175. These are not actual examination items, and this material is not affiliated with or endorsed by the New York Department of State."
+  },
+  "topics": [
+    { "id": "law-of-agency", "label": "Law of Agency", "curriculumHours": 11, "questionsPerExam": 11 },
+    { "id": "legal-issues", "label": "Legal Issues", "curriculumHours": 10, "questionsPerExam": 9 },
+    { "id": "commercial-investment", "label": "Commercial and Investment Properties", "curriculumHours": 10, "questionsPerExam": 9 },
+    { "id": "fair-housing", "label": "Human Rights and Fair Housing", "curriculumHours": 6, "questionsPerExam": 6 },
+    { "id": "finance", "label": "Real Estate Finance", "curriculumHours": 5, "questionsPerExam": 5 },
+    { "id": "construction-environmental", "label": "Construction and Environmental Issues", "curriculumHours": 5, "questionsPerExam": 5 },
+    { "id": "condos-coops", "label": "Condominiums and Cooperatives", "curriculumHours": 4, "questionsPerExam": 4 },
+    { "id": "license-law", "label": "License Law and Regulations", "curriculumHours": 3, "questionsPerExam": 3 },
+    { "id": "contracts-leases", "label": "The Contract of Sales and Leases", "curriculumHours": 3, "questionsPerExam": 3 },
+    { "id": "land-use", "label": "Land Use Regulations", "curriculumHours": 3, "questionsPerExam": 3 },
+    { "id": "valuation", "label": "Valuation Process and Pricing Properties", "curriculumHours": 3, "questionsPerExam": 3 },
+    { "id": "taxes-assessments", "label": "Taxes and Assessments", "curriculumHours": 3, "questionsPerExam": 3 },
+    { "id": "income-tax", "label": "Income Tax Issues in Real Estate", "curriculumHours": 3, "questionsPerExam": 3 },
+    { "id": "municipal-agencies", "label": "Municipal Agencies", "curriculumHours": 2, "questionsPerExam": 2 },
+    { "id": "property-management", "label": "Property Management", "curriculumHours": 2, "questionsPerExam": 2 },
+    { "id": "math", "label": "Real Estate Mathematics", "curriculumHours": 1, "questionsPerExam": 1 },
+    { "id": "property-insurance", "label": "Property Insurance", "curriculumHours": 1, "questionsPerExam": 1 },
+    { "id": "licensee-safety", "label": "Licensee Safety", "curriculumHours": 1, "questionsPerExam": 1 },
+    { "id": "mortgage-brokerage", "label": "Mortgage Brokerage", "curriculumHours": 1, "questionsPerExam": 1 }
+  ],
+  "questions": [
+    {
+      "id": "license-law-0001",
+      "topic": "license-law",
+      "prompt": "Which body issues and disciplines real estate salesperson licenses in New York?",
+      "choices": [
+        "The New York State Department of State, Division of Licensing Services",
+        "The New York Real Estate Commission",
+        "The New York State Association of Realtors",
+        "The New York State Department of Financial Services"
+      ],
+      "answer": 0,
+      "explanation": "New York has no real estate commission. Licensing and discipline sit with the Department of State's Division of Licensing Services under Real Property Law Article 12-A. A New York State Board of Real Estate exists, but it does not issue or revoke licenses.",
+      "citation": "RPL Article 12-A; 19 NYCRR Part 175"
+    },
+    {
+      "id": "license-law-0002",
+      "topic": "license-law",
+      "prompt": "A New York real estate salesperson license is issued for a term of:",
+      "choices": ["Two years", "One year", "Three years", "Four years"],
+      "answer": 0,
+      "explanation": "Salesperson and broker licenses run for two years and must be renewed before expiration. The renewal window opens three months before the expiration date.",
+      "citation": "RPL §441-a"
+    },
+    {
+      "id": "license-law-0003",
+      "topic": "license-law",
+      "prompt": "How many hours of continuing education must a salesperson complete for each two-year renewal?",
+      "choices": ["22.5 hours", "15 hours", "30 hours", "45 hours"],
+      "answer": 0,
+      "explanation": "Renewal requires 22.5 hours of approved continuing education, including required minimums in fair housing, ethical business practices, implicit bias, cultural competency, recent legal matters, and law of agency.",
+      "citation": "RPL §441-a(3)"
+    },
+    {
+      "id": "license-law-0004",
+      "topic": "license-law",
+      "prompt": "Continuing education for renewal must include a minimum of how many hours on implicit bias awareness and understanding?",
+      "choices": ["2 hours", "1 hour", "3 hours", "5 hours"],
+      "answer": 0,
+      "explanation": "A two-hour implicit bias component was added to the continuing education requirement by the December 2021 legislative package addressing housing discrimination. Cultural competency carries a separate two-hour minimum.",
+      "citation": "RPL §441-a(3)"
+    },
+    {
+      "id": "license-law-0005",
+      "topic": "license-law",
+      "prompt": "A licensed salesperson may lawfully accept compensation for brokerage services from:",
+      "choices": [
+        "Only the broker with whom the salesperson is associated",
+        "The seller directly, if the broker consents in writing",
+        "Any licensed broker who participated in the transaction",
+        "The buyer, provided the payment is disclosed to all parties"
+      ],
+      "answer": 0,
+      "explanation": "A salesperson may be paid only by their sponsoring broker. Accepting a fee directly from a principal or from another broker is a violation, regardless of consent or disclosure.",
+      "citation": "RPL §442-a"
+    },
+    {
+      "id": "license-law-0006",
+      "topic": "license-law",
+      "prompt": "An advertisement that does not disclose that the advertiser is a licensed real estate broker is known as:",
+      "choices": [
+        "A blind ad",
+        "A net listing",
+        "A tie-in arrangement",
+        "A puffing advertisement"
+      ],
+      "answer": 0,
+      "explanation": "Blind ads are prohibited. Every advertisement must indicate that the advertiser is a licensed broker and must give the broker's business name and telephone number.",
+      "citation": "19 NYCRR §175.25"
+    },
+    {
+      "id": "law-of-agency-0001",
+      "topic": "law-of-agency",
+      "prompt": "Under Real Property Law §443, a licensee must present the agency disclosure form to a prospective buyer or seller:",
+      "choices": [
+        "At the first substantive contact",
+        "At the signing of the purchase contract",
+        "At or before the closing",
+        "Within three days of showing a property"
+      ],
+      "answer": 0,
+      "explanation": "The form must be presented at the first substantive contact, meaning the point at which the licensee begins discussing the party's specific needs, motivation, or financial qualifications rather than exchanging pleasantries.",
+      "citation": "RPL §443(3)"
+    },
+    {
+      "id": "law-of-agency-0002",
+      "topic": "law-of-agency",
+      "prompt": "The agency disclosure requirements of Real Property Law §443 apply to:",
+      "choices": [
+        "Residential real property improved by a one- to four-family dwelling",
+        "All real property located in New York State",
+        "Commercial and industrial property only",
+        "Any parcel of vacant land over one acre"
+      ],
+      "answer": 0,
+      "explanation": "Section 443 is limited to residential property improved by a one- to four-family dwelling. Larger residential buildings, commercial property, and unimproved land fall outside its disclosure mandate.",
+      "citation": "RPL §443(1)-(2)"
+    },
+    {
+      "id": "law-of-agency-0003",
+      "topic": "law-of-agency",
+      "prompt": "A broker engaged by a listing broker, rather than by the seller directly, to help find a buyer is known in New York as:",
+      "choices": [
+        "A broker's agent",
+        "A subagent",
+        "A dual agent",
+        "A designated sales agent"
+      ],
+      "answer": 0,
+      "explanation": "The broker's agent is a New York-specific role. The broker's agent is engaged by and works through the listing or buyer's broker, and does not have a direct agency relationship with that broker's client.",
+      "citation": "RPL §443(1)"
+    },
+    {
+      "id": "law-of-agency-0004",
+      "topic": "law-of-agency",
+      "prompt": "Designated sales agents may be used in a transaction only when:",
+      "choices": [
+        "The buyer and seller each give advance informed consent in writing to dual agency with designated sales agents",
+        "The broker determines it serves the best interests of both parties",
+        "The seller alone consents in writing",
+        "The transaction involves commercial rather than residential property"
+      ],
+      "answer": 0,
+      "explanation": "Designated sales agency is a form of dual agency at the brokerage level. It requires advance informed written consent from both parties before the designation can be made.",
+      "citation": "RPL §443(4)"
+    },
+    {
+      "id": "law-of-agency-0005",
+      "topic": "law-of-agency",
+      "prompt": "Which duty owed to a principal continues after the agency relationship ends?",
+      "choices": ["Confidentiality", "Obedience", "Loyalty", "Reasonable care"],
+      "answer": 0,
+      "explanation": "Confidentiality survives termination. A former client's confidential information, such as their motivation to sell or the lowest price they would accept, may never be disclosed without permission.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0006",
+      "topic": "law-of-agency",
+      "prompt": "A licensee unlocks a property, points out its features, and answers factual questions for a buyer the licensee does not represent. These are best described as:",
+      "choices": [
+        "Ministerial acts",
+        "Fiduciary acts",
+        "Acts creating an implied agency",
+        "Acts of undisclosed dual agency"
+      ],
+      "answer": 0,
+      "explanation": "Ministerial acts are routine, non-advisory services that do not create an agency relationship. Offering opinions on price or negotiating strategy would cross the line into representation.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0007",
+      "topic": "law-of-agency",
+      "prompt": "A broker's Standardized Operating Procedures under Real Property Law §442-h must be:",
+      "choices": [
+        "Published on the broker's public-facing website and any mobile application",
+        "Filed with the Department of State before they take effect",
+        "Provided to consumers only upon written request",
+        "Recorded with the clerk of the county where the broker's office sits"
+      ],
+      "answer": 0,
+      "explanation": "The broker must post the procedures on each public website and mobile app it maintains. The Legislature removed the requirement to file the procedures with the Department of State.",
+      "citation": "RPL §442-h"
+    },
+    {
+      "id": "law-of-agency-0008",
+      "topic": "law-of-agency",
+      "prompt": "Which of the following is NOT among the minimum subjects a broker's Standardized Operating Procedures must address?",
+      "choices": [
+        "The commission rate the broker charges sellers",
+        "Whether prospective clients must show identification",
+        "Whether an exclusive broker agreement is required",
+        "Whether pre-approval for a mortgage loan is required"
+      ],
+      "answer": 0,
+      "explanation": "The statute names three required subjects: identification, exclusive broker agreements, and mortgage pre-approval. Commission rates are negotiable and are not part of the required procedures.",
+      "citation": "RPL §442-h"
+    },
+    {
+      "id": "law-of-agency-0009",
+      "topic": "law-of-agency",
+      "prompt": "A salesperson associated with a brokerage acts as the agent of:",
+      "choices": [
+        "The broker with whom the salesperson is associated",
+        "The seller in every listing the office holds",
+        "The buyer the salesperson is currently showing property to",
+        "The Department of State"
+      ],
+      "answer": 0,
+      "explanation": "A salesperson has no independent agency authority. The salesperson works under the supervision of, and as agent for, the sponsoring broker, who holds the agency relationship with the client.",
+      "citation": "RPL §440(3); 19 NYCRR §175.21"
+    },
+    {
+      "id": "law-of-agency-0010",
+      "topic": "law-of-agency",
+      "prompt": "A seller's agent learns the seller is going through a divorce and must sell quickly. The agent should:",
+      "choices": [
+        "Keep the information confidential unless the seller authorizes disclosure",
+        "Disclose it to any buyer who asks why the property is for sale",
+        "Disclose it only to buyers making a written offer",
+        "Include it in the listing so buyers understand the timeline"
+      ],
+      "answer": 0,
+      "explanation": "The seller's motivation is confidential information. Revealing it would weaken the client's negotiating position and breach the duty of confidentiality.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0011",
+      "topic": "law-of-agency",
+      "prompt": "An agency relationship arising from the conduct of the parties rather than from a written or spoken agreement is:",
+      "choices": ["Implied agency", "Express agency", "Universal agency", "Gratuitous agency"],
+      "answer": 0,
+      "explanation": "Implied agency arises when a licensee's behavior leads a consumer to reasonably believe they are being represented. It is a common source of unintended and undisclosed dual agency.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0012",
+      "topic": "law-of-agency",
+      "prompt": "A prospective seller refuses to sign the agency disclosure form. The licensee must:",
+      "choices": [
+        "Prepare and keep a written declaration describing the facts of the refusal",
+        "Decline to work with the seller until the form is signed",
+        "Sign the form on the seller's behalf and note the refusal",
+        "Report the refusal to the Department of State within ten days"
+      ],
+      "answer": 0,
+      "explanation": "Refusal does not stop the transaction. The licensee sets forth a written declaration of the facts of the refusal and retains it with the transaction records.",
+      "citation": "RPL §443(3)"
+    },
+    {
+      "id": "law-of-agency-0013",
+      "topic": "law-of-agency",
+      "prompt": "Dual agency is permitted in New York only with:",
+      "choices": [
+        "The informed written consent of both the buyer and the seller",
+        "The written consent of the party who first engaged the broker",
+        "The approval of the Department of State",
+        "A written waiver of all fiduciary duties by both parties"
+      ],
+      "answer": 0,
+      "explanation": "Dual agency requires informed consent from both principals. Undisclosed dual agency is a serious violation and can cost the broker the commission and the license.",
+      "citation": "RPL §443(4)"
+    },
+    {
+      "id": "law-of-agency-0014",
+      "topic": "law-of-agency",
+      "prompt": "Vicarious liability in an agency relationship refers to:",
+      "choices": [
+        "A principal being held responsible for the acts of the agent",
+        "An agent being held responsible for the principal's misrepresentations",
+        "A broker's liability for a competing broker's conduct",
+        "A licensee's personal liability for their own negligence"
+      ],
+      "answer": 0,
+      "explanation": "Vicarious liability attaches to the principal for acts the agent performs within the scope of the agency, even where the principal knew nothing of the conduct.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0015",
+      "topic": "law-of-agency",
+      "prompt": "A licensee tells a buyer that a home has \"the best view in the neighborhood.\" This statement is best characterized as:",
+      "choices": [
+        "Puffing, which is an opinion a reasonable buyer would not treat as fact",
+        "A material misrepresentation requiring correction",
+        "Fraud, because it cannot be objectively verified",
+        "A latent defect disclosure"
+      ],
+      "answer": 0,
+      "explanation": "Puffing is a subjective opinion, not a statement of fact, and is not actionable. Stating that a roof is new when it is fifteen years old would instead be a misrepresentation of a material fact.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0016",
+      "topic": "law-of-agency",
+      "prompt": "A licensee intends to buy a listed property personally. Before making the offer, the licensee must:",
+      "choices": [
+        "Disclose their licensed status and ownership interest in writing to the seller",
+        "Resign from the brokerage before submitting the offer",
+        "Obtain written approval from the Department of State",
+        "Submit the offer through an unrelated broker without further disclosure"
+      ],
+      "answer": 0,
+      "explanation": "A licensee buying or selling for their own account must disclose their licensed status and interest. Concealing it is a breach of the duty of disclosure and grounds for discipline.",
+      "citation": "19 NYCRR §175.7"
+    },
+    {
+      "id": "law-of-agency-0017",
+      "topic": "law-of-agency",
+      "prompt": "An agency relationship terminates by operation of law upon:",
+      "choices": [
+        "The death of the principal",
+        "The listing broker taking a vacation",
+        "The property being taken off the market for one week",
+        "A disagreement over the commission rate"
+      ],
+      "answer": 0,
+      "explanation": "Death or incapacity of either party, destruction of the property, and bankruptcy of the principal all terminate the agency by operation of law, without any act by the parties.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0018",
+      "topic": "law-of-agency",
+      "prompt": "A buyer's agent owes the seller, who is not their client:",
+      "choices": [
+        "Honesty and fair dealing, including disclosure of known material defects",
+        "The same fiduciary duties owed to the buyer",
+        "No duties whatsoever",
+        "A duty of confidentiality regarding the buyer's finances"
+      ],
+      "answer": 0,
+      "explanation": "Duties to customers are limited but real: honesty, fair dealing, and disclosure of known material facts. Fiduciary duties such as loyalty and obedience are reserved for the client.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0019",
+      "topic": "law-of-agency",
+      "prompt": "A dual agent is limited in the transaction because the dual agent cannot:",
+      "choices": [
+        "Advocate for one party's interests to the detriment of the other",
+        "Prepare any documents for either party",
+        "Collect a commission from either party",
+        "Show the property to the buyer without the seller present"
+      ],
+      "answer": 0,
+      "explanation": "A dual agent cannot fully represent either side. The agent may facilitate the transaction but cannot advise one party on price or negotiating strategy against the other's interest.",
+      "citation": "RPL §443(4)"
+    },
+    {
+      "id": "law-of-agency-0020",
+      "topic": "law-of-agency",
+      "prompt": "Which factor most supports treating a salesperson as an independent contractor rather than an employee?",
+      "choices": [
+        "A written agreement stating the salesperson will not be treated as an employee for federal tax purposes",
+        "The broker setting fixed office hours the salesperson must work",
+        "The broker paying the salesperson an hourly wage",
+        "The broker withholding income tax from each commission check"
+      ],
+      "answer": 0,
+      "explanation": "New York's independent contractor treatment turns on a written agreement, substantially commission-based pay, and the salesperson's control over their own hours and methods. Set hours, hourly wages, and tax withholding all point toward employee status.",
+      "citation": "DOS 77-hour curriculum § Law of Agency (Independent Contractor/Employee)"
+    },
+    {
+      "id": "law-of-agency-0021",
+      "topic": "law-of-agency",
+      "prompt": "The fiduciary duty requiring an agent to follow the principal's lawful instructions is:",
+      "choices": ["Obedience", "Loyalty", "Accountability", "Reasonable care"],
+      "answer": 0,
+      "explanation": "Obedience requires following the client's lawful instructions. An instruction to conceal a known material defect or to discriminate is unlawful, and the agent must refuse it.",
+      "citation": "DOS 77-hour curriculum § Law of Agency"
+    },
+    {
+      "id": "law-of-agency-0022",
+      "topic": "law-of-agency",
+      "prompt": "The duty of accountability requires an agent to:",
+      "choices": [
+        "Safeguard and promptly account for all money and documents entrusted to them",
+        "Report the status of the transaction to the Department of State",
+        "Keep the client informed of all showings within 24 hours",
+        "Reimburse the client for any expense the client considers unreasonable"
+      ],
+      "answer": 0,
+      "explanation": "Accountability covers custody of the client's money and property. Escrow deposits must be held in a separate account and never commingled with the broker's own funds.",
+      "citation": "DOS 77-hour curriculum § Law of Agency; 19 NYCRR §175.1"
+    },
+    {
+      "id": "legal-issues-0001",
+      "topic": "legal-issues",
+      "prompt": "The most complete form of ownership a person can hold in real property is:",
+      "choices": [
+        "Fee simple absolute",
+        "A life estate",
+        "A fee simple determinable",
+        "A leasehold estate"
+      ],
+      "answer": 0,
+      "explanation": "Fee simple absolute is unlimited in duration and freely transferable by deed or will. Every other freehold estate carries some limitation on duration or condition.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Estates and Interests)"
+    },
+    {
+      "id": "legal-issues-0002",
+      "topic": "legal-issues",
+      "prompt": "A grants property to B for the duration of B's life, with the property passing to C on B's death. C holds:",
+      "choices": [
+        "A remainder interest",
+        "A reversionary interest",
+        "A life estate pur autre vie",
+        "An estate for years"
+      ],
+      "answer": 0,
+      "explanation": "Because the future interest was granted to a third party rather than retained by the grantor, C is the remainderman. Had A kept the future interest, A would hold a reversion.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Estates and Interests)"
+    },
+    {
+      "id": "legal-issues-0003",
+      "topic": "legal-issues",
+      "prompt": "In New York, a tenancy by the entirety may be held only by:",
+      "choices": [
+        "A married couple",
+        "Any two individuals who take title at the same time",
+        "Business partners in a general partnership",
+        "Two or more siblings"
+      ],
+      "answer": 0,
+      "explanation": "Tenancy by the entirety is reserved for married couples and carries a right of survivorship. Neither spouse can convey their interest without the other's consent.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Estates and Interests)"
+    },
+    {
+      "id": "legal-issues-0004",
+      "topic": "legal-issues",
+      "prompt": "Three people own property as tenants in common. One dies. That owner's interest passes to:",
+      "choices": [
+        "The deceased owner's heirs or devisees",
+        "The two surviving co-owners in equal shares",
+        "The State of New York by escheat",
+        "The surviving co-owner who has held title longest"
+      ],
+      "answer": 0,
+      "explanation": "Tenancy in common has no right of survivorship. Each owner holds an undivided, freely transferable interest that passes through their estate.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Estates and Interests)"
+    },
+    {
+      "id": "legal-issues-0005",
+      "topic": "legal-issues",
+      "prompt": "A tenant's interest under a lease is classified as:",
+      "choices": [
+        "Personal property, sometimes called a chattel real",
+        "Real property, because it concerns land",
+        "A freehold estate of indefinite duration",
+        "An easement in gross"
+      ],
+      "answer": 0,
+      "explanation": "A leasehold gives possession but not ownership of the land, so it is personal property. This is why leases are generally assigned rather than deeded.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Estates and Interests)"
+    },
+    {
+      "id": "legal-issues-0006",
+      "topic": "legal-issues",
+      "prompt": "An easement appurtenant benefits:",
+      "choices": [
+        "The dominant tenement, and runs with the land when it is sold",
+        "A named individual only, and ends when that person dies",
+        "The servient tenement, which gains a right of access",
+        "The municipality, for utility installation only"
+      ],
+      "answer": 0,
+      "explanation": "An easement appurtenant attaches to the land itself. The dominant tenement holds the benefit, the servient tenement carries the burden, and both pass automatically to new owners.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Liens and Easements)"
+    },
+    {
+      "id": "legal-issues-0007",
+      "topic": "legal-issues",
+      "prompt": "In New York, the period of continuous, open, and hostile use required to establish an easement by prescription is:",
+      "choices": ["10 years", "5 years", "15 years", "21 years"],
+      "answer": 0,
+      "explanation": "New York uses a ten-year period for both prescriptive easements and adverse possession. The use must be adverse, open and notorious, continuous, and without the owner's permission.",
+      "citation": "RPAPL Article 5; DOS 77-hour curriculum § Legal Issues"
+    },
+    {
+      "id": "legal-issues-0008",
+      "topic": "legal-issues",
+      "prompt": "A contractor who improved a single-family dwelling in New York must file a mechanic's lien within:",
+      "choices": [
+        "4 months after completing the work",
+        "8 months after completing the work",
+        "1 year after completing the work",
+        "30 days after completing the work"
+      ],
+      "answer": 0,
+      "explanation": "New York's Lien Law sets a four-month filing window for single-family dwellings and eight months for other property, measured from final performance of the work.",
+      "citation": "NY Lien Law §10"
+    },
+    {
+      "id": "legal-issues-0009",
+      "topic": "legal-issues",
+      "prompt": "A money judgment docketed against a property owner creates:",
+      "choices": [
+        "A general, involuntary lien against the owner's real property in that county",
+        "A specific, voluntary lien against the property named in the suit",
+        "A lien superior to all previously recorded mortgages",
+        "An encumbrance that expires after one year"
+      ],
+      "answer": 0,
+      "explanation": "A judgment lien is general because it reaches all of the debtor's real property in the county, and involuntary because the owner did not consent to it.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Liens and Easements)"
+    },
+    {
+      "id": "legal-issues-0010",
+      "topic": "legal-issues",
+      "prompt": "Which lien generally takes priority over all others regardless of when it was recorded?",
+      "choices": [
+        "A real property tax lien",
+        "A first mortgage lien",
+        "A mechanic's lien",
+        "A judgment lien"
+      ],
+      "answer": 0,
+      "explanation": "Real property tax and special assessment liens hold statutory first priority. Most other liens rank by the date and time they were recorded.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Liens and Easements)"
+    },
+    {
+      "id": "legal-issues-0011",
+      "topic": "legal-issues",
+      "prompt": "For a deed to be valid, it must be:",
+      "choices": [
+        "In writing, name a grantor and grantee, contain a granting clause and legal description, and be signed by the grantor and delivered",
+        "Signed by both the grantor and the grantee before a notary",
+        "Recorded in the county clerk's office within thirty days",
+        "Witnessed by two disinterested parties"
+      ],
+      "answer": 0,
+      "explanation": "The grantee does not sign, and recording is not a validity requirement. Delivery and acceptance during the grantor's lifetime is what actually transfers title.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Deeds)"
+    },
+    {
+      "id": "legal-issues-0012",
+      "topic": "legal-issues",
+      "prompt": "The deed most commonly used in New York residential transactions, in which the grantor warrants only that they have done nothing to encumber the title, is the:",
+      "choices": [
+        "Bargain and sale deed with covenant against grantor's acts",
+        "Full covenant and warranty deed",
+        "Quitclaim deed",
+        "Referee's deed"
+      ],
+      "answer": 0,
+      "explanation": "This deed limits the grantor's promise to their own period of ownership. It is the New York norm because buyers rely on title insurance for protection against earlier defects.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Deeds)"
+    },
+    {
+      "id": "legal-issues-0013",
+      "topic": "legal-issues",
+      "prompt": "A quitclaim deed:",
+      "choices": [
+        "Conveys whatever interest the grantor may have, with no warranties of any kind",
+        "Guarantees the grantee a marketable title",
+        "Warrants title only against the grantor's own acts",
+        "Can be used only to transfer property between family members"
+      ],
+      "answer": 0,
+      "explanation": "A quitclaim carries no covenants at all. It is typically used to clear a cloud on title, such as releasing a possible dower or easement claim, rather than to sell property.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Deeds)"
+    },
+    {
+      "id": "legal-issues-0014",
+      "topic": "legal-issues",
+      "prompt": "New York's recording statute protects a subsequent purchaser who:",
+      "choices": [
+        "Buys in good faith without notice of a prior interest and records first",
+        "Records first, regardless of what they knew at the time of purchase",
+        "Purchases first, regardless of whether they ever record",
+        "Pays the highest price, regardless of notice or recording"
+      ],
+      "answer": 0,
+      "explanation": "New York is a race-notice state. Winning requires both good faith without notice of the earlier claim and being first to record.",
+      "citation": "RPL §291"
+    },
+    {
+      "id": "legal-issues-0015",
+      "topic": "legal-issues",
+      "prompt": "The New York State real estate transfer tax on most conveyances is imposed at a rate of:",
+      "choices": [
+        "$2 for each $500 of consideration, and is customarily paid by the seller",
+        "$2 for each $500 of consideration, and is customarily paid by the buyer",
+        "1% of the sale price, and is paid by the buyer",
+        "$5 for each $1,000 of consideration, and is split evenly"
+      ],
+      "answer": 0,
+      "explanation": "The base state transfer tax works out to 0.4% of consideration and is the grantor's obligation. Localities such as New York City impose additional transfer taxes on top of it.",
+      "citation": "NY Tax Law §1402"
+    },
+    {
+      "id": "legal-issues-0016",
+      "topic": "legal-issues",
+      "prompt": "New York's \"mansion tax\" applies to:",
+      "choices": [
+        "Residential conveyances of $1,000,000 or more, and is paid by the buyer",
+        "Residential conveyances of $500,000 or more, and is paid by the seller",
+        "Any conveyance of a property with more than four bedrooms",
+        "Commercial conveyances of $1,000,000 or more, and is paid by the seller"
+      ],
+      "answer": 0,
+      "explanation": "The mansion tax starts at 1% on residential sales at or above $1 million and is the grantee's obligation, which is the reverse of the base transfer tax.",
+      "citation": "NY Tax Law §1402-a"
+    },
+    {
+      "id": "legal-issues-0017",
+      "topic": "legal-issues",
+      "prompt": "An owner's title insurance policy protects against:",
+      "choices": [
+        "Defects in title existing at the time of the policy, including forged deeds and undisclosed heirs",
+        "Physical defects in the structure discovered after closing",
+        "Liens the owner voluntarily places on the property after closing",
+        "Loss of value caused by a downturn in the market"
+      ],
+      "answer": 0,
+      "explanation": "Title insurance is retrospective. It covers title defects that already existed when the policy issued, not future events or the physical condition of the building.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Title Closing and Costs)"
+    },
+    {
+      "id": "legal-issues-0018",
+      "topic": "legal-issues",
+      "prompt": "At closing, the seller has already paid the full year's property taxes in advance. The adjustment will show:",
+      "choices": [
+        "A credit to the seller and a debit to the buyer for the portion covering the buyer's ownership",
+        "A credit to the buyer and a debit to the seller for the full year",
+        "No adjustment, because taxes follow the property rather than the owner",
+        "A debit to both parties in equal amounts"
+      ],
+      "answer": 0,
+      "explanation": "Prorations put each party's share of a prepaid or accrued expense where it belongs. Because the seller prepaid a period the buyer will own, the seller is reimbursed.",
+      "citation": "DOS 77-hour curriculum § Legal Issues (Title Closing and Costs)"
+    },
+    {
+      "id": "commercial-investment-0001",
+      "topic": "commercial-investment",
+      "prompt": "Net operating income is calculated by subtracting which of the following from effective gross income?",
+      "choices": [
+        "Operating expenses",
+        "Operating expenses and annual debt service",
+        "Annual debt service only",
+        "Operating expenses, debt service, and depreciation"
+      ],
+      "answer": 0,
+      "explanation": "NOI measures the property's performance independent of how it is financed, so debt service is excluded. Depreciation is an accounting entry and is likewise not an operating expense.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0002",
+      "topic": "commercial-investment",
+      "prompt": "A property produces $90,000 in net operating income and investors in that market expect a 9% capitalization rate. Indicated value is:",
+      "choices": ["$1,000,000", "$810,000", "$900,000", "$1,110,000"],
+      "answer": 0,
+      "explanation": "Value equals NOI divided by the capitalization rate: $90,000 / 0.09 = $1,000,000.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0003",
+      "topic": "commercial-investment",
+      "prompt": "All else equal, a higher capitalization rate applied to the same net operating income indicates:",
+      "choices": [
+        "A lower property value and a higher perceived risk",
+        "A higher property value and a lower perceived risk",
+        "A higher property value and a higher perceived risk",
+        "No change in value, because the rate affects only financing"
+      ],
+      "answer": 0,
+      "explanation": "Cap rate and value move inversely. Investors demand a higher return, meaning a higher cap rate, when they view the income stream as less certain.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0004",
+      "topic": "commercial-investment",
+      "prompt": "Under a triple net lease, the tenant is typically responsible for:",
+      "choices": [
+        "Real estate taxes, insurance, and maintenance, in addition to base rent",
+        "Base rent only, with the landlord covering all property expenses",
+        "Base rent plus a percentage of gross sales",
+        "Structural repairs only, with the landlord covering taxes and insurance"
+      ],
+      "answer": 0,
+      "explanation": "The three nets are taxes, insurance, and maintenance. A gross lease sits at the other end of the spectrum, with the landlord absorbing those costs out of the rent.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0005",
+      "topic": "commercial-investment",
+      "prompt": "A lease under which rent is a minimum base amount plus a share of the tenant's receipts is a:",
+      "choices": ["Percentage lease", "Graduated lease", "Ground lease", "Index lease"],
+      "answer": 0,
+      "explanation": "Percentage leases are standard in retail, particularly in shopping centers, because they let the landlord share in the upside of a successful tenant.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0006",
+      "topic": "commercial-investment",
+      "prompt": "A ground lease is best described as:",
+      "choices": [
+        "A long-term lease of land on which the tenant typically constructs and owns improvements",
+        "A short-term lease of unimproved land for agricultural use",
+        "A lease in which the landlord retains ownership of all improvements from the outset",
+        "A lease of the ground floor of a commercial building"
+      ],
+      "answer": 0,
+      "explanation": "Ground leases commonly run for decades to justify the tenant's investment in building. Ownership of the improvements usually reverts to the landowner at the end of the term.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0007",
+      "topic": "commercial-investment",
+      "prompt": "Effective gross income is calculated by:",
+      "choices": [
+        "Reducing potential gross income by vacancy and collection loss and adding other income",
+        "Subtracting operating expenses from potential gross income",
+        "Subtracting debt service from net operating income",
+        "Adding operating expenses to net operating income"
+      ],
+      "answer": 0,
+      "explanation": "Effective gross income is the realistic collection figure. Operating expenses come out at the next step to arrive at NOI.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0008",
+      "topic": "commercial-investment",
+      "prompt": "Positive leverage occurs when:",
+      "choices": [
+        "The property's return exceeds the cost of the borrowed funds",
+        "The loan-to-value ratio is below 50%",
+        "The property is purchased entirely with cash",
+        "The borrower's credit score exceeds the lender's minimum"
+      ],
+      "answer": 0,
+      "explanation": "Borrowing amplifies returns when the asset out-earns the interest on the debt. When the cost of debt exceeds the property's return, the same leverage works against the investor.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0009",
+      "topic": "commercial-investment",
+      "prompt": "A lender requires a debt service coverage ratio of at least 1.25. A property with $100,000 of net operating income can support annual debt service of no more than:",
+      "choices": ["$80,000", "$125,000", "$75,000", "$100,000"],
+      "answer": 0,
+      "explanation": "DSCR equals NOI divided by annual debt service, so the maximum payment is $100,000 / 1.25 = $80,000.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0010",
+      "topic": "commercial-investment",
+      "prompt": "An investor pays $500,000 in cash for a property that generates $40,000 in before-tax cash flow. The cash-on-cash return is:",
+      "choices": ["8%", "12.5%", "4%", "10%"],
+      "answer": 0,
+      "explanation": "Cash-on-cash return divides before-tax cash flow by the cash actually invested: $40,000 / $500,000 = 8%.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0011",
+      "topic": "commercial-investment",
+      "prompt": "The gross rent multiplier is calculated by dividing:",
+      "choices": [
+        "Sale price by gross rental income",
+        "Gross rental income by sale price",
+        "Net operating income by sale price",
+        "Sale price by net operating income"
+      ],
+      "answer": 0,
+      "explanation": "GRM is a quick screening tool that ignores operating expenses entirely, which is why it is used for rough comparison rather than for valuation of larger income properties.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0012",
+      "topic": "commercial-investment",
+      "prompt": "A real estate investment trust must distribute at least what share of its taxable income to shareholders to retain its tax status?",
+      "choices": ["90%", "50%", "75%", "100%"],
+      "answer": 0,
+      "explanation": "Distributing at least 90% of taxable income lets a REIT avoid corporate-level tax on the distributed amount, which is the structure's central advantage.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0013",
+      "topic": "commercial-investment",
+      "prompt": "In a shopping center lease, common area maintenance charges cover:",
+      "choices": [
+        "Upkeep of parking lots, walkways, and other shared areas, prorated among tenants",
+        "Repairs inside each tenant's leased premises",
+        "The landlord's mortgage payment on the center",
+        "Marketing costs for the anchor tenant only"
+      ],
+      "answer": 0,
+      "explanation": "CAM charges are typically allocated by each tenant's share of leasable square footage and billed on top of base rent.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0014",
+      "topic": "commercial-investment",
+      "prompt": "An estoppel certificate obtained during due diligence on an income property confirms:",
+      "choices": [
+        "The tenant's statement of the lease terms, rent paid, and any claims against the landlord",
+        "The municipality's confirmation that the building complies with zoning",
+        "The lender's commitment to fund the acquisition loan",
+        "The appraiser's opinion of the property's market value"
+      ],
+      "answer": 0,
+      "explanation": "Buyers rely on estoppel certificates to verify the rent roll directly with tenants rather than taking the seller's representation of the leases at face value.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0015",
+      "topic": "commercial-investment",
+      "prompt": "The operating expense ratio of an income property is:",
+      "choices": [
+        "Operating expenses divided by effective gross income",
+        "Operating expenses divided by net operating income",
+        "Net operating income divided by operating expenses",
+        "Operating expenses divided by the purchase price"
+      ],
+      "answer": 0,
+      "explanation": "The ratio shows what share of collected income is consumed by operations. A ratio well outside the norm for a property type usually signals deferred maintenance or misreported expenses.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0016",
+      "topic": "commercial-investment",
+      "prompt": "Which of the following is an operating expense for the purpose of calculating net operating income?",
+      "choices": [
+        "Property insurance premiums",
+        "Principal and interest on the mortgage",
+        "Depreciation of the building",
+        "The cost of a new roof replacing the old one"
+      ],
+      "answer": 0,
+      "explanation": "Insurance is a recurring cost of running the property. Debt service is a financing cost, depreciation is an accounting entry, and a roof replacement is a capital expenditure.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0017",
+      "topic": "commercial-investment",
+      "prompt": "A real estate syndicate formed as a limited partnership is characterized by:",
+      "choices": [
+        "A general partner who manages the venture and limited partners whose liability is capped at their investment",
+        "All partners sharing management authority and unlimited liability equally",
+        "A corporate structure that must distribute 90% of income annually",
+        "A prohibition on holding title to real property"
+      ],
+      "answer": 0,
+      "explanation": "The limited partnership lets passive investors contribute capital without exposure beyond their contribution, while the general partner takes on management and unlimited liability.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0018",
+      "topic": "commercial-investment",
+      "prompt": "In a shopping center, the anchor tenant is best described as the tenant that:",
+      "choices": [
+        "Occupies the largest space and draws the traffic smaller tenants depend on",
+        "Pays the highest rent per square foot in the center",
+        "Holds the longest remaining lease term",
+        "Is responsible for the center's common area maintenance"
+      ],
+      "answer": 0,
+      "explanation": "Anchors typically negotiate the lowest rent per square foot precisely because their draw is what makes the surrounding small-tenant space valuable.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "fair-housing-0001",
+      "topic": "fair-housing",
+      "prompt": "Which class is protected under the federal Fair Housing Act?",
+      "choices": ["Familial status", "Age", "Marital status", "Source of income"],
+      "answer": 0,
+      "explanation": "The federal protected classes are race, color, religion, national origin, sex, familial status, and disability. Age, marital status, and source of income are protected under New York law but not by the federal act.",
+      "citation": "42 U.S.C. §3604; Executive Law Article 15"
+    },
+    {
+      "id": "fair-housing-0002",
+      "topic": "fair-housing",
+      "prompt": "A landlord refuses to rent to an applicant because the applicant intends to pay part of the rent with a housing voucher. Under New York law this is:",
+      "choices": [
+        "Unlawful discrimination based on lawful source of income",
+        "Permitted, because vouchers are not a protected class",
+        "Permitted, if the landlord applies the policy to all applicants",
+        "Unlawful only in New York City"
+      ],
+      "answer": 0,
+      "explanation": "New York's Human Rights Law protects lawful source of income statewide, which includes Section 8 vouchers, Social Security, and other public assistance.",
+      "citation": "Executive Law §296(5)"
+    },
+    {
+      "id": "fair-housing-0003",
+      "topic": "fair-housing",
+      "prompt": "Inducing an owner to sell by suggesting that members of a protected class are moving into the neighborhood is:",
+      "choices": ["Blockbusting", "Steering", "Redlining", "Puffing"],
+      "answer": 0,
+      "explanation": "Blockbusting, sometimes called panic selling, is prohibited regardless of whether the licensee profits from the resulting listing.",
+      "citation": "42 U.S.C. §3604(e); DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "fair-housing-0004",
+      "topic": "fair-housing",
+      "prompt": "A licensee shows a family homes only in neighborhoods where residents share the family's ethnicity. This practice is:",
+      "choices": ["Steering", "Blockbusting", "Redlining", "A permissible service if the family did not object"],
+      "answer": 0,
+      "explanation": "Steering directs prospects toward or away from areas based on a protected characteristic. It is unlawful even when the licensee believes they are being helpful and the client never complains.",
+      "citation": "42 U.S.C. §3604; DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "fair-housing-0005",
+      "topic": "fair-housing",
+      "prompt": "A lender declines to make loans in a defined geographic area based on the racial composition of that area. This is:",
+      "choices": ["Redlining", "Steering", "Blockbusting", "A permissible underwriting policy"],
+      "answer": 0,
+      "explanation": "Redlining denies credit by geography as a proxy for a protected characteristic. It is prohibited under both the Fair Housing Act and the Equal Credit Opportunity Act.",
+      "citation": "42 U.S.C. §3605; DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "fair-housing-0006",
+      "topic": "fair-housing",
+      "prompt": "When must a licensee provide the New York State Housing and Anti-Discrimination Disclosure Form?",
+      "choices": [
+        "At the first substantive contact with a prospective buyer, seller, tenant, or landlord",
+        "Only when the consumer asks about fair housing law",
+        "At the time the purchase contract is signed",
+        "Only in transactions involving rental property"
+      ],
+      "answer": 0,
+      "explanation": "The disclosure is required at first substantive contact with any consumer in the transaction, and the licensee must retain proof that it was provided.",
+      "citation": "19 NYCRR §175.28"
+    },
+    {
+      "id": "fair-housing-0007",
+      "topic": "fair-housing",
+      "prompt": "A tenant who uses a wheelchair asks the landlord for permission to install a grab bar in the bathroom at the tenant's own expense. This is a request for:",
+      "choices": [
+        "A reasonable modification",
+        "A reasonable accommodation",
+        "A variance",
+        "A special use permit"
+      ],
+      "answer": 0,
+      "explanation": "Modifications are physical changes to the premises and are generally made at the tenant's expense. Accommodations are changes to rules or policies, such as waiving a no-pets rule for a service animal.",
+      "citation": "42 U.S.C. §3604(f); DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "fair-housing-0008",
+      "topic": "fair-housing",
+      "prompt": "A New York homeowner may file with the Department of State to be placed on a cease and desist list. The effect is that licensees:",
+      "choices": [
+        "May not solicit that owner to list their property",
+        "May contact the owner only in writing",
+        "May contact the owner only after twelve months have passed",
+        "Must report any contact with the owner to the Department of State"
+      ],
+      "answer": 0,
+      "explanation": "Cease and desist lists and non-solicitation orders are New York tools for stopping unwanted solicitation, often in areas that have experienced blockbusting. Soliciting a listed owner is grounds for discipline.",
+      "citation": "RPL §442-h; DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "fair-housing-0009",
+      "topic": "fair-housing",
+      "prompt": "Fair housing testers are:",
+      "choices": [
+        "Individuals who pose as prospective buyers or renters to detect discriminatory treatment",
+        "Licensed appraisers who verify property values in protected neighborhoods",
+        "Department of State employees who audit brokerage records",
+        "Court-appointed officials who supervise discrimination settlements"
+      ],
+      "answer": 0,
+      "explanation": "Testing compares how similarly qualified prospects of different backgrounds are treated. Evidence gathered by testers is admissible, and New York's Department of State runs its own enforcement testing program.",
+      "citation": "DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "fair-housing-0010",
+      "topic": "fair-housing",
+      "prompt": "Which advertisement most likely violates fair housing law?",
+      "choices": [
+        "\"Ideal for a mature Christian couple, no children\"",
+        "\"Three bedrooms, two baths, walk to the train\"",
+        "\"Recently renovated, hardwood floors throughout\"",
+        "\"Available September 1, one month security\""
+      ],
+      "answer": 0,
+      "explanation": "The advertisement expresses a preference based on religion, age, and familial status. Advertising must describe the property, never the desired occupant.",
+      "citation": "42 U.S.C. §3604(c); DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "fair-housing-0011",
+      "topic": "fair-housing",
+      "prompt": "The familial status protection does not apply to housing that qualifies as:",
+      "choices": [
+        "Housing for older persons meeting the statutory age criteria",
+        "Any building with fewer than four units",
+        "Property owned by a religious organization",
+        "Any single-family home sold without a broker"
+      ],
+      "answer": 0,
+      "explanation": "Qualified older-persons housing may lawfully exclude families with children. The other options describe narrow exemptions that do not reach familial status in this way.",
+      "citation": "42 U.S.C. §3607(b); DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "fair-housing-0012",
+      "topic": "fair-housing",
+      "prompt": "Title III of the Americans with Disabilities Act primarily requires accessibility in:",
+      "choices": [
+        "Places of public accommodation, such as a brokerage's public office",
+        "All residential apartments regardless of construction date",
+        "Owner-occupied single-family homes",
+        "Vacant land held for future development"
+      ],
+      "answer": 0,
+      "explanation": "Title III reaches commercial facilities and public accommodations. Residential accessibility obligations come instead from the Fair Housing Act's design and construction requirements.",
+      "citation": "42 U.S.C. §12181 et seq.; DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "finance-0001",
+      "topic": "finance",
+      "prompt": "New York follows the lien theory of mortgages, which means that during the loan term:",
+      "choices": [
+        "The borrower holds title and the lender holds a lien against the property",
+        "The lender holds title until the loan is repaid in full",
+        "Title is held by a neutral trustee until the debt is satisfied",
+        "Neither party holds title until the mortgage is recorded"
+      ],
+      "answer": 0,
+      "explanation": "Under lien theory the mortgagor keeps title and possession. The lender's remedy on default is foreclosure of the lien, which in New York must proceed through the courts.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0002",
+      "topic": "finance",
+      "prompt": "In a residential mortgage loan, the instrument that creates the borrower's personal promise to repay is the:",
+      "choices": [
+        "Promissory note",
+        "Mortgage",
+        "Deed of trust",
+        "Satisfaction of mortgage"
+      ],
+      "answer": 0,
+      "explanation": "The note is the debt. The mortgage is the security instrument that pledges the property as collateral for that debt. A loan involves both documents.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0003",
+      "topic": "finance",
+      "prompt": "Private mortgage insurance is generally required on a conventional loan when the loan-to-value ratio exceeds:",
+      "choices": ["80%", "90%", "75%", "95%"],
+      "answer": 0,
+      "explanation": "PMI protects the lender against loss on the portion of the loan above 80% LTV. It is a lender protection, not borrower protection, despite being paid by the borrower.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0004",
+      "topic": "finance",
+      "prompt": "A borrower pays two points on a $300,000 loan. The cost is:",
+      "choices": ["$6,000", "$600", "$3,000", "$60,000"],
+      "answer": 0,
+      "explanation": "One point equals 1% of the loan amount, not the purchase price. Two points on $300,000 is $6,000, typically paid at closing to reduce the interest rate.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0005",
+      "topic": "finance",
+      "prompt": "The Federal Housing Administration's role in residential lending is to:",
+      "choices": [
+        "Insure loans made by approved private lenders",
+        "Make loans directly to qualified home buyers",
+        "Guarantee a portion of loans made to veterans",
+        "Purchase loans from lenders on the secondary market"
+      ],
+      "answer": 0,
+      "explanation": "FHA insures, VA guarantees, and Fannie Mae and Freddie Mac purchase. None of them originate loans directly to consumers.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0006",
+      "topic": "finance",
+      "prompt": "A clause allowing the lender to declare the entire unpaid balance due immediately upon default is the:",
+      "choices": [
+        "Acceleration clause",
+        "Alienation clause",
+        "Defeasance clause",
+        "Subordination clause"
+      ],
+      "answer": 0,
+      "explanation": "Acceleration is what makes foreclosure practical, since it converts a stream of missed payments into a single enforceable debt for the full balance.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0007",
+      "topic": "finance",
+      "prompt": "A due-on-sale clause in a mortgage:",
+      "choices": [
+        "Requires the balance to be paid in full when the property is sold, preventing assumption",
+        "Allows the buyer to assume the seller's loan at the original rate",
+        "Gives the lender priority over a later-recorded mortgage",
+        "Releases the lien once the final payment is made"
+      ],
+      "answer": 0,
+      "explanation": "Also called an alienation clause, it protects the lender's ability to reprice the loan at current rates rather than letting a below-market loan pass to a new owner.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0008",
+      "topic": "finance",
+      "prompt": "Regulation Z, implementing the federal Truth in Lending Act, requires disclosure of:",
+      "choices": [
+        "The annual percentage rate and the total cost of credit",
+        "The appraised value of the property",
+        "The seller's original purchase price",
+        "The listing broker's commission rate"
+      ],
+      "answer": 0,
+      "explanation": "The APR bundles interest and most finance charges into one comparable figure, so borrowers can compare offers on more than the note rate alone.",
+      "citation": "12 CFR Part 1026; DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0009",
+      "topic": "finance",
+      "prompt": "The Real Estate Settlement Procedures Act prohibits:",
+      "choices": [
+        "Kickbacks and unearned fees for the referral of settlement service business",
+        "Charging the borrower any fee at closing",
+        "Requiring a title search before issuing a loan",
+        "Selling a mortgage on the secondary market"
+      ],
+      "answer": 0,
+      "explanation": "RESPA's anti-kickback provision is the reason referral fees between licensees and title companies, lenders, or inspectors are unlawful in covered residential transactions.",
+      "citation": "12 U.S.C. §2607; DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0010",
+      "topic": "finance",
+      "prompt": "A homeowner owes $180,000 on a property now worth $310,000. The owner's equity is:",
+      "choices": ["$130,000", "$180,000", "$310,000", "$490,000"],
+      "answer": 0,
+      "explanation": "Equity is market value less the debt secured by the property: $310,000 - $180,000 = $130,000.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "construction-environmental-0001",
+      "topic": "construction-environmental",
+      "prompt": "As of March 20, 2024, a seller of residential real property in New York subject to the Property Condition Disclosure Act must:",
+      "choices": [
+        "Complete and deliver the disclosure statement to the buyer",
+        "Either deliver the statement or give the buyer a $500 credit at closing",
+        "Deliver the statement only if the buyer requests it in writing",
+        "Deliver the statement only for properties built before 1978"
+      ],
+      "answer": 0,
+      "explanation": "The $500 credit alternative was eliminated effective March 20, 2024. Sellers must now actually complete the statement, which also gained seven new flood-related questions. Study material written before that date is out of date on this point.",
+      "citation": "RPL Article 14 (as amended, eff. 3/20/2024)"
+    },
+    {
+      "id": "construction-environmental-0002",
+      "topic": "construction-environmental",
+      "prompt": "The questions added to New York's Property Condition Disclosure Statement in 2024 concern:",
+      "choices": [
+        "Flood risk, flood insurance, and prior flood damage",
+        "Lead-based paint in pre-1978 dwellings",
+        "The presence of radon gas in the basement",
+        "Solar panel leases and power purchase agreements"
+      ],
+      "answer": 0,
+      "explanation": "The amendment added seven questions covering FEMA floodplain designation, federal flood insurance requirements, prior FEMA assistance, current coverage, elevation certificates, and past flood claims.",
+      "citation": "RPL Article 14 (as amended, eff. 3/20/2024)"
+    },
+    {
+      "id": "construction-environmental-0003",
+      "topic": "construction-environmental",
+      "prompt": "Federal law requires disclosure of known lead-based paint hazards in residential dwellings built before:",
+      "choices": ["1978", "1985", "1970", "1992"],
+      "answer": 0,
+      "explanation": "Residential lead paint was banned in 1978. Sellers and landlords of earlier housing must disclose known hazards, provide the EPA pamphlet, and give purchasers a ten-day opportunity to inspect.",
+      "citation": "42 U.S.C. §4852d; 24 CFR Part 35"
+    },
+    {
+      "id": "construction-environmental-0004",
+      "topic": "construction-environmental",
+      "prompt": "A New York seller must disclose the existence of an uncapped natural gas well on the property under:",
+      "choices": [
+        "Real Property Law §242",
+        "The federal Residential Lead-Based Paint Hazard Reduction Act",
+        "19 NYCRR §175.28",
+        "The Comprehensive Environmental Response, Compensation, and Liability Act"
+      ],
+      "answer": 0,
+      "explanation": "This is a New York-specific disclosure obligation, separate from the general Property Condition Disclosure Statement.",
+      "citation": "RPL §242"
+    },
+    {
+      "id": "construction-environmental-0005",
+      "topic": "construction-environmental",
+      "prompt": "Radon is best described as:",
+      "choices": [
+        "A naturally occurring radioactive gas that enters buildings from the soil",
+        "A fibrous mineral once used in pipe insulation",
+        "A byproduct of formaldehyde in pressed-wood products",
+        "A metal contaminant found in older plumbing solder"
+      ],
+      "answer": 0,
+      "explanation": "Radon is colorless and odorless, migrates up through foundation cracks and sumps, and is typically remediated with a sub-slab depressurization system.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0006",
+      "topic": "construction-environmental",
+      "prompt": "Under CERCLA, liability for cleaning up a contaminated site is:",
+      "choices": [
+        "Strict, joint and several, and retroactive, potentially reaching current owners who did not cause the contamination",
+        "Limited to the party that actually released the hazardous substance",
+        "Limited to the owner at the time the contamination is discovered",
+        "Borne entirely by the federal government through the Superfund"
+      ],
+      "answer": 0,
+      "explanation": "An innocent purchaser can be held liable, which is why environmental site assessments are standard due diligence on commercial and industrial acquisitions.",
+      "citation": "42 U.S.C. §9601 et seq.; DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0007",
+      "topic": "construction-environmental",
+      "prompt": "A percolation test is performed to determine whether the soil can support:",
+      "choices": [
+        "A septic system's absorption field",
+        "The foundation load of a multi-story building",
+        "A private drinking water well",
+        "An underground storage tank"
+      ],
+      "answer": 0,
+      "explanation": "The test measures how quickly water drains through the soil. Failing results can make a lot unbuildable where no municipal sewer connection is available.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0008",
+      "topic": "construction-environmental",
+      "prompt": "The R-value of a building material measures its:",
+      "choices": [
+        "Resistance to heat flow",
+        "Load-bearing capacity",
+        "Resistance to fire",
+        "Rate of moisture absorption"
+      ],
+      "answer": 0,
+      "explanation": "A higher R-value means better insulating performance. It is the standard way insulation is specified and compared.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0009",
+      "topic": "construction-environmental",
+      "prompt": "A certificate of occupancy is issued by the local building department to confirm that:",
+      "choices": [
+        "The structure complies with applicable codes and is fit for its intended use",
+        "The title to the property is free of liens",
+        "The property has been appraised at or above the sale price",
+        "The seller has paid all outstanding property taxes"
+      ],
+      "answer": 0,
+      "explanation": "Buyers routinely make the contract contingent on a valid certificate of occupancy covering all improvements, since unpermitted work is a common and expensive surprise.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0010",
+      "topic": "construction-environmental",
+      "prompt": "Asbestos in an older building poses the greatest health risk when it is:",
+      "choices": [
+        "Friable, meaning it can be crumbled by hand and release fibers into the air",
+        "Sealed intact behind finished wall surfaces",
+        "Encapsulated in a hardened cement product",
+        "Located below grade in an unoccupied crawl space"
+      ],
+      "answer": 0,
+      "explanation": "Intact asbestos is often safest left undisturbed and encapsulated. Removal by untrained parties can create the airborne hazard it was meant to prevent.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "condos-coops-0001",
+      "topic": "condos-coops",
+      "prompt": "A purchaser of a condominium unit in New York acquires:",
+      "choices": [
+        "Fee simple title to the unit plus an undivided interest in the common elements",
+        "Shares of stock in a corporation plus a proprietary lease",
+        "A leasehold interest in the unit for a term of years",
+        "A tenancy in common in the entire building"
+      ],
+      "answer": 0,
+      "explanation": "A condominium unit is real property with its own tax lot and deed. It can be mortgaged, sold, and devised like any other parcel.",
+      "citation": "RPL Article 9-B; DOS 77-hour curriculum § Condominiums and Cooperatives"
+    },
+    {
+      "id": "condos-coops-0002",
+      "topic": "condos-coops",
+      "prompt": "Ownership in a New York cooperative is classified as:",
+      "choices": [
+        "Personal property, because the owner holds shares in a corporation",
+        "Real property, because the owner occupies a specific apartment",
+        "A freehold estate in the individual unit",
+        "A tenancy by the entirety in the building"
+      ],
+      "answer": 0,
+      "explanation": "The shareholder owns stock and a proprietary lease, not the apartment itself. Financing is therefore a share loan rather than a mortgage.",
+      "citation": "DOS 77-hour curriculum § Condominiums and Cooperatives"
+    },
+    {
+      "id": "condos-coops-0003",
+      "topic": "condos-coops",
+      "prompt": "A cooperative board's power to reject a prospective purchaser is limited chiefly by:",
+      "choices": [
+        "Fair housing law, which bars rejection based on a protected characteristic",
+        "A statutory requirement that the board state its reasons in writing",
+        "The requirement that the board accept any all-cash offer",
+        "A Department of State review of each rejection"
+      ],
+      "answer": 0,
+      "explanation": "Co-op boards otherwise enjoy broad discretion and generally need not explain a rejection. That discretion stops at discrimination against a protected class.",
+      "citation": "Executive Law Article 15; DOS 77-hour curriculum § Condominiums and Cooperatives"
+    },
+    {
+      "id": "condos-coops-0004",
+      "topic": "condos-coops",
+      "prompt": "Before units in a New York condominium or cooperative may be offered for sale to the public, the offering plan must be:",
+      "choices": [
+        "Filed with and accepted by the New York Attorney General",
+        "Approved by the Department of State, Division of Licensing Services",
+        "Recorded with the county clerk",
+        "Certified by the local building department"
+      ],
+      "answer": 0,
+      "explanation": "The Martin Act gives the Attorney General's Real Estate Finance Bureau authority over offering plans. Sponsors may not accept offers until the plan is accepted for filing.",
+      "citation": "General Business Law Article 23-A (Martin Act)"
+    },
+    {
+      "id": "condos-coops-0005",
+      "topic": "condos-coops",
+      "prompt": "A condominium's governing body, which manages the common elements and sets common charges, is the:",
+      "choices": [
+        "Board of managers",
+        "Board of directors",
+        "Board of assessors",
+        "Zoning board of appeals"
+      ],
+      "answer": 0,
+      "explanation": "Condominiums are run by a board of managers; cooperative corporations are run by a board of directors. The terminology difference reflects the different ownership structures.",
+      "citation": "RPL Article 9-B; DOS 77-hour curriculum § Condominiums and Cooperatives"
+    },
+    {
+      "id": "condos-coops-0006",
+      "topic": "condos-coops",
+      "prompt": "Many condominium declarations give the board a right of first refusal, which allows the board to:",
+      "choices": [
+        "Purchase the unit on the same terms as a contract the owner has accepted",
+        "Reject any purchaser it considers unsuitable, without explanation",
+        "Set the minimum price at which a unit may be listed",
+        "Require the seller to use the board's designated broker"
+      ],
+      "answer": 0,
+      "explanation": "Condominium boards generally cannot veto a buyer outright the way a co-op board can. The right of first refusal is the substitute, and it is rarely exercised.",
+      "citation": "DOS 77-hour curriculum § Condominiums and Cooperatives"
+    },
+    {
+      "id": "condos-coops-0007",
+      "topic": "condos-coops",
+      "prompt": "A flip tax in a cooperative is:",
+      "choices": [
+        "A transfer fee paid to the corporation when a shareholder sells",
+        "A municipal tax on the resale of a unit within one year",
+        "A state transfer tax collected at the closing of a share transfer",
+        "A penalty imposed on shareholders who sublet without approval"
+      ],
+      "answer": 0,
+      "explanation": "Despite the name, a flip tax is not a government tax. It is a charge authorized by the co-op's own documents and used to fund reserves.",
+      "citation": "DOS 77-hour curriculum § Condominiums and Cooperatives"
+    },
+    {
+      "id": "condos-coops-0008",
+      "topic": "condos-coops",
+      "prompt": "Unpaid monthly charges in a cooperative are collected from a defaulting shareholder differently than in a condominium because:",
+      "choices": [
+        "The co-op can terminate the proprietary lease and sell the shares, as with any defaulting tenant",
+        "The co-op may place a real property tax lien on the apartment",
+        "The co-op may reassign the shareholder's interest without notice",
+        "The co-op must file a mechanic's lien against the building"
+      ],
+      "answer": 0,
+      "explanation": "Because the shareholder is a tenant under a proprietary lease, the corporation has landlord remedies. A condominium board must instead file and foreclose a common charge lien against the real property.",
+      "citation": "DOS 77-hour curriculum § Condominiums and Cooperatives"
+    },
+    {
+      "id": "contracts-leases-0001",
+      "topic": "contracts-leases",
+      "prompt": "Under the statute of frauds, a contract for the sale of real property is enforceable only if it is:",
+      "choices": [
+        "In writing and signed by the party to be charged",
+        "Notarized and recorded with the county clerk",
+        "Witnessed by two disinterested parties",
+        "Reviewed by an attorney for each side"
+      ],
+      "answer": 0,
+      "explanation": "An oral agreement to convey real property is unenforceable. Leases for more than one year fall under the same rule.",
+      "citation": "General Obligations Law §5-703"
+    },
+    {
+      "id": "contracts-leases-0002",
+      "topic": "contracts-leases",
+      "prompt": "A New York salesperson asked to draft a purchase contract for a client should:",
+      "choices": [
+        "Decline, and use only a form approved for licensee use, filling in the factual blanks",
+        "Draft the contract, since the parties have already agreed on terms",
+        "Draft the contract and have the buyer's attorney review it afterward",
+        "Draft the contract but omit any clause concerning financing"
+      ],
+      "answer": 0,
+      "explanation": "Preparing a contract from scratch is the unauthorized practice of law. Licensees may complete blanks on forms approved by a bar association and real estate board for that purpose.",
+      "citation": "DOS 77-hour curriculum § The Contract of Sales and Leases (Contract Preparation)"
+    },
+    {
+      "id": "contracts-leases-0003",
+      "topic": "contracts-leases",
+      "prompt": "An attorney review clause in a New York residential contract generally provides that:",
+      "choices": [
+        "Either party's attorney may disapprove the contract within a stated period, canceling it",
+        "The contract cannot be signed until both attorneys have approved it",
+        "The seller's attorney holds the down payment until closing",
+        "Attorney fees are shared equally between the parties"
+      ],
+      "answer": 0,
+      "explanation": "New York closings are attorney-driven, and the review clause reflects that custom. The contract is signed first and becomes firm once the review period passes without disapproval.",
+      "citation": "DOS 77-hour curriculum § The Contract of Sales and Leases"
+    },
+    {
+      "id": "contracts-leases-0004",
+      "topic": "contracts-leases",
+      "prompt": "For most residential rentals in New York, a landlord may collect a security deposit of no more than:",
+      "choices": [
+        "One month's rent",
+        "Two months' rent",
+        "Three months' rent",
+        "Any amount the parties agree to in the lease"
+      ],
+      "answer": 0,
+      "explanation": "The Housing Stability and Tenant Protection Act of 2019 capped security deposits at one month's rent and requires return within 14 days of move-out, with an itemized statement of any deductions.",
+      "citation": "General Obligations Law §7-108"
+    },
+    {
+      "id": "contracts-leases-0005",
+      "topic": "contracts-leases",
+      "prompt": "A tenant transfers the entire remaining term of the lease to another party, retaining no reversionary interest. This is:",
+      "choices": ["An assignment", "A sublease", "A novation", "A surrender"],
+      "answer": 0,
+      "explanation": "An assignment transfers the whole remaining term. A sublease transfers less than the full remaining term, leaving the original tenant with a reversion and continuing liability to the landlord.",
+      "citation": "DOS 77-hour curriculum § The Contract of Sales and Leases (Leases)"
+    },
+    {
+      "id": "contracts-leases-0006",
+      "topic": "contracts-leases",
+      "prompt": "A contract signed by a person who has not reached the age of majority is:",
+      "choices": [
+        "Voidable at the option of the minor",
+        "Void from the outset and unenforceable by anyone",
+        "Fully enforceable against both parties",
+        "Valid only if a parent co-signs afterward"
+      ],
+      "answer": 0,
+      "explanation": "Lack of contractual capacity makes the agreement voidable by the party who lacked capacity, not automatically void. A contract for an illegal purpose is what is void from the outset.",
+      "citation": "DOS 77-hour curriculum § The Contract of Sales and Leases (Contracts)"
+    },
+    {
+      "id": "land-use-0001",
+      "topic": "land-use",
+      "prompt": "The government's authority to enact zoning ordinances derives from:",
+      "choices": [
+        "The police power",
+        "The power of eminent domain",
+        "The power of escheat",
+        "The power of taxation"
+      ],
+      "answer": 0,
+      "explanation": "Police power permits regulation for public health, safety, morals, and general welfare without compensating the owner. Eminent domain, by contrast, requires just compensation.",
+      "citation": "DOS 77-hour curriculum § Land Use Regulations"
+    },
+    {
+      "id": "land-use-0002",
+      "topic": "land-use",
+      "prompt": "An owner whose lot is too narrow to meet the required side setback seeks permission to build closer to the line than the ordinance allows. The owner should apply for:",
+      "choices": [
+        "An area variance from the zoning board of appeals",
+        "A use variance from the planning board",
+        "A special use permit from the town board",
+        "A zoning amendment from the county legislature"
+      ],
+      "answer": 0,
+      "explanation": "Area variances concern dimensional requirements such as setbacks, height, and lot coverage. Use variances, which permit a use the zone forbids entirely, carry a much heavier burden of proof.",
+      "citation": "DOS 77-hour curriculum § Land Use Regulations"
+    },
+    {
+      "id": "land-use-0003",
+      "topic": "land-use",
+      "prompt": "A corner store has operated lawfully since before the area was rezoned residential. The store is best described as:",
+      "choices": [
+        "A legal nonconforming use",
+        "An illegal use subject to immediate abatement",
+        "A use permitted by variance",
+        "An example of spot zoning"
+      ],
+      "answer": 0,
+      "explanation": "A use that was lawful when established may generally continue after a rezoning. Local ordinances commonly restrict expanding it, and abandonment or destruction can end the protection.",
+      "citation": "DOS 77-hour curriculum § Land Use Regulations"
+    },
+    {
+      "id": "land-use-0004",
+      "topic": "land-use",
+      "prompt": "A restrictive covenant limiting homes in a subdivision to a single story is:",
+      "choices": [
+        "A private restriction enforceable by other lot owners in the subdivision",
+        "A zoning provision enforceable by the municipality",
+        "Unenforceable because it conflicts with the police power",
+        "Enforceable only for the first ten years after recording"
+      ],
+      "answer": 0,
+      "explanation": "Deed restrictions are private agreements running with the land. Where a private restriction and a public zoning rule differ, the more restrictive of the two controls.",
+      "citation": "DOS 77-hour curriculum § Land Use Regulations"
+    },
+    {
+      "id": "land-use-0005",
+      "topic": "land-use",
+      "prompt": "The taking of private property for public use through eminent domain requires:",
+      "choices": [
+        "Payment of just compensation to the owner",
+        "The owner's written consent to the transfer",
+        "A finding that the property is in violation of the building code",
+        "Approval by a majority of neighboring property owners"
+      ],
+      "answer": 0,
+      "explanation": "Eminent domain is the power; condemnation is the process by which it is exercised. Constitutional protections require both a public use and just compensation.",
+      "citation": "DOS 77-hour curriculum § Land Use Regulations"
+    },
+    {
+      "id": "land-use-0006",
+      "topic": "land-use",
+      "prompt": "Rezoning a single small parcel in a way that benefits its owner and conflicts with the surrounding comprehensive plan is called:",
+      "choices": ["Spot zoning", "Downzoning", "Cluster zoning", "Inclusionary zoning"],
+      "answer": 0,
+      "explanation": "Spot zoning is vulnerable to legal challenge because it serves a private interest rather than the general welfare the comprehensive plan is meant to advance.",
+      "citation": "DOS 77-hour curriculum § Land Use Regulations"
+    },
+    {
+      "id": "valuation-0001",
+      "topic": "valuation",
+      "prompt": "A licensee preparing a comparative market analysis for a prospective seller must understand that a CMA:",
+      "choices": [
+        "Is an opinion of likely selling price and is not an appraisal",
+        "May be substituted for an appraisal if the licensee is experienced",
+        "Must comply with the Uniform Standards of Professional Appraisal Practice",
+        "May be prepared only by a licensed broker, not a salesperson"
+      ],
+      "answer": 0,
+      "explanation": "Only a licensed or certified appraiser may perform an appraisal. Licensees prepare CMAs for pricing guidance and must not present them as appraisals.",
+      "citation": "DOS 77-hour curriculum § Valuation Process and Pricing Properties"
+    },
+    {
+      "id": "valuation-0002",
+      "topic": "valuation",
+      "prompt": "Which approach to value is most appropriate for a newly constructed church or school with few comparable sales?",
+      "choices": [
+        "The cost approach",
+        "The sales comparison approach",
+        "The income capitalization approach",
+        "The gross rent multiplier approach"
+      ],
+      "answer": 0,
+      "explanation": "Special-purpose properties rarely sell and rarely generate rent, so reproduction or replacement cost less depreciation, plus land value, is the most reliable indicator.",
+      "citation": "DOS 77-hour curriculum § Valuation Process and Pricing Properties"
+    },
+    {
+      "id": "valuation-0003",
+      "topic": "valuation",
+      "prompt": "A comparable sold for $400,000 and has a garage the subject property lacks, worth $15,000. The adjustment is:",
+      "choices": [
+        "Subtract $15,000 from the comparable, indicating $385,000",
+        "Add $15,000 to the comparable, indicating $415,000",
+        "Subtract $15,000 from the subject property's asking price",
+        "No adjustment, because garages are not a comparable feature"
+      ],
+      "answer": 0,
+      "explanation": "Always adjust the comparable, never the subject. When the comparable is superior, subtract; when it is inferior, add.",
+      "citation": "DOS 77-hour curriculum § Valuation Process and Pricing Properties"
+    },
+    {
+      "id": "valuation-0004",
+      "topic": "valuation",
+      "prompt": "A home's value has fallen because a highway was built next to the neighborhood. This loss is:",
+      "choices": [
+        "External obsolescence, which is generally incurable",
+        "Physical deterioration, which is curable by repair",
+        "Functional obsolescence, curable by remodeling",
+        "Not recognized as depreciation in the cost approach"
+      ],
+      "answer": 0,
+      "explanation": "External obsolescence originates outside the property boundaries, so the owner cannot cure it. A poor floor plan is functional obsolescence; a worn roof is physical deterioration.",
+      "citation": "DOS 77-hour curriculum § Valuation Process and Pricing Properties"
+    },
+    {
+      "id": "valuation-0005",
+      "topic": "valuation",
+      "prompt": "The principle of substitution holds that a buyer will pay no more for a property than:",
+      "choices": [
+        "The cost of acquiring an equally desirable substitute",
+        "The amount the seller originally paid plus improvements",
+        "The assessed value set by the local assessor",
+        "The amount a lender is willing to finance"
+      ],
+      "answer": 0,
+      "explanation": "Substitution underlies all three approaches to value. It is the reason comparable sales, replacement cost, and competing investment returns each provide a ceiling on price.",
+      "citation": "DOS 77-hour curriculum § Valuation Process and Pricing Properties"
+    },
+    {
+      "id": "valuation-0006",
+      "topic": "valuation",
+      "prompt": "Highest and best use is the use that is:",
+      "choices": [
+        "Legally permissible, physically possible, financially feasible, and maximally productive",
+        "The use currently being made of the property",
+        "The use producing the largest gross income regardless of cost",
+        "The use the owner intends to make after purchase"
+      ],
+      "answer": 0,
+      "explanation": "All four tests must be satisfied. A use that would earn more but violates zoning fails the first test and cannot be the highest and best use.",
+      "citation": "DOS 77-hour curriculum § Valuation Process and Pricing Properties"
+    },
+    {
+      "id": "taxes-assessments-0001",
+      "topic": "taxes-assessments",
+      "prompt": "Real property taxes in New York are described as ad valorem, meaning they are levied:",
+      "choices": [
+        "According to the value of the property",
+        "According to the square footage of the improvements",
+        "Equally on every parcel in the taxing jurisdiction",
+        "According to the owner's ability to pay"
+      ],
+      "answer": 0,
+      "explanation": "Ad valorem taxation ties the levy to assessed value, which is why assessment accuracy and equalization rates matter so much to individual tax bills.",
+      "citation": "DOS 77-hour curriculum § Taxes and Assessments"
+    },
+    {
+      "id": "taxes-assessments-0002",
+      "topic": "taxes-assessments",
+      "prompt": "A property is assessed at $200,000 and the tax rate is $24 per $1,000 of assessed value. The annual tax is:",
+      "choices": ["$4,800", "$480", "$48,000", "$8,400"],
+      "answer": 0,
+      "explanation": "Divide the assessment by 1,000 and multiply by the rate: ($200,000 / 1,000) x $24 = $4,800.",
+      "citation": "DOS 77-hour curriculum § Taxes and Assessments"
+    },
+    {
+      "id": "taxes-assessments-0003",
+      "topic": "taxes-assessments",
+      "prompt": "An equalization rate is used to:",
+      "choices": [
+        "Adjust for differences in assessment practices between municipalities",
+        "Set the maximum tax rate a municipality may impose",
+        "Determine the exempt portion of a veteran's assessment",
+        "Convert a special assessment into an annual ad valorem tax"
+      ],
+      "answer": 0,
+      "explanation": "Because municipalities assess at differing percentages of market value, the equalization rate lets a county or school district apportion its levy fairly across them.",
+      "citation": "DOS 77-hour curriculum § Taxes and Assessments"
+    },
+    {
+      "id": "taxes-assessments-0004",
+      "topic": "taxes-assessments",
+      "prompt": "New York's STAR program provides:",
+      "choices": [
+        "School tax relief for eligible owner-occupied primary residences",
+        "An exemption from county and town taxes for senior citizens",
+        "A credit against the state real estate transfer tax",
+        "A deferral of taxes for properties under construction"
+      ],
+      "answer": 0,
+      "explanation": "The School Tax Relief program reduces the school tax burden on primary residences, with an Enhanced STAR benefit for qualifying senior homeowners.",
+      "citation": "NY Real Property Tax Law §425"
+    },
+    {
+      "id": "taxes-assessments-0005",
+      "topic": "taxes-assessments",
+      "prompt": "A special assessment differs from a general property tax because it:",
+      "choices": [
+        "Is levied only on the properties that benefit from a specific improvement",
+        "Is levied uniformly across the entire taxing district",
+        "May be imposed only by the state, not by a municipality",
+        "Is deductible from the owner's federal income tax without limit"
+      ],
+      "answer": 0,
+      "explanation": "Special assessments fund improvements such as sewers or sidewalks and are apportioned among the parcels that benefit, often by frontage rather than by value.",
+      "citation": "DOS 77-hour curriculum § Taxes and Assessments"
+    },
+    {
+      "id": "taxes-assessments-0006",
+      "topic": "taxes-assessments",
+      "prompt": "An owner who believes their assessment is too high should first:",
+      "choices": [
+        "File a grievance with the local board of assessment review",
+        "Commence an Article 78 proceeding in state supreme court",
+        "Withhold payment until the assessment is corrected",
+        "Petition the Department of State for a reassessment"
+      ],
+      "answer": 0,
+      "explanation": "The administrative grievance before the board of assessment review comes first. Judicial review is available only after that remedy has been exhausted.",
+      "citation": "NY Real Property Tax Law Article 5; DOS 77-hour curriculum § Taxes and Assessments"
+    },
+    {
+      "id": "income-tax-0001",
+      "topic": "income-tax",
+      "prompt": "A married couple filing jointly who owned and occupied their home as a principal residence for two of the last five years may exclude gain of up to:",
+      "choices": ["$500,000", "$250,000", "$1,000,000", "$125,000"],
+      "answer": 0,
+      "explanation": "The exclusion is $250,000 for a single filer and $500,000 for a married couple filing jointly, and it may generally be used once every two years.",
+      "citation": "26 U.S.C. §121"
+    },
+    {
+      "id": "income-tax-0002",
+      "topic": "income-tax",
+      "prompt": "A Section 1031 like-kind exchange may be used to defer gain on:",
+      "choices": [
+        "Real property held for productive use in a trade or business or for investment",
+        "A taxpayer's principal residence",
+        "A vacation home used exclusively for personal purposes",
+        "Shares in a real estate investment trust"
+      ],
+      "answer": 0,
+      "explanation": "Personal-use property is excluded. The gain is deferred rather than forgiven, because the basis carries over into the replacement property.",
+      "citation": "26 U.S.C. §1031"
+    },
+    {
+      "id": "income-tax-0003",
+      "topic": "income-tax",
+      "prompt": "Residential rental property placed in service today is depreciated over:",
+      "choices": ["27.5 years", "39 years", "15 years", "40 years"],
+      "answer": 0,
+      "explanation": "Residential rental uses a 27.5-year recovery period and nonresidential real property uses 39 years. Land is never depreciable.",
+      "citation": "26 U.S.C. §168"
+    },
+    {
+      "id": "income-tax-0004",
+      "topic": "income-tax",
+      "prompt": "An owner's adjusted basis in a property is generally:",
+      "choices": [
+        "Original cost plus capital improvements, less depreciation taken",
+        "Current market value less the outstanding mortgage balance",
+        "The assessed value used for property tax purposes",
+        "Original cost plus all repairs and maintenance expenses"
+      ],
+      "answer": 0,
+      "explanation": "Adjusted basis determines gain on sale. Routine repairs are deducted as expenses rather than added to basis; only capital improvements increase it.",
+      "citation": "26 U.S.C. §1016"
+    },
+    {
+      "id": "income-tax-0005",
+      "topic": "income-tax",
+      "prompt": "In a Section 1031 exchange, cash or other non-like-kind property received by the exchanger is called:",
+      "choices": ["Boot", "Basis", "Equity", "Consideration"],
+      "answer": 0,
+      "explanation": "Boot is taxable to the extent of realized gain. Receiving it does not disqualify the exchange; it simply makes part of the gain currently recognizable.",
+      "citation": "26 U.S.C. §1031"
+    },
+    {
+      "id": "income-tax-0006",
+      "topic": "income-tax",
+      "prompt": "Which cost may an owner of investment real estate deduct as a current operating expense rather than capitalize?",
+      "choices": [
+        "Repainting a rental unit between tenants",
+        "Adding a new bedroom to the building",
+        "Replacing the roof with a new one",
+        "Paving a previously unpaved parking lot"
+      ],
+      "answer": 0,
+      "explanation": "Repairs maintain the property in its existing condition and are deducted currently. Improvements that add value or extend useful life must be capitalized and depreciated.",
+      "citation": "26 U.S.C. §162; §263"
+    },
+    {
+      "id": "municipal-agencies-0001",
+      "topic": "municipal-agencies",
+      "prompt": "Which local body typically reviews and approves subdivision plats and site plans?",
+      "choices": [
+        "The planning board",
+        "The zoning board of appeals",
+        "The board of assessment review",
+        "The building department"
+      ],
+      "answer": 0,
+      "explanation": "Planning boards handle forward-looking land development review. Zoning boards of appeals hear variance requests and appeals from building department determinations.",
+      "citation": "DOS 77-hour curriculum § Municipal Agencies"
+    },
+    {
+      "id": "municipal-agencies-0002",
+      "topic": "municipal-agencies",
+      "prompt": "A property owner who has exhausted administrative remedies and wants a court to review a municipal agency's determination would bring:",
+      "choices": [
+        "An Article 78 proceeding",
+        "An action for specific performance",
+        "A quiet title action",
+        "A partition action"
+      ],
+      "answer": 0,
+      "explanation": "Article 78 of the Civil Practice Law and Rules is New York's vehicle for challenging the determination of a body or officer as arbitrary, capricious, or unlawful.",
+      "citation": "CPLR Article 78"
+    },
+    {
+      "id": "municipal-agencies-0003",
+      "topic": "municipal-agencies",
+      "prompt": "The local building department is chiefly responsible for:",
+      "choices": [
+        "Issuing building permits and certificates of occupancy",
+        "Preparing the annual assessment roll",
+        "Granting use variances",
+        "Adopting the comprehensive plan"
+      ],
+      "answer": 0,
+      "explanation": "The building department enforces the code through permits and inspections. Assessment, variances, and planning belong to the assessor, zoning board, and planning board respectively.",
+      "citation": "DOS 77-hour curriculum § Municipal Agencies"
+    },
+    {
+      "id": "municipal-agencies-0004",
+      "topic": "municipal-agencies",
+      "prompt": "The local assessor is responsible for:",
+      "choices": [
+        "Determining the assessed value of each parcel and preparing the assessment roll",
+        "Setting the annual tax rate for the municipality",
+        "Hearing grievances about assessments",
+        "Collecting delinquent property taxes"
+      ],
+      "answer": 0,
+      "explanation": "The assessor values property; the taxing jurisdictions set rates based on their budgets; and the board of assessment review, not the assessor, hears grievances.",
+      "citation": "DOS 77-hour curriculum § Municipal Agencies"
+    },
+    {
+      "id": "property-management-0001",
+      "topic": "property-management",
+      "prompt": "The implied warranty of habitability in a New York residential lease means the landlord:",
+      "choices": [
+        "Must keep the premises fit for human habitation regardless of any lease clause to the contrary",
+        "Must renovate the unit between each tenancy",
+        "Is liable only for defects the tenant reports in writing",
+        "May disclaim responsibility for conditions existing before the tenancy began"
+      ],
+      "answer": 0,
+      "explanation": "The warranty cannot be waived by lease language. A tenant facing conditions that breach it may have a defense to nonpayment of rent.",
+      "citation": "RPL §235-b"
+    },
+    {
+      "id": "property-management-0002",
+      "topic": "property-management",
+      "prompt": "A New York landlord who charges prospective tenants an application or screening fee is limited to:",
+      "choices": ["$20", "$50", "$100", "One month's rent"],
+      "answer": 0,
+      "explanation": "The Housing Stability and Tenant Protection Act of 2019 capped application fees at $20, covering the cost of a background and credit check, and required that the report be provided to the applicant.",
+      "citation": "General Obligations Law §238-a"
+    },
+    {
+      "id": "property-management-0003",
+      "topic": "property-management",
+      "prompt": "A property management agreement creates which relationship between the owner and the manager?",
+      "choices": [
+        "A general agency, with authority to conduct ongoing business for the owner",
+        "A special agency limited to a single transaction",
+        "A universal agency covering all of the owner's affairs",
+        "No agency relationship, because the manager is an independent contractor"
+      ],
+      "answer": 0,
+      "explanation": "General agency fits ongoing management, which involves a continuing series of acts. A listing agreement, by contrast, creates a special agency for one transaction.",
+      "citation": "DOS 77-hour curriculum § Property Management"
+    },
+    {
+      "id": "property-management-0004",
+      "topic": "property-management",
+      "prompt": "A New York landlord must return a residential security deposit, with an itemized statement of any deductions, within:",
+      "choices": [
+        "14 days after the tenant vacates",
+        "30 days after the tenant vacates",
+        "60 days after the tenant vacates",
+        "A reasonable time, as defined in the lease"
+      ],
+      "answer": 0,
+      "explanation": "The 14-day rule came in with the 2019 tenant protection act. Failing to provide the itemized statement forfeits the landlord's right to retain any portion of the deposit.",
+      "citation": "General Obligations Law §7-108"
+    },
+    {
+      "id": "math-0001",
+      "topic": "math",
+      "prompt": "A home sells for $425,000 at a 5% commission, split evenly between the listing and selling brokerages. The listing salesperson's split with their broker is 60/40 in the salesperson's favor. The salesperson receives:",
+      "choices": ["$6,375", "$10,625", "$8,500", "$4,250"],
+      "answer": 0,
+      "explanation": "Total commission is $425,000 x 0.05 = $21,250. The listing brokerage receives half, or $10,625. The salesperson's 60% share is $6,375.",
+      "citation": "DOS 77-hour curriculum § Real Estate Mathematics"
+    },
+    {
+      "id": "math-0002",
+      "topic": "math",
+      "prompt": "A rectangular parcel measures 435.6 feet by 200 feet. Its area is:",
+      "choices": ["2 acres", "1 acre", "4 acres", "One-half acre"],
+      "answer": 0,
+      "explanation": "435.6 x 200 = 87,120 square feet. Dividing by the 43,560 square feet in an acre gives exactly 2 acres.",
+      "citation": "DOS 77-hour curriculum § Real Estate Mathematics"
+    },
+    {
+      "id": "property-insurance-0001",
+      "topic": "property-insurance",
+      "prompt": "A building worth $500,000 is insured for $300,000 under a policy with an 80% coinsurance clause. A covered loss of $100,000 occurs. The insurer will pay approximately:",
+      "choices": ["$75,000", "$100,000", "$60,000", "$80,000"],
+      "answer": 0,
+      "explanation": "The required coverage is 80% of $500,000, or $400,000. The recovery is the ratio of carried to required coverage times the loss: ($300,000 / $400,000) x $100,000 = $75,000.",
+      "citation": "DOS 77-hour curriculum § Property Insurance"
+    },
+    {
+      "id": "property-insurance-0002",
+      "topic": "property-insurance",
+      "prompt": "A policy that pays replacement cost rather than actual cash value differs in that it:",
+      "choices": [
+        "Does not deduct for depreciation of the damaged property",
+        "Covers only the land, not the improvements",
+        "Pays the property's market value at the time of loss",
+        "Applies only to commercial buildings"
+      ],
+      "answer": 0,
+      "explanation": "Actual cash value is replacement cost less depreciation, so it pays less on older components. Replacement cost coverage restores the property without that deduction.",
+      "citation": "DOS 77-hour curriculum § Property Insurance"
+    },
+    {
+      "id": "licensee-safety-0001",
+      "topic": "licensee-safety",
+      "prompt": "Which practice best reduces a licensee's personal risk when meeting a new prospect for the first time?",
+      "choices": [
+        "Meeting at the brokerage office first and photographing the prospect's identification",
+        "Meeting at the vacant property so the showing can begin immediately",
+        "Meeting after dark, when the prospect is more likely to be available",
+        "Meeting alone so the prospect feels comfortable speaking freely"
+      ],
+      "answer": 0,
+      "explanation": "An office meeting with identification on file creates a record and a controlled first encounter. This is also why many brokers' Standardized Operating Procedures address whether identification is required.",
+      "citation": "DOS 77-hour curriculum § Licensee Safety"
+    },
+    {
+      "id": "licensee-safety-0002",
+      "topic": "licensee-safety",
+      "prompt": "During a showing, the safest positioning for a licensee is to:",
+      "choices": [
+        "Let the prospect enter each room first while the licensee remains near the exit",
+        "Lead the prospect through each room to control the pace of the tour",
+        "Remain in the entryway while the prospect tours alone",
+        "Stand between the prospect and the room's only doorway"
+      ],
+      "answer": 0,
+      "explanation": "Directing from behind keeps an unobstructed path to the exit and avoids being maneuvered into a confined space such as a basement, attic, or closet.",
+      "citation": "DOS 77-hour curriculum § Licensee Safety"
+    },
+    {
+      "id": "mortgage-brokerage-0001",
+      "topic": "mortgage-brokerage",
+      "prompt": "The essential difference between a mortgage broker and a mortgage banker is that the broker:",
+      "choices": [
+        "Arranges loans between borrowers and lenders but does not fund them",
+        "Funds loans with its own money and always retains servicing",
+        "May originate loans only for commercial property",
+        "Is prohibited from charging the borrower any fee"
+      ],
+      "answer": 0,
+      "explanation": "The broker is an intermediary compensated for placing the loan. The banker funds the loan in its own name, then typically sells it on the secondary market.",
+      "citation": "DOS 77-hour curriculum § Mortgage Brokerage"
+    },
+    {
+      "id": "mortgage-brokerage-0002",
+      "topic": "mortgage-brokerage",
+      "prompt": "In New York, mortgage brokers are registered and supervised by:",
+      "choices": [
+        "The Department of Financial Services",
+        "The Department of State, Division of Licensing Services",
+        "The Attorney General's Real Estate Finance Bureau",
+        "The Division of Housing and Community Renewal"
+      ],
+      "answer": 0,
+      "explanation": "Mortgage brokerage sits outside the Department of State's real estate licensing authority. A real estate license does not authorize mortgage brokerage activity.",
+      "citation": "NY Banking Law Article 12-D"
+    }
+  ]
+}

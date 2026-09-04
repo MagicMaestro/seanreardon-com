@@ -7,9 +7,11 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
+    "prebuild": "tsx scripts/validate-exam-bank.ts",
     "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro",
+    "validate:exam-bank": "tsx scripts/validate-exam-bank.ts",
     "build:search-index": "tsx scripts/build-search-index.ts",
     "search:query": "tsx scripts/search-cli.ts",
     "api:dev": "tsx api-server/index.ts",

@@ -10,8 +10,8 @@ const isActive = (path: string): 'page' | undefined =>
   pathname === path || pathname.startsWith(path + '/') ? 'page' : undefined;
 
 /* `parent: true` flags Projects as a sub-nav trigger rather than a direct
-   link. Both nav surfaces (inline desktop ≥1040px and inside the hamburger
-   drawer at <1040px) render it as a <button> with data-projects-subnav-trigger
+   link. Both nav surfaces (inline desktop ≥1140px and inside the hamburger
+   drawer at <1140px) render it as a <button> with data-projects-subnav-trigger
    instead of an <a>. The full choreography spec is in
    `decisions/002-homepage-marquee-and-nozzle-affordance.md` §5 — locked
    2026-05-19. The actual drawer markup + animation lives in
@@ -22,6 +22,13 @@ const navLinks = [
   { href: '/lessons-learned/', label: 'Lessons Learned', match: '/lessons-learned' },
   { href: '/about-me/', label: 'About Me', match: '/about-me' },
   { href: '/reach-out/', label: 'Reach Out', match: '/reach-out' },
+  /* Fifth label added SPR-0092. The primary nav's horizontal reserve is
+     --nav-anchor-offset on .site-header (28rem → 35rem), and the inline-nav
+     tier floor moved 1040px → 1140px because the fifth label pushed the nav
+     under the logo at 1040.
+     Any further label change needs that value AND the tier floor revisited
+     (see the .primary-nav breakpoint comment for the derivation). */
+  { href: '/real-estate-practice/', label: 'Practice Exam', match: '/real-estate-practice' },
   /* Search removed from the primary nav (2026-05-11) — being relocated to a
      slide-animation triggered by a separate button near the header. The
      /search/ route itself is still live; just not linked here. */
@@ -153,31 +160,31 @@ const navLinks = [
       would be redundant). The skip is wired in the script below. */}
   <div id="header-search-results" class="header-search-results" aria-hidden="true" hidden></div>
   <div id="header-bar" class="header-bar">
-    {/* Large-viewport (≥1040px) trapezoidal fill between the bottom beam,
+    {/* Large-viewport (≥1140px) trapezoidal fill between the bottom beam,
         the over-nav beam, and the diagonal — gives the over-nav region
         a dark-purple HUD interior like the mobile nav drawer. Sits
         first in source order + z-index: 0 so it stacks below both the
         beams (z-index: 1) and the nav content (z-index: auto). */}
     <div class="header-bar-fill" aria-hidden="true"></div>
-    {/* Large-viewport (≥1040px) over-nav laser segments. The diagonal
+    {/* Large-viewport (≥1140px) over-nav laser segments. The diagonal
         branches off the bar's bottom beam at the post-logo "split point"
         and ramps up at 45°; the horizontal segment continues from the
         diagonal's top, riding above the nav text to the bar's right edge.
-        Both are hidden at <1040px via CSS. */}
+        Both are hidden at <1140px via CSS. */}
     <div class="header-beam-diag" aria-hidden="true"></div>
     <div class="header-beam-over" aria-hidden="true"></div>
 
     {/* Search button — magnifying glass icon. Positioned absolutely
         relative to .header-bar so it stays anchored regardless of the
         .header-main / .header-minimal opacity swap. Per-tier placement:
-          - <1040px: ~5-6rem left of the hamburger, at the hamburger's y.
-          - ≥1040px: above the over-nav top beam, top-right corner of the
+          - <1140px: ~5-6rem left of the hamburger, at the hamburger's y.
+          - ≥1140px: above the over-nav top beam, top-right corner of the
             screen with the icon's h-center aligned to the center of the
             terminal circle at the end of the over-nav beam. */}
     <button class="header-search" type="button" aria-label="Open search">
       {/* Horizontal "hook" beam continuing from the diagonal's tip INTO
           the button, behind the icon, stopping inside the outline.
-          Only renders visually at <1040px (hidden at ≥1040). */}
+          Only renders visually at <1140px (hidden at ≥1140). */}
       <span class="header-search-beam-h" aria-hidden="true"></span>
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7"></circle>
@@ -316,7 +323,7 @@ const navLinks = [
 </aside>
 
 {/* Cyan-laser sub-nav drawer — opens when "Projects" is clicked in either
-    nav surface (inline ≥1040px or inside the hamburger drawer at <1040px).
+    nav surface (inline ≥1140px or inside the hamburger drawer at <1140px).
     Choreography spec locked in `decisions/002-homepage-marquee-and-nozzle-affordance.md`
     §5 (amended 2026-05-19). Placed here as a sibling of the hamburger
     drawer so it gets its own top-level stacking context. */}
@@ -1009,6 +1016,21 @@ const navLinks = [
     position: sticky;
     top: 0;
     z-index: 100;
+    /* Horizontal room reserved for the primary nav, measured leftward from
+       main's right edge. Consumed by .header-beam-diag, .header-beam-over and
+       .header-bar-fill at the ≥1140px and ≥1520px tiers.
+
+       This was six copies of a hardcoded `28rem` until SPR-0092 added the
+       fifth nav label. It is now one value because the whole point of the
+       number is that it tracks the label set — see the geometry comment at
+       .header-beam-diag for how it is consumed.
+
+       28rem fit the four-label set (Projects, Lessons Learned, About Me,
+       Reach Out ≈ 24.5rem of text plus gaps). Adding "Practice Exam" plus one
+       more 1.5rem flex gap costs roughly 8rem, so the reserve grows to 36rem
+       to keep .primary-nav's flex-wrap from breaking the row onto two lines
+       inside the HUD trapezoid. */
+    --nav-anchor-offset: 35rem;
     /* Belt-and-suspenders mobile-overflow containment (Sean direction
        2026-05-21 iteration 3). The header has absolutely-positioned children
        that INTENTIONALLY overhang to the right of viewport: the .header-toggle
@@ -1384,7 +1406,7 @@ const navLinks = [
     .header-bar::after { display: none; }
   }
 
-  /* ≥1040px: diagonal + over-nav segments branch off the bottom beam after
+  /* ≥1140px: diagonal + over-nav segments branch off the bottom beam after
      the logo, anchored to the LEFT edge of the primary nav (not to main's
      left edge). This way the diagonal tracks the nav as viewport grows —
      nav lives at .header-inner's right edge (which matches main.right),
@@ -1409,12 +1431,17 @@ const navLinks = [
          just above the nav text top, brought down from the previous 3rem).
          Left at X + 3.04rem (= diagonal endpoint x). Right at main.right.
 
-     --nav-anchor-offset = 28rem: distance from main.right back to the
-     diagonal's left edge. Tuned so at 1040px viewport (where main.right is
-     at 97% = 1008.8px), diagonal.left lands at 560.8px (=35.05rem) — wide
-     enough to accommodate the updated nav labels (Projects, Lessons Learned,
-     About Me, Reach Out) which are longer than the previous Work / About /
-     Contact set. Same offset propagates through ≥1520 tier. */
+     --nav-anchor-offset: distance from main.right back to the diagonal's
+     left edge. Declared once on .site-header (see there for the sizing
+     rationale) and consumed here, by .header-beam-over, and by
+     .header-bar-fill; same offset propagates through the ≥1520 tier.
+
+     Measured at the 1140px tier floor with the five-label set: the diagonal
+     lands at x=548 and the nav's first link starts at x=570, giving 22px of
+     lead-in, with the logo ending at x=546. That leaves only ~2px between
+     the logo and the diagonal, so this value cannot go higher without the
+     diagonal disappearing behind the logo — raise the tier floor instead.
+     Was 28rem for the previous four-label set. */
   .header-beam-diag,
   .header-beam-over {
     display: none;
@@ -1429,13 +1456,13 @@ const navLinks = [
       right 300ms ease-out;
   }
 
-  @media (min-width: 1040px) {
+  @media (min-width: 1140px) {
     .header-beam-diag {
       display: block;
       bottom: 0;
       /* main.right at this tier is 97% (main is 94% centered, gutter 3%).
          Subtract nav-anchor-offset to land at nav-left − small spacing. */
-      left: calc(97% - 28rem);
+      left: calc(97% - var(--nav-anchor-offset));
       width: 4.05rem;
       transform-origin: bottom left;
       transform: rotate(-45deg) translate(.3rem, 0);
@@ -1447,7 +1474,7 @@ const navLinks = [
          (3.04 ≈ (4 + 0.3) × cos(45°)). */
       bottom: 3.04rem;
       /* Starts at diagonal endpoint x = diagonal.left + 3.04rem. */
-      left: calc(97% - 28rem + 3.04rem);
+      left: calc(97% - var(--nav-anchor-offset) + 3.04rem);
       /* Right edge at main.right (the gutter from viewport-right = 3% at
          this tier). Means the over-nav beam stops at .header-inner's
          outer right edge, outside the right padding — Sean's spec. */
@@ -1484,10 +1511,10 @@ const navLinks = [
      rightward with main as gutters grow. */
   @media (min-width: 1520px) {
     .header-beam-diag {
-      left: calc((100% + var(--main-max-width)) / 2 - 28rem);
+      left: calc((100% + var(--main-max-width)) / 2 - var(--nav-anchor-offset));
     }
     .header-beam-over {
-      left: calc((100% + var(--main-max-width)) / 2 - 28rem + 3.04rem);
+      left: calc((100% + var(--main-max-width)) / 2 - var(--nav-anchor-offset) + 3.04rem);
       right: calc((100% - var(--main-max-width)) / 2);
     }
   }
@@ -1495,8 +1522,8 @@ const navLinks = [
   /* Trapezoidal fill between the bottom beam, the over-nav beam, and
      the diagonal — matches the mobile nav drawer's "energy HUD" base:
      darkened backdrop (rgba(0,0,0,0.7)) with a purple radial-gradient
-     glow inside. Only shown at ≥1040px (where the over-nav region
-     exists; below 1040 the diagonal/over-nav beams are display: none
+     glow inside. Only shown at ≥1140px (where the over-nav region
+     exists; below 1140 the diagonal/over-nav beams are display: none
      and there's no enclosed region to fill).
 
      Layout:
@@ -1507,7 +1534,7 @@ const navLinks = [
          beams; no overlap calculation needed.)
        - left tracks the diagonal's bottom-x; right tracks the
          over-nav's right edge. Both follow the same per-tier values
-         as those beams (97% / 3% gutter at ≥1040; main-max-width
+         as those beams (97% / 3% gutter at ≥1140; main-max-width
          based at ≥1520).
        - clip-path: polygon trims the bottom-left triangle so the
          fill's left edge follows the diagonal at -45° rather than
@@ -1533,7 +1560,7 @@ const navLinks = [
     position: absolute;
     bottom: 0;
     height: 3.04rem;
-    left: calc(97% - 28rem);
+    left: calc(97% - var(--nav-anchor-offset));
     right: 3%;
     background-color: rgba(0, 0, 0, 0.7);
     background-image: radial-gradient(ellipse at center, rgba(157, 63, 227, 0.92), transparent);
@@ -1585,13 +1612,13 @@ const navLinks = [
       right 300ms ease-out;
   }
 
-  @media (min-width: 1040px) {
+  @media (min-width: 1140px) {
     .header-bar-fill { display: block; }
   }
 
   @media (min-width: 1520px) {
     .header-bar-fill {
-      left: calc((100% + var(--main-max-width)) / 2 - 28rem);
+      left: calc((100% + var(--main-max-width)) / 2 - var(--nav-anchor-offset));
       right: calc((100% - var(--main-max-width)) / 2);
     }
   }
@@ -2221,16 +2248,30 @@ const navLinks = [
   }
 
   /* ============================================================================
-     Primary horizontal nav (large only, ≥1040px)
+     Primary horizontal nav (large only, ≥1140px)
      ============================================================================
-     Breakpoint set at 1040px (rather than 896px = the Header's other
-     "Large" boundary) because at the smaller end of the previous range
-     the nav links plus the logo's footprint were too cramped. The
-     breakpoint was bumped from 960px to 1040px on 2026-05-12 when the
-     nav labels were lengthened (Work→Projects, About→About Me,
-     Contact→Reach Out) — the previous 960px floor no longer left enough
-     room for the wider link set without the leftmost link overhanging
-     the over-nav fill region. */
+     Breakpoint set well above 896px (the Header's other "Large" boundary)
+     because at the smaller end of that range the nav links plus the logo's
+     footprint are too cramped.
+
+     History — this floor rises whenever the label set gets wider:
+       - 960px → 1040px (2026-05-12) when labels lengthened
+         (Work→Projects, About→About Me, Contact→Reach Out).
+       - 1040px → 1140px (SPR-0092) when "Practice Exam" was added as a
+         fifth label.
+
+     The 1140 figure is derived, not guessed. .header-inner is
+     justify-content: flex-end, so the nav is right-aligned at main.right
+     (97% of viewport at this tier) and grows leftward; the logo is
+     absolutely positioned at main.left − 3rem with a fixed 568px width.
+     Requiring the nav's left edge to clear the logo's right edge gives
+     0.97W − navWidth ≥ 0.03W + 520 + clearance. At the measured five-label
+     nav width of 520px that resolves to W ≥ ~1119px, so 1140 with margin.
+
+     At 1040 the five-label nav started at x=473 while the logo ran to
+     x=543 — "Projects" rendered underneath the logo artwork and was
+     effectively invisible. If a sixth label is ever added, or any label
+     lengthened, re-run that inequality rather than nudging this number. */
   .primary-nav {
     display: none;
     /* position: relative + top: 1.95rem shifts the nav visibly downward
@@ -2247,7 +2288,7 @@ const navLinks = [
     top: 1.95rem;
     z-index: 1;
   }
-  @media (min-width: 1040px) {
+  @media (min-width: 1140px) {
     .primary-nav { display: block; }
   }
   .primary-nav ul {
@@ -2487,11 +2528,11 @@ const navLinks = [
        - <640px: diagonal enters from UPPER-LEFT going down-right (top:
          -0.9rem anchor, rotate(-45deg)). Pairs with the visible TOP beam
          at this tier — the diagonal feels like a branch off the top beam.
-       - 640–1039px: diagonal enters from LOWER-LEFT going up-right
+       - 640–1139px: diagonal enters from LOWER-LEFT going up-right
          (bottom: -1.4rem anchor, rotate(45deg)). Pairs with the visible
          BOTTOM beam at this tier — the diagonal feels like a branch off
          the bottom beam.
-     The single 640–1039 media query replaces the previous separate
+     The single 640–1139 media query replaces the previous separate
      640–739 / 740+ overrides — at 740+ the button's top: 1rem shift
      moves the button itself; the beam (positioned absolute inside the
      button) rides along, so no separate beam override is needed.
@@ -2507,7 +2548,7 @@ const navLinks = [
          gradient but BEHIND the SVG icon (in-flow content paints above
          negative-z layers). So the horizontal hook stays visible inside
          the button, behind the icon, until it stops at button center.
-     At ≥1040 the hamburger parent is display: none, so neither renders. */
+     At ≥1140 the hamburger parent is display: none, so neither renders. */
   .hamburger::after {
     content: '';
     position: absolute;
@@ -2523,7 +2564,7 @@ const navLinks = [
     z-index: -2;
   }
 
-  @media (min-width: 640px) and (max-width: 1039.98px) {
+  @media (min-width: 640px) and (max-width: 1139.98px) {
     .hamburger::after {
       /* Flip the diagonal: anchor from the BOTTOM of the button and
          rotate +45deg so the line now enters from lower-left and rises
@@ -2539,7 +2580,7 @@ const navLinks = [
      into the button (behind the icon), stopping at a width-defined
      length so it does NOT protrude past the right side. Default values
      target the <640 tier (diagonal tip at ~y = 1.23rem from button
-     top); the 640–1039 override flips vertical anchoring to match the
+     top); the 640–1139 override flips vertical anchoring to match the
      lower-anchored diagonal and shortens the width to 35%. Height
      is 2px at every tier (uniform thickness across viewports). */
   .hamburger-beam-h {
@@ -2564,7 +2605,7 @@ const navLinks = [
     z-index: -1;
   }
 
-  @media (min-width: 640px) and (max-width: 1039.98px) {
+  @media (min-width: 640px) and (max-width: 1139.98px) {
     .hamburger-beam-h {
       /* Diagonal flipped to lower anchor. Anchoring from BOTTOM keeps
          the horizontal joint stable regardless of the 740+ top: 1rem
@@ -2655,8 +2696,8 @@ const navLinks = [
      centered position. `position: relative` is already declared in the
      base .hamburger rule (for the ::before gradient anchor); `top: 1rem`
      just shifts the rendered position without affecting flex layout
-     (other items aren't pushed). Only visible on 740–1039px since
-     the next rule below hides it at ≥1040px. */
+     (other items aren't pushed). Only visible on 740–1139px since
+     the next rule below hides it at ≥1140px. */
   @media (min-width: 740px) {
     .hamburger {
       top: 1rem;
@@ -2671,9 +2712,9 @@ const navLinks = [
        - <640px (bar 4rem): aligned with hamburger's y-center; right
          offset puts the icon ~5-6rem left of the hamburger.
        - 640–739px (bar 5rem): same idea, adjusted for taller bar.
-       - 740–1039px (bar 7rem, hamburger shifted down 1rem): icon's
+       - 740–1139px (bar 7rem, hamburger shifted down 1rem): icon's
          top accounts for the hamburger's downward shift.
-       - ≥1040px: above the over-nav top beam, top-right corner of the
+       - ≥1140px: above the over-nav top beam, top-right corner of the
          screen with the icon's h-center aligned to the center of the
          terminal circle at the end of the over-nav beam. */
   .header-search {
@@ -2744,16 +2785,16 @@ const navLinks = [
   /* Diagonal laser beam approaching the search button — mirrors the
      hamburger's beam vocabulary. At <640px the diagonal enters from
      UPPER-LEFT (pairs with the visible top beam at that tier); at
-     640-1039px it flips to enter from LOWER-LEFT (pairs with the
-     visible bottom beam). Hidden at ≥1040px (different connecting
+     640-1139px it flips to enter from LOWER-LEFT (pairs with the
+     visible bottom beam). Hidden at ≥1140px (different connecting
      beam placement TBD). z-index: -2 inside the button's stacking
      context keeps the portion overlapping the button BEHIND the
      icon; portions extending OUTSIDE the button's box (the diagonal's
      reach into the surrounding bar) stay visible.
      opacity + transition (with 300ms delay on fade-in) keeps the
-     beams invisible while the icon slides between its <1040 and ≥1040
+     beams invisible while the icon slides between its <1140 and ≥1140
      positions, then fades them in after the icon arrives. See the
-     @media (min-width: 1040px) override below. */
+     @media (min-width: 1140px) override below. */
   .header-search::after {
     content: '';
     position: absolute;
@@ -2773,7 +2814,7 @@ const navLinks = [
     transition: opacity 200ms ease-out 300ms;
   }
 
-  @media (min-width: 640px) and (max-width: 1039.98px) {
+  @media (min-width: 640px) and (max-width: 1139.98px) {
     .header-search::after {
       /* Flip: anchor from the bottom and rotate +45deg so the diagonal
          enters from lower-left and rises to upper-right (the search
@@ -2788,7 +2829,7 @@ const navLinks = [
   /* Horizontal "hook" beam — continues from the diagonal's inward tip
      into the search button, behind the magnifying-glass icon, stopping
      inside the circular outline. Same vocabulary as .hamburger-beam-h.
-     Default values target the <640 tier; the 640–1039 override flips
+     Default values target the <640 tier; the 640–1139 override flips
      vertical anchoring. z-index: -1 paints above the button's
      background (transparent) but below the SVG icon.
      Same opacity-transition treatment as the diagonal — fades in
@@ -2808,7 +2849,7 @@ const navLinks = [
     transition: opacity 200ms ease-out 300ms;
   }
 
-  @media (min-width: 640px) and (max-width: 1039.98px) {
+  @media (min-width: 640px) and (max-width: 1139.98px) {
     .header-search-beam-h {
       left: -0.9rem;
       width: 35%;
@@ -2817,35 +2858,35 @@ const navLinks = [
     }
   }
 
-  /* 896-1039: both the hamburger's and the search's horizontal hook
+  /* 896-1139: both the hamburger's and the search's horizontal hook
      beams shift their left anchor slightly (-0.9rem → -0.85rem) for
      better alignment with the diagonal beam's inward tip at this
      specific tier. Applied to both classes together so the two icons
      stay paired in their treatment. */
-  @media (min-width: 896px) and (max-width: 1039.98px) {
+  @media (min-width: 896px) and (max-width: 1139.98px) {
     .hamburger-beam-h,
     .header-search-beam-h {
       left: -0.85rem;
     }
   }
 
-  /* ≥1040px: beams hidden via opacity (not display) so the transition
+  /* ≥1140px: beams hidden via opacity (not display) so the transition
      between visible/hidden state can be animated. The 100ms fast hide
-     (no delay) on resize 1039→1040 lets the beams vanish as the icon
-     starts sliding to its top-right position; the inverse 1040→1039
+     (no delay) on resize 1139→1140 lets the beams vanish as the icon
+     starts sliding to its top-right position; the inverse 1140→1139
      resize uses the base rule's 200ms 300ms-delay transition so beams
      wait for the icon to arrive before fading in.
 
-     Position properties are LOCKED here to the 640–1039 tier values.
-     Without this lock, at the 1040 crossing the beams revert to the
+     Position properties are LOCKED here to the 640–1139 tier values.
+     Without this lock, at the 1140 crossing the beams revert to the
      BASE rule's positioning (::after: top:-0.9rem + rotate(-45deg);
-     beam-h: top:1.23rem) — a vertical FLIP relative to the 640–1039
+     beam-h: top:1.23rem) — a vertical FLIP relative to the 640–1139
      positioning (::after: bottom:-1.4rem + rotate(45deg); beam-h:
      bottom:0.99rem). The position snap is instant while opacity is
      transitioning over 100ms, producing a visible flicker as the
      beams flip orientation right before fading out. Locking the
      positions here keeps the beams in place while they fade. */
-  @media (min-width: 1040px) {
+  @media (min-width: 1140px) {
     .header-search::after {
       opacity: 0;
       top: auto;
@@ -2876,7 +2917,7 @@ const navLinks = [
      height, which was off by 0.3rem). Aligning the search to the
      hamburger's exact y also lands the diagonal beam's outer tip
      directly on the bar's visible beam (top beam at <640, bottom
-     beam at 640-1039), so the diagonal reads as a clean split-off
+     beam at 640-1139), so the diagonal reads as a clean split-off
      from the running laser line. */
   @media (max-width: 639.98px) {
     .header-search {
@@ -2904,7 +2945,7 @@ const navLinks = [
       right: 7rem;
     }
   }
-  @media (min-width: 740px) and (max-width: 1039.98px) {
+  @media (min-width: 740px) and (max-width: 1139.98px) {
     .header-search {
       /* Bar 7rem, hamburger center at y=4.5rem (flex-center 3.5rem +
          top:1rem shift); top = 4.5 - 1.3125 = 3.1875rem ≈ 3.2rem. */
@@ -2913,32 +2954,32 @@ const navLinks = [
     }
   }
 
-  /* 896-1039: main switches to 94% with 3% gutter, so the hamburger
+  /* 896-1139: main switches to 94% with 3% gutter, so the hamburger
      moves inward by 3% from the viewport-right edge. Search follows
      with calc(3% + 9rem) — preserves the same 8rem center-to-center
      gap between the two icons. */
-  @media (min-width: 896px) and (max-width: 1039.98px) {
+  @media (min-width: 896px) and (max-width: 1139.98px) {
     .header-search {
       right: calc(3% + 9rem);
     }
   }
 
-  /* ≥1040px: search moves up above the over-nav beam, anchored at the
+  /* ≥1140px: search moves up above the over-nav beam, anchored at the
      right side of the screen. right: calc(3% - 1.5rem) places the
      icon's right edge slightly inward from the over-nav beam's right
      end (which sits at right: 3%).
 
      Transition override adds a 100ms delay to top/right at this tier.
-     Going 1039→1040 (resize up), the icon's attached beams (::after
+     Going 1139→1140 (resize up), the icon's attached beams (::after
      diagonal + .header-search-beam-h horizontal hook) fade out via
      their own 100ms 0ms-delay transition. The icon then waits 100ms
      before starting its own position move, so the beams are fully
      gone BEFORE the icon slides to the top-right corner. Going
-     1040→1039, the base rule's no-delay transition applies — the icon
+     1140→1139, the base rule's no-delay transition applies — the icon
      moves immediately, and the beams fade in after a 300ms delay
      (see the base rule on .header-search::after / .header-search-beam-h)
      so they wait for the icon to arrive before reappearing. */
-  @media (min-width: 1040px) {
+  @media (min-width: 1140px) {
     .header-search {
       top: 0.5rem;
       right: calc(3% - 1.5rem);
@@ -3350,7 +3391,7 @@ const navLinks = [
       /* No right border at this tier — the convex mask below takes
          over as the right-edge treatment (a solid 2px line plus a
          radial fade would compete visually, with the line cutting
-         through the fade). Moved from the previous ≥1040 location
+         through the fade). Moved from the previous ≥1140 location
          on 2026-05-12 per Sean's spec: the fade-out should apply
          everywhere the field has its 2/3-width slide-in form, not
          just at the widest tier. */
@@ -3463,7 +3504,7 @@ const navLinks = [
     }
   }
 
-  /* (The ≥1040 convex right-edge mask was moved to the ≥740 rule above
+  /* (The ≥1140 convex right-edge mask was moved to the ≥740 rule above
      on 2026-05-12 per Sean's spec — the fade should apply everywhere
      the field has its 2/3-width slide-in form, not just at the widest
      tier. Mask values tuned by Sean in devtools 2026-05-12: circle 2rem
@@ -4322,10 +4363,10 @@ const navLinks = [
     }
   }
 
-  /* On large (≥1040px), hide hamburger in BOTH main (replaced by horizontal nav)
+  /* On large (≥1140px), hide hamburger in BOTH main (replaced by horizontal nav)
      AND minimal (per "minimal = SR diamond only" lock). Breakpoint matches
      the .primary-nav { display: block } breakpoint — they switch together. */
-  @media (min-width: 1040px) {
+  @media (min-width: 1140px) {
     .header-main .hamburger,
     .header-minimal .hamburger {
       display: none;
@@ -4335,7 +4376,7 @@ const navLinks = [
   /* ============================================================================
      HUD-style nav drawer + backdrop
      ============================================================================
-     The mobile nav drawer (used at <1040px, where the hamburger is visible)
+     The mobile nav drawer (used at <1140px, where the hamburger is visible)
      opens with a "beam summoning a HUD panel" animation:
 
        Phase 0 (0–300ms):    Hamburger pulse animation (separate, on the
