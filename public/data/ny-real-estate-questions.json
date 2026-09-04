@@ -130,8 +130,8 @@
       "prompt": "Which body issues and disciplines real estate salesperson licenses in New York?",
       "choices": [
         "The New York State Department of State, Division of Licensing Services",
-        "The New York Real Estate Commission",
-        "The New York State Association of Realtors",
+        "The New York Real Estate Commission, an independent licensing body",
+        "The New York State Association of Realtors, a private trade organization",
         "The New York State Department of Financial Services"
       ],
       "answer": 0,
@@ -229,7 +229,7 @@
       "choices": [
         "Residential real property improved by a one- to four-family dwelling",
         "All real property located in New York State",
-        "Commercial and industrial property only",
+        "Commercial and industrial property, together with vacant land held for development",
         "Any parcel of vacant land over one acre"
       ],
       "answer": 0,
@@ -255,9 +255,9 @@
       "topic": "law-of-agency",
       "prompt": "Designated sales agents may be used in a transaction only when:",
       "choices": [
-        "The buyer and seller each give advance informed consent in writing to dual agency with designated sales agents",
+        "Both parties give advance informed written consent to the arrangement",
         "The broker determines it serves the best interests of both parties",
-        "The seller alone consents in writing",
+        "The seller alone consents to the arrangement in writing",
         "The transaction involves commercial rather than residential property"
       ],
       "answer": 0,
@@ -299,7 +299,7 @@
       "choices": [
         "Published on the broker's public-facing website and any mobile application",
         "Filed with the Department of State before they take effect",
-        "Provided to consumers only upon written request",
+        "Provided to prospective consumers only when they make a specific written request",
         "Recorded with the clerk of the county where the broker's office sits"
       ],
       "answer": 0,
@@ -412,7 +412,7 @@
         "Puffing, which is an opinion a reasonable buyer would not treat as fact",
         "A material misrepresentation requiring correction",
         "Fraud, because it cannot be objectively verified",
-        "A latent defect disclosure"
+        "A latent defect disclosure that must be made before the buyer submits an offer"
       ],
       "answer": 0,
       "explanation": "Puffing is a subjective opinion, not a statement of fact, and is not actionable. Stating that a roof is new when it is fifteen years old would instead be a misrepresentation of a material fact.",
@@ -425,7 +425,7 @@
       "choices": [
         "Disclose their licensed status and ownership interest in writing to the seller",
         "Resign from the brokerage before submitting the offer",
-        "Obtain written approval from the Department of State",
+        "Obtain prior written approval from the Department of State before making the offer",
         "Submit the offer through an unrelated broker without further disclosure"
       ],
       "answer": 0,
@@ -452,8 +452,8 @@
       "prompt": "A buyer's agent owes the seller, who is not their client:",
       "choices": [
         "Honesty and fair dealing, including disclosure of known material defects",
-        "The same fiduciary duties owed to the buyer",
-        "No duties whatsoever",
+        "The same full fiduciary duties that are owed to the licensee's buyer client",
+        "No duties whatsoever, since the seller is represented by another broker",
         "A duty of confidentiality regarding the buyer's finances"
       ],
       "answer": 0,
@@ -466,7 +466,7 @@
       "prompt": "A dual agent is limited in the transaction because the dual agent cannot:",
       "choices": [
         "Advocate for one party's interests to the detriment of the other",
-        "Prepare any documents for either party",
+        "Prepare or complete any of the transaction documents for either party",
         "Collect a commission from either party",
         "Show the property to the buyer without the seller present"
       ],
@@ -481,7 +481,7 @@
       "choices": [
         "A written agreement stating the salesperson will not be treated as an employee for federal tax purposes",
         "The broker setting fixed office hours the salesperson must work",
-        "The broker paying the salesperson an hourly wage",
+        "The broker paying the salesperson an hourly wage plus overtime, with income tax and Social Security withheld from each paycheck",
         "The broker withholding income tax from each commission check"
       ],
       "answer": 0,
@@ -580,7 +580,7 @@
         "Personal property, sometimes called a chattel real",
         "Real property, because it concerns land",
         "A freehold estate of indefinite duration",
-        "An easement in gross"
+        "An easement in gross held by the owner of the building"
       ],
       "answer": 0,
       "explanation": "A leasehold gives possession but not ownership of the land, so it is personal property. This is why leases are generally assigned rather than deeded.",
@@ -636,7 +636,7 @@
         "A general, involuntary lien against the owner's real property in that county",
         "A specific, voluntary lien against the property named in the suit",
         "A lien superior to all previously recorded mortgages",
-        "An encumbrance that expires after one year"
+        "An encumbrance against the property that automatically expires after one full year"
       ],
       "answer": 0,
       "explanation": "A judgment lien is general because it reaches all of the debtor's real property in the county, and involuntary because the owner did not consent to it.",
@@ -661,13 +661,13 @@
       "topic": "legal-issues",
       "prompt": "For a deed to be valid, it must be:",
       "choices": [
-        "In writing, name a grantor and grantee, contain a granting clause and legal description, and be signed by the grantor and delivered",
+        "In writing, signed by the grantor, and delivered to the grantee",
         "Signed by both the grantor and the grantee before a notary",
         "Recorded in the county clerk's office within thirty days",
-        "Witnessed by two disinterested parties"
+        "Witnessed by two disinterested parties and then notarized"
       ],
       "answer": 0,
-      "explanation": "The grantee does not sign, and recording is not a validity requirement. Delivery and acceptance during the grantor's lifetime is what actually transfers title.",
+      "explanation": "The deed must also name the parties and contain a granting clause and legal description. The grantee does not sign, and recording is not a validity requirement — delivery and acceptance during the grantor's lifetime is what transfers title.",
       "citation": "DOS 77-hour curriculum § Legal Issues (Deeds)"
     },
     {
@@ -676,9 +676,9 @@
       "prompt": "The deed most commonly used in New York residential transactions, in which the grantor warrants only that they have done nothing to encumber the title, is the:",
       "choices": [
         "Bargain and sale deed with covenant against grantor's acts",
-        "Full covenant and warranty deed",
-        "Quitclaim deed",
-        "Referee's deed"
+        "Full covenant and warranty deed carrying all six covenants",
+        "Quitclaim deed conveying whatever interest the grantor holds",
+        "Referee's deed issued following a foreclosure sale"
       ],
       "answer": 0,
       "explanation": "This deed limits the grantor's promise to their own period of ownership. It is the New York norm because buyers rely on title insurance for protection against earlier defects.",
@@ -690,8 +690,8 @@
       "prompt": "A quitclaim deed:",
       "choices": [
         "Conveys whatever interest the grantor may have, with no warranties of any kind",
-        "Guarantees the grantee a marketable title",
-        "Warrants title only against the grantor's own acts",
+        "Guarantees the grantee a marketable title free of any defect",
+        "Warrants title only against defects arising during the grantor's period of ownership",
         "Can be used only to transfer property between family members"
       ],
       "answer": 0,
@@ -719,7 +719,7 @@
       "choices": [
         "$2 for each $500 of consideration, and is customarily paid by the seller",
         "$2 for each $500 of consideration, and is customarily paid by the buyer",
-        "1% of the sale price, and is paid by the buyer",
+        "1% of the total sale price, and is customarily paid by the buyer at closing",
         "$5 for each $1,000 of consideration, and is split evenly"
       ],
       "answer": 0,
@@ -748,7 +748,7 @@
         "Defects in title existing at the time of the policy, including forged deeds and undisclosed heirs",
         "Physical defects in the structure discovered after closing",
         "Liens the owner voluntarily places on the property after closing",
-        "Loss of value caused by a downturn in the market"
+        "Loss of market value caused by a downturn in the local economy at any point after the policy issues"
       ],
       "answer": 0,
       "explanation": "Title insurance is retrospective. It covers title defects that already existed when the policy issued, not future events or the physical condition of the building.",
@@ -760,9 +760,9 @@
       "prompt": "At closing, the seller has already paid the full year's property taxes in advance. The adjustment will show:",
       "choices": [
         "A credit to the seller and a debit to the buyer for the portion covering the buyer's ownership",
-        "A credit to the buyer and a debit to the seller for the full year",
+        "A credit to the buyer and a corresponding debit to the seller covering the full year of taxes paid",
         "No adjustment, because taxes follow the property rather than the owner",
-        "A debit to both parties in equal amounts"
+        "A debit to both parties in equal amounts, split evenly at the closing table"
       ],
       "answer": 0,
       "explanation": "Prorations put each party's share of a prepaid or accrued expense where it belongs. Because the seller prepaid a period the buyer will own, the seller is reimbursed.",
@@ -846,7 +846,7 @@
         "A long-term lease of land on which the tenant typically constructs and owns improvements",
         "A short-term lease of unimproved land for agricultural use",
         "A lease in which the landlord retains ownership of all improvements from the outset",
-        "A lease of the ground floor of a commercial building"
+        "A lease covering only the ground floor retail space within a multi-storey commercial building"
       ],
       "answer": 0,
       "explanation": "Ground leases commonly run for decades to justify the tenant's investment in building. Ownership of the improvements usually reverts to the landowner at the end of the term.",
@@ -860,7 +860,7 @@
         "Reducing potential gross income by vacancy and collection loss and adding other income",
         "Subtracting operating expenses from potential gross income",
         "Subtracting debt service from net operating income",
-        "Adding operating expenses to net operating income"
+        "Adding operating expenses back to net operating income and then subtracting annual debt service"
       ],
       "answer": 0,
       "explanation": "Effective gross income is the realistic collection figure. Operating expenses come out at the next step to arrive at NOI.",
@@ -941,10 +941,10 @@
       "topic": "commercial-investment",
       "prompt": "In a shopping center lease, common area maintenance charges cover:",
       "choices": [
-        "Upkeep of parking lots, walkways, and other shared areas, prorated among tenants",
-        "Repairs inside each tenant's leased premises",
+        "Upkeep of parking, walkways, and other shared areas",
+        "Repairs inside each tenant's own leased premises",
         "The landlord's mortgage payment on the center",
-        "Marketing costs for the anchor tenant only"
+        "Marketing costs attributable to the anchor tenant"
       ],
       "answer": 0,
       "explanation": "CAM charges are typically allocated by each tenant's share of leasable square footage and billed on top of base rent.",
@@ -957,7 +957,7 @@
       "choices": [
         "The tenant's statement of the lease terms, rent paid, and any claims against the landlord",
         "The municipality's confirmation that the building complies with zoning",
-        "The lender's commitment to fund the acquisition loan",
+        "The lender's written commitment to fund the acquisition loan on the terms stated in the application",
         "The appraiser's opinion of the property's market value"
       ],
       "answer": 0,
@@ -1000,7 +1000,7 @@
         "A general partner who manages the venture and limited partners whose liability is capped at their investment",
         "All partners sharing management authority and unlimited liability equally",
         "A corporate structure that must distribute 90% of income annually",
-        "A prohibition on holding title to real property"
+        "A statutory prohibition on holding title to real property directly, requiring that all assets be held through a corporate trustee"
       ],
       "answer": 0,
       "explanation": "The limited partnership lets passive investors contribute capital without exposure beyond their contribution, while the general partner takes on management and unlimited liability.",
@@ -1013,7 +1013,7 @@
       "choices": [
         "Occupies the largest space and draws the traffic smaller tenants depend on",
         "Pays the highest rent per square foot in the center",
-        "Holds the longest remaining lease term",
+        "Holds the longest remaining lease term of any tenant in the center",
         "Is responsible for the center's common area maintenance"
       ],
       "answer": 0,
@@ -1056,7 +1056,7 @@
         "Blockbusting",
         "Steering",
         "Redlining",
-        "Puffing"
+        "Puffing about the neighborhood"
       ],
       "answer": 0,
       "explanation": "Blockbusting, sometimes called panic selling, is prohibited regardless of whether the licensee profits from the resulting listing.",
@@ -1095,10 +1095,10 @@
       "topic": "fair-housing",
       "prompt": "When must a licensee provide the New York State Housing and Anti-Discrimination Disclosure Form?",
       "choices": [
-        "At the first substantive contact with a prospective buyer, seller, tenant, or landlord",
+        "At first substantive contact with any party to the transaction",
         "Only when the consumer asks about fair housing law",
-        "At the time the purchase contract is signed",
-        "Only in transactions involving rental property"
+        "At the time the purchase contract is signed by both parties",
+        "Only in transactions involving residential rental property"
       ],
       "answer": 0,
       "explanation": "The disclosure is required at first substantive contact with any consumer in the transaction, and the licensee must retain proof that it was provided.",
@@ -1139,7 +1139,7 @@
       "choices": [
         "Individuals who pose as prospective buyers or renters to detect discriminatory treatment",
         "Licensed appraisers who verify property values in protected neighborhoods",
-        "Department of State employees who audit brokerage records",
+        "Department of State employees who audit brokerage transaction records annually for compliance",
         "Court-appointed officials who supervise discrimination settlements"
       ],
       "answer": 0,
@@ -1166,7 +1166,7 @@
       "prompt": "The familial status protection does not apply to housing that qualifies as:",
       "choices": [
         "Housing for older persons meeting the statutory age criteria",
-        "Any building with fewer than four units",
+        "Any residential building containing fewer than four dwelling units",
         "Property owned by a religious organization",
         "Any single-family home sold without a broker"
       ],
@@ -1181,7 +1181,7 @@
       "choices": [
         "Places of public accommodation, such as a brokerage's public office",
         "All residential apartments regardless of construction date",
-        "Owner-occupied single-family homes",
+        "Owner-occupied single-family homes and small rental apartment buildings",
         "Vacant land held for future development"
       ],
       "answer": 0,
@@ -1279,8 +1279,8 @@
       "choices": [
         "Requires the balance to be paid in full when the property is sold, preventing assumption",
         "Allows the buyer to assume the seller's loan at the original rate",
-        "Gives the lender priority over a later-recorded mortgage",
-        "Releases the lien once the final payment is made"
+        "Gives the lender priority over any other mortgage recorded later against the same property",
+        "Releases the lien of record once the final scheduled payment has been made"
       ],
       "answer": 0,
       "explanation": "Also called an alienation clause, it protects the lender's ability to reprice the loan at current rates rather than letting a below-market loan pass to a new owner.",
@@ -1292,7 +1292,7 @@
       "prompt": "Regulation Z, implementing the federal Truth in Lending Act, requires disclosure of:",
       "choices": [
         "The annual percentage rate and the total cost of credit",
-        "The appraised value of the property",
+        "The appraised value of the property and the reserves the lender requires at closing",
         "The seller's original purchase price",
         "The listing broker's commission rate"
       ],
@@ -1306,7 +1306,7 @@
       "prompt": "The Real Estate Settlement Procedures Act prohibits:",
       "choices": [
         "Kickbacks and unearned fees for the referral of settlement service business",
-        "Charging the borrower any fee at closing",
+        "Charging the borrower any fee at closing beyond the recording costs actually paid to the county clerk",
         "Requiring a title search before issuing a loan",
         "Selling a mortgage on the secondary market"
       ],
@@ -1390,7 +1390,7 @@
       "prompt": "Radon is best described as:",
       "choices": [
         "A naturally occurring radioactive gas that enters buildings from the soil",
-        "A fibrous mineral once used in pipe insulation",
+        "A fibrous mineral once widely used in pipe insulation and floor tile",
         "A byproduct of formaldehyde in pressed-wood products",
         "A metal contaminant found in older plumbing solder"
       ],
@@ -1406,7 +1406,7 @@
         "Strict, joint and several, and retroactive, potentially reaching current owners who did not cause the contamination",
         "Limited to the party that actually released the hazardous substance",
         "Limited to the owner at the time the contamination is discovered",
-        "Borne entirely by the federal government through the Superfund"
+        "Borne entirely by the federal government through the Superfund program, with private owners fully indemnified against cleanup cost"
       ],
       "answer": 0,
       "explanation": "An innocent purchaser can be held liable, which is why environmental site assessments are standard due diligence on commercial and industrial acquisitions.",
@@ -1446,9 +1446,9 @@
       "prompt": "A certificate of occupancy is issued by the local building department to confirm that:",
       "choices": [
         "The structure complies with applicable codes and is fit for its intended use",
-        "The title to the property is free of liens",
+        "The title to the property is free of liens and other encumbrances",
         "The property has been appraised at or above the sale price",
-        "The seller has paid all outstanding property taxes"
+        "The seller has paid all outstanding property taxes and other municipal charges"
       ],
       "answer": 0,
       "explanation": "Buyers routinely make the contract contingent on a valid certificate of occupancy covering all improvements, since unpermitted work is a common and expensive surprise.",
@@ -1461,7 +1461,7 @@
       "choices": [
         "Friable, meaning it can be crumbled by hand and release fibers into the air",
         "Sealed intact behind finished wall surfaces",
-        "Encapsulated in a hardened cement product",
+        "Encapsulated within a hardened cement product such as floor tile, siding, or roofing shingles",
         "Located below grade in an unoccupied crawl space"
       ],
       "answer": 0,
@@ -1475,8 +1475,8 @@
       "choices": [
         "Fee simple title to the unit plus an undivided interest in the common elements",
         "Shares of stock in a corporation plus a proprietary lease",
-        "A leasehold interest in the unit for a term of years",
-        "A tenancy in common in the entire building"
+        "A long-term leasehold interest in the individual unit for a stated term of years",
+        "A tenancy in common in the entire building shared with all other owners"
       ],
       "answer": 0,
       "explanation": "A condominium unit is real property with its own tax lot and deed. It can be mortgaged, sold, and devised like any other parcel.",
@@ -1489,7 +1489,7 @@
       "choices": [
         "Personal property, because the owner holds shares in a corporation",
         "Real property, because the owner occupies a specific apartment",
-        "A freehold estate in the individual unit",
+        "A freehold estate in the individual apartment unit and all its fixtures",
         "A tenancy by the entirety in the building"
       ],
       "answer": 0,
@@ -1504,7 +1504,7 @@
         "Fair housing law, which bars rejection based on a protected characteristic",
         "A statutory requirement that the board state its reasons in writing",
         "The requirement that the board accept any all-cash offer",
-        "A Department of State review of each rejection"
+        "A mandatory Department of State review of every rejection the board decides to issue"
       ],
       "answer": 0,
       "explanation": "Co-op boards otherwise enjoy broad discretion and generally need not explain a rejection. That discretion stops at discrimination against a protected class.",
@@ -1574,7 +1574,7 @@
         "The co-op can terminate the proprietary lease and sell the shares, as with any defaulting tenant",
         "The co-op may place a real property tax lien on the apartment",
         "The co-op may reassign the shareholder's interest without notice",
-        "The co-op must file a mechanic's lien against the building"
+        "The co-op must file a mechanic's lien against the building and foreclose it as a condominium board would"
       ],
       "answer": 0,
       "explanation": "Because the shareholder is a tenant under a proprietary lease, the corporation has landlord remedies. A condominium board must instead file and foreclose a common charge lien against the real property.",
@@ -1602,7 +1602,7 @@
         "Decline, and use only a form approved for licensee use, filling in the factual blanks",
         "Draft the contract, since the parties have already agreed on terms",
         "Draft the contract and have the buyer's attorney review it afterward",
-        "Draft the contract but omit any clause concerning financing"
+        "Draft the full contract but omit any clause concerning mortgage financing or contingencies"
       ],
       "answer": 0,
       "explanation": "Preparing a contract from scratch is the unauthorized practice of law. Licensees may complete blanks on forms approved by a bar association and real estate board for that purpose.",
@@ -1615,8 +1615,8 @@
       "choices": [
         "Either party's attorney may disapprove the contract within a stated period, canceling it",
         "The contract cannot be signed until both attorneys have approved it",
-        "The seller's attorney holds the down payment until closing",
-        "Attorney fees are shared equally between the parties"
+        "The seller's attorney holds the buyer's entire down payment in escrow until the closing date",
+        "Attorney fees are shared equally between the buyer and the seller at closing"
       ],
       "answer": 0,
       "explanation": "New York closings are attorney-driven, and the review clause reflects that custom. The contract is signed first and becomes firm once the review period passes without disapproval.",
@@ -1712,7 +1712,7 @@
       "prompt": "A restrictive covenant limiting homes in a subdivision to a single story is:",
       "choices": [
         "A private restriction enforceable by other lot owners in the subdivision",
-        "A zoning provision enforceable by the municipality",
+        "A zoning provision enforceable by the municipality against the owner",
         "Unenforceable because it conflicts with the police power",
         "Enforceable only for the first ten years after recording"
       ],
@@ -1824,7 +1824,7 @@
       "prompt": "Highest and best use is the use that is:",
       "choices": [
         "Legally permissible, physically possible, financially feasible, and maximally productive",
-        "The use currently being made of the property",
+        "The use currently being made of the property by its present owner, regardless of alternatives",
         "The use producing the largest gross income regardless of cost",
         "The use the owner intends to make after purchase"
       ],
@@ -1935,10 +1935,10 @@
       "topic": "income-tax",
       "prompt": "A Section 1031 like-kind exchange may be used to defer gain on:",
       "choices": [
-        "Real property held for productive use in a trade or business or for investment",
-        "A taxpayer's principal residence",
+        "Real property held for use in a trade or business, or for investment",
+        "A taxpayer's principal residence occupied year round",
         "A vacation home used exclusively for personal purposes",
-        "Shares in a real estate investment trust"
+        "Shares held in a publicly traded real estate investment trust"
       ],
       "answer": 0,
       "explanation": "Personal-use property is excluded. The gain is deferred rather than forgiven, because the basis carries over into the replacement property.",
@@ -2034,9 +2034,9 @@
       "prompt": "The local building department is chiefly responsible for:",
       "choices": [
         "Issuing building permits and certificates of occupancy",
-        "Preparing the annual assessment roll",
-        "Granting use variances",
-        "Adopting the comprehensive plan"
+        "Preparing the municipality's annual assessment roll",
+        "Granting use variances to property owners",
+        "Adopting and amending the comprehensive plan"
       ],
       "answer": 0,
       "explanation": "The building department enforces the code through permits and inspections. Assessment, variances, and planning belong to the assessor, zoning board, and planning board respectively.",
@@ -2047,10 +2047,10 @@
       "topic": "municipal-agencies",
       "prompt": "The local assessor is responsible for:",
       "choices": [
-        "Determining the assessed value of each parcel and preparing the assessment roll",
-        "Setting the annual tax rate for the municipality",
-        "Hearing grievances about assessments",
-        "Collecting delinquent property taxes"
+        "Determining assessed values and preparing the assessment roll",
+        "Setting the annual tax rate for the taxing jurisdiction",
+        "Hearing owner grievances about disputed assessments",
+        "Collecting delinquent property taxes and enforcing liens"
       ],
       "answer": 0,
       "explanation": "The assessor values property; the taxing jurisdictions set rates based on their budgets; and the board of assessment review, not the assessor, hears grievances.",
@@ -2062,7 +2062,7 @@
       "prompt": "The implied warranty of habitability in a New York residential lease means the landlord:",
       "choices": [
         "Must keep the premises fit for human habitation regardless of any lease clause to the contrary",
-        "Must renovate the unit between each tenancy",
+        "Must renovate the unit between each tenancy and provide the incoming tenant with a written condition report",
         "Is liable only for defects the tenant reports in writing",
         "May disclaim responsibility for conditions existing before the tenancy began"
       ],
@@ -2090,7 +2090,7 @@
       "prompt": "A property management agreement creates which relationship between the owner and the manager?",
       "choices": [
         "A general agency, with authority to conduct ongoing business for the owner",
-        "A special agency limited to a single transaction",
+        "A special agency that is limited to one identified transaction and nothing more",
         "A universal agency covering all of the owner's affairs",
         "No agency relationship, because the manager is an independent contractor"
       ],
@@ -2189,7 +2189,7 @@
       "choices": [
         "Let the prospect enter each room first while the licensee remains near the exit",
         "Lead the prospect through each room to control the pace of the tour",
-        "Remain in the entryway while the prospect tours alone",
+        "Remain waiting in the entryway of the home while the prospect tours the rooms alone",
         "Stand between the prospect and the room's only doorway"
       ],
       "answer": 0,
@@ -2260,7 +2260,7 @@
         "The owner may engage multiple brokers and owes a commission only to the one who produces the buyer",
         "One broker has the sole right to market the property for a fixed term",
         "The broker keeps any amount received above a price set by the owner",
-        "The commission is fixed by the local multiple listing service"
+        "The commission rate is fixed by the local multiple listing service and applies to all member brokers"
       ],
       "answer": 0,
       "explanation": "Open listings are non-exclusive. Because only the procuring broker is paid, brokers generally invest little marketing effort in them.",
@@ -2274,7 +2274,7 @@
         "A net listing, which creates a direct conflict with the broker's fiduciary duty",
         "An open listing, which is the most common arrangement in New York",
         "A percentage listing, permitted when disclosed in writing",
-        "An exclusive agency listing with a variable rate"
+        "An exclusive agency listing that carries a variable commission rate set by the broker"
       ],
       "answer": 0,
       "explanation": "A net listing gives the broker an incentive to keep the seller's price low and to conceal higher offers, which is irreconcilable with the duties of loyalty and disclosure.",
@@ -2301,7 +2301,7 @@
       "choices": [
         "Set in motion the unbroken chain of events that resulted in the sale",
         "Held the listing agreement with the seller",
-        "First advertised the property publicly",
+        "First advertised the property publicly in a newspaper of general circulation",
         "Submitted the accepted offer to the seller"
       ],
       "answer": 0,
@@ -2344,7 +2344,7 @@
         "May be disciplined for a salesperson's violations the broker failed to supervise against",
         "Is liable only for violations the broker personally directed",
         "Must review every advertisement after it has been published",
-        "Must accompany salespersons to all closings"
+        "Must personally accompany each associated salesperson to every closing and contract signing"
       ],
       "answer": 0,
       "explanation": "Supervision is an affirmative duty. A broker who does not exercise it can face discipline for conduct they never knew about.",
@@ -2428,7 +2428,7 @@
         "Real Property Law §443-a provides that no cause of action arises from that non-disclosure",
         "The federal Fair Housing Act preempts any such disclosure requirement",
         "Such events are considered latent defects that only an inspector may report",
-        "The buyer is presumed to have researched the property's history"
+        "The buyer is presumed to have researched the entire history of the property before making an offer"
       ],
       "answer": 0,
       "explanation": "New York addresses stigmatized property by statute. The protection also covers a death on the property and prior occupancy by a person with HIV or AIDS.",
@@ -2469,7 +2469,7 @@
       "choices": [
         "Is owed full fiduciary duties, while a customer is owed honesty and fair dealing",
         "Has signed a purchase contract, while a customer has not",
-        "Pays the commission, while a customer does not",
+        "Pays the brokerage commission at the closing, while a customer is never charged a fee",
         "Is represented by a broker, while a customer is represented by an attorney"
       ],
       "answer": 0,
@@ -2496,7 +2496,7 @@
       "prompt": "A principal who accepts the benefit of an unauthorized act performed by their agent has effectively:",
       "choices": [
         "Ratified the act, giving it the same effect as if it had been authorized",
-        "Terminated the agency by operation of law",
+        "Terminated the agency relationship by operation of law, effective immediately",
         "Created an agency coupled with an interest",
         "Waived all fiduciary duties for the remainder of the transaction"
       ],
@@ -2509,10 +2509,10 @@
       "topic": "law-of-agency",
       "prompt": "A licensee associated with one broker wishes to move to another brokerage. The licensee must:",
       "choices": [
-        "Have the change of association filed with the Department of State before working for the new broker",
-        "Wait ninety days from the date of termination before affiliating",
-        "Surrender the license and apply for a new one",
-        "Obtain written consent from the prior broker's clients"
+        "Have the change of association filed with the Department of State",
+        "Wait ninety days from termination before affiliating elsewhere",
+        "Surrender the existing license and apply for a new one",
+        "Obtain written consent from the prior broker's active clients"
       ],
       "answer": 0,
       "explanation": "A license is only active while associated with a sponsoring broker. The termination and the new association must both be recorded with the Department.",
@@ -2567,7 +2567,7 @@
       "choices": [
         "A cooperative arrangement among brokers to share listings and offers of compensation",
         "A government registry of all properties for sale in a county",
-        "A licensing category regulated by the Department of State",
+        "A licensing category created and regulated by the Department of State",
         "An agency relationship between the seller and every member broker"
       ],
       "answer": 0,
@@ -2579,10 +2579,10 @@
       "topic": "law-of-agency",
       "prompt": "An agency coupled with an interest differs from an ordinary agency because it:",
       "choices": [
-        "Cannot be revoked unilaterally by the principal, since the agent holds a stake in the property",
+        "Cannot be revoked unilaterally, since the agent holds a stake",
         "Terminates automatically upon the death of the agent",
-        "Requires no written agreement of any kind",
-        "May be created only between family members"
+        "Requires no written agreement between the parties",
+        "May be created only between members of the same family"
       ],
       "answer": 0,
       "explanation": "Where the agent has an actual financial interest in the subject property, revocation would destroy that interest, so the usual right of the principal to revoke at will does not apply.",
@@ -2596,7 +2596,7 @@
         "A power of attorney, and the person acting under it is an attorney-in-fact",
         "A listing agreement with an assignment clause",
         "An agency disclosure form with a substitution rider",
-        "A proprietary lease naming a successor"
+        "A proprietary lease naming a successor who is authorized to act at the closing"
       ],
       "answer": 0,
       "explanation": "An attorney-in-fact need not be a lawyer. For a conveyance, the power of attorney must generally be acknowledged and recorded along with the deed.",
@@ -2622,8 +2622,8 @@
       "prompt": "Errors and omissions insurance for a real estate licensee covers:",
       "choices": [
         "Claims arising from negligent acts in the course of professional services",
-        "Intentional fraud committed by the licensee",
-        "Fines imposed by the Department of State",
+        "Intentional fraud or deliberate misrepresentation committed by the licensee",
+        "Fines and penalties imposed by the Department of State after a hearing",
         "Physical damage occurring at a property during a showing"
       ],
       "answer": 0,
@@ -2734,7 +2734,7 @@
       "prompt": "In a designated sales agent arrangement, the broker who makes the designations:",
       "choices": [
         "Remains a dual agent and may not advocate for either party",
-        "Becomes the seller's agent only",
+        "Becomes the exclusive agent of the seller for that transaction",
         "Withdraws from the transaction entirely",
         "May advise both designated agents on negotiating strategy"
       ],
@@ -2748,7 +2748,7 @@
       "prompt": "A tie-in arrangement, in which a builder sells a lot on the condition that the buyer use the builder's construction company, is:",
       "choices": [
         "An antitrust concern because it conditions one product on the purchase of another",
-        "Permissible whenever both prices are disclosed",
+        "Permissible whenever both prices are separately disclosed to the buyer in writing before closing",
         "Permissible because the builder owns both businesses",
         "A form of dual agency requiring written consent"
       ],
@@ -2778,7 +2778,7 @@
         "Should decline, because a lending decision generally requires a licensed or certified appraiser",
         "May proceed, because a comparative market analysis is equivalent to an appraisal",
         "May proceed if the opinion is labeled a broker price opinion",
-        "May proceed if the licensee has five years of experience"
+        "May proceed if the licensee has at least five years of experience and the lender consents in writing"
       ],
       "answer": 0,
       "explanation": "A comparative market analysis or broker price opinion supports pricing and marketing decisions. Valuation for a lending decision falls under appraisal regulation.",
@@ -2806,7 +2806,7 @@
         "Refuse the instruction and explain that following it would violate fair housing law",
         "Follow the instruction, since obedience is a fiduciary duty",
         "Follow the instruction but document it in the file",
-        "Withdraw from the listing without explanation"
+        "Withdraw from the listing without explanation and refer the seller to another brokerage"
       ],
       "answer": 0,
       "explanation": "Obedience extends only to lawful instructions. Familial status is protected, and an agent who complies shares liability with the seller.",
@@ -2860,7 +2860,7 @@
       "prompt": "Whether an item has become a fixture is determined chiefly by:",
       "choices": [
         "The method of attachment, adaptation to the property, and the parties' intention",
-        "The original purchase price of the item",
+        "The original purchase price of the item together with the cost of its installation",
         "Whether the item can be removed without any tools",
         "Whether the item was installed by a licensed contractor"
       ],
@@ -2945,8 +2945,8 @@
       "choices": [
         "An easement in gross, which benefits an entity rather than an adjoining parcel",
         "An easement appurtenant, benefiting each parcel it crosses",
-        "A license terminable when the property is sold",
-        "An encroachment subject to removal on demand"
+        "A revocable license that terminates automatically when the burdened property is sold",
+        "An encroachment that the affected owner may demand be removed at once"
       ],
       "answer": 0,
       "explanation": "There is no dominant tenement. Commercial easements in gross are assignable and survive the sale of the burdened land.",
@@ -2988,7 +2988,7 @@
         "A party wall, with each owner holding rights and maintenance obligations",
         "An encroachment that the newer building's owner must remove",
         "The sole property of whichever owner built it",
-        "Common area owned by the municipality"
+        "A common area owned and maintained by the municipality for the public benefit"
       ],
       "answer": 0,
       "explanation": "Party wall arrangements are typically governed by a recorded agreement covering repair costs and the consequences of one building being demolished.",
@@ -3001,8 +3001,8 @@
       "choices": [
         "Warn prospective purchasers that litigation affecting title to the property is pending",
         "Secure payment for labor and materials furnished to the property",
-        "Record the transfer of title from grantor to grantee",
-        "Establish the priority of a purchase money mortgage"
+        "Record the transfer of title from the grantor to the grantee in the official county land records",
+        "Establish the priority of a purchase money mortgage over earlier liens"
       ],
       "answer": 0,
       "explanation": "Anyone acquiring an interest after the notice is filed takes subject to the outcome of the lawsuit, which makes the property effectively unsaleable while it is in place.",
@@ -3098,8 +3098,8 @@
       "prompt": "Marketable title is best described as title that:",
       "choices": [
         "A reasonable, well-informed buyer would accept without fear of litigation",
-        "Is guaranteed by the county recording office",
-        "Carries no mortgage or other voluntary lien",
+        "Is expressly guaranteed to be marketable by the county clerk's recording office",
+        "Carries no mortgage, judgment, or other voluntary or involuntary lien",
         "Has been held by the same family for at least ten years"
       ],
       "answer": 0,
@@ -3112,7 +3112,7 @@
       "prompt": "An old unreleased mortgage still appearing in the record, though the debt was long ago paid, is:",
       "choices": [
         "A cloud on title, typically cleared by obtaining a satisfaction or a quitclaim deed",
-        "A latent defect that title insurance cannot cover",
+        "A latent defect that no title insurance policy will insure against or agree to except",
         "An encumbrance that automatically expires after ten years",
         "A lien with priority over the current owner's mortgage"
       ],
@@ -3128,7 +3128,7 @@
         "The successive record of conveyances from the earliest owner to the present one",
         "The list of liens currently encumbering the property",
         "The sequence of mortgages recorded against the property",
-        "The insurer's schedule of exceptions to coverage"
+        "The title insurer's schedule of exceptions and its requirements for issuing coverage"
       ],
       "answer": 0,
       "explanation": "A gap in the chain, where one conveyance is missing, is a defect that must be resolved before title can be insured or called marketable.",
@@ -3212,7 +3212,7 @@
         "Hostile, actual, open and notorious, exclusive, and continuous for ten years",
         "Permissive, continuous, and documented for ten years",
         "Hostile and continuous for five years with payment of taxes",
-        "Open and continuous for twenty-one years"
+        "Open, notorious, and continuous for a period of twenty-one years"
       ],
       "answer": 0,
       "explanation": "Hostile means without the owner's permission. Permission defeats the claim entirely, which is why owners of land crossed by neighbors often grant a written license.",
@@ -3226,7 +3226,7 @@
         "Inverse condemnation, seeking compensation for a regulatory taking",
         "Adverse possession against the municipality",
         "Escheat, returning the land to the state",
-        "Novation of the underlying deed"
+        "Novation of the underlying deed, substituting the municipality as the grantee of record"
       ],
       "answer": 0,
       "explanation": "In ordinary condemnation the government initiates proceedings and pays. In inverse condemnation the owner sues, arguing that regulation amounted to a taking without compensation.",
@@ -3239,7 +3239,7 @@
       "choices": [
         "Reviews the title report and clears objections before the closing date",
         "Issues the title insurance policy on behalf of the underwriter",
-        "Performs the appraisal required by the lender",
+        "Performs the appraisal that the buyer's lender requires prior to closing",
         "Files the certificate of occupancy with the building department"
       ],
       "answer": 0,
@@ -3279,10 +3279,10 @@
       "topic": "legal-issues",
       "prompt": "A title insurance commitment's schedule of exceptions lists:",
       "choices": [
-        "Matters the policy will not cover, such as recorded easements and restrictions",
-        "The prior owners in the chain of title",
-        "The liens the seller must pay off before closing",
-        "The endorsements the lender has requested"
+        "Matters excluded from coverage, such as easements and restrictions",
+        "The prior owners appearing in the property's chain of title",
+        "The liens the seller is required to pay off before closing",
+        "The endorsements the lender has requested on its policy"
       ],
       "answer": 0,
       "explanation": "Exceptions carve items out of coverage. Reviewing them is how a buyer learns what easements, covenants, and survey matters they are taking the property subject to.",
@@ -3308,7 +3308,7 @@
       "prompt": "A survey is ordered before closing chiefly to reveal:",
       "choices": [
         "Boundary lines, encroachments, and the location of improvements",
-        "Recorded liens against the property",
+        "Recorded liens and judgments docketed against the property",
         "The condition of the roof and mechanical systems",
         "Whether the seller holds marketable title"
       ],
@@ -3338,7 +3338,7 @@
         "A fee simple determinable, leaving the grantor a possibility of reverter",
         "A fee simple absolute, since the condition is unenforceable",
         "A life estate measured by the use of the property",
-        "A leasehold estate for an indefinite term"
+        "A leasehold estate granted for an indefinite term of wholly uncertain duration"
       ],
       "answer": 0,
       "explanation": "The estate ends by itself when the condition fails, and the grantor's future interest is a possibility of reverter. Wording like \"but if\" instead creates a right of re-entry that must be exercised.",
@@ -3378,7 +3378,7 @@
       "prompt": "Under a gross lease, the landlord is generally responsible for:",
       "choices": [
         "Property taxes, insurance, and maintenance, paid out of the rent received",
-        "Only the structural elements of the building",
+        "Only the structural elements of the building, with the tenant paying all else",
         "Nothing beyond delivering possession of the premises",
         "Taxes only, with the tenant covering insurance and maintenance"
       ],
@@ -3407,7 +3407,7 @@
       "choices": [
         "Free capital tied up in real estate while continuing to occupy the property",
         "Transfer management responsibility while retaining ownership",
-        "Defer capital gain under Section 1031",
+        "Defer the entire capital gain under Section 1031 of the Internal Revenue Code",
         "Obtain a mortgage without a personal guarantee"
       ],
       "answer": 0,
@@ -3546,7 +3546,7 @@
       "prompt": "A property's break-even ratio measures:",
       "choices": [
         "The occupancy level at which income covers operating expenses and debt service",
-        "The ratio of a property's debt to its market value",
+        "The ratio of the property's total outstanding debt to its appraised market value",
         "The share of net operating income consumed by capital expenditures",
         "The point at which appreciation offsets accumulated depreciation"
       ],
@@ -3575,7 +3575,7 @@
       "choices": [
         "A reserve for replacements, an above-the-line deduction in arriving at NOI",
         "A capital expenditure excluded from the operating statement entirely",
-        "Part of annual debt service",
+        "Part of annual debt service, recovered through the property's financing structure",
         "A financing cost deducted after NOI"
       ],
       "answer": 0,
@@ -3644,7 +3644,7 @@
       "prompt": "In a triple net investment, the capitalization rate a buyer accepts depends most heavily on:",
       "choices": [
         "The creditworthiness of the tenant and the remaining lease term",
-        "The replacement cost of the building",
+        "The replacement cost of the building and its site improvements",
         "The age of the roof and mechanical systems",
         "The property's assessed value for tax purposes"
       ],
@@ -3673,7 +3673,7 @@
       "choices": [
         "The timing of all cash flows, including the eventual sale proceeds",
         "Only the first year's cash flow relative to the purchase price",
-        "Net operating income before any financing",
+        "Net operating income calculated before any financing costs are deducted",
         "The ratio of gross rent to purchase price"
       ],
       "answer": 0,
@@ -3686,8 +3686,8 @@
       "prompt": "A due diligence period in a commercial purchase contract exists so the buyer can:",
       "choices": [
         "Investigate the property and terminate without penalty if it proves unsuitable",
-        "Arrange financing after the closing date has passed",
-        "Require the seller to complete deferred maintenance",
+        "Arrange permanent financing after the scheduled closing date has passed",
+        "Require the seller to complete all outstanding deferred maintenance before closing",
         "Market the property to potential subtenants before closing"
       ],
       "answer": 0,
@@ -3784,8 +3784,8 @@
       "prompt": "A feasibility study for a proposed development primarily asks whether:",
       "choices": [
         "The project can be built and operated profitably given market and cost conditions",
-        "The site complies with the current zoning ordinance",
-        "The developer can obtain title insurance for the parcel",
+        "The site complies with the current zoning ordinance and setback rules",
+        "The developer is able to obtain title insurance covering the entire assembled parcel",
         "The property's assessed value supports the expected tax burden"
       ],
       "answer": 0,
@@ -3799,8 +3799,8 @@
       "choices": [
         "The unobstructed vertical distance from floor to the lowest overhead obstruction",
         "The height of the building measured from grade to roofline",
-        "The maximum height permitted by the zoning ordinance",
-        "The distance from the loading dock to the ceiling"
+        "The maximum overall building height permitted under the zoning ordinance for the district",
+        "The vertical distance from the loading dock platform to the ceiling"
       ],
       "answer": 0,
       "explanation": "Clear height governs how high goods can be racked, which is why modern distribution tenants treat it as a threshold requirement.",
@@ -3813,7 +3813,7 @@
       "choices": [
         "Combines two or more uses, such as residential over ground-floor retail",
         "Permits any use allowed anywhere in the municipality",
-        "Contains both owner-occupied and rental units",
+        "Contains both owner-occupied and rental units within the same structure",
         "Is financed by a combination of debt and equity"
       ],
       "answer": 0,
@@ -3828,7 +3828,7 @@
         "Repay a large remaining principal balance at the end of the term",
         "Make interest-only payments for the entire term",
         "Increase payments annually according to an index",
-        "Pay a penalty if the loan is repaid early"
+        "Pay a substantial penalty if the loan is repaid before maturity"
       ],
       "answer": 0,
       "explanation": "Payments are calculated on a longer amortization than the actual term, so a substantial balance remains due and typically must be refinanced.",
@@ -3841,8 +3841,8 @@
       "choices": [
         "A difference in lease structure, expense reporting, or deferred maintenance worth investigating",
         "An arithmetic error, since cap rate and expense ratio must move together",
-        "That the property with the higher ratio is necessarily the better buy",
-        "That one property has a below-market mortgage in place"
+        "That the property showing the higher operating expense ratio is necessarily the better acquisition",
+        "That one of the two properties has a below-market assumable mortgage in place"
       ],
       "answer": 0,
       "explanation": "A net-leased property shows a low expense ratio because tenants pay costs directly. An unusually low ratio can also mean a seller omitted expenses.",
@@ -3896,7 +3896,7 @@
       "prompt": "A landlord may lawfully require a tenant who installed a wheelchair ramp to:",
       "choices": [
         "Restore the premises to their original condition at the end of the tenancy, where reasonable",
-        "Pay a higher security deposit because of the disability",
+        "Pay a higher security deposit than other tenants because the modification increases the landlord's risk",
         "Provide medical documentation of the specific diagnosis",
         "Relocate to a ground-floor unit designated for accessible use"
       ],
@@ -3911,7 +3911,7 @@
       "choices": [
         "The Fair Housing Act's design and construction accessibility requirements",
         "Title III of the Americans with Disabilities Act",
-        "The Architectural Barriers Act",
+        "The Architectural Barriers Act, which applies to all privately financed housing",
         "Section 504 of the Rehabilitation Act, regardless of funding"
       ],
       "answer": 0,
@@ -3924,7 +3924,7 @@
       "prompt": "A licensee is asked by a buyer about the racial composition of a neighborhood. The licensee should:",
       "choices": [
         "Decline to characterize the neighborhood and point to publicly available census data",
-        "Answer honestly based on personal observation",
+        "Answer honestly, based on the licensee's personal observation of the surrounding neighborhood",
         "Provide the information only if the buyer puts the request in writing",
         "Show the buyer homes only in demographically similar neighborhoods"
       ],
@@ -3968,7 +3968,7 @@
         "Undercover testing of rental and sale transactions to detect discriminatory treatment",
         "Annual audits of every brokerage's transaction records",
         "Mandatory mediation of all discrimination complaints",
-        "Pre-approval review of brokerage advertising"
+        "Pre-approval review of every brokerage advertisement before it may be published or broadcast"
       ],
       "answer": 0,
       "explanation": "The program grew out of documented steering in New York. Findings can lead to license discipline as well as human rights proceedings.",
@@ -3981,7 +3981,7 @@
       "choices": [
         "Can have a disparate impact on protected classes without any discriminatory intent",
         "Is expressly prohibited by the federal protected class list",
-        "Constitutes steering under the Fair Housing Act",
+        "Constitutes unlawful steering under the federal Fair Housing Act",
         "Amounts to blockbusting in neighborhoods undergoing change"
       ],
       "answer": 0,
@@ -4021,13 +4021,13 @@
       "topic": "fair-housing",
       "prompt": "The federal exemption sometimes called the Mrs. Murphy exemption applies to:",
       "choices": [
-        "An owner-occupied dwelling of four units or fewer, rented without a broker or discriminatory advertising",
-        "Any single-family home sold by its owner",
-        "Any building constructed before 1968",
-        "Housing owned by a religious organization or private club"
+        "An owner-occupied dwelling of four units or fewer, rented without a broker",
+        "Any single-family home sold by its owner without an agent",
+        "Any residential building constructed before the 1968 Act",
+        "Housing owned and operated by a religious organization or private club"
       ],
       "answer": 0,
-      "explanation": "The exemption is narrow and evaporates the moment a licensee is used or discriminatory advertising appears. Race discrimination remains prohibited regardless under 42 U.S.C. §1981-1982.",
+      "explanation": "The exemption also evaporates if discriminatory advertising is used. Race discrimination remains prohibited regardless under 42 U.S.C. §§1981-1982.",
       "citation": "42 U.S.C. §3603(b)"
     },
     {
@@ -4038,7 +4038,7 @@
         "The Civil Rights Act of 1866, which has no exemptions",
         "The Americans with Disabilities Act",
         "The Equal Credit Opportunity Act",
-        "The Community Reinvestment Act"
+        "The Community Reinvestment Act, which governs bank lending"
       ],
       "answer": 0,
       "explanation": "Jones v. Alfred H. Mayer Co. confirmed the 1866 Act reaches all property transactions. It is the reason no exemption ever covers racial discrimination.",
@@ -4050,7 +4050,7 @@
       "prompt": "A licensee is asked by an owner to market a property only through channels reaching a single ethnic community. The licensee should:",
       "choices": [
         "Refuse, because limiting marketing that way denies information to protected classes",
-        "Comply, since the owner directs the marketing plan",
+        "Comply, because the owner directs the marketing plan and bears legal responsibility for it",
         "Comply if the licensee also lists the property in the MLS",
         "Comply but note the instruction in the transaction file"
       ],
@@ -4063,10 +4063,10 @@
       "topic": "fair-housing",
       "prompt": "The Equal Credit Opportunity Act prohibits discrimination in:",
       "choices": [
-        "The extension of credit, including on the basis of receipt of public assistance",
-        "The sale of residential property only",
-        "The rental of dwellings with more than four units",
-        "The provision of homeowner's insurance"
+        "The extension of credit, including on receipt of public assistance",
+        "The sale of residential property, but not its rental",
+        "The rental of dwellings containing more than four units",
+        "The provision of homeowner's and hazard insurance"
       ],
       "answer": 0,
       "explanation": "ECOA covers credit rather than housing directly, and its protected characteristics include age, marital status, and receipt of public assistance income.",
@@ -4094,7 +4094,7 @@
         "Prohibits licensees from soliciting listings within a designated geographic area",
         "Prevents any property in the area from being sold for a stated period",
         "Requires licensees to obtain written consent before advertising in the area",
-        "Bars new brokerages from opening offices in the area"
+        "Bars any new brokerage from opening an office within the designated geographic area"
       ],
       "answer": 0,
       "explanation": "Non-solicitation orders respond to blockbusting activity in a defined area. Violating one is grounds for license discipline.",
@@ -4108,7 +4108,7 @@
         "Suggest a preference and violate the Fair Housing Act's advertising provisions",
         "Be permissible, since images are not statements of preference",
         "Be permissible if a fair housing logo appears in the advertisement",
-        "Violate antitrust law rather than fair housing law"
+        "Violate federal antitrust law rather than the Fair Housing Act's advertising rules"
       ],
       "answer": 0,
       "explanation": "Human models in advertising should reasonably represent the market. The test is the message conveyed to an ordinary reader, not the advertiser's intent.",
@@ -4121,7 +4121,7 @@
       "choices": [
         "Refuse to rent because the applicant has been a victim of domestic violence",
         "Ask any applicant for references from a prior landlord",
-        "Require any applicant to provide proof of income",
+        "Require any applicant to provide documented proof of income and employment",
         "Enforce a lease provision limiting overnight guests"
       ],
       "answer": 0,
@@ -4133,13 +4133,13 @@
       "topic": "fair-housing",
       "prompt": "For housing to qualify under the older persons exemption to familial status, one common standard requires that:",
       "choices": [
-        "At least 80% of occupied units have a resident 55 or older, with published policies demonstrating intent",
+        "At least 80% of occupied units have a resident 55 or older",
         "Every resident be at least 62 years of age without exception",
-        "The property be operated by a government agency",
-        "The property contain no more than four dwelling units"
+        "The property be owned and operated by a government agency",
+        "The property contain no more than four separate dwelling units"
       ],
       "answer": 0,
-      "explanation": "The 55-and-older route requires the 80% occupancy standard plus published policies and age verification. A separate route requires all occupants be 62 or older.",
+      "explanation": "The 55-and-older route also requires published policies demonstrating intent, plus age verification. A separate route requires that all occupants be 62 or older.",
       "citation": "42 U.S.C. §3607(b)"
     },
     {
@@ -4178,7 +4178,7 @@
         "Likely unlawful, because it discriminates on the basis of lawful source of income",
         "Lawful, because income standards are applied to every applicant equally",
         "Lawful, because vouchers are paid to the landlord rather than the tenant",
-        "Unlawful only in buildings receiving public subsidy"
+        "Unlawful only in buildings that receive some form of federal or state housing subsidy"
       ],
       "answer": 0,
       "explanation": "A facially neutral income test applied so that voucher holders can never qualify is a common form of source of income discrimination.",
@@ -4191,7 +4191,7 @@
       "choices": [
         "Decreases over the life of the loan as the principal balance falls",
         "Remains constant throughout the loan term",
-        "Increases over the life of the loan",
+        "Increases steadily over the entire remaining life of the amortized loan",
         "Is recalculated annually based on the property's value"
       ],
       "answer": 0,
@@ -4217,10 +4217,10 @@
       "topic": "finance",
       "prompt": "The secondary mortgage market exists primarily to:",
       "choices": [
-        "Buy loans from originating lenders, replenishing funds available for new lending",
-        "Make second mortgages available to homeowners",
-        "Insure lenders against borrower default",
-        "Set the interest rates lenders may charge"
+        "Buy loans from originators, replenishing funds for new lending",
+        "Make second mortgages available directly to homeowners",
+        "Insure participating lenders against borrower default",
+        "Set the interest rates that lenders are permitted to charge"
       ],
       "answer": 0,
       "explanation": "Fannie Mae, Freddie Mac, and Ginnie Mae operate here. Their underwriting standards effectively set the terms of conventional conforming lending.",
@@ -4231,10 +4231,10 @@
       "topic": "finance",
       "prompt": "A conforming loan is one that:",
       "choices": [
-        "Meets the size and underwriting standards for purchase by Fannie Mae or Freddie Mac",
-        "Is insured by the Federal Housing Administration",
-        "Carries a fixed rate for its entire term",
-        "Requires no private mortgage insurance"
+        "Meets the standards for purchase by Fannie Mae or Freddie Mac",
+        "Is insured against default by the Federal Housing Administration",
+        "Carries a fixed interest rate for its entire repayment term",
+        "Requires no private mortgage insurance at any loan-to-value"
       ],
       "answer": 0,
       "explanation": "Loans above the limit are jumbo loans, which lenders must hold or sell privately, and which therefore usually price differently.",
@@ -4290,7 +4290,7 @@
         "Covers more than one parcel, typically with a release clause for individual lots",
         "Includes personal property along with the real estate",
         "Wraps around an existing mortgage that remains in place",
-        "Adjusts its rate according to a published index"
+        "Adjusts its interest rate periodically according to a published national market index"
       ],
       "answer": 0,
       "explanation": "Developers use blanket mortgages to finance subdivisions. The partial release clause lets individual lots be sold free of the lien as they close.",
@@ -4344,7 +4344,7 @@
       "prompt": "A short sale occurs when:",
       "choices": [
         "The lender agrees to accept less than the balance owed to permit a sale",
-        "A property sells within thirty days of listing",
+        "A property sells within thirty days of first being listed on the open market",
         "The buyer assumes the seller's existing mortgage",
         "The lender forecloses and sells at public auction"
       ],
@@ -4374,7 +4374,7 @@
         "The lien will take a lower priority position to a later-recorded mortgage",
         "The borrower may not place additional liens on the property",
         "The lender may accelerate the debt upon a sale of the property",
-        "The loan may be assumed by a qualified buyer"
+        "The loan may be assumed by any buyer who qualifies under the lender's standards"
       ],
       "answer": 0,
       "explanation": "Subordination is common in land acquisition, where the seller agrees to step behind a construction lender so the project can be financed.",
@@ -4469,7 +4469,7 @@
       "topic": "construction-environmental",
       "prompt": "Under the federal lead-based paint rule, a purchaser of pre-1978 housing must be given an opportunity to conduct a risk assessment lasting:",
       "choices": [
-        "10 days, unless the parties agree otherwise",
+        "10 days",
         "3 days",
         "30 days",
         "5 business days"
@@ -4483,10 +4483,10 @@
       "topic": "construction-environmental",
       "prompt": "A brownfield site differs from a Superfund site in that a brownfield is:",
       "choices": [
-        "A property whose redevelopment is complicated by possible contamination, often eligible for cleanup incentives",
-        "A site already listed on the National Priorities List",
-        "A property contaminated only by petroleum products",
-        "Land that has never been developed"
+        "A property whose redevelopment is complicated by possible contamination",
+        "A severely contaminated site listed on the National Priorities List",
+        "A property contaminated only by petroleum products from storage tanks",
+        "Undeveloped land that has never carried any structure"
       ],
       "answer": 0,
       "explanation": "Brownfield programs, including New York's, offer tax credits and liability relief to encourage redevelopment of moderately contaminated sites rather than greenfield land.",
@@ -4500,7 +4500,7 @@
         "Leaking product can contaminate soil and groundwater, and remediation costs fall on the owner",
         "It reduces the property's assessed value for tax purposes",
         "Building codes require every tank to be replaced every ten years",
-        "It voids the property's title insurance coverage"
+        "It automatically voids the owner's title insurance policy and the lender's coverage as of closing"
       ],
       "answer": 0,
       "explanation": "Discovery of an unregistered underground tank routinely derails closings, because the cost of testing and remediation is unpredictable.",
@@ -4527,8 +4527,8 @@
       "choices": [
         "Correcting the underlying moisture source, then removing the affected material",
         "Applying a fungicide and repainting the affected surface",
-        "Increasing the building's insulation R-value",
-        "Installing a radon mitigation system"
+        "Increasing the building's insulation R-value throughout the affected wall assembly",
+        "Installing a radon mitigation system to vent soil gas away from the structure"
       ],
       "answer": 0,
       "explanation": "Mold is a symptom of a water problem. Remediation that does not fix the moisture source simply defers the recurrence.",
@@ -4554,7 +4554,7 @@
       "prompt": "In platform framing, the most common method in modern residential construction:",
       "choices": [
         "Each floor is built as a platform on which the next storey's walls are framed",
-        "Wall studs run continuously from the foundation to the roof",
+        "Wall studs run continuously from the foundation sill to the roof rafters",
         "Heavy timbers are joined with mortise and tenon connections",
         "Load is carried by exterior masonry rather than a wood frame"
       ],
@@ -4581,10 +4581,10 @@
       "topic": "construction-environmental",
       "prompt": "A footing in residential construction serves to:",
       "choices": [
-        "Spread the building's load over a wider area of soil beneath the foundation wall",
-        "Prevent water from entering the basement",
-        "Anchor the sill plate to the foundation",
-        "Provide a level surface for the finished floor"
+        "Spread the building's load over a wider area of soil",
+        "Prevent groundwater from entering the basement",
+        "Anchor the wooden sill plate to the foundation",
+        "Provide a level surface for the finished floor slab"
       ],
       "answer": 0,
       "explanation": "Footings must sit below the local frost line so seasonal freezing does not heave the foundation.",
@@ -4612,7 +4612,7 @@
         "The municipality can require the work to be opened for inspection or removed",
         "The title insurer will refuse to issue any policy",
         "The property automatically loses its certificate of occupancy",
-        "The seller's transfer tax obligation increases"
+        "The seller's real estate transfer tax obligation increases substantially at closing"
       ],
       "answer": 0,
       "explanation": "Unpermitted work also frequently blocks a lender's approval and surfaces later when the buyer tries to sell or to permit further work.",
@@ -4653,7 +4653,7 @@
       "choices": [
         "Seal joints and penetrations against water intrusion",
         "Provide ventilation to the attic space",
-        "Increase the roof's insulating value",
+        "Increase the roof assembly's overall insulating value",
         "Support the weight of accumulated snow"
       ],
       "answer": 0,
@@ -4665,10 +4665,10 @@
       "topic": "construction-environmental",
       "prompt": "Improper grading around a house most commonly results in:",
       "choices": [
-        "Water directed toward the foundation, causing basement moisture problems",
-        "Uneven settling of interior floor joists",
-        "Elevated radon levels in upper storeys",
-        "Ice damming along the roof eaves"
+        "Water directed toward the foundation, causing basement moisture",
+        "Uneven settling of the interior floor joists over time",
+        "Elevated radon concentrations in the upper storeys",
+        "Ice damming along the roof eaves each winter"
       ],
       "answer": 0,
       "explanation": "Soil should slope away from the foundation. Regrading and extending downspouts often resolve chronic basement water more cheaply than interior systems.",
@@ -4679,10 +4679,10 @@
       "topic": "construction-environmental",
       "prompt": "A private well serving a residence should be tested before purchase primarily for:",
       "choices": [
-        "Bacteria such as coliform, along with nitrates and other local contaminants",
-        "Water pressure and flow rate only",
-        "Hardness and mineral content only",
-        "Radon in air, but not in water"
+        "Coliform bacteria, nitrates, and other local contaminants",
+        "Water pressure and sustained flow rate only",
+        "Hardness and general mineral content only",
+        "Radon present in indoor air, but not in the water"
       ],
       "answer": 0,
       "explanation": "Coliform indicates surface contamination reaching the aquifer. Testing is not automatic in most transactions and must be requested.",
@@ -4709,7 +4709,7 @@
       "choices": [
         "A regulated minimum distance from any well, property line, and water body",
         "Directly beneath the driveway to minimize yard disruption",
-        "Within ten feet of the foundation wall",
+        "Within ten feet of the foundation wall on the downhill side",
         "Anywhere on the lot, provided percolation is adequate"
       ],
       "answer": 0,
@@ -4724,7 +4724,7 @@
         "Off-gassing from certain insulation and pressed-wood products",
         "Radioactive decay in soil beneath the foundation",
         "Deteriorating pipe insulation in older basements",
-        "Lead solder used in plumbing joints"
+        "Lead solder used in the joints of older copper water supply lines"
       ],
       "answer": 0,
       "explanation": "Off-gassing declines over time, so the concern is greatest with newer materials. It is distinct from asbestos, radon, and lead, which have entirely different sources.",
@@ -4737,7 +4737,7 @@
       "choices": [
         "Is an independent professional examination, while the statement reflects only the seller's knowledge",
         "Is required by statute in every New York residential transaction",
-        "Covers title defects as well as physical condition",
+        "Covers title defects and recorded encumbrances in addition to the physical condition of the structure",
         "Replaces the seller's disclosure obligation entirely"
       ],
       "answer": 0,
@@ -4750,7 +4750,7 @@
       "prompt": "Limited common elements in a condominium are:",
       "choices": [
         "Portions of the common elements reserved for the use of one or more specific units",
-        "Areas owned outright by the individual unit owner",
+        "Areas owned outright by the individual unit owner in fee simple absolute",
         "Common areas the board may sell without unit owner consent",
         "Parts of the building excluded from the declaration entirely"
       ],
@@ -4793,7 +4793,7 @@
       "choices": [
         "Their share of the building's underlying mortgage and real estate taxes",
         "Only the cost of common area utilities and staffing",
-        "The shareholder's own share loan payment",
+        "The shareholder's individual share loan payment made to their personal lender",
         "Real estate taxes only, with debt service billed separately"
       ],
       "answer": 0,
@@ -4806,7 +4806,7 @@
       "prompt": "A cooperative shareholder may generally deduct on their personal income tax return:",
       "choices": [
         "Their proportionate share of the corporation's mortgage interest and real estate taxes",
-        "The entire monthly maintenance payment",
+        "The entire monthly maintenance payment, including the portion covering building operations",
         "Nothing, because the shareholder does not own real property",
         "Only the portion of maintenance allocated to building staff"
       ],
@@ -4878,7 +4878,7 @@
         "Pay for major repairs and replacements without a special assessment",
         "Cover the sponsor's obligations on unsold units",
         "Guarantee the underlying mortgage against default",
-        "Refund common charges to owners at year end"
+        "Refund a portion of common charges to unit owners at the close of each year"
       ],
       "answer": 0,
       "explanation": "An underfunded reserve is a warning sign. Lenders reviewing a project's financials often look for a minimum share of the budget going to reserves.",
@@ -4960,7 +4960,7 @@
       "prompt": "A buyer of a resale condominium unit should review the board's minutes and financial statements primarily to identify:",
       "choices": [
         "Pending litigation, capital projects, and the adequacy of reserves",
-        "The identities of the other unit owners",
+        "The identities of the other unit owners and the balance of each one's account",
         "The original sponsor's profit on the conversion",
         "The assessed value of neighboring units"
       ],
@@ -5057,9 +5057,9 @@
       "topic": "license-law",
       "prompt": "Continuing education for renewal must include at least one hour on:",
       "choices": [
-        "Recent legal matters affecting real estate practice",
+        "Recent legal matters affecting practice",
         "Property management fundamentals",
-        "Real estate mathematics",
+        "Real estate mathematics review",
         "Commercial lease negotiation"
       ],
       "answer": 0,
@@ -5086,7 +5086,7 @@
       "prompt": "A broker maintaining a branch office in New York must:",
       "choices": [
         "Obtain a separate branch office license and place it under a supervising licensee",
-        "Notify the Department of State within thirty days of opening",
+        "Notify the Department of State within thirty days of opening the office",
         "Register the office with the county clerk where it is located",
         "Operate it under the main office license with no further filing"
       ],
@@ -5114,7 +5114,7 @@
       "prompt": "The Department of State's authority over licensees is exercised through:",
       "choices": [
         "Administrative hearings that can result in fines, suspension, or revocation",
-        "Criminal prosecution in state supreme court",
+        "Criminal prosecution brought in state supreme court by the Attorney General's office",
         "Binding arbitration administered by local real estate boards",
         "Civil actions brought on behalf of aggrieved consumers"
       ],
@@ -5171,7 +5171,7 @@
       "choices": [
         "Forfeiture of the down payment as liquidated damages, if the contract so provides",
         "Automatic liability for the seller's full carrying costs until resale",
-        "Criminal penalties under the Real Property Law",
+        "Criminal penalties imposed under Article 12-A of the Real Property Law and license revocation",
         "A lien against the buyer's other real property"
       ],
       "answer": 0,
@@ -5212,7 +5212,7 @@
       "prompt": "A mortgage contingency clause in a residential contract permits the buyer to:",
       "choices": [
         "Cancel and recover the deposit if a loan commitment cannot be obtained by the stated date",
-        "Reduce the purchase price if the appraisal comes in low",
+        "Reduce the purchase price by the shortfall if the lender's appraisal comes in below the contract price",
         "Extend the closing indefinitely while seeking financing",
         "Assign the contract to another buyer who can obtain financing"
       ],
@@ -5270,7 +5270,7 @@
         "Obtain a court judgment and have a marshal or sheriff execute the warrant",
         "Provide thirty days' written notice and change the locks",
         "Remove the tenant's belongings after the rent is fifteen days late",
-        "Shut off utilities until the tenant vacates"
+        "Shut off the unit's heat and other utilities until the tenant agrees to vacate"
       ],
       "answer": 0,
       "explanation": "Self-help eviction, including lockouts and utility shutoffs, is unlawful. Only a court-ordered warrant executed by an enforcement officer can remove a tenant.",
@@ -5296,8 +5296,8 @@
       "prompt": "An option to purchase gives the holder:",
       "choices": [
         "The right, but not the obligation, to buy on stated terms within a stated period",
-        "An obligation to purchase if financing can be obtained",
-        "A right to match any offer the owner receives",
+        "A binding obligation to purchase the property if suitable financing can be obtained",
+        "A right to match the terms of any offer the owner receives from a third party",
         "An equitable lien against the property for the option price"
       ],
       "answer": 0,
@@ -5339,8 +5339,8 @@
       "choices": [
         "Unnecessary hardship, including that the property cannot yield a reasonable return as zoned",
         "That the proposed use would increase the property's assessed value",
-        "That a majority of neighbors do not object",
-        "That the existing use has been abandoned for over a year"
+        "That a majority of neighboring property owners do not object to the proposal",
+        "That the existing use on the parcel has been abandoned for a continuous period of more than one year"
       ],
       "answer": 0,
       "explanation": "The burden is deliberately heavy. The hardship must arise from the property itself rather than from the owner's personal circumstances, and must not be self-created.",
@@ -5354,7 +5354,7 @@
         "Allows mixed uses and flexible lot standards across a project treated as a whole",
         "Restricts a district to a single residential density",
         "Transfers development rights from one parcel to another",
-        "Exempts a project from environmental review"
+        "Exempts the entire project from environmental review and from local subdivision approval"
       ],
       "answer": 0,
       "explanation": "PUDs let a developer cluster housing and preserve open space in exchange for negotiated site-wide standards rather than lot-by-lot compliance.",
@@ -5381,7 +5381,7 @@
       "choices": [
         "Submit a plat for approval and install required infrastructure improvements",
         "Obtain a use variance for each lot created",
-        "Convey a portion of the land to the state",
+        "Convey a portion of the subdivided land to the state for permanent conservation",
         "Complete an environmental remediation before filing"
       ],
       "answer": 0,
@@ -5408,8 +5408,8 @@
       "prompt": "A nonconforming use that is destroyed by fire may generally:",
       "choices": [
         "Lose its protected status, depending on the terms of the local ordinance",
-        "Be rebuilt as of right in every case",
-        "Be expanded during reconstruction",
+        "Be rebuilt as of right in every case, regardless of what the local ordinance says",
+        "Be expanded and modernized during the course of reconstruction",
         "Be transferred to another parcel in the same district"
       ],
       "answer": 0,
@@ -5450,7 +5450,7 @@
       "prompt": "A certificate of occupancy for a newly constructed building is issued after:",
       "choices": [
         "Final inspection confirms the work complies with the approved plans and code",
-        "The building permit application is approved",
+        "The building permit application is approved and the foundation inspection passes",
         "The property is conveyed to its first owner",
         "The subdivision plat is filed with the county clerk"
       ],
@@ -5480,7 +5480,7 @@
         "Buyer and seller are typically motivated, well informed, and acting without duress",
         "The seller must sell quickly and accepts the highest available offer",
         "The buyer pays the maximum a lender will finance",
-        "The price equals the property's assessed value"
+        "The price agreed upon is equal to the property's assessed value on the current tax roll"
       ],
       "answer": 0,
       "explanation": "Market value assumes an arm's length transaction with reasonable exposure to the market. A forced sale produces price, not market value.",
@@ -5492,7 +5492,7 @@
       "prompt": "The four characteristics that create value in real property are demand, utility, scarcity, and:",
       "choices": [
         "Transferability",
-        "Location",
+        "Locational advantage",
         "Durability",
         "Assessment"
       ],
@@ -5507,7 +5507,7 @@
       "choices": [
         "Is reasonably similar to surrounding properties in style, size, and use",
         "Is the largest and most expensive home in the neighborhood",
-        "Is the smallest home among larger neighbors",
+        "Is the smallest and least expensive home among a group of larger neighbors",
         "Differs from surrounding properties enough to stand out"
       ],
       "answer": 0,
@@ -5520,9 +5520,9 @@
       "prompt": "An owner spends $60,000 on a swimming pool that raises the property's value by $20,000. This illustrates:",
       "choices": [
         "The principle of contribution, under which cost does not equal value",
-        "The principle of substitution",
+        "The principle of substitution in a competitive market",
         "External obsolescence caused by neighborhood decline",
-        "Physical deterioration of a curable kind"
+        "Physical deterioration of a kind that is readily curable through repair"
       ],
       "answer": 0,
       "explanation": "Contribution measures what a component adds to the whole, which is frequently far less than what it cost to install.",
@@ -5536,7 +5536,7 @@
         "An exact duplicate of the structure using the same materials and design",
         "A structure of equivalent utility using current materials and methods",
         "The depreciated value of the existing improvements",
-        "The cost of the land plus the improvements"
+        "The combined cost of acquiring the land and constructing the improvements"
       ],
       "answer": 0,
       "explanation": "Replacement cost is used more often because duplicating obsolete construction is rarely meaningful. Reproduction cost matters for historic properties.",
@@ -5620,7 +5620,7 @@
         "Supported by data and reasoning, but still an opinion rather than a fact",
         "A guarantee of the price the property will bring at sale",
         "Binding on the lender for underwriting purposes",
-        "Identical to the property's assessed value"
+        "Identical to the property's assessed value on the current roll"
       ],
       "answer": 0,
       "explanation": "Two competent appraisers can reach different supported conclusions. This is why a low appraisal is challenged with better data rather than simply disputed.",
@@ -5634,7 +5634,7 @@
         "The sales comparison approach using comparable land sales",
         "The cost approach less accrued depreciation",
         "The income capitalization approach",
-        "The gross rent multiplier method"
+        "The gross rent multiplier method applied to comparable rentals"
       ],
       "answer": 0,
       "explanation": "Land does not depreciate and produces no income by itself, which leaves comparable sales as the meaningful approach.",
@@ -5646,7 +5646,7 @@
       "prompt": "A municipality's tax rate is determined by:",
       "choices": [
         "Dividing the budget to be raised by the total taxable assessed value in the jurisdiction",
-        "The assessor's estimate of average market value",
+        "The assessor's estimate of the average market value of every parcel within the jurisdiction",
         "A rate schedule set by the New York State Department of Taxation and Finance",
         "The equalization rate applied to the prior year's levy"
       ],
@@ -5731,7 +5731,7 @@
       "choices": [
         "Fixes the property's condition and ownership for that year's assessment roll",
         "Sets the deadline for paying the current year's taxes",
-        "Marks the date the tax rate is adopted",
+        "Marks the date on which each taxing jurisdiction formally adopts its annual tax rate",
         "Establishes when a tax lien may be foreclosed"
       ],
       "answer": 0,
@@ -5745,8 +5745,8 @@
       "choices": [
         "Owners can review their assessments and file grievances before the roll becomes final",
         "Lenders can calculate escrow requirements for the coming year",
-        "Buyers can determine the market value of listed properties",
-        "The municipality can set its annual budget"
+        "Prospective buyers can determine the true market value of any property currently listed",
+        "The municipality can set its annual budget and calculate the resulting tax rate"
       ],
       "answer": 0,
       "explanation": "Grievance Day follows the tentative roll. Once the final roll is filed, administrative challenge for that year is generally foreclosed.",
@@ -5759,8 +5759,8 @@
       "choices": [
         "Its value for agricultural production rather than its development potential",
         "The average assessment of neighboring residential parcels",
-        "Fifty percent of its full market value",
-        "The price the owner originally paid for the land"
+        "Fifty percent of the parcel's full market value as developed land",
+        "The price the current owner originally paid when acquiring the farmland parcel"
       ],
       "answer": 0,
       "explanation": "The program eases development pressure on farmland. Converting the land to non-agricultural use triggers payments recapturing prior tax savings.",
@@ -5788,7 +5788,7 @@
         "Explain that taxes may change and direct the buyer to the assessor for current figures",
         "Quote the seller's current taxes as the amount the buyer will pay",
         "Estimate based on the purchase price and the current tax rate",
-        "Provide a written guarantee of the first year's tax amount"
+        "Provide the buyer a written guarantee of the first full year's tax amount"
       ],
       "answer": 0,
       "explanation": "A sale can trigger reassessment and exemptions belonging to the seller do not transfer, so the seller's current bill can badly understate the buyer's.",
@@ -5827,10 +5827,10 @@
       "topic": "income-tax",
       "prompt": "Depreciation previously claimed on an investment property is, on sale:",
       "choices": [
-        "Recaptured and taxed, generally at a higher rate than the long-term capital gain rate",
-        "Ignored, because it was already deducted",
-        "Added back to the property's adjusted basis",
-        "Refunded to the taxpayer as a credit"
+        "Recaptured and taxed, generally above the capital gain rate",
+        "Ignored, because it was already deducted in prior years",
+        "Added back to the property's adjusted basis at sale",
+        "Refunded to the taxpayer as a credit against tax due"
       ],
       "answer": 0,
       "explanation": "Depreciation reduces basis, which increases gain on sale. Recapture is what prevents the deduction from being a permanent tax benefit.",
@@ -5872,7 +5872,7 @@
         "May be partially available under the reduced exclusion for a qualifying change in employment",
         "Is entirely unavailable, because the two-year test was not met",
         "Applies in full, because employment relocation waives the test",
-        "Applies only if the taxpayer buys a replacement home"
+        "Applies only if the taxpayer purchases a replacement residence of equal or greater value within two years"
       ],
       "answer": 0,
       "explanation": "A partial exclusion is available where the sale is due to a change in employment, health, or unforeseen circumstances, prorated by the time actually satisfied.",
@@ -5884,7 +5884,7 @@
       "prompt": "Land held as part of an investment property is:",
       "choices": [
         "Never depreciable, so the purchase price must be allocated between land and improvements",
-        "Depreciated over 27.5 years along with the building",
+        "Depreciated over the same 27.5-year recovery period as the residential building it supports",
         "Depreciated over 39 years for residential rental property",
         "Depreciated only if it is improved with paving or landscaping"
       ],
@@ -5899,8 +5899,8 @@
       "choices": [
         "Passive losses, deductible against passive income subject to limited exceptions",
         "Ordinary business losses fully deductible against any income",
-        "Capital losses limited to $3,000 per year",
-        "Non-deductible personal expenses"
+        "Capital losses, which are deductible only up to $3,000 against ordinary income each year",
+        "Non-deductible personal expenses of the owner"
       ],
       "answer": 0,
       "explanation": "A limited allowance exists for actively participating owners below certain income levels, and real estate professionals may qualify for different treatment.",
@@ -5925,10 +5925,10 @@
       "topic": "income-tax",
       "prompt": "Points paid by a buyer to obtain a mortgage on a principal residence are generally:",
       "choices": [
-        "Deductible in the year paid, if they meet the requirements for purchase-money points",
-        "Never deductible under any circumstances",
-        "Added to the property's basis and depreciated",
-        "Deductible only when the loan is repaid in full"
+        "Deductible in the year paid, if they qualify as purchase-money points",
+        "Never deductible by a homeowner under any circumstances",
+        "Added to the property's basis and recovered through depreciation",
+        "Deductible only in the year the loan is repaid in full"
       ],
       "answer": 0,
       "explanation": "Points on a refinance are generally amortized over the loan term instead, which is a common point of confusion for homeowners.",
@@ -5975,6 +5975,566 @@
       "answer": 0,
       "explanation": "General education is appropriate; specific advice is not. Tax outcomes depend on facts a licensee does not have and is not licensed to evaluate.",
       "citation": "DOS 77-hour curriculum § Income Tax Issues in Real Estate Transactions"
+    },
+    {
+      "id": "municipal-agencies-0005",
+      "topic": "municipal-agencies",
+      "prompt": "The local legislative body that adopts and amends a municipality's zoning ordinance is the:",
+      "choices": [
+        "Town, village, or city board",
+        "Zoning board of appeals",
+        "Planning board",
+        "Board of assessment review"
+      ],
+      "answer": 0,
+      "explanation": "Rezoning is a legislative act. The zoning board of appeals interprets and grants relief from the ordinance but cannot rewrite it.",
+      "citation": "DOS 77-hour curriculum § Municipal Agencies"
+    },
+    {
+      "id": "municipal-agencies-0006",
+      "topic": "municipal-agencies",
+      "prompt": "Approval for a private septic system and well on a new lot generally comes from the:",
+      "choices": [
+        "County or local health department",
+        "Zoning board of appeals",
+        "Department of State",
+        "Board of assessment review"
+      ],
+      "answer": 0,
+      "explanation": "Health department approval governs percolation results, system design, and separation distances, and can determine whether a lot is buildable at all.",
+      "citation": "DOS 77-hour curriculum § Municipal Agencies"
+    },
+    {
+      "id": "municipal-agencies-0007",
+      "topic": "municipal-agencies",
+      "prompt": "A property listed on a local historic register typically requires exterior alterations to be approved by a:",
+      "choices": [
+        "Landmarks or historic preservation commission",
+        "Board of assessment review for the municipality",
+        "Conservation advisory council for the district",
+        "County clerk's recording office"
+      ],
+      "answer": 0,
+      "explanation": "Designation can restrict windows, siding, and even paint color. It is a material fact for a buyer planning renovations.",
+      "citation": "DOS 77-hour curriculum § Municipal Agencies"
+    },
+    {
+      "id": "municipal-agencies-0008",
+      "topic": "municipal-agencies",
+      "prompt": "Deeds, mortgages, and easements are recorded with the:",
+      "choices": [
+        "County clerk in the county where the land lies",
+        "Town or city assessor's office",
+        "Department of State, Division of Licensing Services",
+        "Building department of the local municipality"
+      ],
+      "answer": 0,
+      "explanation": "Recording in the county where the land lies is what gives constructive notice. Several New York City counties use a register rather than a clerk.",
+      "citation": "RPL §291; DOS 77-hour curriculum § Municipal Agencies"
+    },
+    {
+      "id": "municipal-agencies-0009",
+      "topic": "municipal-agencies",
+      "prompt": "A curb cut providing driveway access to a state highway generally requires a permit from the:",
+      "choices": [
+        "Highway department having jurisdiction over the road",
+        "Planning board of the municipality where the lot is located",
+        "Zoning board of appeals for the district",
+        "Department of Environmental Conservation"
+      ],
+      "answer": 0,
+      "explanation": "Access permits are separate from building permits, and denial can make an otherwise conforming lot undevelopable.",
+      "citation": "DOS 77-hour curriculum § Municipal Agencies"
+    },
+    {
+      "id": "municipal-agencies-0010",
+      "topic": "municipal-agencies",
+      "prompt": "The New York State Department of Environmental Conservation has jurisdiction over:",
+      "choices": [
+        "Freshwater wetlands, water quality, and petroleum storage",
+        "Local zoning district boundaries and permitted uses",
+        "Real estate license discipline and consumer complaints",
+        "Property tax assessment methodology and equalization"
+      ],
+      "answer": 0,
+      "explanation": "DEC permits sit alongside, not instead of, local approvals. A project can satisfy zoning and still be blocked by a DEC requirement.",
+      "citation": "DOS 77-hour curriculum § Municipal Agencies"
+    },
+    {
+      "id": "municipal-agencies-0011",
+      "topic": "municipal-agencies",
+      "prompt": "An architectural review board in a municipality that has one typically evaluates:",
+      "choices": [
+        "The design and appearance of proposed construction",
+        "Whether a proposed use is permitted in the district",
+        "The accuracy of the property's assessed value",
+        "Compliance with the state building code"
+      ],
+      "answer": 0,
+      "explanation": "Design review addresses aesthetics and neighborhood character, which is a separate question from use, dimensional compliance, and code safety.",
+      "citation": "DOS 77-hour curriculum § Municipal Agencies"
+    },
+    {
+      "id": "municipal-agencies-0012",
+      "topic": "municipal-agencies",
+      "prompt": "A property outside a municipal sewer district that later wants to connect must generally:",
+      "choices": [
+        "Petition for extension of the district, which may involve added assessments",
+        "Obtain a use variance from the zoning board of appeals",
+        "Apply to the Department of State for a connection permit",
+        "Receive written approval from the county clerk before connecting"
+      ],
+      "answer": 0,
+      "explanation": "District extensions are how special assessments commonly arise, and the cost falls on the properties benefited by the extension.",
+      "citation": "DOS 77-hour curriculum § Municipal Agencies"
+    },
+    {
+      "id": "property-management-0005",
+      "topic": "property-management",
+      "prompt": "A person who manages real property for others for compensation in New York generally must:",
+      "choices": [
+        "Hold a real estate broker's license",
+        "Register with the Department of Financial Services",
+        "Hold a salesperson's license only",
+        "Obtain a certificate from the local building department"
+      ],
+      "answer": 0,
+      "explanation": "Collecting rents and negotiating leases for others is brokerage activity. Employees managing their own employer's property are treated differently.",
+      "citation": "RPL §440; DOS 77-hour curriculum § Property Management"
+    },
+    {
+      "id": "property-management-0006",
+      "topic": "property-management",
+      "prompt": "Rents a property manager collects on an owner's behalf must be:",
+      "choices": [
+        "Held in a separate account and never commingled with the manager's own funds",
+        "Deposited into the management company's operating account for efficiency",
+        "Remitted to the owner within twenty-four hours of receipt",
+        "Held in the manager's personal account until the monthly report is issued"
+      ],
+      "answer": 0,
+      "explanation": "The same escrow and commingling rules that govern earnest money apply to rents held for an owner.",
+      "citation": "19 NYCRR §175.1; DOS 77-hour curriculum § Property Management"
+    },
+    {
+      "id": "property-management-0007",
+      "topic": "property-management",
+      "prompt": "A property manager's operating budget differs from a capital budget because the operating budget covers:",
+      "choices": [
+        "Recurring day-to-day income and expenses",
+        "Major replacements such as a new roof or boiler",
+        "The owner's mortgage principal payments",
+        "The property's acquisition cost"
+      ],
+      "answer": 0,
+      "explanation": "Separating the two prevents a single large replacement from distorting the picture of how the property performs year to year.",
+      "citation": "DOS 77-hour curriculum § Property Management"
+    },
+    {
+      "id": "property-management-0008",
+      "topic": "property-management",
+      "prompt": "Under New York's 2019 tenant protection law, a late fee on residential rent is capped at:",
+      "choices": [
+        "$50 or 5% of the rent, whichever is less",
+        "10% of the monthly rent due",
+        "$100 for each late occurrence",
+        "Any amount stated in the signed lease"
+      ],
+      "answer": 0,
+      "explanation": "The law also requires that rent be at least five days late before a fee may be charged.",
+      "citation": "RPL §238-a"
+    },
+    {
+      "id": "property-management-0009",
+      "topic": "property-management",
+      "prompt": "A New York landlord who does not intend to renew a lease after the tenant has occupied the unit for more than two years must give notice of at least:",
+      "choices": [
+        "90 days",
+        "30 days",
+        "60 days",
+        "120 days"
+      ],
+      "answer": 0,
+      "explanation": "The 2019 law set a sliding scale: 30 days under one year, 60 days for one to two years, and 90 days beyond two years. The same scale applies to substantial rent increases.",
+      "citation": "RPL §226-c"
+    },
+    {
+      "id": "property-management-0010",
+      "topic": "property-management",
+      "prompt": "Before a tenant moves in, New York law entitles the tenant to:",
+      "choices": [
+        "Request a walk-through inspection and a written record of existing conditions",
+        "Require the landlord to repaint the entire unit",
+        "Waive the security deposit in exchange for a higher rent",
+        "Inspect the landlord's liability insurance policy and certificate of occupancy"
+      ],
+      "answer": 0,
+      "explanation": "Move-in and move-out inspection rights exist so deductions from the deposit can be measured against a documented starting condition.",
+      "citation": "General Obligations Law §7-108"
+    },
+    {
+      "id": "property-management-0011",
+      "topic": "property-management",
+      "prompt": "A rent-stabilized tenant in New York is generally entitled to:",
+      "choices": [
+        "A renewal lease at an increase set by the applicable rent guidelines board",
+        "A lease under which the monthly rent can never be increased for any reason at all",
+        "Purchase the unit at a regulated price if the building converts",
+        "Occupy the unit indefinitely without a written lease"
+      ],
+      "answer": 0,
+      "explanation": "Stabilization provides renewal rights and regulated increases. Rent control is a separate, older and much smaller program with different rules.",
+      "citation": "DOS 77-hour curriculum § Property Management"
+    },
+    {
+      "id": "property-management-0012",
+      "topic": "property-management",
+      "prompt": "A property manager screening applicants must apply selection criteria that are:",
+      "choices": [
+        "Objective and applied uniformly to every applicant",
+        "Adjusted for each applicant's individual circumstances",
+        "Based on the owner's stated preferences",
+        "Set by the local rent guidelines board"
+      ],
+      "answer": 0,
+      "explanation": "Uniform written criteria are the strongest defense against a discrimination claim, because they show identical treatment regardless of protected characteristics.",
+      "citation": "DOS 77-hour curriculum § Property Management"
+    },
+    {
+      "id": "math-0003",
+      "topic": "math",
+      "prompt": "An owner bought a property for $260,000 and sold it for $325,000. The percentage of profit on the original cost is:",
+      "choices": [
+        "25%",
+        "20%",
+        "65%",
+        "12.5%"
+      ],
+      "answer": 0,
+      "explanation": "Profit is $65,000. Divided by the $260,000 cost, that is 25%. Dividing by the sale price instead is the common error.",
+      "citation": "DOS 77-hour curriculum § Real Estate Mathematics"
+    },
+    {
+      "id": "math-0004",
+      "topic": "math",
+      "prompt": "A buyer makes a 15% down payment on a $340,000 purchase. The loan amount is:",
+      "choices": [
+        "$289,000",
+        "$51,000",
+        "$306,000",
+        "$323,000"
+      ],
+      "answer": 0,
+      "explanation": "The down payment is $51,000, leaving a loan of $289,000. Equivalently, the loan is 85% of the price.",
+      "citation": "DOS 77-hour curriculum § Real Estate Mathematics"
+    },
+    {
+      "id": "math-0005",
+      "topic": "math",
+      "prompt": "A property sells for $475,000. The New York State transfer tax at $2 per $500 of consideration is:",
+      "choices": [
+        "$1,900",
+        "$950",
+        "$3,800",
+        "$475"
+      ],
+      "answer": 0,
+      "explanation": "$475,000 / $500 = 950 units, and 950 x $2 = $1,900. That is 0.4% of the price, which is a quicker route to the same figure.",
+      "citation": "NY Tax Law §1402"
+    },
+    {
+      "id": "math-0006",
+      "topic": "math",
+      "prompt": "A closing occurs on April 1 and the seller has prepaid the full calendar year's $3,600 property tax bill. Using a 12-month proration, the buyer owes the seller:",
+      "choices": [
+        "$2,700",
+        "$900",
+        "$1,800",
+        "$3,600"
+      ],
+      "answer": 0,
+      "explanation": "The seller prepaid nine months the buyer will own: $3,600 / 12 = $300 per month, and $300 x 9 = $2,700 credited to the seller.",
+      "citation": "DOS 77-hour curriculum § Real Estate Mathematics"
+    },
+    {
+      "id": "math-0007",
+      "topic": "math",
+      "prompt": "A triangular lot has a base of 300 feet and a depth of 200 feet. Its area is:",
+      "choices": [
+        "30,000 square feet",
+        "60,000 square feet",
+        "15,000 square feet",
+        "500 square feet"
+      ],
+      "answer": 0,
+      "explanation": "The area of a triangle is one half base times height: 0.5 x 300 x 200 = 30,000 square feet, or about 0.69 acres.",
+      "citation": "DOS 77-hour curriculum § Real Estate Mathematics"
+    },
+    {
+      "id": "math-0008",
+      "topic": "math",
+      "prompt": "A 2,400 square foot home sells for $432,000. The price per square foot is:",
+      "choices": [
+        "$180",
+        "$18",
+        "$1,800",
+        "$155"
+      ],
+      "answer": 0,
+      "explanation": "$432,000 / 2,400 = $180 per square foot. Comparisons are only meaningful when the same areas are counted in each measurement.",
+      "citation": "DOS 77-hour curriculum § Real Estate Mathematics"
+    },
+    {
+      "id": "property-insurance-0003",
+      "topic": "property-insurance",
+      "prompt": "Damage from rising surface water entering a home is generally:",
+      "choices": [
+        "Excluded from a standard homeowner's policy and covered only by separate flood insurance",
+        "Covered under the standard homeowner's policy dwelling coverage",
+        "Covered automatically whenever the home sits within a federally designated special flood hazard area",
+        "Covered under the policy's liability section rather than its dwelling coverage"
+      ],
+      "answer": 0,
+      "explanation": "Flood exclusion is standard. Coverage generally comes through the National Flood Insurance Program or a private flood policy, and typically carries a waiting period.",
+      "citation": "DOS 77-hour curriculum § Property Insurance"
+    },
+    {
+      "id": "property-insurance-0004",
+      "topic": "property-insurance",
+      "prompt": "An open perils policy differs from a named perils policy in that the open perils form:",
+      "choices": [
+        "Covers all causes of loss except those specifically excluded",
+        "Covers only the causes of loss listed in the policy",
+        "Provides liability coverage but not property coverage",
+        "Applies only to commercial structures"
+      ],
+      "answer": 0,
+      "explanation": "Open perils shifts the burden: the insurer must point to an exclusion rather than the insured pointing to a listed peril.",
+      "citation": "DOS 77-hour curriculum § Property Insurance"
+    },
+    {
+      "id": "property-insurance-0005",
+      "topic": "property-insurance",
+      "prompt": "The liability section of a homeowner's policy responds to:",
+      "choices": [
+        "Claims by third parties for bodily injury or property damage the insured is responsible for",
+        "Damage to the insured's own dwelling from a covered peril",
+        "Loss of the insured's personal belongings by theft, both inside the home and while traveling away from it",
+        "Additional living expenses while the home is uninhabitable"
+      ],
+      "answer": 0,
+      "explanation": "Liability protects against claims from others. Dwelling, personal property, and loss of use are the separate first-party coverages.",
+      "citation": "DOS 77-hour curriculum § Property Insurance"
+    },
+    {
+      "id": "property-insurance-0006",
+      "topic": "property-insurance",
+      "prompt": "Title insurance differs from hazard insurance in that title insurance:",
+      "choices": [
+        "Is paid once and protects against defects existing before the policy date",
+        "Is paid annually and protects against future physical loss",
+        "Covers only the lender's interest in the property, never the owner's equity",
+        "Must be renewed each time the property is refinanced"
+      ],
+      "answer": 0,
+      "explanation": "Title insurance looks backward at the record; hazard insurance looks forward at physical risk. The one-time premium reflects that difference.",
+      "citation": "DOS 77-hour curriculum § Property Insurance"
+    },
+    {
+      "id": "property-insurance-0007",
+      "topic": "property-insurance",
+      "prompt": "A builder's risk policy is obtained to cover:",
+      "choices": [
+        "A structure under construction, including materials on site",
+        "A contractor's liability for injuries to subcontractors",
+        "Defects in workmanship discovered after completion",
+        "The owner's loss of rental income during construction"
+      ],
+      "answer": 0,
+      "explanation": "The policy fills the gap before a completed structure can be covered by a standard property policy, and typically ends at substantial completion.",
+      "citation": "DOS 77-hour curriculum § Property Insurance"
+    },
+    {
+      "id": "property-insurance-0008",
+      "topic": "property-insurance",
+      "prompt": "An insurance binder issued before closing serves to:",
+      "choices": [
+        "Provide temporary evidence of coverage until the policy is issued",
+        "Guarantee that the insurer will not raise the premium for one year",
+        "Establish the property's insurable value for the lender",
+        "Waive the policy's deductible for the first claim"
+      ],
+      "answer": 0,
+      "explanation": "Lenders require evidence of coverage effective at closing, and the binder satisfies that requirement while the full policy is prepared.",
+      "citation": "DOS 77-hour curriculum § Property Insurance"
+    },
+    {
+      "id": "licensee-safety-0003",
+      "topic": "licensee-safety",
+      "prompt": "Before leaving to show a property to a new client, a licensee should:",
+      "choices": [
+        "Tell a colleague where they are going, with whom, and when they expect to return",
+        "Post the appointment details and property address on social media",
+        "Turn off their phone to avoid distraction during the showing",
+        "Bring the client to the showing in the licensee's own vehicle in order to save time"
+      ],
+      "answer": 0,
+      "explanation": "A check-in system means someone notices promptly if the licensee does not return. Many brokerages formalize this with a shared calendar or code word.",
+      "citation": "DOS 77-hour curriculum § Licensee Safety"
+    },
+    {
+      "id": "licensee-safety-0004",
+      "topic": "licensee-safety",
+      "prompt": "The safer practice when transporting a prospect to a showing is generally to:",
+      "choices": [
+        "Have the prospect follow in a separate vehicle",
+        "Drive the prospect in the licensee's car to build rapport",
+        "Ride in the prospect's vehicle to save time",
+        "Meet at the property only after dark"
+      ],
+      "answer": 0,
+      "explanation": "Separate vehicles preserve the licensee's ability to leave, and avoid a confined space with someone they do not know.",
+      "citation": "DOS 77-hour curriculum § Licensee Safety"
+    },
+    {
+      "id": "licensee-safety-0005",
+      "topic": "licensee-safety",
+      "prompt": "A licensee's marketing materials and social media posts should avoid:",
+      "choices": [
+        "Personal details such as a home address or daily routine",
+        "Any photograph identifying the licensee by appearance",
+        "The brokerage's office telephone number and address",
+        "The neighborhoods and price ranges the licensee serves"
+      ],
+      "answer": 0,
+      "explanation": "Licensees market themselves publicly by necessity, which makes it worth separating professional visibility from personal information.",
+      "citation": "DOS 77-hour curriculum § Licensee Safety"
+    },
+    {
+      "id": "licensee-safety-0006",
+      "topic": "licensee-safety",
+      "prompt": "A sign-in sheet or identification check at an open house serves the additional purpose of:",
+      "choices": [
+        "Creating a record of who was present if something is later reported missing",
+        "Satisfying the agency disclosure requirement for each visitor",
+        "Establishing procuring cause in the event of a later dispute over the commission",
+        "Meeting the advertising requirements of 19 NYCRR §175.25"
+      ],
+      "answer": 0,
+      "explanation": "Open houses invite strangers into an occupied home. A record of attendance protects both the licensee and the seller.",
+      "citation": "DOS 77-hour curriculum § Licensee Safety"
+    },
+    {
+      "id": "licensee-safety-0007",
+      "topic": "licensee-safety",
+      "prompt": "Before an open house, a licensee should advise the seller to:",
+      "choices": [
+        "Secure medications, jewelry, and personal financial documents",
+        "Remain in the home to answer visitors' questions",
+        "Leave every interior door locked for the duration of the open house",
+        "Turn off the home's exterior lighting"
+      ],
+      "answer": 0,
+      "explanation": "Prescription medication is among the most commonly taken items at open houses. Sellers often do not think of it without prompting.",
+      "citation": "DOS 77-hour curriculum § Licensee Safety"
+    },
+    {
+      "id": "licensee-safety-0008",
+      "topic": "licensee-safety",
+      "prompt": "A licensee who feels uneasy about a prospect's behavior during a showing should:",
+      "choices": [
+        "End the showing and leave, regardless of the potential business lost",
+        "Continue the showing but avoid entering enclosed rooms or the basement",
+        "Ask the prospect directly whether they intend harm",
+        "Wait until the showing concludes and then report it"
+      ],
+      "answer": 0,
+      "explanation": "Safety training consistently emphasizes acting on instinct rather than rationalizing discomfort to avoid seeming rude or losing a client.",
+      "citation": "DOS 77-hour curriculum § Licensee Safety"
+    },
+    {
+      "id": "mortgage-brokerage-0003",
+      "topic": "mortgage-brokerage",
+      "prompt": "An individual who takes residential mortgage loan applications and offers loan terms for compensation must generally be:",
+      "choices": [
+        "Licensed or registered as a mortgage loan originator through the NMLS",
+        "Licensed as a real estate broker by the Department of State",
+        "Certified by the Department of Housing and Urban Development",
+        "Bonded and registered with the county in which they conduct their business"
+      ],
+      "answer": 0,
+      "explanation": "The SAFE Act created a nationwide registry with testing, education, and background requirements. A real estate license does not cover this activity.",
+      "citation": "12 U.S.C. §5101 et seq.; NY Banking Law Article 12-E"
+    },
+    {
+      "id": "mortgage-brokerage-0004",
+      "topic": "mortgage-brokerage",
+      "prompt": "New York's high-cost home loan provisions restrict practices such as:",
+      "choices": [
+        "Loan flipping and financing excessive points and fees",
+        "Requiring a down payment of more than 20%",
+        "Charging interest above the federal funds rate",
+        "Selling a loan on the secondary market"
+      ],
+      "answer": 0,
+      "explanation": "The statute targets predatory lending by limiting terms on loans exceeding defined rate and fee thresholds.",
+      "citation": "NY Banking Law §6-l"
+    },
+    {
+      "id": "mortgage-brokerage-0005",
+      "topic": "mortgage-brokerage",
+      "prompt": "A borrower shopping for a mortgage receives a Loan Estimate, which must be provided within:",
+      "choices": [
+        "3 business days of the lender receiving the application",
+        "1 business day of the lender receiving the application",
+        "7 business days before closing",
+        "10 business days of the application"
+      ],
+      "answer": 0,
+      "explanation": "The Loan Estimate is designed for comparison shopping. The Closing Disclosure, with its own three-day rule before consummation, comes later.",
+      "citation": "12 CFR Part 1026 (TRID)"
+    },
+    {
+      "id": "mortgage-brokerage-0006",
+      "topic": "mortgage-brokerage",
+      "prompt": "Table funding in a mortgage transaction refers to a loan that is:",
+      "choices": [
+        "Closed in the broker's name but funded at closing by a third-party lender",
+        "Funded from the borrower's own deposit account",
+        "Closed without any documentation of the borrower's income, assets, or employment",
+        "Funded in installments as construction progresses"
+      ],
+      "answer": 0,
+      "explanation": "The arrangement lets a broker present as the lender at closing while the assignee funds and immediately takes the loan.",
+      "citation": "12 CFR Part 1024; DOS 77-hour curriculum § Mortgage Brokerage"
+    },
+    {
+      "id": "mortgage-brokerage-0007",
+      "topic": "mortgage-brokerage",
+      "prompt": "A real estate licensee who also holds a mortgage origination credential and serves both roles in one transaction must:",
+      "choices": [
+        "Disclose the dual role and the compensation received in each capacity",
+        "Decline one of the two roles, as serving both is prohibited outright",
+        "Disclose only the real estate brokerage commission earned on the transaction",
+        "Obtain approval from the Department of State before proceeding"
+      ],
+      "answer": 0,
+      "explanation": "The conflict is managed by disclosure rather than prohibited, and the consumer must be able to see what the licensee earns from each side.",
+      "citation": "DOS 77-hour curriculum § Mortgage Brokerage"
+    },
+    {
+      "id": "mortgage-brokerage-0008",
+      "topic": "mortgage-brokerage",
+      "prompt": "A mortgage broker's compensation paid by the lender rather than the borrower must still be:",
+      "choices": [
+        "Disclosed to the borrower, and it may not vary with the loan's interest rate",
+        "Kept confidential as a matter between the broker and the lender",
+        "Limited to no more than one percent of the total loan amount that is financed",
+        "Paid only after the loan has been sold on the secondary market"
+      ],
+      "answer": 0,
+      "explanation": "Tying broker compensation to the rate gave brokers an incentive to steer borrowers into costlier loans, which is why that link is prohibited.",
+      "citation": "12 CFR §1026.36(d)"
     }
   ]
 }
