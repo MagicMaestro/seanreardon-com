@@ -4463,6 +4463,1518 @@
       "answer": 0,
       "explanation": "New York sets civil and criminal usury ceilings, with exemptions for certain loan types and amounts. Charging above the limit can cost a lender the interest or the whole debt.",
       "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "construction-environmental-0011",
+      "topic": "construction-environmental",
+      "prompt": "Under the federal lead-based paint rule, a purchaser of pre-1978 housing must be given an opportunity to conduct a risk assessment lasting:",
+      "choices": [
+        "10 days, unless the parties agree otherwise",
+        "3 days",
+        "30 days",
+        "5 business days"
+      ],
+      "answer": 0,
+      "explanation": "The seller must also disclose known hazards, provide any available reports, and deliver the EPA pamphlet. The ten-day period is the default and can be varied by agreement.",
+      "citation": "42 U.S.C. §4852d; 24 CFR Part 35"
+    },
+    {
+      "id": "construction-environmental-0012",
+      "topic": "construction-environmental",
+      "prompt": "A brownfield site differs from a Superfund site in that a brownfield is:",
+      "choices": [
+        "A property whose redevelopment is complicated by possible contamination, often eligible for cleanup incentives",
+        "A site already listed on the National Priorities List",
+        "A property contaminated only by petroleum products",
+        "Land that has never been developed"
+      ],
+      "answer": 0,
+      "explanation": "Brownfield programs, including New York's, offer tax credits and liability relief to encourage redevelopment of moderately contaminated sites rather than greenfield land.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0013",
+      "topic": "construction-environmental",
+      "prompt": "An abandoned residential heating oil tank buried in the yard is a concern chiefly because:",
+      "choices": [
+        "Leaking product can contaminate soil and groundwater, and remediation costs fall on the owner",
+        "It reduces the property's assessed value for tax purposes",
+        "Building codes require every tank to be replaced every ten years",
+        "It voids the property's title insurance coverage"
+      ],
+      "answer": 0,
+      "explanation": "Discovery of an unregistered underground tank routinely derails closings, because the cost of testing and remediation is unpredictable.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0014",
+      "topic": "construction-environmental",
+      "prompt": "Development affecting a freshwater wetland in New York generally requires:",
+      "choices": [
+        "A permit from the Department of Environmental Conservation",
+        "Approval from the Department of State's Division of Licensing Services",
+        "A variance from the local zoning board of appeals only",
+        "No approval, provided the parcel is under one acre"
+      ],
+      "answer": 0,
+      "explanation": "Wetlands regulation is a common surprise on rural and waterfront parcels, and regulated adjacent areas extend the restriction beyond the wetland boundary itself.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0015",
+      "topic": "construction-environmental",
+      "prompt": "Mold growth in a dwelling is best addressed by:",
+      "choices": [
+        "Correcting the underlying moisture source, then removing the affected material",
+        "Applying a fungicide and repainting the affected surface",
+        "Increasing the building's insulation R-value",
+        "Installing a radon mitigation system"
+      ],
+      "answer": 0,
+      "explanation": "Mold is a symptom of a water problem. Remediation that does not fix the moisture source simply defers the recurrence.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0016",
+      "topic": "construction-environmental",
+      "prompt": "A vapor barrier installed in a wall assembly is intended to:",
+      "choices": [
+        "Restrict moisture migration into the wall cavity",
+        "Increase the thermal resistance of the insulation",
+        "Provide structural rigidity to the framing",
+        "Block radon entry from the soil"
+      ],
+      "answer": 0,
+      "explanation": "Placement matters: in a cold climate the barrier belongs on the warm side of the insulation, or it traps condensation inside the wall.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0017",
+      "topic": "construction-environmental",
+      "prompt": "In platform framing, the most common method in modern residential construction:",
+      "choices": [
+        "Each floor is built as a platform on which the next storey's walls are framed",
+        "Wall studs run continuously from the foundation to the roof",
+        "Heavy timbers are joined with mortise and tenon connections",
+        "Load is carried by exterior masonry rather than a wood frame"
+      ],
+      "answer": 0,
+      "explanation": "Platform framing uses shorter, more manageable studs and creates natural fire stops at each floor level, which is why it displaced balloon framing.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0018",
+      "topic": "construction-environmental",
+      "prompt": "A load-bearing wall is one that:",
+      "choices": [
+        "Carries structural weight from above down to the foundation",
+        "Separates conditioned space from unconditioned space",
+        "Contains the building's plumbing and electrical runs",
+        "Forms the exterior envelope of the structure"
+      ],
+      "answer": 0,
+      "explanation": "Removing one without engineered support is a serious defect. Buyers of renovated homes should confirm that structural alterations were permitted and inspected.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0019",
+      "topic": "construction-environmental",
+      "prompt": "A footing in residential construction serves to:",
+      "choices": [
+        "Spread the building's load over a wider area of soil beneath the foundation wall",
+        "Prevent water from entering the basement",
+        "Anchor the sill plate to the foundation",
+        "Provide a level surface for the finished floor"
+      ],
+      "answer": 0,
+      "explanation": "Footings must sit below the local frost line so seasonal freezing does not heave the foundation.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0020",
+      "topic": "construction-environmental",
+      "prompt": "Building construction in New York is governed principally by:",
+      "choices": [
+        "The New York State Uniform Fire Prevention and Building Code",
+        "The federal International Residential Code as adopted by HUD",
+        "Local ordinances alone, with no statewide standard",
+        "The building code of the county in which the property sits"
+      ],
+      "answer": 0,
+      "explanation": "The Uniform Code sets a statewide floor. Municipalities administer and enforce it locally, and New York City operates its own code.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0021",
+      "topic": "construction-environmental",
+      "prompt": "Work performed without a required building permit creates a risk for a buyer because:",
+      "choices": [
+        "The municipality can require the work to be opened for inspection or removed",
+        "The title insurer will refuse to issue any policy",
+        "The property automatically loses its certificate of occupancy",
+        "The seller's transfer tax obligation increases"
+      ],
+      "answer": 0,
+      "explanation": "Unpermitted work also frequently blocks a lender's approval and surfaces later when the buyer tries to sell or to permit further work.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0022",
+      "topic": "construction-environmental",
+      "prompt": "The electrical service capacity of a home is measured in:",
+      "choices": [
+        "Amperes",
+        "Volts",
+        "Watts",
+        "British thermal units"
+      ],
+      "answer": 0,
+      "explanation": "Older homes with 60-amp service often cannot support modern loads. Upgrading to 200-amp service is a common condition of sale.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0023",
+      "topic": "construction-environmental",
+      "prompt": "Heating and cooling equipment capacity is commonly expressed in:",
+      "choices": [
+        "British thermal units",
+        "Amperes",
+        "R-values",
+        "Kilowatt hours per square foot"
+      ],
+      "answer": 0,
+      "explanation": "Correct sizing matters in both directions. Oversized equipment short-cycles, which wastes energy and fails to dehumidify properly.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0024",
+      "topic": "construction-environmental",
+      "prompt": "Flashing is installed on a roof to:",
+      "choices": [
+        "Seal joints and penetrations against water intrusion",
+        "Provide ventilation to the attic space",
+        "Increase the roof's insulating value",
+        "Support the weight of accumulated snow"
+      ],
+      "answer": 0,
+      "explanation": "Failed flashing around chimneys, valleys, and vents is a more common source of roof leaks than failure of the shingles themselves.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0025",
+      "topic": "construction-environmental",
+      "prompt": "Improper grading around a house most commonly results in:",
+      "choices": [
+        "Water directed toward the foundation, causing basement moisture problems",
+        "Uneven settling of interior floor joists",
+        "Elevated radon levels in upper storeys",
+        "Ice damming along the roof eaves"
+      ],
+      "answer": 0,
+      "explanation": "Soil should slope away from the foundation. Regrading and extending downspouts often resolve chronic basement water more cheaply than interior systems.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0026",
+      "topic": "construction-environmental",
+      "prompt": "A private well serving a residence should be tested before purchase primarily for:",
+      "choices": [
+        "Bacteria such as coliform, along with nitrates and other local contaminants",
+        "Water pressure and flow rate only",
+        "Hardness and mineral content only",
+        "Radon in air, but not in water"
+      ],
+      "answer": 0,
+      "explanation": "Coliform indicates surface contamination reaching the aquifer. Testing is not automatic in most transactions and must be requested.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0027",
+      "topic": "construction-environmental",
+      "prompt": "Radon mitigation in a home with elevated levels is most commonly accomplished by:",
+      "choices": [
+        "Sub-slab depressurization, venting soil gas above the roofline",
+        "Sealing all basement windows permanently",
+        "Installing a whole-house dehumidifier",
+        "Encapsulating the basement floor with epoxy coating"
+      ],
+      "answer": 0,
+      "explanation": "The system draws gas from beneath the slab before it can enter. Sealing cracks alone is rarely sufficient on its own.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0028",
+      "topic": "construction-environmental",
+      "prompt": "A home's septic system should generally be located:",
+      "choices": [
+        "A regulated minimum distance from any well, property line, and water body",
+        "Directly beneath the driveway to minimize yard disruption",
+        "Within ten feet of the foundation wall",
+        "Anywhere on the lot, provided percolation is adequate"
+      ],
+      "answer": 0,
+      "explanation": "Setback distances are set by health department rules. A failing system on a small lot may have nowhere to relocate, which can make the parcel unbuildable.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0029",
+      "topic": "construction-environmental",
+      "prompt": "Urea formaldehyde in a home is associated chiefly with:",
+      "choices": [
+        "Off-gassing from certain insulation and pressed-wood products",
+        "Radioactive decay in soil beneath the foundation",
+        "Deteriorating pipe insulation in older basements",
+        "Lead solder used in plumbing joints"
+      ],
+      "answer": 0,
+      "explanation": "Off-gassing declines over time, so the concern is greatest with newer materials. It is distinct from asbestos, radon, and lead, which have entirely different sources.",
+      "citation": "DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "construction-environmental-0030",
+      "topic": "construction-environmental",
+      "prompt": "A buyer's home inspection contingency differs from the Property Condition Disclosure Statement because the inspection:",
+      "choices": [
+        "Is an independent professional examination, while the statement reflects only the seller's knowledge",
+        "Is required by statute in every New York residential transaction",
+        "Covers title defects as well as physical condition",
+        "Replaces the seller's disclosure obligation entirely"
+      ],
+      "answer": 0,
+      "explanation": "The disclosure statement is limited to what the seller actually knows. Neither substitutes for the other, and buyers should not treat the statement as a condition report.",
+      "citation": "RPL Article 14; DOS 77-hour curriculum § Construction and Environmental Issues"
+    },
+    {
+      "id": "condos-coops-0009",
+      "topic": "condos-coops",
+      "prompt": "Limited common elements in a condominium are:",
+      "choices": [
+        "Portions of the common elements reserved for the use of one or more specific units",
+        "Areas owned outright by the individual unit owner",
+        "Common areas the board may sell without unit owner consent",
+        "Parts of the building excluded from the declaration entirely"
+      ],
+      "answer": 0,
+      "explanation": "A balcony reachable only from one unit, or a parking space assigned to it, are typical examples. They remain common elements but with exclusive use rights.",
+      "citation": "RPL Article 9-B; DOS 77-hour curriculum § Condominiums and Cooperatives"
+    },
+    {
+      "id": "condos-coops-0010",
+      "topic": "condos-coops",
+      "prompt": "A condominium unit owner's percentage of common interest determines:",
+      "choices": [
+        "Their share of common charges and typically their voting power",
+        "The square footage of the unit they own",
+        "The number of parking spaces assigned to the unit",
+        "The order in which units may be resold"
+      ],
+      "answer": 0,
+      "explanation": "The percentage is fixed in the declaration and generally reflects the unit's relative value at the time the condominium was created.",
+      "citation": "RPL Article 9-B"
+    },
+    {
+      "id": "condos-coops-0011",
+      "topic": "condos-coops",
+      "prompt": "A condominium board that must fund an unexpected facade repair will typically:",
+      "choices": [
+        "Levy a special assessment against the unit owners",
+        "Increase the flip tax on future sales",
+        "Place a lien on the common elements",
+        "Petition the Attorney General to amend the offering plan"
+      ],
+      "answer": 0,
+      "explanation": "A pending or rumored special assessment is a material fact in a resale, and buyers should ask about the reserve fund and any planned capital work.",
+      "citation": "DOS 77-hour curriculum § Condominiums and Cooperatives"
+    },
+    {
+      "id": "condos-coops-0012",
+      "topic": "condos-coops",
+      "prompt": "A cooperative shareholder's monthly maintenance payment typically includes:",
+      "choices": [
+        "Their share of the building's underlying mortgage and real estate taxes",
+        "Only the cost of common area utilities and staffing",
+        "The shareholder's own share loan payment",
+        "Real estate taxes only, with debt service billed separately"
+      ],
+      "answer": 0,
+      "explanation": "Because maintenance carries the building's blanket mortgage and taxes, co-op maintenance figures are not directly comparable to condominium common charges.",
+      "citation": "DOS 77-hour curriculum § Condominiums and Cooperatives"
+    },
+    {
+      "id": "condos-coops-0013",
+      "topic": "condos-coops",
+      "prompt": "A cooperative shareholder may generally deduct on their personal income tax return:",
+      "choices": [
+        "Their proportionate share of the corporation's mortgage interest and real estate taxes",
+        "The entire monthly maintenance payment",
+        "Nothing, because the shareholder does not own real property",
+        "Only the portion of maintenance allocated to building staff"
+      ],
+      "answer": 0,
+      "explanation": "The corporation reports each shareholder's proportionate share annually. The operating portion of maintenance is not deductible.",
+      "citation": "26 U.S.C. §216"
+    },
+    {
+      "id": "condos-coops-0014",
+      "topic": "condos-coops",
+      "prompt": "A land lease cooperative differs from an ordinary co-op because the corporation:",
+      "choices": [
+        "Leases rather than owns the land beneath the building",
+        "Is prohibited from placing an underlying mortgage on the property",
+        "Holds title to each apartment as a separate tax lot",
+        "May not require board approval of purchasers"
+      ],
+      "answer": 0,
+      "explanation": "A ground lease approaching expiration or a large rent reset can sharply affect share values, which is why the lease term is a key diligence item.",
+      "citation": "DOS 77-hour curriculum § Condominiums and Cooperatives"
+    },
+    {
+      "id": "condos-coops-0015",
+      "topic": "condos-coops",
+      "prompt": "A sponsor in a New York condominium or cooperative conversion is:",
+      "choices": [
+        "The party offering the units for sale under the accepted offering plan",
+        "The managing agent retained to operate the building",
+        "The attorney who files the plan with the Attorney General",
+        "The lender providing the building's underlying mortgage"
+      ],
+      "answer": 0,
+      "explanation": "Sponsor-held unsold units matter to buyers and lenders, since heavy sponsor ownership can affect financing availability and board control.",
+      "citation": "General Business Law Article 23-A"
+    },
+    {
+      "id": "condos-coops-0016",
+      "topic": "condos-coops",
+      "prompt": "A homeowners association in a planned community differs from a condominium in that association members:",
+      "choices": [
+        "Own their lots and homes in fee, with the association owning the common areas",
+        "Own shares in a corporation rather than real property",
+        "Hold an undivided interest in the common elements as tenants in common",
+        "Lease their homes from the association under a proprietary lease"
+      ],
+      "answer": 0,
+      "explanation": "The association is a separate legal entity holding the common land. Membership and assessment obligations run with the lot through recorded covenants.",
+      "citation": "DOS 77-hour curriculum § Condominiums and Cooperatives"
+    },
+    {
+      "id": "condos-coops-0017",
+      "topic": "condos-coops",
+      "prompt": "A cooperative's board that wishes to restrict subletting generally derives that authority from:",
+      "choices": [
+        "The proprietary lease and the corporation's bylaws",
+        "The Real Property Law's rent regulation provisions",
+        "The Attorney General's acceptance of the offering plan",
+        "The local municipality's zoning ordinance"
+      ],
+      "answer": 0,
+      "explanation": "Sublet restrictions, fees, and waiting periods are common and are a material fact for a buyer intending to rent the unit out.",
+      "citation": "DOS 77-hour curriculum § Condominiums and Cooperatives"
+    },
+    {
+      "id": "condos-coops-0018",
+      "topic": "condos-coops",
+      "prompt": "A condominium's reserve fund exists to:",
+      "choices": [
+        "Pay for major repairs and replacements without a special assessment",
+        "Cover the sponsor's obligations on unsold units",
+        "Guarantee the underlying mortgage against default",
+        "Refund common charges to owners at year end"
+      ],
+      "answer": 0,
+      "explanation": "An underfunded reserve is a warning sign. Lenders reviewing a project's financials often look for a minimum share of the budget going to reserves.",
+      "citation": "DOS 77-hour curriculum § Condominiums and Cooperatives"
+    },
+    {
+      "id": "condos-coops-0019",
+      "topic": "condos-coops",
+      "prompt": "The document that legally creates a condominium and defines the units and common elements is the:",
+      "choices": [
+        "Declaration, recorded in the county land records",
+        "Proprietary lease issued to each owner",
+        "Offering plan filed with the Attorney General",
+        "Certificate of incorporation of the board of managers"
+      ],
+      "answer": 0,
+      "explanation": "The declaration plus the filed floor plans create the condominium regime. Bylaws govern operations, and the offering plan governs the initial sale.",
+      "citation": "RPL Article 9-B"
+    },
+    {
+      "id": "condos-coops-0020",
+      "topic": "condos-coops",
+      "prompt": "Unpaid common charges in a New York condominium give the board:",
+      "choices": [
+        "A lien on the unit that can be foreclosed",
+        "The right to terminate the owner's occupancy as a defaulting tenant",
+        "Authority to sell the owner's shares at public auction",
+        "No remedy other than a personal lawsuit against the owner"
+      ],
+      "answer": 0,
+      "explanation": "Because the unit is real property, the condominium remedy is a lien and foreclosure. A co-op instead terminates the proprietary lease and sells the shares.",
+      "citation": "RPL Article 9-B"
+    },
+    {
+      "id": "condos-coops-0021",
+      "topic": "condos-coops",
+      "prompt": "A purchaser of a co-op apartment finances the acquisition using:",
+      "choices": [
+        "A share loan secured by the stock and the proprietary lease",
+        "A conventional mortgage recorded against the apartment",
+        "A blanket mortgage covering the entire building",
+        "A purchase money mortgage granted by the corporation"
+      ],
+      "answer": 0,
+      "explanation": "The lender takes a security interest in personal property, perfected under the Uniform Commercial Code rather than by recording a mortgage.",
+      "citation": "DOS 77-hour curriculum § Condominiums and Cooperatives"
+    },
+    {
+      "id": "condos-coops-0022",
+      "topic": "condos-coops",
+      "prompt": "A recognition agreement in a cooperative transaction is executed among the:",
+      "choices": [
+        "Lender, the shareholder, and the cooperative corporation",
+        "Buyer, the seller, and the managing agent",
+        "Corporation, the sponsor, and the Attorney General",
+        "Board of directors, the buyer, and the title insurer"
+      ],
+      "answer": 0,
+      "explanation": "It defines what happens if the shareholder defaults, giving the lender notice and rights while confirming the corporation's priority for unpaid maintenance.",
+      "citation": "DOS 77-hour curriculum § Condominiums and Cooperatives"
+    },
+    {
+      "id": "condos-coops-0023",
+      "topic": "condos-coops",
+      "prompt": "A condominium unit differs from a cooperative apartment for property tax purposes because the condominium unit:",
+      "choices": [
+        "Is separately assessed and taxed as its own tax lot",
+        "Is exempt from local property taxation",
+        "Is taxed as personal property rather than real property",
+        "Is assessed only when it is sold"
+      ],
+      "answer": 0,
+      "explanation": "A co-op building is assessed as a single parcel and the tax flows through maintenance, which is why co-op owners do not receive individual tax bills.",
+      "citation": "DOS 77-hour curriculum § Condominiums and Cooperatives"
+    },
+    {
+      "id": "condos-coops-0024",
+      "topic": "condos-coops",
+      "prompt": "A buyer of a resale condominium unit should review the board's minutes and financial statements primarily to identify:",
+      "choices": [
+        "Pending litigation, capital projects, and the adequacy of reserves",
+        "The identities of the other unit owners",
+        "The original sponsor's profit on the conversion",
+        "The assessed value of neighboring units"
+      ],
+      "answer": 0,
+      "explanation": "Litigation and deferred capital work translate directly into future assessments. These documents are where those risks surface before closing.",
+      "citation": "DOS 77-hour curriculum § Condominiums and Cooperatives"
+    },
+    {
+      "id": "license-law-0007",
+      "topic": "license-law",
+      "prompt": "The qualifying course a New York salesperson applicant must complete runs:",
+      "choices": [
+        "77 hours",
+        "75 hours",
+        "60 hours",
+        "90 hours"
+      ],
+      "answer": 0,
+      "explanation": "The requirement rose to 77 hours under the curriculum effective 12/21/2022. Older material citing 75 hours reflects the pre-2008 requirement.",
+      "citation": "RPL §441; DOS 77-hour curriculum"
+    },
+    {
+      "id": "license-law-0008",
+      "topic": "license-law",
+      "prompt": "A passing New York salesperson examination result remains valid for:",
+      "choices": [
+        "2 years",
+        "1 year",
+        "3 years",
+        "5 years"
+      ],
+      "answer": 0,
+      "explanation": "The license application must be filed within that window. Letting it lapse means retaking the examination.",
+      "citation": "DOS 77-hour curriculum § License Law and Regulations"
+    },
+    {
+      "id": "license-law-0009",
+      "topic": "license-law",
+      "prompt": "New York currently maintains real estate license reciprocity with:",
+      "choices": [
+        "No other state",
+        "All states bordering New York",
+        "Any state whose requirements meet or exceed New York's",
+        "Only Pennsylvania and Connecticut"
+      ],
+      "answer": 0,
+      "explanation": "New York's previous reciprocity agreements are no longer in effect. Many third-party sources still list them, which makes this a common source of confusion.",
+      "citation": "DOS salesperson FAQ; DOS 77-hour curriculum § License Law and Regulations"
+    },
+    {
+      "id": "license-law-0010",
+      "topic": "license-law",
+      "prompt": "A licensee whose license has expired may renew it late for a period of up to:",
+      "choices": [
+        "2 years after expiration",
+        "6 months after expiration",
+        "1 year after expiration",
+        "90 days after expiration"
+      ],
+      "answer": 0,
+      "explanation": "Beyond that window the applicant must qualify as a new licensee. No brokerage activity may occur while the license is expired.",
+      "citation": "DOS 77-hour curriculum § License Law and Regulations"
+    },
+    {
+      "id": "license-law-0011",
+      "topic": "license-law",
+      "prompt": "The Department of State may revoke or suspend a license for:",
+      "choices": [
+        "Demonstrated untrustworthiness or incompetence",
+        "Failing to close a minimum number of transactions each year",
+        "Advertising a property at a price the seller later rejects",
+        "Refusing to accept a listing from a prospective client"
+      ],
+      "answer": 0,
+      "explanation": "Untrustworthiness is the broad standard the Department applies. It reaches conduct well beyond specific enumerated violations.",
+      "citation": "RPL §441-c"
+    },
+    {
+      "id": "license-law-0012",
+      "topic": "license-law",
+      "prompt": "A person who performs brokerage activity in New York without a license:",
+      "choices": [
+        "Cannot maintain an action to collect a commission",
+        "May collect a commission if the client agreed to it in writing",
+        "May collect only the portion attributable to work performed",
+        "May collect through a licensed broker acting as intermediary"
+      ],
+      "answer": 0,
+      "explanation": "The courthouse door is closed to unlicensed persons seeking compensation for brokerage services, regardless of the agreement or the value provided.",
+      "citation": "RPL §442-d"
+    },
+    {
+      "id": "license-law-0013",
+      "topic": "license-law",
+      "prompt": "Continuing education for renewal must include at least one hour on:",
+      "choices": [
+        "Recent legal matters affecting real estate practice",
+        "Property management fundamentals",
+        "Real estate mathematics",
+        "Commercial lease negotiation"
+      ],
+      "answer": 0,
+      "explanation": "The required components are fair housing, ethical business practices, implicit bias, cultural competency, recent legal matters, and law of agency.",
+      "citation": "RPL §441-a(3)"
+    },
+    {
+      "id": "license-law-0014",
+      "topic": "license-law",
+      "prompt": "Continuing education must include a minimum of how many hours on ethical business practices?",
+      "choices": [
+        "2.5 hours",
+        "1 hour",
+        "3 hours",
+        "4 hours"
+      ],
+      "answer": 0,
+      "explanation": "Ethical business practices carries a 2.5-hour minimum within the 22.5-hour renewal requirement.",
+      "citation": "RPL §441-a(3)"
+    },
+    {
+      "id": "license-law-0015",
+      "topic": "license-law",
+      "prompt": "A broker maintaining a branch office in New York must:",
+      "choices": [
+        "Obtain a separate branch office license and place it under a supervising licensee",
+        "Notify the Department of State within thirty days of opening",
+        "Register the office with the county clerk where it is located",
+        "Operate it under the main office license with no further filing"
+      ],
+      "answer": 0,
+      "explanation": "Each branch requires its own license and its own supervision, which supports the broker's overall duty to supervise associated licensees.",
+      "citation": "RPL §441; 19 NYCRR §175.21"
+    },
+    {
+      "id": "license-law-0016",
+      "topic": "license-law",
+      "prompt": "A licensee must disclose their licensed status when:",
+      "choices": [
+        "Buying or selling property for their own account",
+        "Attending an open house hosted by another brokerage",
+        "Referring a friend to another licensee",
+        "Renewing their license with the Department of State"
+      ],
+      "answer": 0,
+      "explanation": "The disclosure prevents a licensee from using professional knowledge against an unsuspecting party in a personal transaction.",
+      "citation": "19 NYCRR §175.7"
+    },
+    {
+      "id": "license-law-0017",
+      "topic": "license-law",
+      "prompt": "The Department of State's authority over licensees is exercised through:",
+      "choices": [
+        "Administrative hearings that can result in fines, suspension, or revocation",
+        "Criminal prosecution in state supreme court",
+        "Binding arbitration administered by local real estate boards",
+        "Civil actions brought on behalf of aggrieved consumers"
+      ],
+      "answer": 0,
+      "explanation": "A licensee dissatisfied with the outcome may seek judicial review through an Article 78 proceeding after exhausting the administrative process.",
+      "citation": "RPL §441-c; CPLR Article 78"
+    },
+    {
+      "id": "license-law-0018",
+      "topic": "license-law",
+      "prompt": "An applicant for a New York salesperson license must be at least:",
+      "choices": [
+        "18 years of age",
+        "21 years of age",
+        "19 years of age",
+        "16 years of age"
+      ],
+      "answer": 0,
+      "explanation": "Salesperson applicants must be 18; broker applicants must be 20 and must also satisfy an experience requirement.",
+      "citation": "RPL §441"
+    },
+    {
+      "id": "contracts-leases-0007",
+      "topic": "contracts-leases",
+      "prompt": "The essential elements of a valid contract are competent parties, lawful object, consideration, and:",
+      "choices": [
+        "Offer and acceptance constituting mutual assent",
+        "A written instrument signed by both parties",
+        "Delivery of possession to the buyer",
+        "Recording in the county land records"
+      ],
+      "answer": 0,
+      "explanation": "Writing is required for enforceability of real estate contracts under the statute of frauds, but it is not one of the elements that makes a contract valid.",
+      "citation": "DOS 77-hour curriculum § The Contract of Sales and Leases (Contracts)"
+    },
+    {
+      "id": "contracts-leases-0008",
+      "topic": "contracts-leases",
+      "prompt": "A buyer makes an offer and the seller returns it with a higher price. The seller's response is:",
+      "choices": [
+        "A counteroffer, which terminates the buyer's original offer",
+        "An acceptance with a modification, binding both parties",
+        "A rejection that the buyer may still accept within three days",
+        "A conditional acceptance that becomes binding if the buyer is silent"
+      ],
+      "answer": 0,
+      "explanation": "A counteroffer kills the original offer. The original offeror becomes the offeree and is free to accept, reject, or counter again.",
+      "citation": "DOS 77-hour curriculum § The Contract of Sales and Leases (Contracts)"
+    },
+    {
+      "id": "contracts-leases-0009",
+      "topic": "contracts-leases",
+      "prompt": "A buyer who breaches a purchase contract may face:",
+      "choices": [
+        "Forfeiture of the down payment as liquidated damages, if the contract so provides",
+        "Automatic liability for the seller's full carrying costs until resale",
+        "Criminal penalties under the Real Property Law",
+        "A lien against the buyer's other real property"
+      ],
+      "answer": 0,
+      "explanation": "Liquidated damages fix the remedy in advance and avoid litigating actual loss. A seller may alternatively sue for damages or specific performance where available.",
+      "citation": "DOS 77-hour curriculum § The Contract of Sales and Leases (Contracts)"
+    },
+    {
+      "id": "contracts-leases-0010",
+      "topic": "contracts-leases",
+      "prompt": "Specific performance is a remedy that compels:",
+      "choices": [
+        "The breaching party to complete the transaction as agreed",
+        "The return of all deposits to the injured party",
+        "Payment of the difference between contract price and market value",
+        "Cancellation of the contract and restoration of the parties"
+      ],
+      "answer": 0,
+      "explanation": "It is available because each parcel of land is considered unique, so money damages are treated as an inadequate substitute.",
+      "citation": "DOS 77-hour curriculum § The Contract of Sales and Leases (Contracts)"
+    },
+    {
+      "id": "contracts-leases-0011",
+      "topic": "contracts-leases",
+      "prompt": "A contract provision stating that time is of the essence means:",
+      "choices": [
+        "Performance by the stated date is a material term, and delay is a breach",
+        "The parties intend to close as promptly as circumstances permit",
+        "Either party may extend the closing date once without penalty",
+        "The contract expires automatically if not recorded promptly"
+      ],
+      "answer": 0,
+      "explanation": "Without such a clause, courts generally allow a reasonable adjournment. With it, missing the date can forfeit the deposit or the deal.",
+      "citation": "DOS 77-hour curriculum § The Contract of Sales and Leases (Contracts)"
+    },
+    {
+      "id": "contracts-leases-0012",
+      "topic": "contracts-leases",
+      "prompt": "A mortgage contingency clause in a residential contract permits the buyer to:",
+      "choices": [
+        "Cancel and recover the deposit if a loan commitment cannot be obtained by the stated date",
+        "Reduce the purchase price if the appraisal comes in low",
+        "Extend the closing indefinitely while seeking financing",
+        "Assign the contract to another buyer who can obtain financing"
+      ],
+      "answer": 0,
+      "explanation": "The buyer must generally apply in good faith and give timely notice. Missing the notice deadline can waive the contingency entirely.",
+      "citation": "DOS 77-hour curriculum § The Contract of Sales and Leases (Contracts)"
+    },
+    {
+      "id": "contracts-leases-0013",
+      "topic": "contracts-leases",
+      "prompt": "The substitution of a new party or obligation for an existing one, releasing the original party, is:",
+      "choices": [
+        "A novation",
+        "An assignment",
+        "A rescission",
+        "A ratification"
+      ],
+      "answer": 0,
+      "explanation": "An assignment transfers rights but generally leaves the assignor liable. Only a novation, requiring the obligee's consent, releases the original party.",
+      "citation": "DOS 77-hour curriculum § The Contract of Sales and Leases (Contracts)"
+    },
+    {
+      "id": "contracts-leases-0014",
+      "topic": "contracts-leases",
+      "prompt": "A lease for a fixed term with a definite beginning and ending date creates:",
+      "choices": [
+        "An estate for years, which ends without notice",
+        "A periodic tenancy requiring notice to terminate",
+        "A tenancy at will terminable by either party at any time",
+        "A tenancy at sufferance"
+      ],
+      "answer": 0,
+      "explanation": "The term need not be measured in years. What matters is that the ending date is fixed, so no notice is required to end it.",
+      "citation": "DOS 77-hour curriculum § The Contract of Sales and Leases (Leases)"
+    },
+    {
+      "id": "contracts-leases-0015",
+      "topic": "contracts-leases",
+      "prompt": "A tenant who remains in possession after a lease expires, without the landlord's consent, holds:",
+      "choices": [
+        "A tenancy at sufferance",
+        "A tenancy at will",
+        "A periodic tenancy renewed automatically",
+        "An estate for years extended by operation of law"
+      ],
+      "answer": 0,
+      "explanation": "A tenancy at sufferance is the lowest estate, distinguished from trespass only because possession began lawfully. Accepting rent can convert it into a periodic tenancy.",
+      "citation": "DOS 77-hour curriculum § The Contract of Sales and Leases (Leases)"
+    },
+    {
+      "id": "contracts-leases-0016",
+      "topic": "contracts-leases",
+      "prompt": "Actual eviction of a tenant in New York requires the landlord to:",
+      "choices": [
+        "Obtain a court judgment and have a marshal or sheriff execute the warrant",
+        "Provide thirty days' written notice and change the locks",
+        "Remove the tenant's belongings after the rent is fifteen days late",
+        "Shut off utilities until the tenant vacates"
+      ],
+      "answer": 0,
+      "explanation": "Self-help eviction, including lockouts and utility shutoffs, is unlawful. Only a court-ordered warrant executed by an enforcement officer can remove a tenant.",
+      "citation": "RPAPL Article 7"
+    },
+    {
+      "id": "contracts-leases-0017",
+      "topic": "contracts-leases",
+      "prompt": "Constructive eviction occurs when a landlord:",
+      "choices": [
+        "Allows conditions so severe that the tenant is forced to vacate",
+        "Serves a notice to quit before the lease term ends",
+        "Refuses to renew the lease at its expiration",
+        "Increases the rent beyond what the tenant can afford"
+      ],
+      "answer": 0,
+      "explanation": "The tenant must generally actually vacate to claim it. Remaining in possession while withholding rent is a different, and riskier, strategy.",
+      "citation": "DOS 77-hour curriculum § The Contract of Sales and Leases (Leases)"
+    },
+    {
+      "id": "contracts-leases-0018",
+      "topic": "contracts-leases",
+      "prompt": "An option to purchase gives the holder:",
+      "choices": [
+        "The right, but not the obligation, to buy on stated terms within a stated period",
+        "An obligation to purchase if financing can be obtained",
+        "A right to match any offer the owner receives",
+        "An equitable lien against the property for the option price"
+      ],
+      "answer": 0,
+      "explanation": "The optionee holds a unilateral right; the optionor is bound. Consideration must support the option itself for it to be enforceable.",
+      "citation": "DOS 77-hour curriculum § The Contract of Sales and Leases (Contracts)"
+    },
+    {
+      "id": "land-use-0007",
+      "topic": "land-use",
+      "prompt": "A comprehensive plan adopted by a municipality functions as:",
+      "choices": [
+        "A long-range policy document that zoning is expected to implement",
+        "A binding regulation enforceable against individual property owners",
+        "A map of every parcel's assessed value",
+        "A schedule of permitted uses in each district"
+      ],
+      "answer": 0,
+      "explanation": "Zoning that departs sharply from the comprehensive plan invites a legal challenge, which is why spot zoning is vulnerable.",
+      "citation": "DOS 77-hour curriculum § Land Use Regulations"
+    },
+    {
+      "id": "land-use-0008",
+      "topic": "land-use",
+      "prompt": "A use that a zoning ordinance allows in a district only after review and approval of its specific site and conditions requires:",
+      "choices": [
+        "A special use permit",
+        "A use variance",
+        "An area variance",
+        "A zoning amendment"
+      ],
+      "answer": 0,
+      "explanation": "The use is contemplated by the ordinance but needs conditions attached. A variance, by contrast, permits something the ordinance does not allow at all.",
+      "citation": "DOS 77-hour curriculum § Land Use Regulations"
+    },
+    {
+      "id": "land-use-0009",
+      "topic": "land-use",
+      "prompt": "To obtain a use variance, an applicant generally must demonstrate:",
+      "choices": [
+        "Unnecessary hardship, including that the property cannot yield a reasonable return as zoned",
+        "That the proposed use would increase the property's assessed value",
+        "That a majority of neighbors do not object",
+        "That the existing use has been abandoned for over a year"
+      ],
+      "answer": 0,
+      "explanation": "The burden is deliberately heavy. The hardship must arise from the property itself rather than from the owner's personal circumstances, and must not be self-created.",
+      "citation": "DOS 77-hour curriculum § Land Use Regulations"
+    },
+    {
+      "id": "land-use-0010",
+      "topic": "land-use",
+      "prompt": "A planned unit development is a zoning technique that:",
+      "choices": [
+        "Allows mixed uses and flexible lot standards across a project treated as a whole",
+        "Restricts a district to a single residential density",
+        "Transfers development rights from one parcel to another",
+        "Exempts a project from environmental review"
+      ],
+      "answer": 0,
+      "explanation": "PUDs let a developer cluster housing and preserve open space in exchange for negotiated site-wide standards rather than lot-by-lot compliance.",
+      "citation": "DOS 77-hour curriculum § Land Use Regulations"
+    },
+    {
+      "id": "land-use-0011",
+      "topic": "land-use",
+      "prompt": "A setback requirement in a zoning ordinance specifies:",
+      "choices": [
+        "The minimum distance a structure must sit from a lot line",
+        "The maximum height a structure may reach",
+        "The share of a lot that may be covered by buildings",
+        "The minimum lot area required per dwelling unit"
+      ],
+      "answer": 0,
+      "explanation": "Setbacks are dimensional requirements, which is why relief from them is sought through an area variance rather than a use variance.",
+      "citation": "DOS 77-hour curriculum § Land Use Regulations"
+    },
+    {
+      "id": "land-use-0012",
+      "topic": "land-use",
+      "prompt": "A subdivision regulation typically requires a developer to:",
+      "choices": [
+        "Submit a plat for approval and install required infrastructure improvements",
+        "Obtain a use variance for each lot created",
+        "Convey a portion of the land to the state",
+        "Complete an environmental remediation before filing"
+      ],
+      "answer": 0,
+      "explanation": "Approval conditions commonly include roads, drainage, and utilities, often secured by a performance bond until the work is finished.",
+      "citation": "DOS 77-hour curriculum § Land Use Regulations"
+    },
+    {
+      "id": "land-use-0013",
+      "topic": "land-use",
+      "prompt": "A discretionary action by a New York municipal agency that may significantly affect the environment triggers review under:",
+      "choices": [
+        "The State Environmental Quality Review Act",
+        "CERCLA",
+        "The Uniform Fire Prevention and Building Code",
+        "Article 78 of the Civil Practice Law and Rules"
+      ],
+      "answer": 0,
+      "explanation": "SEQRA requires the agency to identify environmental impacts before approving an action, and can require a full environmental impact statement.",
+      "citation": "ECL Article 8; DOS 77-hour curriculum § Land Use Regulations"
+    },
+    {
+      "id": "land-use-0014",
+      "topic": "land-use",
+      "prompt": "A nonconforming use that is destroyed by fire may generally:",
+      "choices": [
+        "Lose its protected status, depending on the terms of the local ordinance",
+        "Be rebuilt as of right in every case",
+        "Be expanded during reconstruction",
+        "Be transferred to another parcel in the same district"
+      ],
+      "answer": 0,
+      "explanation": "Ordinances commonly extinguish the protection when the structure is substantially destroyed or the use is abandoned for a stated period.",
+      "citation": "DOS 77-hour curriculum § Land Use Regulations"
+    },
+    {
+      "id": "land-use-0015",
+      "topic": "land-use",
+      "prompt": "Downzoning refers to:",
+      "choices": [
+        "Rezoning land to a less intensive use or lower density",
+        "Lowering the assessed value of property in a district",
+        "Reducing the setback requirements in an ordinance",
+        "Converting commercial property to residential use by variance"
+      ],
+      "answer": 0,
+      "explanation": "Downzoning can sharply reduce development value and sometimes prompts regulatory takings claims from affected owners.",
+      "citation": "DOS 77-hour curriculum § Land Use Regulations"
+    },
+    {
+      "id": "land-use-0016",
+      "topic": "land-use",
+      "prompt": "A buffer zone in land use planning is:",
+      "choices": [
+        "A transitional area separating incompatible districts",
+        "Land reserved for future municipal buildings",
+        "The area between a structure and its lot line",
+        "A district in which no development of any kind is permitted"
+      ],
+      "answer": 0,
+      "explanation": "Buffers ease the transition between, for example, industrial and residential districts, using landscaping, open space, or lower-intensity uses.",
+      "citation": "DOS 77-hour curriculum § Land Use Regulations"
+    },
+    {
+      "id": "land-use-0017",
+      "topic": "land-use",
+      "prompt": "A certificate of occupancy for a newly constructed building is issued after:",
+      "choices": [
+        "Final inspection confirms the work complies with the approved plans and code",
+        "The building permit application is approved",
+        "The property is conveyed to its first owner",
+        "The subdivision plat is filed with the county clerk"
+      ],
+      "answer": 0,
+      "explanation": "Occupying a structure without a certificate can subject the owner to penalties and typically prevents a lender from funding.",
+      "citation": "DOS 77-hour curriculum § Land Use Regulations"
+    },
+    {
+      "id": "land-use-0018",
+      "topic": "land-use",
+      "prompt": "Deed restrictions and zoning both limit land use. Where the two conflict:",
+      "choices": [
+        "The more restrictive of the two controls",
+        "Zoning always supersedes a private restriction",
+        "The private restriction always supersedes zoning",
+        "The owner may elect which to follow"
+      ],
+      "answer": 0,
+      "explanation": "They operate independently. A property may be zoned for a use that a recorded covenant forbids, and the covenant still binds the owner.",
+      "citation": "DOS 77-hour curriculum § Land Use Regulations"
+    },
+    {
+      "id": "valuation-0007",
+      "topic": "valuation",
+      "prompt": "Market value is best defined as the price a property should bring in a sale where:",
+      "choices": [
+        "Buyer and seller are typically motivated, well informed, and acting without duress",
+        "The seller must sell quickly and accepts the highest available offer",
+        "The buyer pays the maximum a lender will finance",
+        "The price equals the property's assessed value"
+      ],
+      "answer": 0,
+      "explanation": "Market value assumes an arm's length transaction with reasonable exposure to the market. A forced sale produces price, not market value.",
+      "citation": "DOS 77-hour curriculum § Valuation Process and Pricing Properties"
+    },
+    {
+      "id": "valuation-0008",
+      "topic": "valuation",
+      "prompt": "The four characteristics that create value in real property are demand, utility, scarcity, and:",
+      "choices": [
+        "Transferability",
+        "Location",
+        "Durability",
+        "Assessment"
+      ],
+      "answer": 0,
+      "explanation": "Without the legal ability to transfer it, an otherwise desirable property has no market value. The four are often remembered as DUST.",
+      "citation": "DOS 77-hour curriculum § Valuation Process and Pricing Properties"
+    },
+    {
+      "id": "valuation-0009",
+      "topic": "valuation",
+      "prompt": "The principle of conformity holds that a property achieves maximum value when it:",
+      "choices": [
+        "Is reasonably similar to surrounding properties in style, size, and use",
+        "Is the largest and most expensive home in the neighborhood",
+        "Is the smallest home among larger neighbors",
+        "Differs from surrounding properties enough to stand out"
+      ],
+      "answer": 0,
+      "explanation": "Conformity underlies both regression and progression: an over-improved home is dragged down by its neighbors, and a modest one is lifted by them.",
+      "citation": "DOS 77-hour curriculum § Valuation Process and Pricing Properties"
+    },
+    {
+      "id": "valuation-0010",
+      "topic": "valuation",
+      "prompt": "An owner spends $60,000 on a swimming pool that raises the property's value by $20,000. This illustrates:",
+      "choices": [
+        "The principle of contribution, under which cost does not equal value",
+        "The principle of substitution",
+        "External obsolescence caused by neighborhood decline",
+        "Physical deterioration of a curable kind"
+      ],
+      "answer": 0,
+      "explanation": "Contribution measures what a component adds to the whole, which is frequently far less than what it cost to install.",
+      "citation": "DOS 77-hour curriculum § Valuation Process and Pricing Properties"
+    },
+    {
+      "id": "valuation-0011",
+      "topic": "valuation",
+      "prompt": "In the cost approach, reproduction cost differs from replacement cost because reproduction cost estimates:",
+      "choices": [
+        "An exact duplicate of the structure using the same materials and design",
+        "A structure of equivalent utility using current materials and methods",
+        "The depreciated value of the existing improvements",
+        "The cost of the land plus the improvements"
+      ],
+      "answer": 0,
+      "explanation": "Replacement cost is used more often because duplicating obsolete construction is rarely meaningful. Reproduction cost matters for historic properties.",
+      "citation": "DOS 77-hour curriculum § Valuation Process and Pricing Properties"
+    },
+    {
+      "id": "valuation-0012",
+      "topic": "valuation",
+      "prompt": "A home has a badly outdated kitchen that could be economically remodeled. This is:",
+      "choices": [
+        "Curable functional obsolescence",
+        "Incurable functional obsolescence",
+        "External obsolescence",
+        "Physical deterioration"
+      ],
+      "answer": 0,
+      "explanation": "Obsolescence is curable when the cost to fix it is recovered in added value. A poor floor plan requiring structural change is typically incurable.",
+      "citation": "DOS 77-hour curriculum § Valuation Process and Pricing Properties"
+    },
+    {
+      "id": "valuation-0013",
+      "topic": "valuation",
+      "prompt": "In reconciling the three approaches for a single-family home appraisal, the appraiser typically gives most weight to:",
+      "choices": [
+        "The sales comparison approach",
+        "The cost approach",
+        "The income capitalization approach",
+        "An average of all three approaches"
+      ],
+      "answer": 0,
+      "explanation": "Reconciliation is a judgment about reliability, not an arithmetic average. Comparable sales best reflect how buyers behave in the residential market.",
+      "citation": "DOS 77-hour curriculum § Valuation Process and Pricing Properties"
+    },
+    {
+      "id": "valuation-0014",
+      "topic": "valuation",
+      "prompt": "A comparable property sold three months ago in a market rising 1% per month. The appraiser should:",
+      "choices": [
+        "Adjust the comparable's sale price upward for market conditions",
+        "Adjust the comparable's sale price downward for market conditions",
+        "Discard the comparable as too old to use",
+        "Adjust the subject property's value downward"
+      ],
+      "answer": 0,
+      "explanation": "A sale in a rising market understates today's value, so the comparable is adjusted up. Adjustments are always applied to the comparable, never the subject.",
+      "citation": "DOS 77-hour curriculum § Valuation Process and Pricing Properties"
+    },
+    {
+      "id": "valuation-0015",
+      "topic": "valuation",
+      "prompt": "A gross rent multiplier of 120 is derived from a market where a property renting for $2,000 per month sold for:",
+      "choices": [
+        "$240,000",
+        "$24,000",
+        "$166,667",
+        "$1,200,000"
+      ],
+      "answer": 0,
+      "explanation": "GRM based on monthly rent multiplies the rent by the factor: $2,000 x 120 = $240,000. Annual-rent multipliers produce a much smaller factor.",
+      "citation": "DOS 77-hour curriculum § Valuation Process and Pricing Properties"
+    },
+    {
+      "id": "valuation-0016",
+      "topic": "valuation",
+      "prompt": "The principle of anticipation holds that value is created by:",
+      "choices": [
+        "The expectation of future benefits from owning the property",
+        "The historical cost of constructing the improvements",
+        "The length of time the current owner has held title",
+        "The assessed value set by the municipality"
+      ],
+      "answer": 0,
+      "explanation": "Anticipation is the foundation of the income approach, where value is the present worth of the income stream a buyer expects to receive.",
+      "citation": "DOS 77-hour curriculum § Valuation Process and Pricing Properties"
+    },
+    {
+      "id": "valuation-0017",
+      "topic": "valuation",
+      "prompt": "An appraiser's opinion of value is:",
+      "choices": [
+        "Supported by data and reasoning, but still an opinion rather than a fact",
+        "A guarantee of the price the property will bring at sale",
+        "Binding on the lender for underwriting purposes",
+        "Identical to the property's assessed value"
+      ],
+      "answer": 0,
+      "explanation": "Two competent appraisers can reach different supported conclusions. This is why a low appraisal is challenged with better data rather than simply disputed.",
+      "citation": "DOS 77-hour curriculum § Valuation Process and Pricing Properties"
+    },
+    {
+      "id": "valuation-0018",
+      "topic": "valuation",
+      "prompt": "In appraising a vacant residential lot, the appraiser will most often rely on:",
+      "choices": [
+        "The sales comparison approach using comparable land sales",
+        "The cost approach less accrued depreciation",
+        "The income capitalization approach",
+        "The gross rent multiplier method"
+      ],
+      "answer": 0,
+      "explanation": "Land does not depreciate and produces no income by itself, which leaves comparable sales as the meaningful approach.",
+      "citation": "DOS 77-hour curriculum § Valuation Process and Pricing Properties"
+    },
+    {
+      "id": "taxes-assessments-0007",
+      "topic": "taxes-assessments",
+      "prompt": "A municipality's tax rate is determined by:",
+      "choices": [
+        "Dividing the budget to be raised by the total taxable assessed value in the jurisdiction",
+        "The assessor's estimate of average market value",
+        "A rate schedule set by the New York State Department of Taxation and Finance",
+        "The equalization rate applied to the prior year's levy"
+      ],
+      "answer": 0,
+      "explanation": "This is why a rising assessment does not automatically raise taxes. If total assessed value rises and the budget does not, the rate falls.",
+      "citation": "DOS 77-hour curriculum § Taxes and Assessments"
+    },
+    {
+      "id": "taxes-assessments-0008",
+      "topic": "taxes-assessments",
+      "prompt": "A property assessed at $150,000 in a municipality with a tax rate of 32 mills owes annual taxes of:",
+      "choices": [
+        "$4,800",
+        "$480",
+        "$48,000",
+        "$4,687.50"
+      ],
+      "answer": 0,
+      "explanation": "A mill is one-thousandth of a dollar, so 32 mills is $32 per $1,000. ($150,000 / 1,000) x 32 = $4,800.",
+      "citation": "DOS 77-hour curriculum § Taxes and Assessments"
+    },
+    {
+      "id": "taxes-assessments-0009",
+      "topic": "taxes-assessments",
+      "prompt": "A municipality assesses at 40% of market value. A property with a market value of $400,000 carries an assessed value of:",
+      "choices": [
+        "$160,000",
+        "$400,000",
+        "$240,000",
+        "$1,000,000"
+      ],
+      "answer": 0,
+      "explanation": "$400,000 x 0.40 = $160,000. Fractional assessment is why equalization rates are needed to apportion county and school levies fairly.",
+      "citation": "DOS 77-hour curriculum § Taxes and Assessments"
+    },
+    {
+      "id": "taxes-assessments-0010",
+      "topic": "taxes-assessments",
+      "prompt": "Enhanced STAR in New York is available to:",
+      "choices": [
+        "Qualifying senior homeowners meeting an age and income test",
+        "All owner-occupied primary residences regardless of age",
+        "Veterans with a service-connected disability",
+        "Owners of agricultural property in active production"
+      ],
+      "answer": 0,
+      "explanation": "Basic STAR applies more broadly to primary residences; Enhanced STAR provides a larger exemption to seniors who meet the income limit.",
+      "citation": "NY Real Property Tax Law §425"
+    },
+    {
+      "id": "taxes-assessments-0011",
+      "topic": "taxes-assessments",
+      "prompt": "A property tax exemption available in New York specifically to qualifying former service members is the:",
+      "choices": [
+        "Veterans exemption",
+        "STAR exemption",
+        "Agricultural assessment",
+        "Homestead exemption under the CPLR"
+      ],
+      "answer": 0,
+      "explanation": "Municipalities elect among several veterans exemption options. The CPLR homestead exemption is creditor protection, not a tax reduction.",
+      "citation": "NY Real Property Tax Law Article 4"
+    },
+    {
+      "id": "taxes-assessments-0012",
+      "topic": "taxes-assessments",
+      "prompt": "Unpaid real property taxes in New York may ultimately result in:",
+      "choices": [
+        "A tax foreclosure proceeding that extinguishes the owner's interest",
+        "A personal judgment against the owner with no effect on the property",
+        "The property being reassessed at a lower value",
+        "Referral of the debt to the Department of State"
+      ],
+      "answer": 0,
+      "explanation": "Because tax liens hold first priority, tax foreclosure wipes out mortgages and most other encumbrances, which is why lenders escrow for taxes.",
+      "citation": "NY Real Property Tax Law Article 11"
+    },
+    {
+      "id": "taxes-assessments-0013",
+      "topic": "taxes-assessments",
+      "prompt": "The taxable status date in a New York municipality is significant because it:",
+      "choices": [
+        "Fixes the property's condition and ownership for that year's assessment roll",
+        "Sets the deadline for paying the current year's taxes",
+        "Marks the date the tax rate is adopted",
+        "Establishes when a tax lien may be foreclosed"
+      ],
+      "answer": 0,
+      "explanation": "Improvements completed after the taxable status date are generally picked up in the following year's roll rather than the current one.",
+      "citation": "NY Real Property Tax Law §302"
+    },
+    {
+      "id": "taxes-assessments-0014",
+      "topic": "taxes-assessments",
+      "prompt": "The tentative assessment roll is published so that:",
+      "choices": [
+        "Owners can review their assessments and file grievances before the roll becomes final",
+        "Lenders can calculate escrow requirements for the coming year",
+        "Buyers can determine the market value of listed properties",
+        "The municipality can set its annual budget"
+      ],
+      "answer": 0,
+      "explanation": "Grievance Day follows the tentative roll. Once the final roll is filed, administrative challenge for that year is generally foreclosed.",
+      "citation": "NY Real Property Tax Law Article 5"
+    },
+    {
+      "id": "taxes-assessments-0015",
+      "topic": "taxes-assessments",
+      "prompt": "An agricultural assessment in New York allows qualifying farmland to be assessed based on:",
+      "choices": [
+        "Its value for agricultural production rather than its development potential",
+        "The average assessment of neighboring residential parcels",
+        "Fifty percent of its full market value",
+        "The price the owner originally paid for the land"
+      ],
+      "answer": 0,
+      "explanation": "The program eases development pressure on farmland. Converting the land to non-agricultural use triggers payments recapturing prior tax savings.",
+      "citation": "NY Agriculture and Markets Law Article 25-AA"
+    },
+    {
+      "id": "taxes-assessments-0016",
+      "topic": "taxes-assessments",
+      "prompt": "A special assessment for a new sidewalk is most commonly apportioned among benefited properties according to:",
+      "choices": [
+        "Front footage along the improvement",
+        "Each property's assessed value",
+        "The number of occupants in each dwelling",
+        "The municipality's equalization rate"
+      ],
+      "answer": 0,
+      "explanation": "Special assessments track benefit rather than value, and frontage is the usual measure for linear improvements such as sidewalks and sewers.",
+      "citation": "DOS 77-hour curriculum § Taxes and Assessments"
+    },
+    {
+      "id": "taxes-assessments-0017",
+      "topic": "taxes-assessments",
+      "prompt": "A licensee asked by a buyer to predict future property taxes should:",
+      "choices": [
+        "Explain that taxes may change and direct the buyer to the assessor for current figures",
+        "Quote the seller's current taxes as the amount the buyer will pay",
+        "Estimate based on the purchase price and the current tax rate",
+        "Provide a written guarantee of the first year's tax amount"
+      ],
+      "answer": 0,
+      "explanation": "A sale can trigger reassessment and exemptions belonging to the seller do not transfer, so the seller's current bill can badly understate the buyer's.",
+      "citation": "DOS 77-hour curriculum § Taxes and Assessments"
+    },
+    {
+      "id": "taxes-assessments-0018",
+      "topic": "taxes-assessments",
+      "prompt": "A property owner dissatisfied with the outcome of a board of assessment review grievance may next:",
+      "choices": [
+        "Commence a tax certiorari or small claims assessment review proceeding",
+        "Appeal directly to the New York State Department of State",
+        "Withhold payment until the assessment is corrected",
+        "Request a new assessment from a private appraiser"
+      ],
+      "answer": 0,
+      "explanation": "Small claims assessment review is the streamlined route available to owner-occupants of residential property; tax certiorari is the broader judicial proceeding.",
+      "citation": "NY Real Property Tax Law Article 7"
+    },
+    {
+      "id": "income-tax-0007",
+      "topic": "income-tax",
+      "prompt": "An investor sells a rental property held for six years at a gain. That gain is generally taxed as:",
+      "choices": [
+        "Long-term capital gain, at preferential rates",
+        "Ordinary income, at the taxpayer's marginal rate",
+        "Tax-free, because the property was held over five years",
+        "Passive loss recapture"
+      ],
+      "answer": 0,
+      "explanation": "Property held more than one year produces long-term capital gain, though depreciation previously taken is recaptured at a different rate.",
+      "citation": "26 U.S.C. §1(h)"
+    },
+    {
+      "id": "income-tax-0008",
+      "topic": "income-tax",
+      "prompt": "Depreciation previously claimed on an investment property is, on sale:",
+      "choices": [
+        "Recaptured and taxed, generally at a higher rate than the long-term capital gain rate",
+        "Ignored, because it was already deducted",
+        "Added back to the property's adjusted basis",
+        "Refunded to the taxpayer as a credit"
+      ],
+      "answer": 0,
+      "explanation": "Depreciation reduces basis, which increases gain on sale. Recapture is what prevents the deduction from being a permanent tax benefit.",
+      "citation": "26 U.S.C. §1250"
+    },
+    {
+      "id": "income-tax-0009",
+      "topic": "income-tax",
+      "prompt": "In a delayed Section 1031 exchange, the taxpayer must identify replacement property within:",
+      "choices": [
+        "45 days of transferring the relinquished property",
+        "180 days of transferring the relinquished property",
+        "30 days of transferring the relinquished property",
+        "The same tax year as the transfer"
+      ],
+      "answer": 0,
+      "explanation": "The 45-day identification period runs concurrently with the 180-day period to complete the acquisition. Neither can be extended for convenience.",
+      "citation": "26 U.S.C. §1031(a)(3)"
+    },
+    {
+      "id": "income-tax-0010",
+      "topic": "income-tax",
+      "prompt": "A qualified intermediary is used in a Section 1031 exchange to:",
+      "choices": [
+        "Hold the sale proceeds so the taxpayer never has constructive receipt of them",
+        "Locate suitable replacement property for the taxpayer",
+        "File the exchange documentation with the Internal Revenue Service",
+        "Guarantee that the replacement property is of equal value"
+      ],
+      "answer": 0,
+      "explanation": "Touching the proceeds destroys the deferral. The intermediary exists to prevent constructive receipt between the sale and the purchase.",
+      "citation": "26 CFR §1.1031(k)-1"
+    },
+    {
+      "id": "income-tax-0011",
+      "topic": "income-tax",
+      "prompt": "A homeowner who has owned and occupied a residence for eighteen months sells at a gain and moves for a new job. The Section 121 exclusion:",
+      "choices": [
+        "May be partially available under the reduced exclusion for a qualifying change in employment",
+        "Is entirely unavailable, because the two-year test was not met",
+        "Applies in full, because employment relocation waives the test",
+        "Applies only if the taxpayer buys a replacement home"
+      ],
+      "answer": 0,
+      "explanation": "A partial exclusion is available where the sale is due to a change in employment, health, or unforeseen circumstances, prorated by the time actually satisfied.",
+      "citation": "26 U.S.C. §121(c)"
+    },
+    {
+      "id": "income-tax-0012",
+      "topic": "income-tax",
+      "prompt": "Land held as part of an investment property is:",
+      "choices": [
+        "Never depreciable, so the purchase price must be allocated between land and improvements",
+        "Depreciated over 27.5 years along with the building",
+        "Depreciated over 39 years for residential rental property",
+        "Depreciated only if it is improved with paving or landscaping"
+      ],
+      "answer": 0,
+      "explanation": "Because land is not depreciable, allocating more of the price to improvements increases annual deductions, which makes the allocation a scrutinized figure.",
+      "citation": "26 U.S.C. §167; §168"
+    },
+    {
+      "id": "income-tax-0013",
+      "topic": "income-tax",
+      "prompt": "Rental real estate losses are generally treated under the tax code as:",
+      "choices": [
+        "Passive losses, deductible against passive income subject to limited exceptions",
+        "Ordinary business losses fully deductible against any income",
+        "Capital losses limited to $3,000 per year",
+        "Non-deductible personal expenses"
+      ],
+      "answer": 0,
+      "explanation": "A limited allowance exists for actively participating owners below certain income levels, and real estate professionals may qualify for different treatment.",
+      "citation": "26 U.S.C. §469"
+    },
+    {
+      "id": "income-tax-0014",
+      "topic": "income-tax",
+      "prompt": "A property acquired by inheritance generally takes a basis equal to:",
+      "choices": [
+        "Its fair market value at the date of the decedent's death",
+        "The decedent's original purchase price",
+        "The decedent's adjusted basis, carried over unchanged",
+        "Zero, until the heir makes capital improvements"
+      ],
+      "answer": 0,
+      "explanation": "The stepped-up basis eliminates gain accrued during the decedent's ownership. A lifetime gift, by contrast, generally carries over the donor's basis.",
+      "citation": "26 U.S.C. §1014"
+    },
+    {
+      "id": "income-tax-0015",
+      "topic": "income-tax",
+      "prompt": "Points paid by a buyer to obtain a mortgage on a principal residence are generally:",
+      "choices": [
+        "Deductible in the year paid, if they meet the requirements for purchase-money points",
+        "Never deductible under any circumstances",
+        "Added to the property's basis and depreciated",
+        "Deductible only when the loan is repaid in full"
+      ],
+      "answer": 0,
+      "explanation": "Points on a refinance are generally amortized over the loan term instead, which is a common point of confusion for homeowners.",
+      "citation": "26 U.S.C. §461(g)"
+    },
+    {
+      "id": "income-tax-0016",
+      "topic": "income-tax",
+      "prompt": "The federal deduction for state and local taxes, including property taxes, is currently:",
+      "choices": [
+        "Subject to a statutory dollar cap for individual taxpayers",
+        "Unlimited for owner-occupied residences",
+        "Available only to taxpayers who do not itemize",
+        "Limited to taxes paid on investment property"
+      ],
+      "answer": 0,
+      "explanation": "The SALT cap has particular impact in high-tax states such as New York, where property and income taxes frequently exceed the limit.",
+      "citation": "26 U.S.C. §164(b)(6)"
+    },
+    {
+      "id": "income-tax-0017",
+      "topic": "income-tax",
+      "prompt": "An installment sale allows a seller to:",
+      "choices": [
+        "Report gain proportionately as payments are received across multiple years",
+        "Defer the entire gain until the final payment is received",
+        "Exclude the gain entirely if payments span more than five years",
+        "Convert capital gain into ordinary income at a lower rate"
+      ],
+      "answer": 0,
+      "explanation": "Spreading gain across years can keep the seller in a lower bracket. Depreciation recapture, however, is generally reported entirely in the year of sale.",
+      "citation": "26 U.S.C. §453"
+    },
+    {
+      "id": "income-tax-0018",
+      "topic": "income-tax",
+      "prompt": "A licensee asked by a client how a sale will affect their income taxes should:",
+      "choices": [
+        "Explain the general concepts and refer the client to a tax professional",
+        "Calculate the client's expected tax liability from the sale figures",
+        "Advise the client that no tax is due if they reinvest the proceeds",
+        "Decline to discuss the transaction's financial aspects at all"
+      ],
+      "answer": 0,
+      "explanation": "General education is appropriate; specific advice is not. Tax outcomes depend on facts a licensee does not have and is not licensed to evaluate.",
+      "citation": "DOS 77-hour curriculum § Income Tax Issues in Real Estate Transactions"
     }
   ]
 }
