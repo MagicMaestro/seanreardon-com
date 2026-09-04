@@ -3343,6 +3343,1126 @@
       "answer": 0,
       "explanation": "The estate ends by itself when the condition fails, and the grantor's future interest is a possibility of reverter. Wording like \"but if\" instead creates a right of re-entry that must be exercised.",
       "citation": "DOS 77-hour curriculum § Legal Issues (Estates and Interests)"
+    },
+    {
+      "id": "commercial-investment-0019",
+      "topic": "commercial-investment",
+      "prompt": "A property has potential gross income of $200,000, vacancy and collection loss of 8%, and operating expenses of $70,000. Its net operating income is:",
+      "choices": [
+        "$114,000",
+        "$130,000",
+        "$122,000",
+        "$184,000"
+      ],
+      "answer": 0,
+      "explanation": "Effective gross income is $200,000 less 8%, or $184,000. Subtracting $70,000 of operating expenses leaves $114,000.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0020",
+      "topic": "commercial-investment",
+      "prompt": "An investor buys a building for $1,200,000 that produces $96,000 in net operating income. The capitalization rate is:",
+      "choices": [
+        "8%",
+        "12.5%",
+        "6%",
+        "10%"
+      ],
+      "answer": 0,
+      "explanation": "Cap rate is NOI divided by value: $96,000 / $1,200,000 = 8%.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0021",
+      "topic": "commercial-investment",
+      "prompt": "Under a gross lease, the landlord is generally responsible for:",
+      "choices": [
+        "Property taxes, insurance, and maintenance, paid out of the rent received",
+        "Only the structural elements of the building",
+        "Nothing beyond delivering possession of the premises",
+        "Taxes only, with the tenant covering insurance and maintenance"
+      ],
+      "answer": 0,
+      "explanation": "The tenant pays a single rent figure and the landlord absorbs operating costs. Escalation clauses are how landlords protect themselves against rising expenses.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0022",
+      "topic": "commercial-investment",
+      "prompt": "An escalation clause in a commercial lease allows the landlord to:",
+      "choices": [
+        "Increase rent as specified operating costs rise during the lease term",
+        "Terminate the lease if the tenant's sales fall below a threshold",
+        "Recapture the space if a better tenant is found",
+        "Require the tenant to purchase the building at a set price"
+      ],
+      "answer": 0,
+      "explanation": "Escalations pass through increases in taxes, insurance, or a published index, and are what make a long gross lease workable for a landlord.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0023",
+      "topic": "commercial-investment",
+      "prompt": "A sale-leaseback transaction is typically motivated by the seller's desire to:",
+      "choices": [
+        "Free capital tied up in real estate while continuing to occupy the property",
+        "Transfer management responsibility while retaining ownership",
+        "Defer capital gain under Section 1031",
+        "Obtain a mortgage without a personal guarantee"
+      ],
+      "answer": 0,
+      "explanation": "The occupant converts an owned asset into cash and becomes a tenant. It is a financing decision as much as a real estate one.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0024",
+      "topic": "commercial-investment",
+      "prompt": "A tenant leases 2,500 square feet at $28 per square foot per year. Monthly base rent is:",
+      "choices": [
+        "$5,833.33",
+        "$70,000.00",
+        "$2,333.33",
+        "$8,750.00"
+      ],
+      "answer": 0,
+      "explanation": "Annual rent is 2,500 x $28 = $70,000. Divided by twelve months, monthly rent is $5,833.33.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0025",
+      "topic": "commercial-investment",
+      "prompt": "Rentable square footage differs from usable square footage because rentable includes:",
+      "choices": [
+        "The tenant's proportionate share of building common areas",
+        "The area occupied by the tenant's own demising walls only",
+        "Parking spaces allocated to the tenant",
+        "Storage space in the building's basement"
+      ],
+      "answer": 0,
+      "explanation": "The ratio between them is the load or add-on factor. Two quoted rents are not comparable unless you know which measure each uses.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0026",
+      "topic": "commercial-investment",
+      "prompt": "A percentage lease sets a breakpoint, which is the sales level at which:",
+      "choices": [
+        "Percentage rent begins to be owed on top of base rent",
+        "The landlord may terminate the lease for underperformance",
+        "The tenant's common area charges are capped",
+        "The lease automatically renews for another term"
+      ],
+      "answer": 0,
+      "explanation": "Below the breakpoint the tenant pays base rent alone. A natural breakpoint is base rent divided by the percentage rate.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0027",
+      "topic": "commercial-investment",
+      "prompt": "A tenant improvement allowance in a commercial lease is:",
+      "choices": [
+        "A sum the landlord contributes toward building out the tenant's space",
+        "A rent credit for the months the tenant cannot occupy the space",
+        "A reduction in the tenant's share of common area charges",
+        "A deposit the tenant provides to secure future alterations"
+      ],
+      "answer": 0,
+      "explanation": "Allowances are a negotiated concession alongside free rent. The effective rent over the term matters more than the headline rate once concessions are counted.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0028",
+      "topic": "commercial-investment",
+      "prompt": "A subordination, non-disturbance and attornment agreement protects a commercial tenant by providing that:",
+      "choices": [
+        "The lease survives a foreclosure of the landlord's mortgage",
+        "The tenant may terminate if the landlord defaults on the mortgage",
+        "The tenant's rent cannot increase during the lease term",
+        "The lender will fund the tenant's improvement allowance"
+      ],
+      "answer": 0,
+      "explanation": "The tenant subordinates to the mortgage and agrees to recognize a new owner, in exchange for the lender's promise not to terminate the lease on foreclosure.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0029",
+      "topic": "commercial-investment",
+      "prompt": "A Phase I environmental site assessment on a commercial acquisition primarily involves:",
+      "choices": [
+        "Records review, a site visit, and interviews, with no sampling",
+        "Soil and groundwater sampling to confirm contamination",
+        "Remediation of any contamination discovered",
+        "An appraisal adjusted for environmental risk"
+      ],
+      "answer": 0,
+      "explanation": "Phase I looks for recognized environmental conditions without testing. Phase II is where sampling happens, if Phase I gives reason for it.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0030",
+      "topic": "commercial-investment",
+      "prompt": "Conducting all appropriate inquiry before acquiring commercial property matters because it can establish:",
+      "choices": [
+        "The innocent landowner defense to CERCLA liability",
+        "A lien priority over prior recorded mortgages",
+        "An exemption from local zoning requirements",
+        "Eligibility for a Section 1031 exchange"
+      ],
+      "answer": 0,
+      "explanation": "CERCLA liability is strict and reaches current owners who caused nothing. The defense depends on having investigated properly before buying.",
+      "citation": "42 U.S.C. §9601; DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0031",
+      "topic": "commercial-investment",
+      "prompt": "An investor's before-tax cash flow is calculated by subtracting from net operating income:",
+      "choices": [
+        "Annual debt service",
+        "Depreciation",
+        "Operating expenses",
+        "Vacancy and collection loss"
+      ],
+      "answer": 0,
+      "explanation": "NOI is already net of operating expenses and vacancy. Taking out debt service produces the cash the investor actually receives before income taxes.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0032",
+      "topic": "commercial-investment",
+      "prompt": "Two identical properties differ only in that one carries a long lease to a national credit tenant. That property will typically command:",
+      "choices": [
+        "A lower capitalization rate, and therefore a higher price",
+        "A higher capitalization rate, and therefore a higher price",
+        "A lower capitalization rate, and therefore a lower price",
+        "The same capitalization rate, since the buildings are identical"
+      ],
+      "answer": 0,
+      "explanation": "A more secure income stream lowers the required return. Cap rate and price move inversely, so a lower rate on the same NOI means a higher value.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0033",
+      "topic": "commercial-investment",
+      "prompt": "A property's break-even ratio measures:",
+      "choices": [
+        "The occupancy level at which income covers operating expenses and debt service",
+        "The ratio of a property's debt to its market value",
+        "The share of net operating income consumed by capital expenditures",
+        "The point at which appreciation offsets accumulated depreciation"
+      ],
+      "answer": 0,
+      "explanation": "Also called the default ratio, it tells an investor how much the property can afford to sit empty before it stops paying for itself.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0034",
+      "topic": "commercial-investment",
+      "prompt": "A property with $60,000 in net operating income is offered at a price that produces a 7.5% capitalization rate. The asking price is:",
+      "choices": [
+        "$800,000",
+        "$450,000",
+        "$750,000",
+        "$900,000"
+      ],
+      "answer": 0,
+      "explanation": "Value equals NOI divided by cap rate: $60,000 / 0.075 = $800,000.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0035",
+      "topic": "commercial-investment",
+      "prompt": "In evaluating an apartment building, an investor treats an allowance for periodic roof and boiler replacement as:",
+      "choices": [
+        "A reserve for replacements, an above-the-line deduction in arriving at NOI",
+        "A capital expenditure excluded from the operating statement entirely",
+        "Part of annual debt service",
+        "A financing cost deducted after NOI"
+      ],
+      "answer": 0,
+      "explanation": "Including a replacement reserve produces a more honest NOI. A seller's statement that omits it will overstate income and therefore value.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0036",
+      "topic": "commercial-investment",
+      "prompt": "Class A office space is generally understood to mean buildings that are:",
+      "choices": [
+        "The most prestigious in a market, commanding the highest rents",
+        "Newly constructed, regardless of location or rent level",
+        "Occupied entirely by a single corporate tenant",
+        "Owned by an institutional investor such as a pension fund"
+      ],
+      "answer": 0,
+      "explanation": "The classification is relative to each market rather than absolute. Class A in a small city may be Class B in Manhattan.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0037",
+      "topic": "commercial-investment",
+      "prompt": "A recapture clause in a retail lease permits the landlord to:",
+      "choices": [
+        "Take back the space if the tenant's sales fail to reach a stated level",
+        "Recover unamortized tenant improvement costs at lease end",
+        "Increase base rent when comparable rents rise",
+        "Require the tenant to restore the premises to their original condition"
+      ],
+      "answer": 0,
+      "explanation": "Recapture protects a landlord whose return depends on percentage rent from an underperforming tenant occupying valuable space.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0038",
+      "topic": "commercial-investment",
+      "prompt": "A commercial property's loan-to-value ratio is 70% on a $2,000,000 purchase. The required equity is:",
+      "choices": [
+        "$600,000",
+        "$1,400,000",
+        "$700,000",
+        "$300,000"
+      ],
+      "answer": 0,
+      "explanation": "A 70% loan is $1,400,000, leaving $600,000 of equity. Commercial lending typically requires more equity than residential.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0039",
+      "topic": "commercial-investment",
+      "prompt": "A right of first refusal held by a commercial tenant allows the tenant to:",
+      "choices": [
+        "Match the terms of a bona fide offer the landlord is prepared to accept",
+        "Purchase the property at a price fixed when the lease was signed",
+        "Prevent the landlord from selling during the lease term",
+        "Require the landlord to sell whenever the tenant chooses"
+      ],
+      "answer": 0,
+      "explanation": "A right of first refusal is reactive, triggered by a third-party offer. An option to purchase, by contrast, lets the tenant initiate at a set price.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0040",
+      "topic": "commercial-investment",
+      "prompt": "In a triple net investment, the capitalization rate a buyer accepts depends most heavily on:",
+      "choices": [
+        "The creditworthiness of the tenant and the remaining lease term",
+        "The replacement cost of the building",
+        "The age of the roof and mechanical systems",
+        "The property's assessed value for tax purposes"
+      ],
+      "answer": 0,
+      "explanation": "With the tenant carrying operating costs, the investment is effectively a bond backed by that tenant. The tenant's credit becomes the dominant variable.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0041",
+      "topic": "commercial-investment",
+      "prompt": "A holdover tenant in a commercial building is one who:",
+      "choices": [
+        "Remains in possession after the lease term expires",
+        "Occupies space under a lease assigned from another tenant",
+        "Leases space month to month from the outset",
+        "Subleases a portion of its premises to a third party"
+      ],
+      "answer": 0,
+      "explanation": "Commercial leases commonly impose holdover rent at 150% or 200% of the prior rate, because a holdover can prevent the landlord from delivering space to an incoming tenant.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0042",
+      "topic": "commercial-investment",
+      "prompt": "The internal rate of return on a real estate investment accounts for:",
+      "choices": [
+        "The timing of all cash flows, including the eventual sale proceeds",
+        "Only the first year's cash flow relative to the purchase price",
+        "Net operating income before any financing",
+        "The ratio of gross rent to purchase price"
+      ],
+      "answer": 0,
+      "explanation": "IRR discounts every projected cash flow to present value. It is the tool that distinguishes an investment paying off early from one paying off at sale.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0043",
+      "topic": "commercial-investment",
+      "prompt": "A due diligence period in a commercial purchase contract exists so the buyer can:",
+      "choices": [
+        "Investigate the property and terminate without penalty if it proves unsuitable",
+        "Arrange financing after the closing date has passed",
+        "Require the seller to complete deferred maintenance",
+        "Market the property to potential subtenants before closing"
+      ],
+      "answer": 0,
+      "explanation": "The buyer typically has an unrestricted right to walk during this window, often with a refundable deposit. After it expires the deposit usually goes hard.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0044",
+      "topic": "commercial-investment",
+      "prompt": "A tenant mix strategy in a shopping center aims to:",
+      "choices": [
+        "Assemble complementary tenants whose customers overlap and reinforce each other",
+        "Lease to as many tenants in the same category as possible",
+        "Fill every space regardless of tenant type to eliminate vacancy",
+        "Reserve the largest spaces for the highest per-square-foot rents"
+      ],
+      "answer": 0,
+      "explanation": "Center performance depends on the whole roster, not each lease in isolation. This is why leases often restrict competing uses.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0045",
+      "topic": "commercial-investment",
+      "prompt": "An exclusive use clause in a retail lease:",
+      "choices": [
+        "Bars the landlord from leasing other space in the center to a competing use",
+        "Requires the tenant to use the space only for the stated purpose",
+        "Gives the tenant exclusive access to the center's parking",
+        "Prevents the tenant from subleasing any part of the premises"
+      ],
+      "answer": 0,
+      "explanation": "It binds the landlord, not the tenant. A use clause is the separate provision limiting what the tenant may do in the space.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0046",
+      "topic": "commercial-investment",
+      "prompt": "A property is appraised at $1,500,000 and carries a $900,000 mortgage. Its loan-to-value ratio is:",
+      "choices": [
+        "60%",
+        "40%",
+        "67%",
+        "167%"
+      ],
+      "answer": 0,
+      "explanation": "$900,000 / $1,500,000 = 60%. Lenders use the lower of appraised value or purchase price when the two differ.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0047",
+      "topic": "commercial-investment",
+      "prompt": "A general partner in a real estate limited partnership differs from the limited partners in that the general partner:",
+      "choices": [
+        "Manages the venture and bears unlimited liability",
+        "Contributes the majority of the capital",
+        "Receives distributions before any limited partner",
+        "May not hold an ownership interest in the property"
+      ],
+      "answer": 0,
+      "explanation": "The trade is control for exposure. Limited partners keep liability capped at their contribution but give up management authority.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0048",
+      "topic": "commercial-investment",
+      "prompt": "The primary appeal of a real estate investment trust to a small investor is:",
+      "choices": [
+        "Liquidity and diversification without direct property management",
+        "The ability to depreciate the underlying real estate personally",
+        "Exemption from tax on distributions received",
+        "Direct control over which properties are acquired"
+      ],
+      "answer": 0,
+      "explanation": "Publicly traded REIT shares can be sold in a day, which direct ownership never allows. Distributions are generally taxable to the shareholder.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0049",
+      "topic": "commercial-investment",
+      "prompt": "Absorption rate in a commercial market measures:",
+      "choices": [
+        "The rate at which available space is leased over a period",
+        "The share of a building's income consumed by operating costs",
+        "The speed at which a property depreciates for tax purposes",
+        "The percentage of a loan repaid annually"
+      ],
+      "answer": 0,
+      "explanation": "Net absorption compares space leased against space vacated. Negative absorption means a market is emptying faster than it fills.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0050",
+      "topic": "commercial-investment",
+      "prompt": "A feasibility study for a proposed development primarily asks whether:",
+      "choices": [
+        "The project can be built and operated profitably given market and cost conditions",
+        "The site complies with the current zoning ordinance",
+        "The developer can obtain title insurance for the parcel",
+        "The property's assessed value supports the expected tax burden"
+      ],
+      "answer": 0,
+      "explanation": "Feasibility joins market demand, construction cost, financing, and regulatory constraints into one question about whether the project works.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0051",
+      "topic": "commercial-investment",
+      "prompt": "An industrial property's clear height refers to:",
+      "choices": [
+        "The unobstructed vertical distance from floor to the lowest overhead obstruction",
+        "The height of the building measured from grade to roofline",
+        "The maximum height permitted by the zoning ordinance",
+        "The distance from the loading dock to the ceiling"
+      ],
+      "answer": 0,
+      "explanation": "Clear height governs how high goods can be racked, which is why modern distribution tenants treat it as a threshold requirement.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0052",
+      "topic": "commercial-investment",
+      "prompt": "A mixed-use development is one that:",
+      "choices": [
+        "Combines two or more uses, such as residential over ground-floor retail",
+        "Permits any use allowed anywhere in the municipality",
+        "Contains both owner-occupied and rental units",
+        "Is financed by a combination of debt and equity"
+      ],
+      "answer": 0,
+      "explanation": "Mixed use often requires a planned unit development or a special district, since conventional zoning separates uses by right.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0053",
+      "topic": "commercial-investment",
+      "prompt": "A commercial mortgage with a balloon payment requires the borrower to:",
+      "choices": [
+        "Repay a large remaining principal balance at the end of the term",
+        "Make interest-only payments for the entire term",
+        "Increase payments annually according to an index",
+        "Pay a penalty if the loan is repaid early"
+      ],
+      "answer": 0,
+      "explanation": "Payments are calculated on a longer amortization than the actual term, so a substantial balance remains due and typically must be refinanced.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "commercial-investment-0054",
+      "topic": "commercial-investment",
+      "prompt": "An investor comparing two properties finds identical cap rates but very different operating expense ratios. This most likely signals:",
+      "choices": [
+        "A difference in lease structure, expense reporting, or deferred maintenance worth investigating",
+        "An arithmetic error, since cap rate and expense ratio must move together",
+        "That the property with the higher ratio is necessarily the better buy",
+        "That one property has a below-market mortgage in place"
+      ],
+      "answer": 0,
+      "explanation": "A net-leased property shows a low expense ratio because tenants pay costs directly. An unusually low ratio can also mean a seller omitted expenses.",
+      "citation": "DOS 77-hour curriculum § Commercial and Investment Properties"
+    },
+    {
+      "id": "fair-housing-0013",
+      "topic": "fair-housing",
+      "prompt": "The federal Fair Housing Act's seven protected classes are race, color, religion, national origin, sex, disability, and:",
+      "choices": [
+        "Familial status",
+        "Marital status",
+        "Age",
+        "Source of income"
+      ],
+      "answer": 0,
+      "explanation": "Familial status protects households with children under 18 and pregnant people. Marital status, age, and source of income are New York additions, not federal ones.",
+      "citation": "42 U.S.C. §3604"
+    },
+    {
+      "id": "fair-housing-0014",
+      "topic": "fair-housing",
+      "prompt": "New York's Human Rights Law protects several classes beyond the federal list, including:",
+      "choices": [
+        "Age, marital status, military status, and sexual orientation",
+        "Occupation, education level, and credit score",
+        "Length of residence and employment history",
+        "Homeownership history and prior landlord references"
+      ],
+      "answer": 0,
+      "explanation": "New York's list is substantially broader than the federal one, and New York City's Human Rights Law adds further categories on top of the state's.",
+      "citation": "Executive Law Article 15"
+    },
+    {
+      "id": "fair-housing-0015",
+      "topic": "fair-housing",
+      "prompt": "A landlord tells a tenant with a visual impairment that no pets are allowed and refuses a guide dog. This is:",
+      "choices": [
+        "A failure to make a reasonable accommodation",
+        "A permissible enforcement of a uniform building policy",
+        "A refusal of a reasonable modification, which the tenant must fund",
+        "Permissible if the building has fewer than four units"
+      ],
+      "answer": 0,
+      "explanation": "Service and assistance animals are not pets for fair housing purposes. Waiving a no-pets rule is the standard example of a reasonable accommodation.",
+      "citation": "42 U.S.C. §3604(f); DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "fair-housing-0016",
+      "topic": "fair-housing",
+      "prompt": "A landlord may lawfully require a tenant who installed a wheelchair ramp to:",
+      "choices": [
+        "Restore the premises to their original condition at the end of the tenancy, where reasonable",
+        "Pay a higher security deposit because of the disability",
+        "Provide medical documentation of the specific diagnosis",
+        "Relocate to a ground-floor unit designated for accessible use"
+      ],
+      "answer": 0,
+      "explanation": "Restoration may be required for modifications where it is reasonable. Charging more, demanding a diagnosis, or steering to designated units are all violations.",
+      "citation": "42 U.S.C. §3604(f); DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "fair-housing-0017",
+      "topic": "fair-housing",
+      "prompt": "Multifamily buildings of four or more units built for first occupancy after March 13, 1991 must meet:",
+      "choices": [
+        "The Fair Housing Act's design and construction accessibility requirements",
+        "Title III of the Americans with Disabilities Act",
+        "The Architectural Barriers Act",
+        "Section 504 of the Rehabilitation Act, regardless of funding"
+      ],
+      "answer": 0,
+      "explanation": "These requirements cover accessible routes, usable doors, and reinforced bathroom walls. ADA Title III governs public accommodations, not private residential units.",
+      "citation": "42 U.S.C. §3604(f)(3)(C)"
+    },
+    {
+      "id": "fair-housing-0018",
+      "topic": "fair-housing",
+      "prompt": "A licensee is asked by a buyer about the racial composition of a neighborhood. The licensee should:",
+      "choices": [
+        "Decline to characterize the neighborhood and point to publicly available census data",
+        "Answer honestly based on personal observation",
+        "Provide the information only if the buyer puts the request in writing",
+        "Show the buyer homes only in demographically similar neighborhoods"
+      ],
+      "answer": 0,
+      "explanation": "Answering invites a steering claim regardless of intent. Directing the buyer to objective public sources lets them research without the licensee influencing the choice.",
+      "citation": "DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "fair-housing-0019",
+      "topic": "fair-housing",
+      "prompt": "A person who believes they have suffered housing discrimination may file a complaint with HUD generally within:",
+      "choices": [
+        "One year of the alleged discriminatory act",
+        "Thirty days of the alleged discriminatory act",
+        "Six months of the alleged discriminatory act",
+        "Three years of the alleged discriminatory act"
+      ],
+      "answer": 0,
+      "explanation": "The administrative window with HUD is one year. A separate federal civil action carries a longer period, and state remedies run on their own timetables.",
+      "citation": "42 U.S.C. §3610"
+    },
+    {
+      "id": "fair-housing-0020",
+      "topic": "fair-housing",
+      "prompt": "In New York, a complaint alleging housing discrimination may be filed with:",
+      "choices": [
+        "The New York State Division of Human Rights",
+        "The Department of State, Division of Licensing Services only",
+        "The New York State Board of Real Estate",
+        "The county clerk where the property is located"
+      ],
+      "answer": 0,
+      "explanation": "The Division of Human Rights enforces the Human Rights Law. The Department of State separately disciplines the license of a licensee involved.",
+      "citation": "Executive Law Article 15; DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "fair-housing-0021",
+      "topic": "fair-housing",
+      "prompt": "The New York Department of State's Fair Housing Enforcement Program conducts:",
+      "choices": [
+        "Undercover testing of rental and sale transactions to detect discriminatory treatment",
+        "Annual audits of every brokerage's transaction records",
+        "Mandatory mediation of all discrimination complaints",
+        "Pre-approval review of brokerage advertising"
+      ],
+      "answer": 0,
+      "explanation": "The program grew out of documented steering in New York. Findings can lead to license discipline as well as human rights proceedings.",
+      "citation": "DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "fair-housing-0022",
+      "topic": "fair-housing",
+      "prompt": "A landlord's blanket policy of refusing to rent to anyone with any criminal record may violate fair housing law because it:",
+      "choices": [
+        "Can have a disparate impact on protected classes without any discriminatory intent",
+        "Is expressly prohibited by the federal protected class list",
+        "Constitutes steering under the Fair Housing Act",
+        "Amounts to blockbusting in neighborhoods undergoing change"
+      ],
+      "answer": 0,
+      "explanation": "Disparate impact reaches neutral policies that fall more harshly on protected groups. Individualized assessment of the offense, its recency, and its relevance is the safer approach.",
+      "citation": "DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "fair-housing-0023",
+      "topic": "fair-housing",
+      "prompt": "A New York licensee's continuing education must include a minimum number of hours on cultural competency. That minimum is:",
+      "choices": [
+        "2 hours",
+        "1 hour",
+        "3 hours",
+        "5 hours"
+      ],
+      "answer": 0,
+      "explanation": "The cultural competency requirement, like the two-hour implicit bias requirement, came from the December 2021 legislative package on housing discrimination.",
+      "citation": "RPL §441-a(3)"
+    },
+    {
+      "id": "fair-housing-0024",
+      "topic": "fair-housing",
+      "prompt": "Continuing education must include a minimum of how many hours on fair housing and discrimination?",
+      "choices": [
+        "3 hours",
+        "1 hour",
+        "2 hours",
+        "5 hours"
+      ],
+      "answer": 0,
+      "explanation": "Fair housing carries the largest single required component of the 22.5-hour renewal requirement.",
+      "citation": "RPL §441-a(3)"
+    },
+    {
+      "id": "fair-housing-0025",
+      "topic": "fair-housing",
+      "prompt": "The federal exemption sometimes called the Mrs. Murphy exemption applies to:",
+      "choices": [
+        "An owner-occupied dwelling of four units or fewer, rented without a broker or discriminatory advertising",
+        "Any single-family home sold by its owner",
+        "Any building constructed before 1968",
+        "Housing owned by a religious organization or private club"
+      ],
+      "answer": 0,
+      "explanation": "The exemption is narrow and evaporates the moment a licensee is used or discriminatory advertising appears. Race discrimination remains prohibited regardless under 42 U.S.C. §1981-1982.",
+      "citation": "42 U.S.C. §3603(b)"
+    },
+    {
+      "id": "fair-housing-0026",
+      "topic": "fair-housing",
+      "prompt": "Even where a Fair Housing Act exemption applies, discrimination on the basis of race remains prohibited by:",
+      "choices": [
+        "The Civil Rights Act of 1866, which has no exemptions",
+        "The Americans with Disabilities Act",
+        "The Equal Credit Opportunity Act",
+        "The Community Reinvestment Act"
+      ],
+      "answer": 0,
+      "explanation": "Jones v. Alfred H. Mayer Co. confirmed the 1866 Act reaches all property transactions. It is the reason no exemption ever covers racial discrimination.",
+      "citation": "42 U.S.C. §1982; Jones v. Alfred H. Mayer Co. (1968)"
+    },
+    {
+      "id": "fair-housing-0027",
+      "topic": "fair-housing",
+      "prompt": "A licensee is asked by an owner to market a property only through channels reaching a single ethnic community. The licensee should:",
+      "choices": [
+        "Refuse, because limiting marketing that way denies information to protected classes",
+        "Comply, since the owner directs the marketing plan",
+        "Comply if the licensee also lists the property in the MLS",
+        "Comply but note the instruction in the transaction file"
+      ],
+      "answer": 0,
+      "explanation": "Selective marketing achieves the same result as steering. The instruction is unlawful, and the duty of obedience does not extend to unlawful instructions.",
+      "citation": "42 U.S.C. §3604(c); DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "fair-housing-0028",
+      "topic": "fair-housing",
+      "prompt": "The Equal Credit Opportunity Act prohibits discrimination in:",
+      "choices": [
+        "The extension of credit, including on the basis of receipt of public assistance",
+        "The sale of residential property only",
+        "The rental of dwellings with more than four units",
+        "The provision of homeowner's insurance"
+      ],
+      "answer": 0,
+      "explanation": "ECOA covers credit rather than housing directly, and its protected characteristics include age, marital status, and receipt of public assistance income.",
+      "citation": "15 U.S.C. §1691"
+    },
+    {
+      "id": "fair-housing-0029",
+      "topic": "fair-housing",
+      "prompt": "A New York licensee must provide the Housing and Anti-Discrimination Disclosure Form and:",
+      "choices": [
+        "Retain proof that it was provided for at least three years",
+        "File a copy with the Division of Human Rights",
+        "Obtain the consumer's notarized signature",
+        "Provide it only to buyers, not to sellers or tenants"
+      ],
+      "answer": 0,
+      "explanation": "The form goes to buyers, sellers, tenants, and landlords alike at first substantive contact, and retention follows the general three-year records rule.",
+      "citation": "19 NYCRR §175.28; 19 NYCRR §175.23"
+    },
+    {
+      "id": "fair-housing-0030",
+      "topic": "fair-housing",
+      "prompt": "A non-solicitation order issued by the New York Secretary of State:",
+      "choices": [
+        "Prohibits licensees from soliciting listings within a designated geographic area",
+        "Prevents any property in the area from being sold for a stated period",
+        "Requires licensees to obtain written consent before advertising in the area",
+        "Bars new brokerages from opening offices in the area"
+      ],
+      "answer": 0,
+      "explanation": "Non-solicitation orders respond to blockbusting activity in a defined area. Violating one is grounds for license discipline.",
+      "citation": "DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "fair-housing-0031",
+      "topic": "fair-housing",
+      "prompt": "A brokerage's advertisement featuring only images of one racial group in a diverse market may:",
+      "choices": [
+        "Suggest a preference and violate the Fair Housing Act's advertising provisions",
+        "Be permissible, since images are not statements of preference",
+        "Be permissible if a fair housing logo appears in the advertisement",
+        "Violate antitrust law rather than fair housing law"
+      ],
+      "answer": 0,
+      "explanation": "Human models in advertising should reasonably represent the market. The test is the message conveyed to an ordinary reader, not the advertiser's intent.",
+      "citation": "42 U.S.C. §3604(c); DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "fair-housing-0032",
+      "topic": "fair-housing",
+      "prompt": "The New York State Human Rights Law's protection for domestic violence victim status means a landlord may not:",
+      "choices": [
+        "Refuse to rent because the applicant has been a victim of domestic violence",
+        "Ask any applicant for references from a prior landlord",
+        "Require any applicant to provide proof of income",
+        "Enforce a lease provision limiting overnight guests"
+      ],
+      "answer": 0,
+      "explanation": "New York added this protection to stop applicants being penalized for police activity or lease terminations connected to abuse they suffered.",
+      "citation": "Executive Law §296"
+    },
+    {
+      "id": "fair-housing-0033",
+      "topic": "fair-housing",
+      "prompt": "For housing to qualify under the older persons exemption to familial status, one common standard requires that:",
+      "choices": [
+        "At least 80% of occupied units have a resident 55 or older, with published policies demonstrating intent",
+        "Every resident be at least 62 years of age without exception",
+        "The property be operated by a government agency",
+        "The property contain no more than four dwelling units"
+      ],
+      "answer": 0,
+      "explanation": "The 55-and-older route requires the 80% occupancy standard plus published policies and age verification. A separate route requires all occupants be 62 or older.",
+      "citation": "42 U.S.C. §3607(b)"
+    },
+    {
+      "id": "fair-housing-0034",
+      "topic": "fair-housing",
+      "prompt": "A licensee who follows a seller's discriminatory instruction is:",
+      "choices": [
+        "Personally liable, and also exposed to license discipline",
+        "Shielded from liability because the seller gave the instruction",
+        "Liable only if the licensee profited from the transaction",
+        "Liable only if the affected buyer files suit within thirty days"
+      ],
+      "answer": 0,
+      "explanation": "Agency does not transfer liability for unlawful acts. Both the principal and the licensee who carries out the instruction can be held responsible.",
+      "citation": "DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "fair-housing-0035",
+      "topic": "fair-housing",
+      "prompt": "The purpose of the anti-bias training component added to New York's qualifying curriculum is to address:",
+      "choices": [
+        "Unconscious stereotypes that can influence how licensees treat consumers",
+        "Deliberate refusals to show property to protected classes",
+        "Advertising practices in print and digital media",
+        "Recordkeeping requirements for agency disclosure forms"
+      ],
+      "answer": 0,
+      "explanation": "The component targets treatment differences a licensee may not recognize in themselves, which testing has repeatedly documented in New York.",
+      "citation": "DOS 77-hour curriculum § Human Rights and Fair Housing"
+    },
+    {
+      "id": "fair-housing-0036",
+      "topic": "fair-housing",
+      "prompt": "A property manager applies a minimum income requirement of 40 times the monthly rent, but counts only wage income and excludes housing vouchers. In New York this is:",
+      "choices": [
+        "Likely unlawful, because it discriminates on the basis of lawful source of income",
+        "Lawful, because income standards are applied to every applicant equally",
+        "Lawful, because vouchers are paid to the landlord rather than the tenant",
+        "Unlawful only in buildings receiving public subsidy"
+      ],
+      "answer": 0,
+      "explanation": "A facially neutral income test applied so that voucher holders can never qualify is a common form of source of income discrimination.",
+      "citation": "Executive Law §296(5)"
+    },
+    {
+      "id": "finance-0011",
+      "topic": "finance",
+      "prompt": "In an amortized mortgage, the portion of each monthly payment allocated to interest:",
+      "choices": [
+        "Decreases over the life of the loan as the principal balance falls",
+        "Remains constant throughout the loan term",
+        "Increases over the life of the loan",
+        "Is recalculated annually based on the property's value"
+      ],
+      "answer": 0,
+      "explanation": "Interest is charged on the outstanding balance. Early payments are mostly interest; later ones are mostly principal, even though the total payment does not change.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0012",
+      "topic": "finance",
+      "prompt": "A borrower's loan has a balance of $240,000 at 6% annual interest. The interest portion of the next monthly payment is:",
+      "choices": [
+        "$1,200",
+        "$1,440",
+        "$14,400",
+        "$600"
+      ],
+      "answer": 0,
+      "explanation": "Annual interest is $240,000 x 0.06 = $14,400. One month's share is $14,400 / 12 = $1,200.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0013",
+      "topic": "finance",
+      "prompt": "The secondary mortgage market exists primarily to:",
+      "choices": [
+        "Buy loans from originating lenders, replenishing funds available for new lending",
+        "Make second mortgages available to homeowners",
+        "Insure lenders against borrower default",
+        "Set the interest rates lenders may charge"
+      ],
+      "answer": 0,
+      "explanation": "Fannie Mae, Freddie Mac, and Ginnie Mae operate here. Their underwriting standards effectively set the terms of conventional conforming lending.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0014",
+      "topic": "finance",
+      "prompt": "A conforming loan is one that:",
+      "choices": [
+        "Meets the size and underwriting standards for purchase by Fannie Mae or Freddie Mac",
+        "Is insured by the Federal Housing Administration",
+        "Carries a fixed rate for its entire term",
+        "Requires no private mortgage insurance"
+      ],
+      "answer": 0,
+      "explanation": "Loans above the limit are jumbo loans, which lenders must hold or sell privately, and which therefore usually price differently.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0015",
+      "topic": "finance",
+      "prompt": "A VA-guaranteed loan differs from an FHA-insured loan in that the VA loan:",
+      "choices": [
+        "Guarantees a portion of the loan and commonly requires no down payment",
+        "Insures the entire loan amount against default",
+        "Is available to any borrower meeting the income limits",
+        "Is originated directly by the Department of Veterans Affairs"
+      ],
+      "answer": 0,
+      "explanation": "The VA guarantees part of the loan, which is why qualified veterans can often borrow with nothing down. Neither agency lends directly.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0016",
+      "topic": "finance",
+      "prompt": "In an adjustable rate mortgage, the margin is:",
+      "choices": [
+        "The fixed percentage the lender adds to the index to set the rate",
+        "The maximum the rate may increase in any single adjustment",
+        "The difference between the initial rate and the fully indexed rate",
+        "The lender's profit on the sale of the loan"
+      ],
+      "answer": 0,
+      "explanation": "The index moves with the market; the margin stays fixed for the life of the loan. Caps are the separate limits on how far the rate may move.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0017",
+      "topic": "finance",
+      "prompt": "A mortgage taken by a buyer from the seller as part of the purchase price is:",
+      "choices": [
+        "A purchase money mortgage",
+        "A wraparound mortgage",
+        "A blanket mortgage",
+        "A package mortgage"
+      ],
+      "answer": 0,
+      "explanation": "Seller financing is the common form. Purchase money mortgages generally take priority over other liens arising against the buyer at the same time.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0018",
+      "topic": "finance",
+      "prompt": "A blanket mortgage is one that:",
+      "choices": [
+        "Covers more than one parcel, typically with a release clause for individual lots",
+        "Includes personal property along with the real estate",
+        "Wraps around an existing mortgage that remains in place",
+        "Adjusts its rate according to a published index"
+      ],
+      "answer": 0,
+      "explanation": "Developers use blanket mortgages to finance subdivisions. The partial release clause lets individual lots be sold free of the lien as they close.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0019",
+      "topic": "finance",
+      "prompt": "A package mortgage differs from an ordinary mortgage because it:",
+      "choices": [
+        "Secures personal property such as appliances along with the real estate",
+        "Covers several separate parcels under one lien",
+        "Permits the borrower to draw additional funds after closing",
+        "Requires no monthly payment until the balloon date"
+      ],
+      "answer": 0,
+      "explanation": "Package mortgages are common in furnished condominium and resort sales, where the fixtures and contents are financed with the unit.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0020",
+      "topic": "finance",
+      "prompt": "New York requires foreclosure of a residential mortgage to proceed:",
+      "choices": [
+        "Through the courts, as a judicial foreclosure",
+        "By power of sale, without court involvement",
+        "By the lender taking possession after a 30-day notice",
+        "Through the Department of Financial Services"
+      ],
+      "answer": 0,
+      "explanation": "As a lien theory, judicial foreclosure state, New York requires a lawsuit. Borrowers also receive statutory pre-foreclosure notices and a settlement conference.",
+      "citation": "RPAPL Article 13; DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0021",
+      "topic": "finance",
+      "prompt": "A borrower's equity of redemption is the right to:",
+      "choices": [
+        "Pay the full debt and reclaim the property before the foreclosure sale",
+        "Force the lender to accept a deed in lieu of foreclosure",
+        "Remain in possession for one year after the sale",
+        "Recover the property from the purchaser after the sale has closed"
+      ],
+      "answer": 0,
+      "explanation": "The right runs until the sale extinguishes it. Some states add a statutory right of redemption after the sale; New York does not provide one for mortgage foreclosures.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0022",
+      "topic": "finance",
+      "prompt": "A short sale occurs when:",
+      "choices": [
+        "The lender agrees to accept less than the balance owed to permit a sale",
+        "A property sells within thirty days of listing",
+        "The buyer assumes the seller's existing mortgage",
+        "The lender forecloses and sells at public auction"
+      ],
+      "answer": 0,
+      "explanation": "The lender's approval is what makes the transaction possible, which is why short sales take far longer than ordinary ones and can fall apart late.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0023",
+      "topic": "finance",
+      "prompt": "A deficiency judgment may be sought by a lender when:",
+      "choices": [
+        "The foreclosure sale proceeds are less than the debt owed",
+        "The borrower prepays the loan before its maturity date",
+        "The property appraises below the purchase price",
+        "The borrower fails to maintain hazard insurance"
+      ],
+      "answer": 0,
+      "explanation": "The judgment covers the shortfall and becomes a general lien against the borrower's other property. Availability is limited by statute in various circumstances.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0024",
+      "topic": "finance",
+      "prompt": "A subordination clause in a mortgage provides that:",
+      "choices": [
+        "The lien will take a lower priority position to a later-recorded mortgage",
+        "The borrower may not place additional liens on the property",
+        "The lender may accelerate the debt upon a sale of the property",
+        "The loan may be assumed by a qualified buyer"
+      ],
+      "answer": 0,
+      "explanation": "Subordination is common in land acquisition, where the seller agrees to step behind a construction lender so the project can be financed.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0025",
+      "topic": "finance",
+      "prompt": "A defeasance clause in a mortgage operates to:",
+      "choices": [
+        "Require the lender to release the lien when the debt is fully paid",
+        "Allow the lender to declare the entire balance due on default",
+        "Prevent the borrower from prepaying without penalty",
+        "Permit the loan to be transferred to a new borrower"
+      ],
+      "answer": 0,
+      "explanation": "Recording the satisfaction of mortgage is what actually clears the record. An unreleased paid mortgage is a common cloud on title.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0026",
+      "topic": "finance",
+      "prompt": "A buyer who takes title subject to an existing mortgage, rather than assuming it:",
+      "choices": [
+        "Does not become personally liable for the debt",
+        "Becomes primarily liable for the debt",
+        "Releases the original borrower from all liability",
+        "Must obtain the lender's written approval in every case"
+      ],
+      "answer": 0,
+      "explanation": "The buyer risks losing the property to foreclosure but owes nothing personally. Assumption makes the buyer liable; a novation is required to release the seller.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0027",
+      "topic": "finance",
+      "prompt": "A lender's requirement that a borrower escrow funds monthly for taxes and insurance produces:",
+      "choices": [
+        "A PITI payment covering principal, interest, taxes, and insurance",
+        "A reduction in the loan's annual percentage rate",
+        "An increase in the borrower's equity each month",
+        "A waiver of the private mortgage insurance requirement"
+      ],
+      "answer": 0,
+      "explanation": "Escrowing protects the lender's collateral by ensuring taxes and coverage stay current, since a tax lien would otherwise outrank the mortgage.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0028",
+      "topic": "finance",
+      "prompt": "The front-end qualifying ratio a lender applies compares:",
+      "choices": [
+        "Housing expense to gross monthly income",
+        "Total monthly debt to gross monthly income",
+        "Loan amount to appraised value",
+        "Net operating income to annual debt service"
+      ],
+      "answer": 0,
+      "explanation": "The back-end ratio adds all recurring debt. Both must satisfy the lender, and the back-end ratio is usually the binding constraint.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0029",
+      "topic": "finance",
+      "prompt": "A borrower has gross monthly income of $8,000 and the lender applies a 28% front-end ratio. The maximum monthly housing expense is:",
+      "choices": [
+        "$2,240",
+        "$2,880",
+        "$1,960",
+        "$3,200"
+      ],
+      "answer": 0,
+      "explanation": "$8,000 x 0.28 = $2,240, covering principal, interest, taxes, and insurance together.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
+    },
+    {
+      "id": "finance-0030",
+      "topic": "finance",
+      "prompt": "Usury laws limit:",
+      "choices": [
+        "The maximum interest rate a lender may charge",
+        "The maximum term a mortgage loan may run",
+        "The number of points a lender may collect",
+        "The fees a mortgage broker may charge a borrower"
+      ],
+      "answer": 0,
+      "explanation": "New York sets civil and criminal usury ceilings, with exemptions for certain loan types and amounts. Charging above the limit can cost a lender the interest or the whole debt.",
+      "citation": "DOS 77-hour curriculum § Real Estate Finance"
     }
   ]
 }
