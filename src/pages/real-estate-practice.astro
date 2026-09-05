@@ -14,10 +14,22 @@
  * nothing worth showing before it hydrates, and deferring would leave a
  * visitor staring at a loading state they scrolled to on purpose.
  */
+import { readFileSync } from 'node:fs';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import PracticeExam from '~/components/react/PracticeExam.tsx';
+import ScrollControls from '~/components/react/ScrollControls.tsx';
+import type { ExamBank } from '~/lib/exam/types.ts';
 
-const lastReviewed = '2026-09-03';
+/* Read the review date straight out of the bank rather than repeating it here.
+   `scripts/validate-exam-bank.ts` ages this same field and fails the build once
+   it passes eighteen months, so a second copy in this file would be a date that
+   could silently drift out of sync with the one being policed.
+
+   Parsed at build time with readFileSync, not `import`, so the 325KB bank does
+   not get inlined into this page's output for the sake of one string. */
+const bankPath = new URL('../../public/data/ny-real-estate-questions.json', import.meta.url);
+const { meta } = JSON.parse(readFileSync(bankPath, 'utf8')) as ExamBank;
+const lastReviewed = meta.updated;
 ---
 
 <BaseLayout
@@ -43,6 +55,11 @@ const lastReviewed = '2026-09-03';
   <section class="exam-page-mount">
     <PracticeExam client:load />
   </section>
+
+  {/* Scroll affordances for a page that runs to ~33,000px with an attempt
+      loaded. `client:idle` rather than `client:load` — these are navigation
+      conveniences, so they can wait for the exam itself to finish hydrating. */}
+  <ScrollControls client:idle />
 
   <article class="exam-page" data-pagefind-body>
     <h2 id="what-the-state-says">What the state says</h2>
