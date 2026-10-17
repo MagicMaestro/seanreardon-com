@@ -53,8 +53,11 @@ function unseenFirst(pool: readonly ExamQuestion[], seenIds: ReadonlySet<string>
   return [...shuffle(unseen), ...shuffle(seen)];
 }
 
-/** Shuffle a question's four choices and re-index `answer` into the new order. */
-function toAttemptQuestion(q: ExamQuestion, topicLabel: string): AttemptQuestion {
+/** Shuffle a question's four choices and re-index `answer` into the new order.
+ *  Exported for `save.ts`, which rebuilds attempt questions on restore and must
+ *  produce them through this same function — a second construction site is how
+ *  the two coordinate systems would drift apart. */
+export function toAttemptQuestion(q: ExamQuestion, topicLabel: string): AttemptQuestion {
   const order = shuffle(q.choices.map((_, i) => i));
   return {
     id: q.id,
@@ -63,6 +66,9 @@ function toAttemptQuestion(q: ExamQuestion, topicLabel: string): AttemptQuestion
     prompt: q.prompt,
     shuffledChoices: order.map((i) => q.choices[i]),
     answer: order.indexOf(q.answer),
+    /* The shuffle itself, kept so save/restore can translate between display
+       and bank coordinates. See `AttemptQuestion.choiceOrder`. */
+    choiceOrder: order,
     explanation: q.explanation,
     citation: q.citation,
   };

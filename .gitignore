@@ -38,6 +38,11 @@ desktop.ini
 .netlify/
 .vercel/
 
+# wrangler's local state: build cache plus the SIMULATED R2 bucket that
+# `wrangler dev` writes saved practice-exam attempts into. Local-only test
+# data, and it would be committed on every dev run if left untracked.
+.wrangler/
+
 # Other
 .cache/
 

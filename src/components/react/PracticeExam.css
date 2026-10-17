@@ -617,6 +617,138 @@
 }
 
 /* ============================================================================
+   Save and resume (SPR-0097)
+   ============================================================================ */
+
+.practice-exam-save {
+  border-color: var(--color-verdigris);
+  color: var(--color-verdigris-light);
+}
+
+.practice-exam-save:hover:not(:disabled) {
+  border-color: var(--color-verdigris-light);
+  color: var(--color-verdigris-light);
+  background: rgba(61, 133, 121, 0.12);
+}
+
+/* "Saved" is a disabled state, not a dead one — it is the button telling you
+   the work is already on the server, so it stays legible rather than greying
+   down to the point of looking broken. */
+.practice-exam-save:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+.practice-exam-save-error,
+.practice-exam-resume-error {
+  flex-basis: 100%;
+  margin: 0;
+  max-width: none;
+  font-size: 0.875rem;
+  color: var(--color-error);
+}
+
+/* The one thing a visitor must not lose. Brass border, monospace, and large
+   enough to copy off the screen by hand without squinting at it. */
+.practice-exam-code {
+  margin-top: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-bg-elevated);
+  border: 1px solid rgba(196, 149, 57, 0.3);
+  border-left: 3px solid var(--color-brass);
+  border-radius: var(--radius);
+}
+
+.practice-exam-code-label {
+  margin: 0 0 0.35rem;
+  max-width: none;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+}
+
+.practice-exam-code-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.practice-exam-code-value {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  letter-spacing: 0.06em;
+  color: var(--color-brass-light);
+  /* Lets a visitor double-click the code and get the code, nothing around it. */
+  user-select: all;
+}
+
+.practice-exam-code-note {
+  margin: var(--space-sm) 0 0;
+  max-width: none;
+  font-size: 0.8125rem;
+  color: var(--color-fg-muted);
+}
+
+.practice-exam-restore-notice {
+  margin-top: var(--space-md);
+  margin-bottom: 0;
+  max-width: none;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-bg-elevated);
+  border-left: 3px solid var(--color-warning);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  color: var(--color-fg);
+}
+
+.practice-exam-resume {
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid rgba(196, 149, 57, 0.18);
+}
+
+.practice-exam-resume-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-fg-muted);
+}
+
+.practice-exam-resume-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.practice-exam-resume-input {
+  flex: 1 1 16rem;
+  /* Keeps the field from outgrowing the code it holds on a wide viewport. */
+  max-width: 22rem;
+  padding: 0.4rem 0.7rem;
+  background: var(--color-bg);
+  border: 1px solid rgba(196, 149, 57, 0.28);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  letter-spacing: 0.04em;
+  color: var(--color-fg);
+}
+
+.practice-exam-resume-input::placeholder {
+  color: var(--color-fg-subtle);
+  opacity: 0.7;
+}
+
+.practice-exam-resume-input:focus-visible {
+  outline: 2px solid var(--color-electric-purple-glow);
+  outline-offset: 2px;
+  border-color: var(--color-brass);
+}
+
+/* ============================================================================
    Reduced motion + narrow viewports
    ============================================================================ */
 

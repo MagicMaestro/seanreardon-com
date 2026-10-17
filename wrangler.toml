@@ -1,5 +1,10 @@
 name = "seanreardon-contact"
-main = "worker/contact-form.ts"
+# SPR-0097: entrypoint moved from worker/contact-form.ts to worker/index.ts, which
+# routes /api/exam-save* to the save endpoint and delegates everything else to the
+# contact form unchanged. The Worker's NAME is left alone deliberately — renaming it
+# would create a second Worker in the dashboard and orphan the existing routes and
+# secrets rather than move them.
+main = "worker/index.ts"
 compatibility_date = "2026-05-03"
 
 # Routes intercept these URLs at the Cloudflare edge before they reach the origin.
@@ -7,8 +12,22 @@ compatibility_date = "2026-05-03"
 # against its ALLOWED_ORIGINS list.
 routes = [
   { pattern = "seanreardon.com/api/contact*", zone_name = "seanreardon.com" },
-  { pattern = "staging.seanreardon.com/api/contact*", zone_name = "seanreardon.com" }
+  { pattern = "staging.seanreardon.com/api/contact*", zone_name = "seanreardon.com" },
+  { pattern = "seanreardon.com/api/exam-save*", zone_name = "seanreardon.com" },
+  { pattern = "staging.seanreardon.com/api/exam-save*", zone_name = "seanreardon.com" }
 ]
+
+# Saved practice-exam attempts: one JSON object per save, keyed by its resume code.
+# PRIVATE bucket — nothing but this Worker can read it, which is what keeps the
+# saves from being an enumerable list of exams in progress.
+#
+# Retention is a BUCKET LIFECYCLE RULE (14 days), not something this config can
+# express; see worker/README.md for the one-time setup. The endpoint also checks
+# age on read, so a save stops opening at exactly two weeks rather than whenever
+# the lifecycle sweep gets to it.
+[[r2_buckets]]
+binding = "EXAM_SAVES"
+bucket_name = "seanreardon-exam-saves"
 
 # Non-secret config — visible in dashboard, can sit in version control.
 [vars]

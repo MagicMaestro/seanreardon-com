@@ -111,6 +111,18 @@ export interface AttemptQuestion {
   shuffledChoices: string[];
   /** Index into `shuffledChoices` of the correct answer. */
   answer: number;
+  /**
+   * Bank choice indexes, in this attempt's display order:
+   * `choiceOrder[displayIndex] === bankIndex`.
+   *
+   * SPR-0097. Everything else in this interface is expressed in *display*
+   * coordinates, which is right for rendering and wrong for storage — the
+   * choices are reshuffled on every render, so a display index means nothing
+   * once the attempt is rebuilt. Saving a selection translates through this
+   * array to a bank index, and restoring translates back with `indexOf`. Keep
+   * it in sync with `shuffledChoices`; they are two views of one shuffle.
+   */
+  choiceOrder: number[];
   explanation: string;
   citation: string;
 }
@@ -152,4 +164,67 @@ export interface ExamResult {
    * and keeping the point when it happens to match.
    */
   revealedCount: number;
+}
+
+/* ===========================================================================
+   Save and resume (SPR-0097)
+   =========================================================================== */
+
+/**
+ * One saved in-progress attempt, as it is stored and transported.
+ *
+ * Design record: `decisions/004-real-estate-practice-exam.md`. Written to a
+ * private Cloudflare R2 bucket by the `exam-save` Worker, one JSON object per
+ * save, keyed by its resume code.
+ *
+ * THE ONE RULE THIS SHAPE EXISTS TO ENFORCE: `answers` holds **bank** choice
+ * indexes, never display indexes. `selectExam` reshuffles every question's four
+ * choices on each draw and re-indexes the correct answer into that order, so a
+ * display index saved today points at a different choice tomorrow. Translation
+ * happens at the boundary, through `AttemptQuestion.choiceOrder`.
+ *
+ * This object carries no personal information. The resume code is a date plus
+ * random characters, the body is bank ids and small integers, and nothing here
+ * identifies, or can be worked back to, the person who saved it.
+ */
+export interface SavedAttempt {
+  /** Schema version of this envelope, so a later shape change can migrate. */
+  v: 1;
+  /** `ExamMeta.version` of the bank the attempt was drawn from. */
+  bankVersion: number;
+  /** Bank question ids, in the order they were presented. */
+  questionIds: string[];
+  /**
+   * Selected **bank** choice index per question id. Sparse on purpose: a
+   * question with no key was not answered, which makes restoring it trivially
+   * correct rather than requiring a sentinel value.
+   */
+  answers: Record<string, number>;
+  /** Question ids whose answer was revealed, and so forfeited. */
+  revealed: string[];
+  /** Seconds left on the countdown, or null if the timer was never started. */
+  secondsLeft: number | null;
+  /** ISO-8601 timestamp of the save, set by the Worker, not the browser. */
+  saved: string;
+}
+
+/**
+ * The result of rebuilding a `SavedAttempt` against the current bank.
+ *
+ * `missingIds` is the bank-drift report: questions that were in the saved
+ * attempt and are no longer in the bank, because the bank was edited in the two
+ * weeks the save was alive. They are dropped rather than faked, and the count
+ * is surfaced to the visitor — a restored exam that silently got shorter would
+ * be worse than one that explains itself.
+ */
+export interface RestoredAttempt {
+  attempt: ExamAttempt;
+  /** Selected **display** choice index per question id, ready for component state. */
+  answers: Record<string, number>;
+  revealedIds: Set<string>;
+  secondsLeft: number | null;
+  /** Saved ids the current bank no longer holds. */
+  missingIds: string[];
+  /** True when the bank changed version since the save. Advisory, not an error. */
+  bankChanged: boolean;
 }

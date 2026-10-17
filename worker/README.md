@@ -1,6 +1,11 @@
-# Contact form Worker
+# API Worker
 
-A Cloudflare Worker that receives contact-form submissions from the static Astro site, validates them, verifies a Cloudflare Turnstile challenge, and sends two emails via Resend (one notification to Sean, one confirmation to the submitter).
+One Cloudflare Worker serving the static Astro site's two `/api/*` endpoints.
+
+- **`/api/contact`** — receives contact-form submissions, validates them, verifies a Cloudflare Turnstile challenge, and sends two emails via Resend (one notification to Sean, one confirmation to the submitter).
+- **`/api/exam-save`** — saves and restores an in-progress [practice exam](../src/pages/real-estate-practice.astro) as one JSON object per save in a private R2 bucket, keyed by a resume code. Added in SPR-0097; **needs the one-time R2 setup in step 5 below before it will work.**
+
+`worker/index.ts` is the entrypoint and routes by pathname; each endpoint lives in its own module and they share nothing but the origin allowlist.
 
 ## Why Turnstile (not reCAPTCHA)
 
@@ -20,15 +25,29 @@ Free tier covers this entirely (CF Workers: 100k requests/day; we'll see <1k/yea
 ## File map
 
 ```
-wrangler.toml               ← Worker config + routes + non-secret vars
-worker/contact-form.ts      ← the Worker source
+wrangler.toml               ← Worker config + routes + bindings + non-secret vars
+worker/index.ts             ← entrypoint; routes /api/* to the handler that owns it
+worker/contact-form.ts      ← the contact endpoint (unchanged since SPR-0049)
+worker/exam-save.ts         ← the practice-exam save/resume endpoint
+worker/http.ts              ← shared CORS/JSON helpers + the origin allowlist
 worker/tsconfig.json        ← TS config scoped to the Worker (Workers types)
 worker/README.md            ← this file
 ```
 
+The save endpoint also imports `src/lib/exam/resume-code.ts` and `src/lib/exam/types.ts`, so the resume-code format and the saved-attempt shape have exactly one definition shared with the browser island. Type-check the Worker on its own with `npm run worker:check`. Two config details that are
+easy to undo by accident, and are recorded here because `tsconfig.json` is validated as strict
+JSON by a pre-commit hook and so cannot carry comments of its own:
+
+- **`worker/` is in the root `tsconfig.json`'s `exclude`.** The Worker uses runtime globals
+  (`R2Bucket`, `ExecutionContext`) that only exist under `@cloudflare/workers-types`, which the
+  root config has no reason to load. Without the exclusion the root `tsc` fails on them.
+- **`worker/tsconfig.json` sets `allowImportingTsExtensions`.** The Worker imports
+  `../src/lib/exam/*.ts` with the `.ts` extension the rest of the repo uses. It is valid here
+  because the config is `noEmit`, and wrangler bundles through esbuild, which resolves it.
+
 ## One-time Sean setup
 
-Before the form will work, complete these four tasks in order:
+Before the form will work, complete tasks 1–4. Task 5 is separate and is what the practice-exam save needs:
 
 ### 1. Register a Turnstile widget at Cloudflare
 
@@ -77,6 +96,53 @@ Verify with `npx wrangler secret list` — both names should appear (values hidd
 5. Save
 
 This gets baked into the static build at deploy time — the deploy workflow already references it.
+
+### 5. Create the R2 bucket for practice-exam saves (SPR-0097)
+
+The `/api/exam-save` endpoint will return 500s until this exists. Four steps, all in the Cloudflare dashboard except the last.
+
+**5a. Create the bucket.** Dashboard → **R2** → *Create bucket*.
+
+- Name: **`seanreardon-exam-saves`** (must match `bucket_name` in `wrangler.toml`)
+- Location: Automatic
+- **Leave public access OFF.** This is load-bearing, not a default worth accepting idly: the resume code is the only credential a save has, so a publicly reachable bucket would be an enumerable list of exams in progress. Nothing but the Worker should ever read it.
+
+**5b. Add the 14-day lifecycle rule.** Bucket → **Settings** → *Object lifecycle rules* → *Add rule*.
+
+- Prefix: `saves/`
+- Action: **Delete objects** → *after 14 days from upload*
+
+This is what actually enforces the retention promised in the privacy policy. The endpoint independently refuses to open a save older than 14 days, because Cloudflare only commits to removing expired objects *within 24 hours* — without the check in code, "two weeks" would be "two weeks, give or take a day."
+
+**5c. Add a rate-limiting rule.** Dashboard → **Security** → *WAF* → *Rate limiting rules* → *Create rule*.
+
+- Name: `exam-save write limit`
+- If incoming requests match: `URI Path` *starts with* `/api/exam-save` **and** `Request Method` *equals* `POST`
+- Rate: **20 requests per 1 minute**, per IP
+- Action: Block, for 1 minute
+
+This is the only thing standing between an unauthenticated write endpoint and someone filling the bucket. The Worker caps body size (16 KB) and rebuilds every stored object from validated fields, so the damage ceiling is low either way — but the rule is what keeps the write volume sane. A normal visitor saves a handful of times in a sitting; 20/minute is far above honest use.
+
+**5d. Deploy.** From the repo root:
+
+```bash
+npm run worker:deploy
+```
+
+The R2 binding comes from `wrangler.toml`, so there is no secret to set for this one.
+
+#### Verifying it works
+
+```bash
+# Save (expect: {"code":"20261017-XXXXXXXX","saved":"..."} )
+curl -sS -X POST https://seanreardon.com/api/exam-save   -H 'Content-Type: application/json' -H 'Origin: https://seanreardon.com'   -d '{"localDate":"'"$(date +%Y%m%d)"'","attempt":{"v":1,"bankVersion":1,"questionIds":["law-of-agency-0001"],"answers":{"law-of-agency-0001":2},"revealed":[],"secondsLeft":null}}'
+
+# Restore it (expect the same attempt back)
+curl -sS https://seanreardon.com/api/exam-save/<code-from-above>   -H 'Origin: https://seanreardon.com'
+
+# Rejected: a payload that is not a saved attempt (expect 400 "Malformed save.")
+curl -sS -X POST https://seanreardon.com/api/exam-save   -H 'Content-Type: application/json' -H 'Origin: https://seanreardon.com'   -d '{"localDate":"'"$(date +%Y%m%d)"'","attempt":{"anything":"else"}}'
+```
 
 ## Local development
 
