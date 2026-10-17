@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 
-const lastUpdated = '2026-05-18';
+const lastUpdated = '2026-10-17';
 ---
 <BaseLayout
   title="Privacy Policy"
@@ -121,6 +121,21 @@ const lastUpdated = '2026-05-18';
     </p>
 
     <p>
+      <strong>Practice exam — saving your progress.</strong> The
+      <a href="/real-estate-practice">real estate practice exam</a> saves nothing unless you
+      press its save button. When you do, what is stored is the list of question numbers your
+      exam drew, which answer you selected for each, which answers you revealed, and the time
+      left on the clock. <strong>No personal information is collected or stored</strong> — no
+      name, no email address, no account, and nothing you have typed. The resume code you are
+      given is a date followed by eight random characters; it identifies the saved exam, not
+      you, and nothing in the stored record can be worked back to a person. Your IP address is
+      not logged or retained by the save endpoint. Saves live in private storage on Cloudflare
+      R2 and are deleted two weeks after they are written. Note that the code is the only key
+      to a saved exam — anyone who has it can open that exam, which is the trade for not
+      requiring an account.
+    </p>
+
+    <p>
       <strong>AI chat (planned, not yet live):</strong> when the AI chat feature ships, your
       input will be sent to a third-party language-model provider (Anthropic). The chat feature
       will display a one-time consent modal the first time you use it; nothing is transmitted
@@ -148,7 +163,7 @@ const lastUpdated = '2026-05-18';
         <tr>
           <td>Cloudflare, Inc.</td>
           <td>Aggregate page-view counts; IP for geolocation (then discarded)</td>
-          <td>CDN, edge security, web analytics, image hosting</td>
+          <td>CDN, edge security, web analytics, image hosting, saved practice-exam storage (R2)</td>
           <td><a href="https://www.cloudflare.com/privacypolicy/" rel="external nofollow noopener">cloudflare.com/privacypolicy</a></td>
         </tr>
         <tr>
@@ -222,6 +237,11 @@ const lastUpdated = '2026-05-18';
         <tr>
           <td>Contact form submissions</td>
           <td>90 days from receipt, then purged from server logs and inbox</td>
+        </tr>
+        <tr>
+          <td>Saved practice-exam attempts (no personal data &mdash; question numbers, your
+            selections, time remaining)</td>
+          <td>14 days from the save, then deleted</td>
         </tr>
         <tr>
           <td>AI search query aggregates (no IP, no session, no identifier)</td>

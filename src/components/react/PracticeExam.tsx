@@ -34,12 +34,26 @@
  *     transition (200) and the search modal (300), above ordinary content.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { ExamAttempt, ExamBank, ExamResult } from '~/lib/exam/types.ts';
+import type { ExamAttempt, ExamBank, ExamResult, SavedAttempt } from '~/lib/exam/types.ts';
 import { selectExam } from '~/lib/exam/select.ts';
 import { formatRemaining, scoreExam } from '~/lib/exam/score.ts';
+import { restoreExam, resumeSeconds, toSaveRequestBody } from '~/lib/exam/save.ts';
+import { formatResumeCode, normalizeResumeCode, todayLocalDate } from '~/lib/exam/resume-code.ts';
 import './PracticeExam.css';
 
 const BANK_URL = '/data/ny-real-estate-questions.json';
+const SAVE_URL = '/api/exam-save';
+
+/**
+ * Give up on a save or a restore after this long.
+ *
+ * `fetch` has no timeout of its own, so a request that hangs — an endpoint that
+ * accepts the connection and never answers — leaves the button reading
+ * "Saving…" for as long as the visitor is willing to look at it, with no error,
+ * no retry and no way back. Found exactly that way while testing against a
+ * proxy whose target had stopped.
+ */
+const REQUEST_TIMEOUT_MS = 15000;
 
 /** Countdown thresholds, in seconds, announced to assistive tech as they pass. */
 const TIME_WARNINGS = [600, 300, 60];
@@ -59,6 +73,21 @@ type Phase = 'loading' | 'error' | 'ready' | 'submitted';
  * prefers-reduced-motion, so there is no branch to keep in sync.
  */
 const SCROLL_OPTIONS: ScrollIntoViewOptions = { block: 'start' };
+
+/**
+ * Turn a failed request into something worth reading.
+ *
+ * `AbortSignal.timeout` rejects with a TimeoutError whose message is engine
+ * wording about an aborted signal — true, and no use to someone who just wants
+ * to know whether to press the button again.
+ */
+function describeRequestFailure(error: unknown, fallback: string): string {
+  if (error instanceof DOMException && error.name === 'TimeoutError') {
+    return `${fallback} The server did not respond in time — check your connection and try again.`;
+  }
+  if (error instanceof Error && error.message) return error.message;
+  return fallback;
+}
 
 export default function PracticeExam() {
   const [phase, setPhase] = useState<Phase>('loading');
@@ -81,6 +110,23 @@ export default function PracticeExam() {
   const [timerRunning, setTimerRunning] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const [timeAnnouncement, setTimeAnnouncement] = useState('');
+
+  /* ---------------------------------------------------- save and resume state
+
+     `resumeCode` doubles as the "this attempt has a home on the server" flag:
+     null means a save would mint a new code, set means it updates that one. */
+  const [resumeCode, setResumeCode] = useState<string | null>(null);
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'error'>('idle');
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [resumeInput, setResumeInput] = useState('');
+  const [resumeBusy, setResumeBusy] = useState(false);
+  const [resumeError, setResumeError] = useState<string | null>(null);
+  /* Set when a restored save did not line up exactly with the current bank. */
+  const [restoreNotice, setRestoreNotice] = useState<string | null>(null);
+  /* Answers/reveals changed since the last successful save. Drives the button
+     label, so "Saved" never lingers over work the server has not seen. */
+  const [dirtySinceSave, setDirtySinceSave] = useState(false);
+  const [codeCopied, setCodeCopied] = useState(false);
 
   /* Questions drawn earlier this session. A ref rather than state: it never
      affects rendering, and keeping it out of the dependency graph avoids
@@ -300,6 +346,7 @@ export default function PracticeExam() {
 
   const chooseAnswer = (questionId: string, choiceIndex: number) => {
     setAnswers((previous) => ({ ...previous, [questionId]: choiceIndex }));
+    setDirtySinceSave(true);
   };
 
   /* Reveal is two-step on purpose: the whole point of the confirm is that a
@@ -311,12 +358,158 @@ export default function PracticeExam() {
       return next;
     });
     setConfirmingRevealId(null);
+    setDirtySinceSave(true);
     /* The confirm's buttons are about to unmount, so focus would fall to the
        document body and a screen-reader user would lose their place entirely.
        Move it to the card, which now holds the answer they asked for. The card
        carries tabIndex={-1} for exactly this (the review navigation focuses it
        the same way). */
     requestAnimationFrame(() => cardRefs.current[index]?.focus({ preventScroll: true }));
+  };
+
+  /* ------------------------------------------------------- save and resume */
+
+  /**
+   * Write the attempt to the server and keep (or mint) its resume code.
+   *
+   * The timer is saved only when it was actually started — `secondsLeft` can
+   * hold a stale number otherwise, and resuming into a countdown the visitor
+   * never asked for would be a surprise.
+   */
+  const saveAttempt = async () => {
+    if (!bank || !attempt) return;
+    setSaveState('saving');
+    setSaveError(null);
+    try {
+      const packed = toSaveRequestBody(
+        attempt,
+        answers,
+        revealedIds,
+        timerRunning ? secondsLeft : null,
+        bank.meta.version,
+      );
+      /* A code in hand updates that object; no code asks for a new one. */
+      const response = await fetch(resumeCode ? `${SAVE_URL}/${resumeCode}` : SAVE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        body: JSON.stringify(
+          resumeCode
+            ? { attempt: packed }
+            : { attempt: packed, localDate: todayLocalDate() },
+        ),
+      });
+      const payload = (await response.json().catch(() => null)) as
+        | { code?: string; error?: string }
+        | null;
+      if (!response.ok || !payload?.code) {
+        throw new Error(payload?.error ?? `The save failed (HTTP ${response.status}).`);
+      }
+      setResumeCode(payload.code);
+      setSaveState('idle');
+      setDirtySinceSave(false);
+    } catch (error) {
+      setSaveState('error');
+      setSaveError(describeRequestFailure(error, 'The save could not be completed.'));
+    }
+  };
+
+  /** Swap the live attempt for a restored one. */
+  const applyRestore = (saved: SavedAttempt, code: string) => {
+    if (!bank) return false;
+    const restored = restoreExam(bank, saved);
+
+    /* Every question gone means the bank was rewritten wholesale. There is
+       nothing to restore into, and pretending otherwise would hand back an
+       empty exam that grades 0/0. */
+    if (restored.attempt.questions.length === 0) return false;
+
+    setAttempt(restored.attempt);
+    setAttemptKey((key) => key + 1);
+    setAnswers(restored.answers);
+    setRevealedIds(restored.revealedIds);
+    setResult(null);
+    setPhase('ready');
+    setConfirmingSubmit(false);
+    setConfirmingRevealId(null);
+    setReviewPosition(0);
+    setReviewTick(0);
+    cardRefs.current = [];
+    setResumeCode(code);
+    setResumeInput('');
+    setDirtySinceSave(false);
+    setSaveState('idle');
+    setSaveError(null);
+
+    const seconds = resumeSeconds(restored.secondsLeft, bank.meta.timeLimitMinutes);
+    announcedWarningsRef.current.clear();
+    setSecondsLeft(seconds);
+    setTimerRunning(seconds !== null);
+
+    /* Say what did not line up rather than restoring silently. A save can be
+       two weeks old, and the bank gets edited for legal accuracy. */
+    const notes: string[] = [];
+    if (restored.missingIds.length > 0) {
+      const count = restored.missingIds.length;
+      notes.push(
+        `${count} question${count === 1 ? '' : 's'} from that save ${
+          count === 1 ? 'is' : 'are'
+        } no longer in the bank and ${count === 1 ? 'was' : 'were'} dropped`,
+      );
+    } else if (restored.bankChanged) {
+      notes.push('the question bank has been revised since you saved, though your questions all survived');
+    }
+    setRestoreNotice(
+      notes.length > 0
+        ? `Restored ${restored.attempt.questions.length} questions — ${notes.join('; ')}.`
+        : null,
+    );
+
+    window.scrollTo({ top: 0 });
+    return true;
+  };
+
+  /* Clipboard access can be refused (permissions, insecure context, older
+     engines). The code is on screen regardless, so a failed copy just leaves
+     the button as it was rather than raising an error about it. */
+  const copyResumeCode = async () => {
+    if (!resumeCode) return;
+    try {
+      await navigator.clipboard.writeText(formatResumeCode(resumeCode));
+      setCodeCopied(true);
+      window.setTimeout(() => setCodeCopied(false), 2000);
+    } catch {
+      /* Nothing to do — the visitor can still read and type it. */
+    }
+  };
+
+  const resumeFromCode = async () => {
+    if (!bank) return;
+    const code = normalizeResumeCode(resumeInput);
+    if (!code) {
+      setResumeError('That is not a resume code — they are eight digits, then eight more characters.');
+      return;
+    }
+    setResumeBusy(true);
+    setResumeError(null);
+    try {
+      const response = await fetch(`${SAVE_URL}/${code}`, {
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      });
+      const payload = (await response.json().catch(() => null)) as
+        | { attempt?: SavedAttempt; error?: string }
+        | null;
+      if (!response.ok || !payload?.attempt) {
+        throw new Error(payload?.error ?? 'No saved exam found for that code.');
+      }
+      if (!applyRestore(payload.attempt, code)) {
+        throw new Error('That save is too old to restore — none of its questions are still in the bank.');
+      }
+    } catch (error) {
+      setResumeError(describeRequestFailure(error, 'That code could not be loaded.'));
+    } finally {
+      setResumeBusy(false);
+    }
   };
 
   const scrollToQuestion = useCallback((index: number, focus = true) => {
@@ -381,6 +574,14 @@ export default function PracticeExam() {
     setAnswers({});
     setRevealedIds(new Set());
     setConfirmingRevealId(null);
+    /* A retake is a different exam, so it does not inherit the old code —
+       saving it would otherwise overwrite the saved attempt with a set of
+       questions that has nothing to do with it. */
+    setResumeCode(null);
+    setSaveState('idle');
+    setSaveError(null);
+    setRestoreNotice(null);
+    setDirtySinceSave(false);
     setResult(null);
     setPhase('ready');
     setConfirmingSubmit(false);
@@ -532,6 +733,70 @@ export default function PracticeExam() {
               </button>
             )}
           </div>
+        )}
+
+        {restoreNotice && (
+          <p className="practice-exam-restore-notice" role="status">
+            {restoreNotice}
+          </p>
+        )}
+
+        {/* The code panel stays up for the rest of the sitting rather than
+            appearing once and sliding away. It is the single thing a visitor
+            must not lose, and a toast would be exactly the wrong shape. */}
+        {resumeCode && phase !== 'submitted' && (
+          <div className="practice-exam-code" role="status">
+            <p className="practice-exam-code-label">Your resume code</p>
+            <div className="practice-exam-code-row">
+              <code className="practice-exam-code-value">{formatResumeCode(resumeCode)}</code>
+              <button type="button" onClick={copyResumeCode}>
+                {codeCopied ? 'Copied' : 'Copy'}
+              </button>
+            </div>
+            <p className="practice-exam-code-note">
+              Write this down. There is no account and no email — this code is the only way back
+              to this exam, and it stops working two weeks from today.
+            </p>
+          </div>
+        )}
+
+        {/* Offered only before any work exists, so restoring can never discard
+            answers. No confirm needed if the destructive case cannot arise. */}
+        {phase === 'ready' && !resumeCode && answeredCount + revealedCount === 0 && (
+          <form
+            className="practice-exam-resume"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void resumeFromCode();
+            }}
+          >
+            <label className="practice-exam-resume-label" htmlFor="practice-exam-resume-input">
+              Picking up a saved exam? Enter its resume code.
+            </label>
+            <div className="practice-exam-resume-row">
+              <input
+                id="practice-exam-resume-input"
+                className="practice-exam-resume-input"
+                type="text"
+                autoComplete="off"
+                spellCheck={false}
+                placeholder="20260113-K7R4Q2X9"
+                value={resumeInput}
+                onChange={(event) => {
+                  setResumeInput(event.target.value);
+                  setResumeError(null);
+                }}
+              />
+              <button type="submit" disabled={resumeBusy || resumeInput.trim() === ''}>
+                {resumeBusy ? 'Loading…' : 'Resume'}
+              </button>
+            </div>
+            {resumeError && (
+              <p className="practice-exam-resume-error" role="alert">
+                {resumeError}
+              </p>
+            )}
+          </form>
         )}
       </div>
 
@@ -704,6 +969,25 @@ export default function PracticeExam() {
                 {answeredCount} of {questions.length} answered
                 {revealedCount > 0 && ` · ${revealedCount} revealed`}
               </p>
+              <button
+                type="button"
+                className="practice-exam-save"
+                onClick={() => void saveAttempt()}
+                disabled={saveState === 'saving' || (resumeCode !== null && !dirtySinceSave)}
+              >
+                {saveState === 'saving'
+                  ? 'Saving…'
+                  : resumeCode === null
+                    ? 'Save and finish later'
+                    : dirtySinceSave
+                      ? 'Update saved exam'
+                      : 'Saved'}
+              </button>
+              {saveError && (
+                <p className="practice-exam-save-error" role="alert">
+                  {saveError}
+                </p>
+              )}
               <button type="button" className="practice-exam-submit-main" onClick={attemptSubmit}>
                 Submit exam
               </button>

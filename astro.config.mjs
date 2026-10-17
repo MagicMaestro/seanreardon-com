@@ -22,4 +22,26 @@ export default defineConfig({
     mdx(),
     sitemap(),
   ],
+  // In production, /api/* never reaches the Astro output at all — Cloudflare's
+  // edge routes it to the Worker before the origin sees it (see wrangler.toml).
+  // The dev server has no such edge, so a page fetching /api/exam-save would get
+  // a 404 from Astro and the save UI could not be exercised locally at all.
+  // Proxying to `wrangler dev` reproduces the production shape: same-origin
+  // relative URLs in the component, the real Worker code answering them.
+  //
+  //   terminal 1: npm run worker:dev   (wrangler, port 8787, local R2)
+  //   terminal 2: npm run dev
+  //
+  // With no Worker running the proxy just fails the fetch, which is the same
+  // thing the UI already handles as "the save could not be completed".
+  vite: {
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://127.0.0.1:8787',
+          changeOrigin: false,
+        },
+      },
+    },
+  },
 });

@@ -15,6 +15,7 @@
     "build:search-index": "tsx scripts/build-search-index.ts",
     "search:query": "tsx scripts/search-cli.ts",
     "api:dev": "tsx api-server/index.ts",
+    "worker:check": "tsc --noEmit -p worker/tsconfig.json",
     "worker:dev": "wrangler dev",
     "worker:deploy": "wrangler deploy",
     "worker:tail": "wrangler tail"

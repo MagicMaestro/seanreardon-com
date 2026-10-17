@@ -1,6 +1,11 @@
-# Contact form Worker
+# API Worker
 
-A Cloudflare Worker that receives contact-form submissions from the static Astro site, validates them, verifies a Cloudflare Turnstile challenge, and sends two emails via Resend (one notification to Sean, one confirmation to the submitter).
+One Cloudflare Worker serving the static Astro site's two `/api/*` endpoints.
+
+- **`/api/contact`** — receives contact-form submissions, validates them, verifies a Cloudflare Turnstile challenge, and sends two emails via Resend (one notification to Sean, one confirmation to the submitter).
+- **`/api/exam-save`** — saves and restores an in-progress [practice exam](../src/pages/real-estate-practice.astro) as one JSON object per save in a private R2 bucket, keyed by a resume code. Added in SPR-0097; **needs the one-time R2 setup in step 5 below before it will work.**
+
+`worker/index.ts` is the entrypoint and routes by pathname; each endpoint lives in its own module and they share nothing but the origin allowlist.
 
 ## Why Turnstile (not reCAPTCHA)
 
@@ -20,15 +25,29 @@ Free tier covers this entirely (CF Workers: 100k requests/day; we'll see <1k/yea
 ## File map
 
 ```
-wrangler.toml               ← Worker config + routes + non-secret vars
-worker/contact-form.ts      ← the Worker source
+wrangler.toml               ← Worker config + routes + bindings + non-secret vars
+worker/index.ts             ← entrypoint; routes /api/* to the handler that owns it
+worker/contact-form.ts      ← the contact endpoint (unchanged since SPR-0049)
+worker/exam-save.ts         ← the practice-exam save/resume endpoint
+worker/http.ts              ← shared CORS/JSON helpers + the origin allowlist
 worker/tsconfig.json        ← TS config scoped to the Worker (Workers types)
 worker/README.md            ← this file
 ```
 
+The save endpoint also imports `src/lib/exam/resume-code.ts` and `src/lib/exam/types.ts`, so the resume-code format and the saved-attempt shape have exactly one definition shared with the browser island. Type-check the Worker on its own with `npm run worker:check`. Two config details that are
+easy to undo by accident, and are recorded here because `tsconfig.json` is validated as strict
+JSON by a pre-commit hook and so cannot carry comments of its own:
+
+- **`worker/` is in the root `tsconfig.json`'s `exclude`.** The Worker uses runtime globals
+  (`R2Bucket`, `ExecutionContext`) that only exist under `@cloudflare/workers-types`, which the
+  root config has no reason to load. Without the exclusion the root `tsc` fails on them.
+- **`worker/tsconfig.json` sets `allowImportingTsExtensions`.** The Worker imports
+  `../src/lib/exam/*.ts` with the `.ts` extension the rest of the repo uses. It is valid here
+  because the config is `noEmit`, and wrangler bundles through esbuild, which resolves it.
+
 ## One-time Sean setup
 
-Before the form will work, complete these four tasks in order:
+Before the form will work, complete tasks 1–4. Task 5 is separate and is what the practice-exam save needs:
 
 ### 1. Register a Turnstile widget at Cloudflare
 
@@ -77,6 +96,122 @@ Verify with `npx wrangler secret list` — both names should appear (values hidd
 5. Save
 
 This gets baked into the static build at deploy time — the deploy workflow already references it.
+
+### 5. Create the R2 bucket for practice-exam saves (SPR-0097)
+
+The `/api/exam-save` endpoint will return 500s until this exists. Five steps, all in the Cloudflare
+dashboard except the last.
+
+> **Dashboard navigation moves.** Paths below were checked against the dashboard as of
+> 2026-10-17. If a path has drifted again, **Quick search (Ctrl+K)** finds most of these pages
+> by name. It finds pages only, though — it will not find a control that lives inside one, which
+> is exactly the trap in step 5d.
+
+**5a. Add the R2 subscription.** Sidebar → **Storage & databases** → *R2 Object Storage*.
+
+The first visit shows a plan page rather than a bucket list, and there is no way past it to
+*Create bucket*. It reads as a paywall and is not one:
+
+- **Total Due Now: $0.00.** The free allowance is 10 GB-month of storage, 1M Class A operations
+  and 10M Class B operations per month — orders of magnitude above what saved exams use.
+- It bills to **the card already on the account** (the one the Images Basic plan another project
+  pays for), so this is existing capacity rather than a new financial commitment.
+- It charges only on overage. Step 5c covers setting a billing notification so overage arrives
+  as an email rather than an invoice.
+
+Click **Add R2 subscription to my account**, then carry on to the bucket.
+
+**5b. Create the bucket.** Same page, now showing the bucket list → *Create bucket*.
+
+- Name: **`seanreardon-realestate-exam-saves`** (must match `bucket_name` in `wrangler.toml`)
+- Location: Automatic
+- **Public access: nothing to set here.** R2 buckets are private by default and the create form
+  offers no such toggle — public access is something you opt INTO afterwards, by enabling an
+  `r2.dev` subdomain or attaching a custom domain. So the correct action is to do nothing, and
+  then confirm: bucket → **Settings** → *Public access*, which should show the r2.dev subdomain
+  **disabled** and no custom domain. Worth confirming rather than assuming, because it is the
+  one setting that would turn this bucket into an enumerable list of exams in progress — the
+  resume code is the only credential a save has.
+
+**5c. Add the 14-day lifecycle rule.** Bucket → **Settings** → *Object lifecycle rules* → *Add rule*.
+
+- Rule name: `Two Week Retention then Delete` (what is actually deployed)
+- Prefix: `saves/`
+- Action: **Delete objects** → *after 14 days from upload*
+
+R2 adds its own `Default Multipart Abort Rule` alongside this one; leave it be.
+
+This is what actually enforces the retention promised in the privacy policy. The endpoint independently refuses to open a save older than 14 days, because Cloudflare only commits to removing expired objects *within 24 hours* — without the check in code, "two weeks" would be "two weeks, give or take a day."
+
+**5d. Add a rate-limiting rule.** This one is **per-domain, not per-account**, so it is not in
+the account sidebar at all: **Domains** → *seanreardon.com* → **Security** → **Security rules**.
+
+> Two wrong turns worth naming, because both look right:
+> - **Security → Settings is not it.** That page configures security *settings*, and its search
+>   box only searches settings — searching it for "rate limiting" returns *Challenge passage*,
+>   whose description happens to mention the words. Rules live on the **Security rules** page.
+> - **Quick search (Ctrl+K) is not it either**, for this one. It finds pages, and the rule lives
+>   inside a page rather than being one.
+
+On **Security rules**, use *Create rule* → **Rate limiting rule**.
+
+**This consumes the zone's only free rate limiting rule.** The Security rules page shows it as
+`Rate limiting rules 1/1` with a warning triangle once created. Anything else on this domain
+that later wants rate limiting has to share this rule's expression or prompt a plan upgrade —
+worth knowing before that need arrives and the obvious move looks like replacing this one.
+
+**Check first whether the zone's one free rule is already in use.** On Cloudflare's Free plan a zone gets **exactly one** rate limiting rule, and its settings are fixed: counting period 10 s, mitigation timeout 10 s, counted per IP, and the rule expression can only use **Path** and **Verified Bot** — *Request Method is not available*. If that single rule is already protecting something else, skip this step and read the honest-limits note below instead of displacing it.
+
+- Name: `realestate-exam-save limit` (what is actually deployed, as of 2026-10-17)
+- If incoming requests match: `URI Path` *starts with* `/api/exam-save`
+- Rate: **5 requests per 10 seconds**, per IP
+- Action: Block, 10 seconds
+
+Because Request Method is unavailable on Free, this limits restores (GET) as well as saves (POST). That is fine — a visitor restores once and saves a handful of times in a sitting, so five requests per ten seconds is far above honest use.
+
+**Be clear-eyed about what this does and does not buy.** A 10-second window with a 10-second block is a speed bump, not a wall: it caps a single IP at roughly one request per second sustained, which is still millions of writes a month if someone is determined and patient. The things actually holding the line are in the Worker — the 16 KB body cap, and rebuilding every stored object from validated fields so the bucket cannot hold anything but a saved attempt. The realistic worst case is R2 operation cost rather than a data problem; Class A operations are $4.50/million past the free 1M, so even a sustained abusive month is tens of dollars, not hundreds. **Set a billing notification** (sidebar → *Manage account* → *Billing* → *Notifications*) so a surprise shows up as an email rather than an invoice. If this ever stops being theoretical, the proportionate fix is a Turnstile token on save — friction mid-exam, which is why it is not there now.
+
+**5e. Deploy.** From the repo root:
+
+```bash
+npm run worker:deploy
+```
+
+The R2 binding comes from `wrangler.toml`, so there is no secret to set for this one.
+
+#### Verifying it works
+
+**Use PowerShell's `Invoke-RestMethod`, not `curl.exe`.** Sean's shell is Windows PowerShell 5.1,
+where a JSON body written the bash way — `-d "{\"k\":\"v\"}"` — is mangled before curl ever sees
+it, and fails with `curl: (3) nested brace in position NN`. That is the shell, not the endpoint,
+and it has cost one round trip already. `Invoke-RestMethod` takes a single-quoted body literally
+and parses the JSON response for you.
+
+```powershell
+# Save (expect: code + saved timestamp)
+Invoke-RestMethod -Uri https://seanreardon.com/api/exam-save -Method Post `
+  -ContentType 'application/json' -Headers @{ Origin = 'https://seanreardon.com' } `
+  -Body '{"localDate":"20261017","attempt":{"v":1,"bankVersion":1,"questionIds":["law-of-agency-0001"],"answers":{"law-of-agency-0001":2},"revealed":[],"secondsLeft":null}}'
+```
+
+```powershell
+# Restore it (expect the same attempt back). Paste the code from above.
+Invoke-RestMethod -Uri https://seanreardon.com/api/exam-save/PASTE-CODE-HERE `
+  -Headers @{ Origin = 'https://seanreardon.com' } | ConvertTo-Json -Depth 5
+```
+
+```powershell
+# Rejected: a payload that is not a saved attempt (expect 400 "Unsupported save version.")
+Invoke-RestMethod -Uri https://seanreardon.com/api/exam-save -Method Post `
+  -ContentType 'application/json' -Headers @{ Origin = 'https://seanreardon.com' } `
+  -Body '{"localDate":"20261017","attempt":{"junk":true}}'
+```
+
+`Invoke-RestMethod` throws on a 4xx rather than printing the body, so wrap the rejection cases in
+`try { ... } catch { $_.ErrorDetails.Message }` if you want to read the error text.
+
+On a Unix shell (CI, the VPS, WSL) the equivalent is an ordinary `curl -sS -X POST ... -d '{...}'`
+with the body in single quotes.
 
 ## Local development
 
