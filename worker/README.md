@@ -152,9 +152,14 @@ the account sidebar at all: **Domains** → *seanreardon.com* → **Security** �
 
 On **Security rules**, use *Create rule* → **Rate limiting rule**.
 
+**This consumes the zone's only free rate limiting rule.** The Security rules page shows it as
+`Rate limiting rules 1/1` with a warning triangle once created. Anything else on this domain
+that later wants rate limiting has to share this rule's expression or prompt a plan upgrade —
+worth knowing before that need arrives and the obvious move looks like replacing this one.
+
 **Check first whether the zone's one free rule is already in use.** On Cloudflare's Free plan a zone gets **exactly one** rate limiting rule, and its settings are fixed: counting period 10 s, mitigation timeout 10 s, counted per IP, and the rule expression can only use **Path** and **Verified Bot** — *Request Method is not available*. If that single rule is already protecting something else, skip this step and read the honest-limits note below instead of displacing it.
 
-- Name: `exam-save limit`
+- Name: `realestate-exam-save limit` (what is actually deployed, as of 2026-10-17)
 - If incoming requests match: `URI Path` *starts with* `/api/exam-save`
 - Rate: **5 requests per 10 seconds**, per IP
 - Action: Block, 10 seconds
