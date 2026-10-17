@@ -103,8 +103,9 @@ The `/api/exam-save` endpoint will return 500s until this exists. Five steps, al
 dashboard except the last.
 
 > **Dashboard navigation moves.** Paths below were checked against the dashboard as of
-> 2026-10-17. If a path has drifted again, **Quick search (Ctrl+K)** in the sidebar jumps
-> straight to any of these pages by name and is more durable than a menu path.
+> 2026-10-17. If a path has drifted again, **Quick search (Ctrl+K)** finds most of these pages
+> by name. It finds pages only, though — it will not find a control that lives inside one, which
+> is exactly the trap in step 5d.
 
 **5a. Add the R2 subscription.** Sidebar → **Storage & databases** → *R2 Object Storage*.
 
@@ -124,7 +125,13 @@ Click **Add R2 subscription to my account**, then carry on to the bucket.
 
 - Name: **`seanreardon-exam-saves`** (must match `bucket_name` in `wrangler.toml`)
 - Location: Automatic
-- **Leave public access OFF.** This is load-bearing, not a default worth accepting idly: the resume code is the only credential a save has, so a publicly reachable bucket would be an enumerable list of exams in progress. Nothing but the Worker should ever read it.
+- **Public access: nothing to set here.** R2 buckets are private by default and the create form
+  offers no such toggle — public access is something you opt INTO afterwards, by enabling an
+  `r2.dev` subdomain or attaching a custom domain. So the correct action is to do nothing, and
+  then confirm: bucket → **Settings** → *Public access*, which should show the r2.dev subdomain
+  **disabled** and no custom domain. Worth confirming rather than assuming, because it is the
+  one setting that would turn this bucket into an enumerable list of exams in progress — the
+  resume code is the only credential a save has.
 
 **5c. Add the 14-day lifecycle rule.** Bucket → **Settings** → *Object lifecycle rules* → *Add rule*.
 
@@ -133,9 +140,17 @@ Click **Add R2 subscription to my account**, then carry on to the bucket.
 
 This is what actually enforces the retention promised in the privacy policy. The endpoint independently refuses to open a save older than 14 days, because Cloudflare only commits to removing expired objects *within 24 hours* — without the check in code, "two weeks" would be "two weeks, give or take a day."
 
-**5d. Add a rate-limiting rule.** This one is **per-domain, not per-account** — it is not in the
-account sidebar. Go **Domains** → *seanreardon.com* → the domain's security section → *Rate
-limiting rules*, or press **Ctrl+K** and search `rate limiting`, which is the quicker route.
+**5d. Add a rate-limiting rule.** This one is **per-domain, not per-account**, so it is not in
+the account sidebar at all: **Domains** → *seanreardon.com* → **Security** → **Security rules**.
+
+> Two wrong turns worth naming, because both look right:
+> - **Security → Settings is not it.** That page configures security *settings*, and its search
+>   box only searches settings — searching it for "rate limiting" returns *Challenge passage*,
+>   whose description happens to mention the words. Rules live on the **Security rules** page.
+> - **Quick search (Ctrl+K) is not it either**, for this one. It finds pages, and the rule lives
+>   inside a page rather than being one.
+
+On **Security rules**, use *Create rule* → **Rate limiting rule**.
 
 **Check first whether the zone's one free rule is already in use.** On Cloudflare's Free plan a zone gets **exactly one** rate limiting rule, and its settings are fixed: counting period 10 s, mitigation timeout 10 s, counted per IP, and the rule expression can only use **Path** and **Verified Bot** — *Request Method is not available*. If that single rule is already protecting something else, skip this step and read the honest-limits note below instead of displacing it.
 
