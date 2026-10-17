@@ -181,16 +181,37 @@ The R2 binding comes from `wrangler.toml`, so there is no secret to set for this
 
 #### Verifying it works
 
-```bash
-# Save (expect: {"code":"20261017-XXXXXXXX","saved":"..."} )
-curl -sS -X POST https://seanreardon.com/api/exam-save   -H 'Content-Type: application/json' -H 'Origin: https://seanreardon.com'   -d '{"localDate":"'"$(date +%Y%m%d)"'","attempt":{"v":1,"bankVersion":1,"questionIds":["law-of-agency-0001"],"answers":{"law-of-agency-0001":2},"revealed":[],"secondsLeft":null}}'
+**Use PowerShell's `Invoke-RestMethod`, not `curl.exe`.** Sean's shell is Windows PowerShell 5.1,
+where a JSON body written the bash way — `-d "{\"k\":\"v\"}"` — is mangled before curl ever sees
+it, and fails with `curl: (3) nested brace in position NN`. That is the shell, not the endpoint,
+and it has cost one round trip already. `Invoke-RestMethod` takes a single-quoted body literally
+and parses the JSON response for you.
 
-# Restore it (expect the same attempt back)
-curl -sS https://seanreardon.com/api/exam-save/<code-from-above>   -H 'Origin: https://seanreardon.com'
-
-# Rejected: a payload that is not a saved attempt (expect 400 "Malformed save.")
-curl -sS -X POST https://seanreardon.com/api/exam-save   -H 'Content-Type: application/json' -H 'Origin: https://seanreardon.com'   -d '{"localDate":"'"$(date +%Y%m%d)"'","attempt":{"anything":"else"}}'
+```powershell
+# Save (expect: code + saved timestamp)
+Invoke-RestMethod -Uri https://seanreardon.com/api/exam-save -Method Post `
+  -ContentType 'application/json' -Headers @{ Origin = 'https://seanreardon.com' } `
+  -Body '{"localDate":"20261017","attempt":{"v":1,"bankVersion":1,"questionIds":["law-of-agency-0001"],"answers":{"law-of-agency-0001":2},"revealed":[],"secondsLeft":null}}'
 ```
+
+```powershell
+# Restore it (expect the same attempt back). Paste the code from above.
+Invoke-RestMethod -Uri https://seanreardon.com/api/exam-save/PASTE-CODE-HERE `
+  -Headers @{ Origin = 'https://seanreardon.com' } | ConvertTo-Json -Depth 5
+```
+
+```powershell
+# Rejected: a payload that is not a saved attempt (expect 400 "Unsupported save version.")
+Invoke-RestMethod -Uri https://seanreardon.com/api/exam-save -Method Post `
+  -ContentType 'application/json' -Headers @{ Origin = 'https://seanreardon.com' } `
+  -Body '{"localDate":"20261017","attempt":{"junk":true}}'
+```
+
+`Invoke-RestMethod` throws on a 4xx rather than printing the body, so wrap the rejection cases in
+`try { ... } catch { $_.ErrorDetails.Message }` if you want to read the error text.
+
+On a Unix shell (CI, the VPS, WSL) the equivalent is an ordinary `curl -sS -X POST ... -d '{...}'`
+with the body in single quotes.
 
 ## Local development
 
