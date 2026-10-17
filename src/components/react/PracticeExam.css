@@ -330,6 +330,17 @@
   border-left-color: var(--color-error);
 }
 
+/* A question whose answer the visitor revealed mid-exam. Warning, not error:
+   `is-missed` means the grader found a wrong answer, this means the visitor
+   spent the question on purpose. Only applied while phase === 'ready' — after
+   submit the card is genuinely incorrect and takes `is-missed` instead, so the
+   two never fight over the same left border. */
+.practice-exam-card.is-revealed {
+  background: linear-gradient(rgba(255, 160, 26, 0.07), rgba(255, 160, 26, 0.07)),
+    var(--color-bg-elevated);
+  border-left-color: var(--color-warning);
+}
+
 .practice-exam-fieldset {
   border: 0;
   margin: 0;
@@ -544,6 +555,65 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+/* ============================================================================
+   Show-the-answer affordance (SPR-0096)
+   ============================================================================ */
+
+/* Deliberately the quietest button on the card. It forfeits a question, so it
+   should read as available rather than inviting — subtle until hovered, and
+   never competing with the choices for attention. */
+.practice-exam-reveal {
+  margin-top: var(--space-sm);
+  font-size: 0.8125rem;
+  padding: 0.3rem 0.75rem;
+  border-color: rgba(196, 149, 57, 0.28);
+  color: var(--color-fg-subtle);
+}
+
+.practice-exam-reveal:hover {
+  border-color: var(--color-warning);
+  color: var(--color-warning);
+  background: rgba(255, 160, 26, 0.08);
+}
+
+/* Mirrors `.practice-exam-confirm`'s shape so the two confirms in this island
+   read as the same kind of interruption, at the smaller scale a single card
+   warrants. */
+.practice-exam-reveal-confirm {
+  margin-top: var(--space-sm);
+  padding: var(--space-sm);
+  background: var(--color-bg);
+  border-left: 3px solid var(--color-warning);
+  border-radius: var(--radius);
+}
+
+.practice-exam-reveal-confirm p {
+  margin: 0 0 var(--space-sm);
+  max-width: none;
+  font-size: 0.875rem;
+  color: var(--color-fg);
+}
+
+.practice-exam-reveal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.practice-exam-reveal-actions button {
+  font-size: 0.8125rem;
+  padding: 0.3rem 0.75rem;
+}
+
+/* Paired with `.practice-exam-blank` — same slot, same weight, and the two are
+   mutually exclusive by construction (see PracticeExam.tsx). */
+.practice-exam-revealed-note {
+  margin: 0.75rem 0 0;
+  max-width: none;
+  font-size: 0.875rem;
+  color: var(--color-warning);
 }
 
 /* ============================================================================

@@ -125,7 +125,8 @@ export interface ExamAttempt {
 /**
  * Result of grading a submitted attempt.
  *
- * Unanswered questions count as incorrect, matching the real exam.
+ * Unanswered questions count as incorrect, matching the real exam. So do
+ * questions whose answer the visitor revealed mid-exam — see `revealedCount`.
  */
 export interface ExamResult {
   correctCount: number;
@@ -135,6 +136,20 @@ export interface ExamResult {
   passed: boolean;
   /** Indices into `attempt.questions` that were answered incorrectly or left blank, in exam order. */
   incorrectIndices: number[];
-  /** How many were left blank. Surfaced separately so the score block can call it out. */
+  /**
+   * How many were left blank. Surfaced separately so the score block can call it out.
+   *
+   * Disjoint from `revealedCount`: revealing locks a question's choices, so a
+   * question revealed before being answered is *necessarily* blank, and counting
+   * it in both would report the same forfeit twice under two different names.
+   * Revealed wins — it is the more specific description of what happened.
+   */
   unansweredCount: number;
+  /**
+   * How many answers the visitor revealed mid-exam. Each is scored as incorrect
+   * regardless of what was selected beforehand: a revealed question is forfeited,
+   * which is the only rule that cannot be gamed by picking an answer, revealing,
+   * and keeping the point when it happens to match.
+   */
+  revealedCount: number;
 }

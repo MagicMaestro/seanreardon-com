@@ -6,6 +6,12 @@
  * Unanswered questions count as incorrect, matching the real exam — there's no
  * partial credit and no penalty-free skip.
  *
+ * SPR-0096 adds a second way to lose a question: revealing its answer mid-exam.
+ * A revealed question is forfeited outright rather than graded on whatever was
+ * selected beforehand. Grading the prior selection would make the affordance
+ * free whenever the visitor had already guessed right, which turns the score
+ * into a measure of how confidently they guessed rather than what they knew.
+ *
  * NOTE ON THE PERCENTAGE: the real NY exam reports pass/fail with no numerical
  * score at all (DOS: results are "either passed or failed; you will not receive
  * a numerical score"). The percentage here is a study aid, and the page copy
@@ -21,17 +27,32 @@ import type { AttemptQuestion, ExamResult } from './types.ts';
  * @param questions      The attempt's questions, in display order.
  * @param answers        Selected choice index per question id. Missing key = unanswered.
  * @param passingCorrect Correct answers needed to pass (from `meta.passingCorrect`).
+ * @param revealedIds    Question ids whose answer the visitor revealed mid-exam.
+ *                       Each is forfeited — scored incorrect whatever `answers`
+ *                       holds for it. Defaults to empty, so a caller that does
+ *                       not offer the reveal affordance grades exactly as before.
  */
 export function scoreExam(
   questions: readonly AttemptQuestion[],
   answers: Readonly<Record<string, number>>,
   passingCorrect: number,
+  revealedIds: ReadonlySet<string> = new Set(),
 ): ExamResult {
   const incorrectIndices: number[] = [];
   let correctCount = 0;
   let unansweredCount = 0;
+  let revealedCount = 0;
 
   questions.forEach((question, index) => {
+    /* Revealed is checked before the blank check, not after. The reveal
+       affordance locks a question's choices, so a question revealed before being
+       answered is also blank — and reporting one forfeit as both "revealed" and
+       "left blank" would double-count it in the score panel. */
+    if (revealedIds.has(question.id)) {
+      revealedCount++;
+      incorrectIndices.push(index);
+      return;
+    }
     const given = answers[question.id];
     if (given === undefined) {
       unansweredCount++;
@@ -53,6 +74,7 @@ export function scoreExam(
     passed: correctCount >= passingCorrect,
     incorrectIndices,
     unansweredCount,
+    revealedCount,
   };
 }
 
