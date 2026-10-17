@@ -103,6 +103,12 @@ The `/api/exam-save` endpoint will return 500s until this exists. Four steps, al
 
 **5a. Create the bucket.** Dashboard → **R2** → *Create bucket*.
 
+> **R2 wants a payment method on file before it will let you create a bucket**, even though
+> everything here sits inside the free tier (10 GB-month, 1M Class A ops, 10M Class B ops).
+> It is a verification step, not a charge. Sean already has a card on Cloudflare for the
+> Images Basic plan used by another project, so this is existing capacity rather than a new
+> financial commitment — but it is worth knowing the prompt is not a mistake.
+
 - Name: **`seanreardon-exam-saves`** (must match `bucket_name` in `wrangler.toml`)
 - Location: Automatic
 - **Leave public access OFF.** This is load-bearing, not a default worth accepting idly: the resume code is the only credential a save has, so a publicly reachable bucket would be an enumerable list of exams in progress. Nothing but the Worker should ever read it.
@@ -116,12 +122,16 @@ This is what actually enforces the retention promised in the privacy policy. The
 
 **5c. Add a rate-limiting rule.** Dashboard → **Security** → *WAF* → *Rate limiting rules* → *Create rule*.
 
-- Name: `exam-save write limit`
-- If incoming requests match: `URI Path` *starts with* `/api/exam-save` **and** `Request Method` *equals* `POST`
-- Rate: **20 requests per 1 minute**, per IP
-- Action: Block, for 1 minute
+**Check first whether the zone's one free rule is already in use.** On Cloudflare's Free plan a zone gets **exactly one** rate limiting rule, and its settings are fixed: counting period 10 s, mitigation timeout 10 s, counted per IP, and the rule expression can only use **Path** and **Verified Bot** — *Request Method is not available*. If that single rule is already protecting something else, skip this step and read the honest-limits note below instead of displacing it.
 
-This is the only thing standing between an unauthenticated write endpoint and someone filling the bucket. The Worker caps body size (16 KB) and rebuilds every stored object from validated fields, so the damage ceiling is low either way — but the rule is what keeps the write volume sane. A normal visitor saves a handful of times in a sitting; 20/minute is far above honest use.
+- Name: `exam-save limit`
+- If incoming requests match: `URI Path` *starts with* `/api/exam-save`
+- Rate: **5 requests per 10 seconds**, per IP
+- Action: Block, 10 seconds
+
+Because Request Method is unavailable on Free, this limits restores (GET) as well as saves (POST). That is fine — a visitor restores once and saves a handful of times in a sitting, so five requests per ten seconds is far above honest use.
+
+**Be clear-eyed about what this does and does not buy.** A 10-second window with a 10-second block is a speed bump, not a wall: it caps a single IP at roughly one request per second sustained, which is still millions of writes a month if someone is determined and patient. The things actually holding the line are in the Worker — the 16 KB body cap, and rebuilding every stored object from validated fields so the bucket cannot hold anything but a saved attempt. The realistic worst case is R2 operation cost rather than a data problem; Class A operations are $4.50/million past the free 1M, so even a sustained abusive month is tens of dollars, not hundreds. **Set a billing notification** (Dashboard → *Manage Account* → *Billing* → *Notifications*) so a surprise shows up as an email rather than an invoice. If this ever stops being theoretical, the proportionate fix is a Turnstile token on save — friction mid-exam, which is why it is not there now.
 
 **5d. Deploy.** From the repo root:
 
