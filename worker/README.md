@@ -123,7 +123,7 @@ Click **Add R2 subscription to my account**, then carry on to the bucket.
 
 **5b. Create the bucket.** Same page, now showing the bucket list → *Create bucket*.
 
-- Name: **`seanreardon-exam-saves`** (must match `bucket_name` in `wrangler.toml`)
+- Name: **`seanreardon-realestate-exam-saves`** (must match `bucket_name` in `wrangler.toml`)
 - Location: Automatic
 - **Public access: nothing to set here.** R2 buckets are private by default and the create form
   offers no such toggle — public access is something you opt INTO afterwards, by enabling an
@@ -135,8 +135,11 @@ Click **Add R2 subscription to my account**, then carry on to the bucket.
 
 **5c. Add the 14-day lifecycle rule.** Bucket → **Settings** → *Object lifecycle rules* → *Add rule*.
 
+- Rule name: `Two Week Retention then Delete` (what is actually deployed)
 - Prefix: `saves/`
 - Action: **Delete objects** → *after 14 days from upload*
+
+R2 adds its own `Default Multipart Abort Rule` alongside this one; leave it be.
 
 This is what actually enforces the retention promised in the privacy policy. The endpoint independently refuses to open a save older than 14 days, because Cloudflare only commits to removing expired objects *within 24 hours* — without the check in code, "two weeks" would be "two weeks, give or take a day."
 

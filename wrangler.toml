@@ -27,7 +27,7 @@ routes = [
 # the lifecycle sweep gets to it.
 [[r2_buckets]]
 binding = "EXAM_SAVES"
-bucket_name = "seanreardon-exam-saves"
+bucket_name = "seanreardon-realestate-exam-saves"
 
 # Non-secret config — visible in dashboard, can sit in version control.
 [vars]
