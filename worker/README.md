@@ -99,28 +99,43 @@ This gets baked into the static build at deploy time — the deploy workflow alr
 
 ### 5. Create the R2 bucket for practice-exam saves (SPR-0097)
 
-The `/api/exam-save` endpoint will return 500s until this exists. Four steps, all in the Cloudflare dashboard except the last.
+The `/api/exam-save` endpoint will return 500s until this exists. Five steps, all in the Cloudflare
+dashboard except the last.
 
-**5a. Create the bucket.** Dashboard → **R2** → *Create bucket*.
+> **Dashboard navigation moves.** Paths below were checked against the dashboard as of
+> 2026-10-17. If a path has drifted again, **Quick search (Ctrl+K)** in the sidebar jumps
+> straight to any of these pages by name and is more durable than a menu path.
 
-> **R2 wants a payment method on file before it will let you create a bucket**, even though
-> everything here sits inside the free tier (10 GB-month, 1M Class A ops, 10M Class B ops).
-> It is a verification step, not a charge. Sean already has a card on Cloudflare for the
-> Images Basic plan used by another project, so this is existing capacity rather than a new
-> financial commitment — but it is worth knowing the prompt is not a mistake.
+**5a. Add the R2 subscription.** Sidebar → **Storage & databases** → *R2 Object Storage*.
+
+The first visit shows a plan page rather than a bucket list, and there is no way past it to
+*Create bucket*. It reads as a paywall and is not one:
+
+- **Total Due Now: $0.00.** The free allowance is 10 GB-month of storage, 1M Class A operations
+  and 10M Class B operations per month — orders of magnitude above what saved exams use.
+- It bills to **the card already on the account** (the one the Images Basic plan another project
+  pays for), so this is existing capacity rather than a new financial commitment.
+- It charges only on overage. Step 5c covers setting a billing notification so overage arrives
+  as an email rather than an invoice.
+
+Click **Add R2 subscription to my account**, then carry on to the bucket.
+
+**5b. Create the bucket.** Same page, now showing the bucket list → *Create bucket*.
 
 - Name: **`seanreardon-exam-saves`** (must match `bucket_name` in `wrangler.toml`)
 - Location: Automatic
 - **Leave public access OFF.** This is load-bearing, not a default worth accepting idly: the resume code is the only credential a save has, so a publicly reachable bucket would be an enumerable list of exams in progress. Nothing but the Worker should ever read it.
 
-**5b. Add the 14-day lifecycle rule.** Bucket → **Settings** → *Object lifecycle rules* → *Add rule*.
+**5c. Add the 14-day lifecycle rule.** Bucket → **Settings** → *Object lifecycle rules* → *Add rule*.
 
 - Prefix: `saves/`
 - Action: **Delete objects** → *after 14 days from upload*
 
 This is what actually enforces the retention promised in the privacy policy. The endpoint independently refuses to open a save older than 14 days, because Cloudflare only commits to removing expired objects *within 24 hours* — without the check in code, "two weeks" would be "two weeks, give or take a day."
 
-**5c. Add a rate-limiting rule.** Dashboard → **Security** → *WAF* → *Rate limiting rules* → *Create rule*.
+**5d. Add a rate-limiting rule.** This one is **per-domain, not per-account** — it is not in the
+account sidebar. Go **Domains** → *seanreardon.com* → the domain's security section → *Rate
+limiting rules*, or press **Ctrl+K** and search `rate limiting`, which is the quicker route.
 
 **Check first whether the zone's one free rule is already in use.** On Cloudflare's Free plan a zone gets **exactly one** rate limiting rule, and its settings are fixed: counting period 10 s, mitigation timeout 10 s, counted per IP, and the rule expression can only use **Path** and **Verified Bot** — *Request Method is not available*. If that single rule is already protecting something else, skip this step and read the honest-limits note below instead of displacing it.
 
@@ -131,9 +146,9 @@ This is what actually enforces the retention promised in the privacy policy. The
 
 Because Request Method is unavailable on Free, this limits restores (GET) as well as saves (POST). That is fine — a visitor restores once and saves a handful of times in a sitting, so five requests per ten seconds is far above honest use.
 
-**Be clear-eyed about what this does and does not buy.** A 10-second window with a 10-second block is a speed bump, not a wall: it caps a single IP at roughly one request per second sustained, which is still millions of writes a month if someone is determined and patient. The things actually holding the line are in the Worker — the 16 KB body cap, and rebuilding every stored object from validated fields so the bucket cannot hold anything but a saved attempt. The realistic worst case is R2 operation cost rather than a data problem; Class A operations are $4.50/million past the free 1M, so even a sustained abusive month is tens of dollars, not hundreds. **Set a billing notification** (Dashboard → *Manage Account* → *Billing* → *Notifications*) so a surprise shows up as an email rather than an invoice. If this ever stops being theoretical, the proportionate fix is a Turnstile token on save — friction mid-exam, which is why it is not there now.
+**Be clear-eyed about what this does and does not buy.** A 10-second window with a 10-second block is a speed bump, not a wall: it caps a single IP at roughly one request per second sustained, which is still millions of writes a month if someone is determined and patient. The things actually holding the line are in the Worker — the 16 KB body cap, and rebuilding every stored object from validated fields so the bucket cannot hold anything but a saved attempt. The realistic worst case is R2 operation cost rather than a data problem; Class A operations are $4.50/million past the free 1M, so even a sustained abusive month is tens of dollars, not hundreds. **Set a billing notification** (sidebar → *Manage account* → *Billing* → *Notifications*) so a surprise shows up as an email rather than an invoice. If this ever stops being theoretical, the proportionate fix is a Turnstile token on save — friction mid-exam, which is why it is not there now.
 
-**5d. Deploy.** From the repo root:
+**5e. Deploy.** From the repo root:
 
 ```bash
 npm run worker:deploy
