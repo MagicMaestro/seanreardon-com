@@ -5,7 +5,9 @@ name: Deploy AI search API
 # modal). SPR-0090 (cPanel decommission, Buffalo P6) re-homed it off cPanel.
 #
 # DEPLOY TARGET (SPR-0090): rsync the app to /srv/seanreardon.com/portfolio-search/
-# as the non-cPanel `deploy` user, then restart a long-running service. This
+# as a non-cPanel user, then restart a long-running service. SPR-0090 used the
+# `deploy` user; SPR-0098 moved deploys to the non-docker `sites` user (Buffalo
+# BD_WSA-0147), since `deploy` is in the docker group. This
 # replaces the prior cPanel Application Manager / Phusion Passenger topology
 # (app at /home/sreardon/apps/portfolio-search/, restart via touch tmp/restart.txt),
 # which went away when Buffalo decommissioned cPanel and cut Apache over to Caddy.
@@ -46,8 +48,9 @@ name: Deploy AI search API
 #     one-time pre-warm run
 #   - logs/, public/ directories exist (tmp/ no longer needed — that held the
 #     Passenger restart sentinel)
-#   - `deploy` can restart the service (sudoers rule or a user-level unit) —
-#     exact command confirmed by Buffalo in the brief 014 hand-back
+#   - `sites` can restart the service (sudoers rule) — exact command confirmed
+#     by Buffalo in the brief 014 hand-back, carried over to `sites` in
+#     BD_WSA-0147
 #
 # Glibc compatibility (per optimizer brief 012 Task 2 hand-back, 2026-05-23;
 # still current — only cPanel was removed, not the OS):
@@ -153,7 +156,7 @@ jobs:
         # traverse Cloudflare's proxy on the apex.
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          echo "${{ secrets.SITES_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -p 7822 -H ssh.seanreardon.com >> ~/.ssh/known_hosts 2>/dev/null
 
@@ -164,7 +167,8 @@ jobs:
         # side `npm ci --omit=dev` step entirely.
         #
         # SPR-0090: target moved to /srv/seanreardon.com/portfolio-search/
-        # (deploy user) from the retired cPanel app slot.
+        # from the retired cPanel app slot. SPR-0098: the dir is owned by, and
+        # deployed as, the `sites` user.
         #
         # Notably absent from the manifest (server-managed, never touched by the deploy):
         #   - .env / systemd Environment= (env vars: SEARCH_INDEX_PATH,
@@ -184,7 +188,7 @@ jobs:
             --exclude='.DS_Store' \
             --exclude='Thumbs.db' \
             -e "ssh -i ~/.ssh/deploy_key -p 7822" \
-            ./ deploy@ssh.seanreardon.com:/srv/seanreardon.com/portfolio-search/
+            ./ sites@ssh.seanreardon.com:/srv/seanreardon.com/portfolio-search/
 
       - name: Restart the portfolio-search service
         # SPR-0090: replaces Passenger's `touch tmp/restart.txt` sentinel. The
@@ -192,15 +196,18 @@ jobs:
         # the freshly-rsynced code + index.
         #
         # Confirmed in brief 014 hand-back: a scoped /etc/sudoers.d/portfolio-search
-        # lets `deploy` run only start/stop/restart/status on this one unit
-        # (NOPASSWD, for non-interactive CI), so `sudo systemctl restart
-        # portfolio-search` is the correct command.
+        # lets the deploy user (`sites` since SPR-0098 / BD_WSA-0147) run only
+        # start/stop/restart/status on this one unit (NOPASSWD, for
+        # non-interactive CI), so `sudo systemctl restart portfolio-search` is
+        # the correct command. sudoers matches arguments exactly: keep the
+        # command below exactly as written. Any added flag (e.g. --no-pager)
+        # is refused.
         #
         # `sudo -n` (non-interactive) makes this fail fast with a clear error if
         # the sudoers rule is ever missing/changed, instead of hanging on a
         # password prompt in this TTY-less SSH session.
         run: |
-          ssh -i ~/.ssh/deploy_key -p 7822 deploy@ssh.seanreardon.com \
+          ssh -i ~/.ssh/deploy_key -p 7822 sites@ssh.seanreardon.com \
             "sudo -n systemctl restart portfolio-search"
 
       - name: Verify deploy

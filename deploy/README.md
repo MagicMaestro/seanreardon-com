@@ -19,7 +19,7 @@ Deploy artifacts and Apache configuration consumed by the GitHub Actions workflo
 
 Configure under repo Settings → Secrets and variables → Actions:
 
-- `DEPLOY_SSH_KEY` — the **private** key whose public counterpart is authorized for the `sreardon` cPanel user. The `sreardon_redesign_deploy` ed25519 key generated 2026-05-02 is the canonical one (`C:\Users\seanr\.ssh\sreardon_redesign_deploy` on the dev machine — paste its contents into the secret). Used by deploy-staging, deploy-api, AND deploy-production.
+- `SITES_SSH_KEY` — the **private** key whose public counterpart is authorized for the non-docker `sites` user on the server, which owns `/srv/seanreardon.com/{www,staging,portfolio-search}`. Created and set by Buffalo (BD_WSA-0147, 2026-11-04). Used by deploy-staging, deploy-api, AND deploy-production. (Replaces `DEPLOY_SSH_KEY`, which authenticated as `sreardon` and later `deploy`; SPR-0098.)
 - `CF_API_TOKEN` — **Production deploy only.** Cloudflare API token scoped to **Zone:Cache Purge** permission on the `seanreardon.com` zone (least privilege — purge-only, no DNS / firewall / read access). Generate at https://dash.cloudflare.com/profile/api-tokens via "Create Custom Token" → permission row `Zone | Cache Purge | Purge` → zone resources `Include | Specific zone | seanreardon.com`. Token shown ONCE on creation — paste into this secret immediately, then recreate if lost.
 - `CF_ZONE_ID` — **Production deploy only.** The 32-character hex Zone ID for `seanreardon.com`. Found on the zone's Cloudflare overview page, right sidebar under the "API" heading.
 
@@ -42,8 +42,8 @@ Production cutover prerequisites land in a follow-up brief when ready.
 
 ## Failure modes
 
-- **Workflow fails at `Configure SSH` step** → `DEPLOY_SSH_KEY` secret missing or wrong format. Paste the private key INCLUDING the `-----BEGIN OPENSSH PRIVATE KEY-----` and `-----END OPENSSH PRIVATE KEY-----` lines.
-- **Workflow fails at `Rsync to staging` (or `Rsync to production`)** → SSH auth issue. The `sreardon` cPanel user's `~/.ssh/authorized_keys` may have lost the deploy key (cPanel sometimes rewrites this). Re-authorize via the cPanel UI or via root SSH. See `optimizer-handoffs/004-sreardon-ssh-key-auth-fix.md` and `005-...followup.md` for the original fix; same diagnostic path applies.
+- **Workflow fails at `Configure SSH` step** → `SITES_SSH_KEY` secret missing or wrong format. Paste the private key INCLUDING the `-----BEGIN OPENSSH PRIVATE KEY-----` and `-----END OPENSSH PRIVATE KEY-----` lines.
+- **Workflow fails at `Rsync to staging` (or `Rsync to production`)** → SSH auth or ownership issue. Check that the `sites` user's `~/.ssh/authorized_keys` still holds the `SITES_SSH_KEY` public key and that `sites` owns the target dir under `/srv/seanreardon.com/`. Both are server-side: ask the Buffalo Dimensions Optimizer Agent. (The cPanel-era fix in `optimizer-handoffs/004`/`005` no longer applies.)
 - **Workflow succeeds but `https://staging.seanreardon.com/` returns 404 or shows the main site** → cPanel subdomain not created (see prerequisite #2 above).
 - **`version.txt` not reachable** → either the cPanel subdomain isn't routed, or the deploy hasn't yet synced. The workflow's `Verify deploy` step prints the version.txt if reachable; failure here is informational, not fatal on staging; fatal on production (the smoke test verifies the commit SHA in version.txt matches the deployed commit).
 - **Production deploy fails at `Purge Cloudflare cache`** → `CF_API_TOKEN` or `CF_ZONE_ID` secret missing/wrong, OR the token's permissions don't include `Zone:Cache Purge` on `seanreardon.com`. Inspect the CF response printed in the workflow log; CF returns explicit `errors[]` in its JSON.

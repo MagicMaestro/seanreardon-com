@@ -122,25 +122,27 @@ jobs:
         # ssh-keyscan against the proxied hostname times out. Both hostnames resolve
         # to the same physical server; the SSH-only record bypasses the proxy.
         #
-        # SPR-0090: authenticate as the non-cPanel `deploy` user (owns /srv); the
-        # DEPLOY_SSH_KEY secret is unchanged (public half copied into `deploy`'s
-        # authorized_keys server-side).
+        # SPR-0090: moved off the cPanel user to the non-cPanel `deploy` user.
+        # SPR-0098 (Buffalo BD_WSA-0147): authenticate as the non-docker `sites`
+        # user, which owns /srv/seanreardon.com/staging, using the SITES_SSH_KEY
+        # secret. `deploy` is in the docker group and can no longer write here.
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          echo "${{ secrets.SITES_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -p 7822 -H ssh.seanreardon.com >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Rsync to staging
-        # SPR-0090: target is now /srv/seanreardon.com/staging/ (deploy user)
-        # instead of /home/sreardon/staging/ (retired cPanel user).
+        # SPR-0090: target is now /srv/seanreardon.com/staging/ instead of
+        # /home/sreardon/staging/ (retired cPanel user). SPR-0098: deployed as
+        # the `sites` user.
         run: |
           rsync -avz --delete \
             --exclude='desktop.ini' \
             --exclude='.DS_Store' \
             --exclude='Thumbs.db' \
             -e "ssh -i ~/.ssh/deploy_key -p 7822" \
-            dist/ deploy@ssh.seanreardon.com:/srv/seanreardon.com/staging/
+            dist/ sites@ssh.seanreardon.com:/srv/seanreardon.com/staging/
 
       - name: Verify deploy
         run: |
