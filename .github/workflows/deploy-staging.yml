@@ -54,12 +54,34 @@ jobs:
         # Banner appears only on staging deploys with a non-main ref.
         # Production deploys (deploy-production.yml) never set the var, so
         # production never shows the banner.
+        #
+        # SPR-0099: the PR title and dispatch ref are untrusted input. They
+        # arrive via step env (never `${{ }}` inside the script, which pastes
+        # them into bash source, so backticks and `$()` in a title ran as
+        # commands). Newlines are collapsed to spaces (the banner is one line),
+        # and the value is written with the GITHUB_ENV heredoc syntax and a
+        # random delimiter so no title can inject a second env var.
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          DISPATCH_REF: ${{ github.event.inputs.ref }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            PR_TITLE=$(echo "${{ github.event.pull_request.title }}" | sed 's/"/\\"/g')
-            echo "PUBLIC_PREVIEW_LABEL=PR #${{ github.event.pull_request.number }}: $PR_TITLE" >> $GITHUB_ENV
-          elif [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.ref }}" != "main" ]; then
-            echo "PUBLIC_PREVIEW_LABEL=Branch: ${{ github.event.inputs.ref }}" >> $GITHUB_ENV
+          label=""
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            label="PR #${PR_NUMBER}: ${PR_TITLE}"
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$DISPATCH_REF" != "main" ]; then
+            label="Branch: ${DISPATCH_REF}"
+          fi
+          if [ -n "$label" ]; then
+            label=$(printf '%s' "$label" | tr '\r\n' '  ')
+            delim="PREVIEW_LABEL_$(openssl rand -hex 16)"
+            {
+              printf 'PUBLIC_PREVIEW_LABEL<<%s\n' "$delim"
+              printf '%s\n' "$label"
+              printf '%s\n' "$delim"
+            } >> "$GITHUB_ENV"
+            printf 'Preview label: %s\n' "$label"
           fi
 
       - name: Set up Node
@@ -86,14 +108,21 @@ jobs:
         run: npm run build
 
       - name: Stamp build with commit + timestamp
+        # SPR-0099: values come in via env and are written with printf, so
+        # nothing in the label or branch name is expanded by the shell.
+        # (PUBLIC_PREVIEW_LABEL is already in the env from the label step.)
+        env:
+          BUILD_REF: ${{ github.event.pull_request.head.ref || github.event.inputs.ref || github.ref_name }}
+          ACTOR: ${{ github.actor }}
         run: |
-          cat > dist/version.txt <<EOF
-          commit: ${{ github.sha }}
-          ref: ${{ github.event.pull_request.head.ref || github.event.inputs.ref || github.ref_name }}
-          preview_label: ${{ env.PUBLIC_PREVIEW_LABEL }}
-          built_at: $(date -u +%Y-%m-%dT%H:%M:%SZ)
-          actor: ${{ github.actor }}
-          EOF
+          {
+            printf 'commit: %s\n' "$GITHUB_SHA"
+            printf 'ref: %s\n' "$BUILD_REF"
+            printf 'preview_label: %s\n' "${PUBLIC_PREVIEW_LABEL:-}"
+            printf 'built_at: %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            printf 'actor: %s\n' "$ACTOR"
+          } > dist/version.txt
+          cat dist/version.txt
 
       # SPR-0090 (cPanel decommission, Buffalo P6): the "Stage the staging
       # .htaccess" step was dropped. Apache is gone; Caddy serves staging and
