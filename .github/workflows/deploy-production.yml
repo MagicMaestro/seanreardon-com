@@ -80,20 +80,25 @@ jobs:
         # so SSH on port 7822 needs the unproxied hostname. Same pattern as
         # deploy-staging.yml.
         #
-        # SPR-0090 (cPanel decommission, Buffalo P6): deploys now authenticate
-        # as the non-cPanel `deploy` user (owns /srv) instead of the retired
-        # `sreardon` cPanel user. The DEPLOY_SSH_KEY secret is UNCHANGED — its
-        # public half was copied into `deploy`'s authorized_keys server-side,
-        # so only the user + path moved.
+        # SPR-0090 (cPanel decommission, Buffalo P6): deploys moved off the
+        # retired `sreardon` cPanel user to the non-cPanel `deploy` user, with
+        # the DEPLOY_SSH_KEY secret unchanged.
+        #
+        # SPR-0098 (Buffalo BD_WSA-0147): deploys now authenticate as the
+        # non-docker `sites` user, which owns /srv/seanreardon.com/{www,staging,
+        # portfolio-search}, with its own key in the SITES_SSH_KEY secret.
+        # `deploy` is in the docker group (root-equivalent on a shared box)
+        # and can no longer write these dirs.
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          echo "${{ secrets.SITES_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -p 7822 -H ssh.seanreardon.com >> ~/.ssh/known_hosts 2>/dev/null
 
       # SPR-0090: the former "Pre-deploy backup of public_html" step was dropped.
-      # It snapshotted ~/public_html/ before each rsync, but `deploy` now owns
-      # /srv/seanreardon.com/www and Buffalo's nightly restic already snapshots
+      # It snapshotted ~/public_html/ before each rsync, but the deploy user
+      # (`sites` since SPR-0098) owns /srv/seanreardon.com/www and Buffalo's
+      # nightly restic already snapshots
       # all of /srv. Recovery flows that don't depend on an in-deploy backup:
       #   - re-run this workflow against a previous git tag (production deploys
       #     are tag-anchored; workflow_dispatch can target any tag), or
@@ -102,8 +107,8 @@ jobs:
 
       - name: Rsync to production
         # --delete wipes everything in /srv/seanreardon.com/www/ that's not in
-        # the new dist/. `deploy` owns that directory outright (SPR-0090), so a
-        # full mirror is safe. The Astro static export is the entire content of
+        # the new dist/. `sites` owns that directory outright (SPR-0098; it was
+        # `deploy` from SPR-0090), so a full mirror is safe. The Astro static export is the entire content of
         # the web root. (The legacy PHP site + /disney/ subdir were already
         # removed at the cPanel→Caddy cutover; /disney/ is preserved in the
         # planning project's archive/disney-2026-05-02/ tarball.)
@@ -113,7 +118,7 @@ jobs:
             --exclude='.DS_Store' \
             --exclude='Thumbs.db' \
             -e "ssh -i ~/.ssh/deploy_key -p 7822" \
-            dist/ deploy@ssh.seanreardon.com:/srv/seanreardon.com/www/
+            dist/ sites@ssh.seanreardon.com:/srv/seanreardon.com/www/
 
       - name: Purge Cloudflare cache
         # Purges the entire seanreardon.com zone so visitors don't get
